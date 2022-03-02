@@ -5,12 +5,9 @@ import Link from 'next/link'
 import { isMobileOnly as isMobile } from 'react-device-detect'
 
 import { Z_INDEX } from 'theme'
-import { useDarkModeManager } from 'state/user/hooks'
 
 import Web3Network from 'components/Web3Network'
 import Web3Status from 'components/Web3Status'
-import { ThemeToggle } from 'components/Icons'
-import { NavButton } from 'components/Button'
 import Menu from './Menu'
 import NavLogo from './NavLogo'
 
@@ -18,8 +15,7 @@ const Wrapper = styled.div`
   padding: 0px 2rem;
   height: 55px;
   align-items: center;
-  background: ${({ theme }) => theme.bg2};
-  border-bottom: ${({ theme }) => theme.border2};
+  background: ${({ theme }) => theme.bg1};
   gap: 5px;
   z-index: ${Z_INDEX.fixed};
 
@@ -84,8 +80,7 @@ const NavLink = styled.div<{
   font-size: 1rem;
   padding: 0.25rem 1rem;
   text-align: center;
-  color: ${({ theme }) => theme.text2};
-  font-weight: 500;
+  color: ${({ theme }) => theme.text1};
 
   ${({ active, theme }) =>
     active &&
@@ -104,7 +99,6 @@ const NavLink = styled.div<{
 
 export default function NavBar() {
   const router = useRouter()
-  const [, toggleDarkMode] = useDarkModeManager()
 
   function getMobileContent() {
     return (
@@ -132,9 +126,6 @@ export default function NavBar() {
           </Link>
         </Routes>
         <Items>
-          <NavButton onClick={() => toggleDarkMode()}>
-            <ThemeToggle size={20} />
-          </NavButton>
           <Web3Network />
           <Web3Status />
           <Menu />

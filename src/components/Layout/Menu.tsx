@@ -104,10 +104,10 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          <Row onClick={() => toggleDarkMode()}>
+          {/* <Row onClick={() => toggleDarkMode()}>
             <div>{darkMode ? 'Light Theme' : 'Dark Theme'}</div>
             <ThemeToggle />
-          </Row>
+          </Row> */}
           <ExternalLink href="https://twitter.com/deusdao">
             <Row onClick={() => toggle()}>
               <div>Twitter</div>

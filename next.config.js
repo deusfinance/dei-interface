@@ -10,13 +10,16 @@ module.exports = {
       '/borrow': {
         page: '/borrow',
       },
+      '/borrow/:contract': {
+        page: '/borrow/[contract].tsx',
+      },
     }
   },
   async redirects() {
     return [
       {
         source: '/',
-        destination: '/convert',
+        destination: '/borrow',
         permanent: true,
       },
     ]

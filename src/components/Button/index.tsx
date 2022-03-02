@@ -8,10 +8,10 @@ export const BaseButton = styled.div<{
   width: 100%;
   font-weight: 500;
   text-align: center;
-  border-radius: 20px;
+  border-radius: 2px;
   outline: none;
   border: 1px solid transparent;
-  color: ${({ theme }) => theme.text1};
+  color: black;
   text-decoration: none;
   display: flex;
   justify-content: center;

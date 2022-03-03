@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   align-items: center;
   font-size: 13px;
   color: ${({ theme }) => theme.text2};
-  gap: 5px;
+  gap: 20px;
   margin-top: 24px;
 `
 

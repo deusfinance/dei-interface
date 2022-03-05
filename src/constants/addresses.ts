@@ -5,11 +5,13 @@ interface AddressMap {
 }
 
 export const Multicall2: AddressMap = {
-  [SupportedChainId.RINKEBY]: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   [SupportedChainId.FANTOM]: '0x22D4cF72C45F8198CfbF4B568dBdB5A85e8DC0B5',
 }
 
-export const Collateral: AddressMap = {
-  [SupportedChainId.RINKEBY]: '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
+export const DeiAddress: AddressMap = {
   [SupportedChainId.FANTOM]: '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
+}
+
+export const MasterContract: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xF5BCE5077908a1b7370B9ae04AdC565EBd643966',
 }

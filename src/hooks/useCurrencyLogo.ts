@@ -1,17 +1,23 @@
 import { useMemo } from 'react'
 
-// TODO make this more intelligent using Uniswap's TokenList
-export default function useCurrencyLogo(id: string | undefined, symbol: string | undefined): StaticImageData {
+import NotFound from '/public/static/images/fallback/not_found.png'
+
+// make sure these values are checksummed
+const LogoMap: { [contractOrSymbol: string]: string } = {
+  FTM: 'https://assets.spookyswap.finance/tokens/FTM.png',
+  '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83': 'https://assets.spookyswap.finance/tokens/wFTM.png', // wFTM
+  '0x82f0B8B456c1A451378467398982d4834b6829c1': 'https://assets.spookyswap.finance/tokens/MIM.png', // MIM
+}
+
+export default function useCurrencyLogo(contract?: string): string {
   return useMemo(() => {
     try {
-      if (symbol === 'DEI') {
-        return require('/public/static/images/tokens/dei.svg')
+      if (contract && contract in LogoMap) {
+        return LogoMap[contract]
       }
-      return id
-        ? require(`/public/static/images/tickers/${id.toUpperCase()}.png`)
-        : require('/public/static/images/fallback/not_found.png')
+      return NotFound.src
     } catch (err) {
-      return require('/public/static/images/fallback/not_found.png')
+      return NotFound.src
     }
-  }, [id, symbol])
+  }, [contract])
 }

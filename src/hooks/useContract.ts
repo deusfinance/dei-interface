@@ -9,8 +9,9 @@ import useWeb3React from './useWeb3'
 import ERC20_ABI from 'constants/abi/ERC20.json'
 import ERC20_BYTES32_ABI from 'constants/abi/ERC20'
 import MULTICALL2_ABI from 'constants/abi/MULTICALL2.json'
+import MASTERCONTRACT_ABI from 'constants/abi/MASTERCONTRACT.json'
 import { Providers } from 'constants/providers'
-import { Multicall2 } from 'constants/addresses'
+import { MasterContract, Multicall2 } from 'constants/addresses'
 
 export function useContract<T extends Contract = Contract>(
   addressOrAddressMap: string | null | undefined,
@@ -40,6 +41,12 @@ export function useERC20Contract(tokenAddress: string | null | undefined, withSi
 
 export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
   return useContract(tokenAddress, ERC20_BYTES32_ABI, withSignerIfPossible)
+}
+
+export function useMasterContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? MasterContract[chainId] : undefined), [chainId])
+  return useContract(address, MASTERCONTRACT_ABI)
 }
 
 export function useMulticall2Contract() {

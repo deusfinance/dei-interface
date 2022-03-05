@@ -1,10 +1,14 @@
 import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { BorrowComponent } from 'hooks/useBorrowList'
+import { BorrowPool } from 'state/borrow/reducer'
+import useCurrencyLogo from 'hooks/useCurrencyLogo'
+import { useGlobalPoolData } from 'hooks/usePoolData'
+
 import Pagination from 'components/Pagination'
-import { formatAmount } from 'utils/numbers'
 import { PrimaryButton } from 'components/Button'
+import ImageWithFallback from 'components/ImageWithFallback'
+import { formatAmount } from 'utils/numbers'
 
 const Wrapper = styled.div`
   display: flex;
@@ -46,12 +50,28 @@ const Cel = styled.td<{
   height: 90px;
 `
 
+const Component = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+
+  & > * {
+    &:first-child {
+      transform: translateX(10%);
+    }
+    &:nth-child(2) {
+      transform: translateX(-10%);
+    }
+  }
+`
+
 const itemsPerPage = 10
 export default function Table({
   options,
   onMintClick,
 }: {
-  options: BorrowComponent[]
+  options: BorrowPool[]
   onMintClick: (contract: string) => void
 }) {
   const [offset, setOffset] = useState(0)
@@ -73,8 +93,7 @@ export default function Table({
       <TableWrapper>
         <Head>
           <tr>
-            <Cel>Component</Cel>
-            <Cel>Type</Cel>
+            <Cel>Composition</Cel>
             <Cel>Total DEI Borrowed</Cel>
             <Cel>DEI left to borrow</Cel>
             <Cel>Interest</Cel>
@@ -84,8 +103,8 @@ export default function Table({
         </Head>
         <tbody>
           {paginatedOptions.length ? (
-            paginatedOptions.map((item: BorrowComponent, index) => (
-              <TableRow key={index} item={item} onMintClick={onMintClick} />
+            paginatedOptions.map((pool: BorrowPool, index) => (
+              <TableRow key={index} pool={pool} onMintClick={onMintClick} />
             ))
           ) : (
             <tr>
@@ -101,17 +120,27 @@ export default function Table({
   )
 }
 
-function TableRow({ item, onMintClick }: { item: BorrowComponent; onMintClick: (contract: string) => void }) {
+function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contract: string) => void }) {
+  const logoOne = useCurrencyLogo(pool.collateral.address)
+  const logoTwo = useCurrencyLogo(pool.pair.address)
+
+  const { borrowedBase, maxBorrow } = useGlobalPoolData(pool)
+
   return (
     <Row>
-      <Cel>{item.component}</Cel>
-      <Cel>{item.type}</Cel>
-      <Cel>{formatAmount(Number(item.totalBorrowed))}</Cel>
-      <Cel>{formatAmount(Number(item.remaining))}</Cel>
-      <Cel>{item.interest.toSignificant()}%</Cel>
-      <Cel>{item.liquidationFee.toSignificant()}%</Cel>
+      <Cel>
+        <Component>
+          <ImageWithFallback src={logoOne} alt={`${pool.collateral.symbol} logo`} width={20} height={20} />
+          <ImageWithFallback src={logoTwo} alt={`${pool.pair.symbol} logo`} width={20} height={20} />
+          {pool.composition}
+        </Component>
+      </Cel>
+      <Cel>{formatAmount(borrowedBase)}</Cel>
+      <Cel>{formatAmount(maxBorrow)}</Cel>
+      <Cel>{pool.interestRate.toSignificant()}%</Cel>
+      <Cel>{pool.liquidationFee.toSignificant()}%</Cel>
       <Cel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => onMintClick(item.contract)}>mint</PrimaryButton>
+        <PrimaryButton onClick={() => onMintClick(pool.contract)}>Borrow</PrimaryButton>
       </Cel>
     </Row>
   )

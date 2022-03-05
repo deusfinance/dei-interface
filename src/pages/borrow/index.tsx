@@ -1,12 +1,12 @@
 import React, { useCallback } from 'react'
+import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
-import { BorrowItem } from 'hooks/useBorrowList'
+import { BorrowPool } from 'state/borrow/reducer'
 
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import { useSearch, SearchField, Sort, Table } from 'components/App/Borrow'
-import { useRouter } from 'next/router'
+import { useSearch, SearchField, Table } from 'components/App/Borrow'
 
 const Container = styled.div`
   display: flex;
@@ -48,9 +48,8 @@ export default function Borrow() {
       <Wrapper>
         <div>
           <SearchField searchProps={searchProps} />
-          <Sort />
         </div>
-        <Table options={snapshot.options as unknown as BorrowItem[]} onMintClick={onMintClick} />
+        <Table options={snapshot.options as unknown as BorrowPool[]} onMintClick={onMintClick} />
       </Wrapper>
       <Disclaimer />
     </Container>

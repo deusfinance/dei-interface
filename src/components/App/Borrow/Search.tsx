@@ -3,9 +3,14 @@ import Fuse from 'fuse.js'
 import styled from 'styled-components'
 import { useSelect, SelectSearchOption } from 'react-select-search'
 
+import { useBorrowPools } from 'state/borrow/hooks'
 import { Search as SearchIcon } from 'components/Icons'
 import Box from './Box'
-import useBorrowList from 'hooks/useBorrowList'
+
+const Wrapper = styled(Box)`
+  width: 240px;
+  padding: 0 20px;
+`
 
 const Input = styled.input<{
   [x: string]: any
@@ -27,7 +32,7 @@ const Input = styled.input<{
 
 function fuzzySearch(options: SelectSearchOption[]): any {
   const config = {
-    keys: ['contract', 'component', 'type'],
+    keys: ['contract', 'composition.name'],
     isCaseSensitive: false,
     threshold: 0.2,
   }
@@ -44,9 +49,9 @@ function fuzzySearch(options: SelectSearchOption[]): any {
 }
 
 export function useSearch() {
-  const borrowList = useBorrowList()
+  const borrowList = useBorrowPools()
   const list: SelectSearchOption[] = useMemo(() => {
-    return borrowList.map((o) => ({ ...o, name: o.component, value: o.contract }))
+    return borrowList.map((o) => ({ ...o, name: o.composition, value: o.contract }))
   }, [borrowList])
 
   const [snapshot, searchProps, optionProps] = useSelect({
@@ -67,7 +72,7 @@ export function useSearch() {
 
 export function SearchField({ searchProps }: { searchProps: any }) {
   return (
-    <Box>
+    <Wrapper>
       <Input
         {...searchProps}
         title="Search"
@@ -78,6 +83,6 @@ export function SearchField({ searchProps }: { searchProps: any }) {
         onBlur={() => null}
       />
       <SearchIcon />
-    </Box>
+    </Wrapper>
   )
 }

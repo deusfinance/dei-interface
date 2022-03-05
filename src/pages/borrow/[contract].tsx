@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 
-import { useBorrowComponentFromURL } from 'hooks/useBorrowList'
+import { BorrowAction } from 'state/borrow/reducer'
+import { useBorrowPoolFromURL, useCurrenciesFromPool } from 'state/borrow/hooks'
 
-import { Borrow, Repay } from 'components/App/Borrow'
+import { Borrow, Balances, Info, Position } from 'components/App/Borrow'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { PrimaryButton } from 'components/Button'
@@ -18,11 +19,12 @@ const Container = styled.div`
 const Wrapper = styled(Container)`
   margin: 0 auto;
   margin-top: 50px;
-  width: clamp(250px, 90%, 900px);
+  width: clamp(250px, 90%, 750px);
+  gap: 10px;
 
   & > * {
     &:first-child {
-      margin-bottom: 45px;
+      margin-bottom: 30px;
       display: flex;
       flex-flow: row wrap;
       width: 100%;
@@ -42,41 +44,49 @@ const BorrowButton = styled(PrimaryButton)<{
   active: boolean
 }>`
   width: 180px;
-  ${({ active }) =>
+  ${({ theme, active }) =>
     !active &&
     `
-      background: #2F2F2F;
-      border: 1px solid #565656;
+      background: ${theme.bg2};
+      border: 1px solid ${theme.border1};
 
       &:focus,
       &:hover {
-        background: #474747;
+        background: inherit;
       }
   `}
 `
 
-enum BorrowAction {
-  BORROW = 'borrow',
-  REPAY = 'repay',
-}
+const CardWrapper = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  gap: 10px;
+  & > * {
+    flex: 1;
+    &:first-child {
+      min-width: 450px;
+    }
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-flow: column nowrap;
+  `}
+`
 
 export default function BorrowDEI() {
-  const component = useBorrowComponentFromURL()
+  const pool = useBorrowPoolFromURL()
+  const { collateralCurrency, pairCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const [selectedAction, setSelectedAction] = useState<BorrowAction>(BorrowAction.BORROW)
-
-  function getMainContent() {
-    if (selectedAction === BorrowAction.BORROW) {
-      return <Borrow component={component} />
-    }
-    return <Repay component={component} />
-  }
 
   return (
     <Container>
-      <Hero>Borrow DEI</Hero>
+      <Hero>Borrow {pool ? pool.pair.symbol : 'DEI'}</Hero>
       <Wrapper>
-        {!component ? (
-          <div>The imported contract is not a valid contract.</div>
+        {!pool ? (
+          <div>The imported contract is not a valid pool.</div>
+        ) : !collateralCurrency || !pairCurrency ? (
+          <div>Experiencing issues with the Fantom RPC. Unable to load pools.</div>
         ) : (
           <>
             <Navigation>
@@ -93,7 +103,14 @@ export default function BorrowDEI() {
                 {BorrowAction.REPAY}
               </BorrowButton>
             </Navigation>
-            {getMainContent()}
+            <CardWrapper>
+              <Borrow pool={pool} action={selectedAction} />
+              <Position pool={pool} />
+            </CardWrapper>
+            <CardWrapper>
+              <Balances pool={pool} />
+              <Info pool={pool} />
+            </CardWrapper>
           </>
         )}
       </Wrapper>

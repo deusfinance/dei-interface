@@ -13,7 +13,7 @@ const Wrapper = styled.div`
   font-size: 13px;
   color: ${({ theme }) => theme.text2};
   gap: 20px;
-  margin-top: 24px;
+  margin-top: 45px;
 `
 
 export default function Disclaimer() {

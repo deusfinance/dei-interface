@@ -128,7 +128,7 @@ function colors(themeName: SupportedThemes): Colors {
       // backgrounds / greys
       bg0: 'rgba(20, 20, 20, 1)',
       bg1: 'rgba(20, 20, 20, 0.9)',
-      bg2: '#0F1217',
+      bg2: '#2F2F2F',
       bg3: '#262B35',
 
       // borders

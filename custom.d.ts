@@ -3,8 +3,6 @@ declare global {
     interface Process {
       NODE_ENV: 'development' | 'production'
       NEXT_PUBLIC_INFURA_KEY: string
-      NEXT_PUBLIC_PORTIS_ID?: string
-      NEXT_PUBLIC_FORTMATIC_KEY?: string
     }
   }
 

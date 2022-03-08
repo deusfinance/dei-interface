@@ -19,7 +19,7 @@ const Wrapper = styled.div`
     display: flex;
     align-items: center;
     &:first-child {
-      margin-right: 13px;
+      margin-right: 10px;
     }
   }
 `
@@ -31,14 +31,14 @@ export default function NavLogo() {
     <Link href="/vote" passHref>
       <Wrapper>
         <div>
-          <Image src={'/static/images/DeusLogo.svg'} alt="App Logo" width={30} height={30} />
+          <Image src={'/static/images/DeiLogo.svg'} alt="App Logo" width={30} height={30} />
         </div>
         {!isMobile && (
           <div>
             <Image
-              src={darkMode ? '/static/images/DeusWhiteText.svg' : '/static/images/DeusBlackText.svg'}
-              width={70}
-              height={50}
+              src={darkMode ? '/static/images/DeiText.svg' : '/static/images/DeiText.svg'}
+              width={55}
+              height={30}
               alt="App Logo"
             />
           </div>

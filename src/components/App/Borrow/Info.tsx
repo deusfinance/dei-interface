@@ -1,10 +1,7 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import { BorrowPool } from 'state/borrow/reducer'
-import { useCurrenciesFromPool } from 'state/borrow/hooks'
-import { useGlobalPoolData } from 'hooks/usePoolData'
-import { formatAmount, formatDollarAmount } from 'utils/numbers'
 
 import { Card } from 'components/Card'
 import { Info as InfoIcon } from 'components/Icons'

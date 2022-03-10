@@ -56,19 +56,10 @@ const Items = styled.div`
   justify-content: flex-end;
   gap: 5px;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
     & > * {
       &:first-child {
         display: none;
-      }
-    }
-  `}
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    & > * {
-      display: none;
-      &:last-child,
-      &:nth-last-child(2) {
-        display: flex;
       }
     }
   `}

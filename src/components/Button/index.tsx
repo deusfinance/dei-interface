@@ -70,16 +70,16 @@ export const PrimaryButton = styled(BaseButton)`
   &:hover {
     background: ${({ theme }) => theme.primary2};
   }
-  &:active {
-    box-shadow: 0 0 0 1pt ${({ theme }) => theme.primary2};
-    background: ${({ theme }) => theme.primary2};
-  }
-  &:disabled {
-    background: ${({ theme, disabled }) => (disabled ? theme.primary1 : theme.bg2)};
-    color: ${({ theme, disabled }) => (disabled ? theme.white : theme.text2)};
-    cursor: auto;
-    box-shadow: none;
-    border: 1px solid transparent;
-    outline: none;
-  }
+
+  ${({ theme, disabled }) =>
+    disabled &&
+    `
+      background: ${theme.bg2};
+      border: 1px solid ${theme.border1};
+
+      &:focus,
+      &:hover {
+        background: inherit;
+      }
+  `}
 `

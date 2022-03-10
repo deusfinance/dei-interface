@@ -8,10 +8,11 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { maxAmountSpend } from 'utils/currency'
 
 import ImageWithFallback from 'components/ImageWithFallback'
-import Box from './Box'
+import Box from 'components/Box'
+import { NumericalInput } from 'components/Input'
 
 const Wrapper = styled(Box)`
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: flex-start;
   height: 70px;
   gap: 10px;
@@ -57,75 +58,6 @@ const Balance = styled(Row)`
   }
 `
 
-const InputWrapper = styled.div`
-  display: flex;
-  flex: 1;
-  justify-content: flex-end;
-`
-
-const InputField = styled.input`
-  text-align: right;
-  padding: 0px 1.25rem;
-  height: 50px;
-  border: none;
-  background: transparent;
-  font-size: 1rem;
-  color: ${({ theme }) => theme.text2};
-
-  &:focus,
-  &:hover {
-    outline: none;
-  }
-`
-
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
-}
-
-const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
-const NumericalInput = ({
-  value,
-  onUserInput,
-  placeholder,
-  ...rest
-}: {
-  value: string | number
-  onUserInput: (input: string) => void
-  placeholder: string
-} & Omit<React.HTMLProps<HTMLInputElement>, 'ref' | 'onChange' | 'as'>) => {
-  const enforcer = (nextUserInput: string) => {
-    if (nextUserInput === '' || inputRegex.test(escapeRegExp(nextUserInput))) {
-      onUserInput(nextUserInput)
-    }
-  }
-
-  return (
-    <InputWrapper>
-      <InputField
-        {...rest}
-        value={value}
-        onChange={(event) => {
-          // replace commas with periods
-          enforcer(event.target.value.replace(/,/g, '.'))
-        }}
-        // universal input options
-        inputMode="decimal"
-        title="Amount"
-        autoComplete="off"
-        autoCorrect="off"
-        // text-specific options
-        type="text"
-        pattern="^[0-9]*[.,]?[0-9]*$"
-        placeholder={placeholder || '0.00'}
-        min={0}
-        minLength={1}
-        maxLength={79}
-        spellCheck="false"
-      />
-    </InputWrapper>
-  )
-}
-
 export default function InputBox({
   currency,
   value,
@@ -163,7 +95,13 @@ export default function InputBox({
             </Balance>
           )}
         </Column>
-        <NumericalInput value={value || ''} onUserInput={onChange} placeholder={'Enter an amount'} autoFocus />
+        <NumericalInput
+          value={value || ''}
+          onUserInput={onChange}
+          placeholder={'Enter an amount'}
+          autoFocus
+          style={{ textAlign: 'right' }}
+        />
       </Wrapper>
     </>
   )

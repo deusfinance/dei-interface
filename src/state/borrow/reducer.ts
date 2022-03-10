@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Percent, Token } from '@sushiswap/core-sdk'
-import { SupportedChainId } from 'constants/chains'
 
 export enum TypedField {
   A,

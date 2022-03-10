@@ -41,7 +41,7 @@ export function useUserPoolData(pool: BorrowPool): {
       userBorrowPart:
         calls.length && userBorrowPart.result ? Number(formatUnits(userBorrowPart.result[0], pool.pair.decimals)) : 0,
     }),
-    [userCollateralShare]
+    [userCollateralShare, calls, userBorrowPart, pool]
   )
 }
 
@@ -80,14 +80,14 @@ export function useGlobalPoolData(pool: BorrowPool): {
 
   return useMemo(
     () => ({
-      totalCollateralShare: totalCollateralShare.result
+      totalCollateralShare: totalCollateralShare?.result
         ? Number(formatUnits(totalCollateralShare.result[0], pool.collateral.decimals))
         : 0,
-      borrowedElastic: totalBorrow.result ? Number(formatUnits(totalBorrow.result[0], pool.collateral.decimals)) : 0,
-      borrowedBase: totalBorrow.result ? Number(formatUnits(totalBorrow.result[1], pool.collateral.decimals)) : 0,
-      maxBorrow: maxBorrow.result ? Number(formatUnits(maxBorrow.result[0], pool.pair.decimals)) : 0,
+      borrowedElastic: totalBorrow?.result ? Number(formatUnits(totalBorrow.result[0], pool.collateral.decimals)) : 0,
+      borrowedBase: totalBorrow?.result ? Number(formatUnits(totalBorrow.result[1], pool.collateral.decimals)) : 0,
+      maxBorrow: maxBorrow?.result ? Number(formatUnits(maxBorrow.result[0], pool.pair.decimals)) : 0,
     }),
-    [totalCollateralShare, totalBorrow]
+    [totalCollateralShare, totalBorrow, maxBorrow, pool]
   )
 }
 

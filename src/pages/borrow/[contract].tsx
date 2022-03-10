@@ -8,6 +8,7 @@ import { Borrow, Balances, Info, Position } from 'components/App/Borrow'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { PrimaryButton } from 'components/Button'
+import { useSupportedChainId } from 'hooks/useSupportedChainId'
 
 const Container = styled.div`
   display: flex;
@@ -40,21 +41,8 @@ const Navigation = styled.div`
   padding: 1px;
 `
 
-const BorrowButton = styled(PrimaryButton)<{
-  active: boolean
-}>`
+const BorrowButton = styled(PrimaryButton)`
   width: 180px;
-  ${({ theme, active }) =>
-    !active &&
-    `
-      background: ${theme.bg2};
-      border: 1px solid ${theme.border1};
-
-      &:focus,
-      &:hover {
-        background: inherit;
-      }
-  `}
 `
 
 const CardWrapper = styled.div`
@@ -78,6 +66,7 @@ export default function BorrowDEI() {
   const pool = useBorrowPoolFromURL()
   const { collateralCurrency, pairCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const [selectedAction, setSelectedAction] = useState<BorrowAction>(BorrowAction.BORROW)
+  const isSupportedChainId = useSupportedChainId()
 
   return (
     <Container>
@@ -85,19 +74,21 @@ export default function BorrowDEI() {
       <Wrapper>
         {!pool ? (
           <div>The imported contract is not a valid pool.</div>
+        ) : !isSupportedChainId ? (
+          <div>You are not connected with the Fantom Network.</div>
         ) : !collateralCurrency || !pairCurrency ? (
           <div>Experiencing issues with the Fantom RPC. Unable to load pools.</div>
         ) : (
           <>
             <Navigation>
               <BorrowButton
-                active={selectedAction === BorrowAction.BORROW}
+                disabled={selectedAction !== BorrowAction.BORROW}
                 onClick={() => setSelectedAction(BorrowAction.BORROW)}
               >
                 {BorrowAction.BORROW}
               </BorrowButton>
               <BorrowButton
-                active={selectedAction === BorrowAction.REPAY}
+                disabled={selectedAction !== BorrowAction.REPAY}
                 onClick={() => setSelectedAction(BorrowAction.REPAY)}
               >
                 {BorrowAction.REPAY}

@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
-import { useAllPoolTokens } from 'state/borrow/hooks'
 import { useNativeCurrencyBalances, useTokenBalances } from 'state/wallet/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'

@@ -2,13 +2,11 @@ import React, { useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 import Link from 'next/link'
+import { Z_INDEX } from 'theme'
 
 import useOnOutsideClick from 'hooks/useOnOutsideClick'
-import { Z_INDEX } from 'theme'
-import { useDarkModeManager } from 'state/user/hooks'
 
 import {
-  ThemeToggle,
   NavToggle,
   IconWrapper,
   Telegram as TelegramIcon,
@@ -17,7 +15,6 @@ import {
   Github as GithubIcon,
 } from 'components/Icons'
 import { Card } from 'components/Card'
-
 import { NavButton } from 'components/Button'
 import { ExternalLink } from 'components/Link'
 
@@ -64,7 +61,6 @@ const Row = styled.div<{
 export default function Menu() {
   const ref = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
-  const [darkMode, toggleDarkMode] = useDarkModeManager()
   const router = useRouter()
 
   const toggle = () => setIsOpen((prev) => !prev)

@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
 
 import { BorrowAction } from 'state/borrow/reducer'
 import { useBorrowPoolFromURL, useCurrenciesFromPool } from 'state/borrow/hooks'
+import { useSupportedChainId } from 'hooks/useSupportedChainId'
 
 import { Borrow, Balances, Info, Position } from 'components/App/Borrow'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { PrimaryButton } from 'components/Button'
-import { useSupportedChainId } from 'hooks/useSupportedChainId'
+import { ArrowBubble } from 'components/Icons'
+import { useRouter } from 'next/router'
 
 const Container = styled.div`
   display: flex;
@@ -22,20 +24,31 @@ const Wrapper = styled(Container)`
   margin-top: 50px;
   width: clamp(250px, 90%, 750px);
   gap: 10px;
+`
+
+const ReturnWrapper = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+
+  &:hover {
+    cursor: pointer;
+  }
 
   & > * {
     &:first-child {
-      margin-bottom: 30px;
-      display: flex;
-      flex-flow: row wrap;
-      width: 100%;
-      gap: 15px;
-
-      ${({ theme }) => theme.mediaWidth.upToSmall`
-        margin: 0;
-      `}
+      transform: rotate(90deg);
     }
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin-bottom: 5px;
+  `}
 `
 
 const Navigation = styled.div`
@@ -43,6 +56,15 @@ const Navigation = styled.div`
   flex-flow: row nowrap;
   align-items: center;
   padding: 1px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+  gap: 15px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin: 0;
+  `}
 `
 
 const BorrowButton = styled(PrimaryButton)`
@@ -67,15 +89,24 @@ const CardWrapper = styled.div`
 `
 
 export default function BorrowDEI() {
+  const router = useRouter()
   const pool = useBorrowPoolFromURL()
   const { collateralCurrency, borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const [selectedAction, setSelectedAction] = useState<BorrowAction>(BorrowAction.BORROW)
   const isSupportedChainId = useSupportedChainId()
 
+  const onReturnClick = useCallback(() => {
+    router.push('/borrow')
+  }, [router])
+
   return (
     <Container>
       <Hero>Borrow {borrowCurrency?.symbol}</Hero>
       <Wrapper>
+        <ReturnWrapper onClick={onReturnClick}>
+          <ArrowBubble size={20}>Back</ArrowBubble>
+          Pool Overview
+        </ReturnWrapper>
         {!pool ? (
           <div>The imported contract is not a valid pool.</div>
         ) : !isSupportedChainId ? (

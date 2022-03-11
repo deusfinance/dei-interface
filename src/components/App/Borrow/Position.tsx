@@ -94,7 +94,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
       console.error(err)
       setAwaitingClaimConfirmation(false)
     }
-  }, [pool, poolContract])
+  }, [poolContract])
 
   function getClaimButton() {
     if (awaitingClaimConfirmation) {

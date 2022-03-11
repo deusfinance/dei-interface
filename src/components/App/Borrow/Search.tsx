@@ -27,7 +27,7 @@ function fuzzySearch(options: SelectSearchOption[]): any {
 export function useSearch() {
   const borrowList = useBorrowPools()
   const list: SelectSearchOption[] = useMemo(() => {
-    return borrowList.map((o) => ({ ...o, name: o.composition, value: o.contract }))
+    return borrowList.map((o) => ({ ...o, name: o.composition, value: o.contract.address }))
   }, [borrowList])
 
   const [snapshot, searchProps, optionProps] = useSelect({

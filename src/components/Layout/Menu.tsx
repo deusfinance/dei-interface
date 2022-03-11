@@ -10,7 +10,6 @@ import {
   NavToggle,
   IconWrapper,
   Telegram as TelegramIcon,
-  Trade as TradeIcon,
   CreditCard as CreditCardIcon,
   Twitter as TwitterIcon,
   Github as GithubIcon,

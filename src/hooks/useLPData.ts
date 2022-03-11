@@ -31,7 +31,7 @@ export function useLPData(pool: BorrowPool) {
   return useMemo(
     () => ({
       balance0: balanceCalls.length && balance0?.result ? formatUnits(balance0.result[0], 18) : '0', // TODO check if decimals is incorrect
-      balance1: balanceCalls.length && balance0?.result ? formatUnits(balance0.result[0], 18) : '0', // TODO check if decimals is incorrect
+      balance1: balanceCalls.length && balance1?.result ? formatUnits(balance1.result[0], 18) : '0', // TODO check if decimals is incorrect
     }),
     [balanceCalls, balance0, balance1]
   )

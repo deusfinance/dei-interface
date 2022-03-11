@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Currency, CurrencyAmount, NativeCurrency, Token, ZERO } from '@sushiswap/core-sdk'
-import { getAddress } from '@ethersproject/address'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { BorrowAction, TypedField } from 'state/borrow/reducer'

@@ -1,12 +1,9 @@
 import React, { useMemo } from 'react'
-import styled, { useTheme } from 'styled-components'
+import styled from 'styled-components'
 import { Currency, CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core-sdk'
-import ReactTooltip from 'react-tooltip'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
-import { formatDollarAmount } from 'utils/numbers'
 import { PrimaryButton } from 'components/Button'
-import { IconWrapper, ChevronDown, Info } from 'components/Icons'
 import TransactionConfirmationModal, { ConfirmationContent, TransactionErrorContent } from './index'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { BorrowAction, BorrowPool, TypedField } from 'state/borrow/reducer'
@@ -125,7 +122,7 @@ export default function ConfirmBorrow({
         ? 'Repay'
         : 'Withdraw'
     return `${type} ${amount?.toSignificant()} ${currency?.symbol}`
-  }, [action, currency, isBorrowCurrency])
+  }, [action, currency, amount, isBorrowCurrency])
 
   function getImage() {
     if (!isBorrowCurrency) {

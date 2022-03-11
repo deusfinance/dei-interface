@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
 
 import { BorrowPool } from 'state/borrow/reducer'
-import { useSingleCallResult, useSingleContractMultipleMethods } from 'state/multicall/hooks'
+import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { useContract, useGeneralLenderContract, useLenderManagerContract } from './useContract'
 
 import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
@@ -187,5 +187,5 @@ export function useAvailableForWithdrawal(pool: BorrowPool): string {
     const minimumCollateral = new BigNumber(userDebt).div(liquidationPrice)
     const withdrawable = new BigNumber(userCollateral).minus(minimumCollateral)
     return withdrawable.toPrecision(pool.contract.decimals)
-  }, [userCollateral, userDebt, liquidationRatio, collateralPrice])
+  }, [userCollateral, userDebt, liquidationRatio, collateralPrice, pool])
 }

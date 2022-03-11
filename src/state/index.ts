@@ -5,13 +5,12 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 
 import reducer from './reducer'
 
-const PERSISTED_KEYS: string[] = ['user', 'transactions'] // TODO add 'portfolio' but check consequences first
+const PERSISTED_KEYS: string[] = ['user', 'transactions']
 
 const persistConfig: any = {
   key: 'root',
   whitelist: PERSISTED_KEYS,
   storage,
-  // stateReconciler: false,
 }
 
 const persistedReducer = persistReducer(persistConfig, reducer)

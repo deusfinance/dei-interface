@@ -1,22 +1,12 @@
 module.exports = {
-  exportPathMap: async function () {
-    return {
-      '/convert': {
-        page: '/convert',
-      },
-      '/vote': {
-        page: '/vote',
-      },
-      '/borrow': {
-        page: '/borrow',
-      },
-    }
+  images: {
+    domains: ['raw.githubusercontent.com', 'assets.spookyswap.finance'],
   },
   async redirects() {
     return [
       {
         source: '/',
-        destination: '/convert',
+        destination: '/borrow',
         permanent: true,
       },
     ]

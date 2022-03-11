@@ -1,1 +1,6 @@
-export { default as Main } from './Main'
+export { default as Balances } from './Balances'
+export { default as Borrow } from './Borrow'
+export { default as Info } from './Info'
+export { default as Position } from './Position'
+export { useSearch, SearchField } from './Search'
+export { default as Table } from './Table'

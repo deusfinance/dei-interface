@@ -1,1 +1,2 @@
-export { default as Main } from './Main'
+export { Deposits, Claimable, Balance } from './InfoBox'
+export { default as Convert } from './Convert'

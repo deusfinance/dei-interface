@@ -51,7 +51,6 @@ const black = '#000000'
 export enum SupportedThemes {
   LIGHT = 'light',
   DARK = 'dark',
-  JADE = 'jade',
 }
 
 function colors(themeName: SupportedThemes): Colors {
@@ -122,27 +121,27 @@ function colors(themeName: SupportedThemes): Colors {
 
       // text
       text1: '#FFFFFF',
-      text2: '#C3C5CB',
+      text2: '#545454',
       text3: '#8F96AC',
       text4: '#B2B9D2',
 
       // backgrounds / greys
-      bg0: '#14181E',
-      bg1: '#262B35',
-      bg2: '#0F1217',
+      bg0: 'rgba(20, 20, 20, 1)',
+      bg1: 'rgba(20, 20, 20, 0.9)',
+      bg2: '#2F2F2F',
       bg3: '#262B35',
 
       // borders
-      border1: '#B8B8BE',
+      border1: '#545454',
       border2: 'rgba(99, 126, 161, 0.2)',
 
       //specialty colors
-      specialBG1: '#0F1217',
+      specialBG1: 'linear-gradient(180deg, #464646 0%, rgba(0, 0, 0, 0) 84.03%)',
       specialBG2: '#14181E',
 
       // primary colors
-      primary1: 'linear-gradient(90deg, #FFBA35 1.54%, #FFB463 98.9%)',
-      primary2: 'linear-gradient(90deg, #FFBA35 1.54%, #FFA76A 50%)',
+      primary1: 'linear-gradient(92.33deg, #E29D52 -10.26%, #CE4A7B 144.81%)',
+      primary2: 'linear-gradient(92.33deg, #E29D52 -10.26%, #DE4A7B 80%)',
       primary3: '#FFBA35',
 
       // color text
@@ -304,7 +303,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
   }
 
   body {
-    font-family: 'Rubik';
+    font-family: 'IBM Plex Mono', monospace;
     background: ${({ theme }) => theme.specialBG1};
   }
 

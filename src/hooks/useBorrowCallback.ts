@@ -1,0 +1,195 @@
+import { useCallback, useMemo } from 'react'
+import { TransactionResponse } from '@ethersproject/abstract-provider'
+import { Currency, CurrencyAmount, NativeCurrency, Token, ZERO } from '@sushiswap/core-sdk'
+
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { BorrowAction, TypedField } from 'state/borrow/reducer'
+
+import useWeb3React from './useWeb3'
+import { useGeneralLenderContract } from './useContract'
+import { calculateGasMargin } from 'utils/web3'
+import { toHex } from 'utils/hex'
+
+export enum BorrowCallbackState {
+  INVALID = 'INVALID',
+  VALID = 'VALID',
+}
+
+export default function useBorrowCallback(
+  collateralCurrency: Currency | undefined,
+  borrowCurrency: Currency | undefined,
+  collateralAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+  borrowAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+  action: BorrowAction,
+  typedField: TypedField
+): {
+  state: BorrowCallbackState
+  callback: null | (() => Promise<string>)
+  error: string | null
+} {
+  const { chainId, account, library } = useWeb3React()
+  const addTransaction = useTransactionAdder()
+  const GeneralLender = useGeneralLenderContract()
+
+  const constructCall = useCallback(() => {
+    try {
+      if (!account || !chainId || !library || !GeneralLender || !collateralCurrency || !borrowCurrency) {
+        throw new Error('Missing dependencies.')
+      }
+
+      let args = []
+      let methodName
+
+      if (action === BorrowAction.BORROW && typedField === TypedField.COLLATERAL) {
+        if (!collateralAmount) throw new Error('Missing collateralAmount.')
+        args = [account, toHex(collateralAmount.quotient)]
+        methodName = 'addCollateral'
+      } else if (action === BorrowAction.REPAY && typedField === TypedField.COLLATERAL) {
+        if (!collateralAmount) throw new Error('Missing collateralAmount.')
+        args = [account, toHex(collateralAmount.quotient)]
+        methodName = 'removeCollateral'
+      } else if (action === BorrowAction.BORROW && typedField === TypedField.BORROW) {
+        if (!borrowAmount) throw new Error('Missing borrowAmount.')
+        args = [account, toHex(borrowAmount.quotient)]
+        methodName = 'borrow'
+      } else {
+        if (!borrowAmount) throw new Error('Missing borrowAmount.')
+        args = [account, toHex(borrowAmount.quotient)]
+        methodName = 'repay'
+      }
+
+      return {
+        address: GeneralLender.address,
+        calldata: GeneralLender.interface.encodeFunctionData(methodName, args) ?? '',
+        value: 0,
+      }
+    } catch (error) {
+      return {
+        error,
+      }
+    }
+  }, [
+    chainId,
+    account,
+    library,
+    GeneralLender,
+    collateralCurrency,
+    borrowCurrency,
+    action,
+    typedField,
+    collateralAmount,
+    borrowAmount,
+  ])
+
+  return useMemo(() => {
+    if (!account || !chainId || !library || !GeneralLender || !collateralCurrency || !borrowCurrency) {
+      return {
+        state: BorrowCallbackState.INVALID,
+        callback: null,
+        error: 'Missing dependencies',
+      }
+    }
+    if ((!collateralAmount || collateralAmount.equalTo(ZERO)) && (!borrowAmount || borrowAmount.equalTo(ZERO))) {
+      return {
+        state: BorrowCallbackState.INVALID,
+        callback: null,
+        error: 'No amount provided',
+      }
+    }
+
+    return {
+      state: BorrowCallbackState.VALID,
+      error: null,
+      callback: async function onTrade(): Promise<string> {
+        console.log('onBorrow callback')
+        const call = constructCall()
+        const { address, calldata, value } = call
+
+        if ('error' in call) {
+          console.error(call.error)
+          if (call.error.message) {
+            throw new Error(call.error.message)
+          } else {
+            throw new Error('Unexpected error. Could not construct calldata.')
+          }
+        }
+
+        const tx = !value
+          ? { from: account, to: address, data: calldata }
+          : { from: account, to: address, data: calldata, value }
+
+        console.log('BORROW TRANSACTION', { tx, value })
+
+        const estimatedGas = await library.estimateGas(tx).catch((gasError) => {
+          console.debug('Gas estimate failed, trying eth_call to extract error', call)
+
+          return library
+            .call(tx)
+            .then((result) => {
+              console.debug('Unexpected successful call after failed estimate gas', call, gasError, result)
+              return {
+                error: new Error('Unexpected issue with estimating the gas. Please try again.'),
+              }
+            })
+            .catch((callError) => {
+              console.debug('Call threw an error', call, callError)
+              return {
+                error: new Error(callError.message), // TODO make this human readable
+              }
+            })
+        })
+
+        if ('error' in estimatedGas) {
+          throw new Error('Unexpected error. Could not estimate gas for this transaction.')
+        }
+
+        return library
+          .getSigner()
+          .sendTransaction({
+            ...tx,
+            ...(estimatedGas ? { gasLimit: calculateGasMargin(estimatedGas) } : {}),
+            // gasPrice /// TODO add gasPrice based on EIP 1559
+          })
+          .then((response: TransactionResponse) => {
+            console.log(response)
+
+            const summary =
+              action === BorrowAction.BORROW
+                ? typedField === TypedField.COLLATERAL
+                  ? `Deposit ${collateralAmount?.toSignificant()} ${collateralCurrency.symbol}`
+                  : `Borrow ${borrowAmount?.toSignificant()} ${borrowCurrency.symbol}`
+                : typedField === TypedField.COLLATERAL
+                ? `Withdraw ${collateralAmount?.toSignificant()} ${collateralCurrency.symbol}`
+                : `Repay ${borrowAmount?.toSignificant()} ${borrowCurrency.symbol}`
+
+            addTransaction(response, { summary })
+
+            return response.hash
+          })
+          .catch((error) => {
+            // if the user rejected the tx, pass this along
+            if (error?.code === 4001) {
+              throw new Error('Transaction rejected.')
+            } else {
+              // otherwise, the error was unexpected and we need to convey that
+              console.error(`Transaction failed`, error, address, calldata, value)
+              throw new Error(`Transaction failed: ${error.message}`)
+            }
+          })
+      },
+    }
+  }, [
+    account,
+    chainId,
+    library,
+    addTransaction,
+    constructCall,
+    action,
+    typedField,
+    GeneralLender,
+    collateralCurrency,
+    borrowCurrency,
+    collateralAmount,
+    borrowAmount,
+  ])
+}

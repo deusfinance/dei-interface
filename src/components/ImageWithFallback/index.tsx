@@ -21,7 +21,7 @@ export default function ImageWithFallback({
   round = false,
   ...rest
 }: {
-  src: StaticImageData
+  src: StaticImageData | string
   alt: string
   width: number
   height: number

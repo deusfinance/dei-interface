@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 export { default as ArrowBubble } from './ArrowBubble'
 export { default as CheckMark } from './CheckMark'
+export { default as CreditCard } from './CreditCard'
 export { Close } from './Close'
 export { ConfirmationAnimation } from './Confirmation'
 export { ChevronLeft, ChevronDown, ChevronUp } from './Chevron'

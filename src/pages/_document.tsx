@@ -41,8 +41,8 @@ class MyDocument extends Document {
             <link rel="apple-touch-icon" sizes="192x192" href="/images/192x192_App_Icon.png" />
             <link rel="apple-touch-icon" sizes="512x512" href="/images/512x512_App_Icon.png" />
 
-            <title>veNFT</title>
-            <meta name="description" content="veNFTs with DEI Finance" />
+            <title>DEI Money Markets</title>
+            <meta name="description" content="Borrow DEI Stablecoin against your Solidly veNFT." />
 
             <link rel="preconnect" href="https://fonts.googleapis.com" />
             <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />

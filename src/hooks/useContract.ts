@@ -11,9 +11,8 @@ import ERC20_BYTES32_ABI from 'constants/abi/ERC20'
 import MULTICALL2_ABI from 'constants/abi/MULTICALL2.json'
 import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
 import LENDER_MANAGER_ABI from 'constants/abi/LENDER_MANAGER.json'
-import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
 import { Providers } from 'constants/providers'
-import { GeneralLender, LenderManager, LenderOracle, Multicall2 } from 'constants/addresses'
+import { GeneralLender, LenderManager, Multicall2 } from 'constants/addresses'
 
 export function useContract<T extends Contract = Contract>(
   addressOrAddressMap: string | null | undefined,
@@ -55,12 +54,6 @@ export function useLenderManagerContract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? LenderManager[chainId] : undefined), [chainId])
   return useContract(address, LENDER_MANAGER_ABI)
-}
-
-export function useLenderOracleContract() {
-  const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? LenderOracle[chainId] : undefined), [chainId])
-  return useContract(address, LENDER_ORACLE_ABI)
 }
 
 export function useMulticall2Contract() {

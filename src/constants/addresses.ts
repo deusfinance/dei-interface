@@ -23,11 +23,6 @@ export const LenderManager: AddressMap = {
 }
 
 // NEEDS CHANGING
-export const LenderOracle: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x45716366916E10322067921A463111bA6b4770dE',
-}
-
-// NEEDS CHANGING
 export const SolidAddress: AddressMap = {
   [SupportedChainId.FANTOM]: '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
 }

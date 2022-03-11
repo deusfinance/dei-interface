@@ -17,6 +17,7 @@ export interface UnserializedBorrowPool {
   token1: Token
   abi: any
   composition: string
+  oracle: string
   type: string
   interestRate: number
   borrowFee: number

@@ -9,7 +9,7 @@ export const DEI_TOKEN = new Token(
   SupportedChainId.FANTOM,
   '0x4A4573B03B0800e24dEcD8fE497BFeD98ee344B8',
   18,
-  'DEI',
+  'TDEI',
   'TestDEI'
 )
 
@@ -26,6 +26,7 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     token1: new Token(SupportedChainId.FANTOM, '0x4A4573B03B0800e24dEcD8fE497BFeD98ee344B8', 18, 'TDEI', 'TestDEI'),
     abi: BASE_V1_PAIR,
     composition: 'TUSDC/TDEI',
+    oracle: '0x45716366916E10322067921A463111bA6b4770dE',
     type: 'SpiritSwap LP Tokens',
     interestRate: 0.035,
     borrowFee: 0.0005,

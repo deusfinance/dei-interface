@@ -1,13 +1,15 @@
 import { formatUnits } from '@ethersproject/units'
 import { Percent } from '@sushiswap/core-sdk'
 import BigNumber from 'bignumber.js'
-import { DEI_TOKEN } from 'constants/borrow'
 import { useMemo } from 'react'
 
 import { BorrowPool } from 'state/borrow/reducer'
 import { useSingleCallResult, useSingleContractMultipleMethods } from 'state/multicall/hooks'
+import { useContract, useGeneralLenderContract, useLenderManagerContract } from './useContract'
+
+import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
+import { DEI_TOKEN } from 'constants/borrow'
 import { constructPercentage } from 'utils/prices'
-import { useContract, useGeneralLenderContract, useLenderManagerContract, useLenderOracleContract } from './useContract'
 import useWeb3React from './useWeb3'
 
 export function useUserPoolData(pool: BorrowPool): {
@@ -153,10 +155,10 @@ export function useGlobalPoolData(pool: BorrowPool): {
   )
 }
 
-// TODO THIS IS INCORRECT, SHOULD BE A POOL DEPENDENT CONTRACT ADDRESS
 export function useCollateralPrice(pool: BorrowPool): string {
-  const oracleContract = useLenderOracleContract()
-  const price = useSingleCallResult(oracleContract, 'getPrice', [])
+  const oracleContract = useContract(pool.oracle, LENDER_ORACLE_ABI)
+
+  const [price] = useSingleContractMultipleMethods(oracleContract, [{ methodName: 'getPrice', callInputs: [] }])
   return useMemo(() => (price?.result ? formatUnits(price.result[0], 18) : '0'), [price])
 }
 

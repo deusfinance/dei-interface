@@ -11,6 +11,7 @@ import TransactionConfirmationModal, { ConfirmationContent, TransactionErrorCont
 import ImageWithFallback from 'components/ImageWithFallback'
 import { BorrowAction, BorrowPool, TypedField } from 'state/borrow/reducer'
 import { DualImageWrapper } from 'components/DualImage'
+import { useGlobalPoolData, useLiquidationPrice } from 'hooks/usePoolData'
 
 const MainWrapper = styled.div`
   display: flex;
@@ -101,6 +102,8 @@ export default function ConfirmBorrow({
   const isBorrowCurrency = useMemo(() => typedField === TypedField.BORROW, [typedField])
   const logo0 = useCurrencyLogo(isBorrowCurrency ? currency?.wrapped.address : pool.token0.address)
   const logo1 = useCurrencyLogo(pool ? pool.token1.address : undefined)
+  const liquidationPrice = useLiquidationPrice(pool)
+  const { borrowFee } = useGlobalPoolData(pool)
 
   const method = useMemo(() => {
     return action === BorrowAction.BORROW && isBorrowCurrency
@@ -154,6 +157,14 @@ export default function ConfirmBorrow({
             <InfoRow>
               <div>Amount</div>
               <div>{amount?.toSignificant(6)}</div>
+            </InfoRow>
+            <InfoRow>
+              <div>Est. Liquidation Price</div>
+              <div>{liquidationPrice}</div>
+            </InfoRow>
+            <InfoRow>
+              <div>Borrow Fee</div>
+              <div>{borrowFee.divide(100).toSignificant()}%</div>
             </InfoRow>
           </MainWrapper>
         }

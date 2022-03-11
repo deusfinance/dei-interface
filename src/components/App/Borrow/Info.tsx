@@ -44,17 +44,17 @@ export default function Info({ pool }: { pool: BorrowPool }) {
         explanation="The maximum amount of debt you can borrow with a selected collateral token."
       />
       <PositionRow
-        label="Liquidation fee "
+        label="Liquidation Fee "
         value="N/A"
         explanation="This is the discount a liquidator gets when buying collateral flagged for liquidation."
       />
       <PositionRow
-        label="Borrow fee "
+        label="Borrow Fee "
         value={`${borrowFee.toSignificant()}%`}
         explanation={`This fee is added to your debt every time you borrow DEI.`}
       />
       <PositionRow
-        label="Interest rate "
+        label="Interest Rate "
         value={`${annualizedInterest}%`}
         explanation="This is the annualized percent that your debt will increase each year."
       />

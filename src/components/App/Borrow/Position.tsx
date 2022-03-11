@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 
 import { BorrowPool } from 'state/borrow/reducer'
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
-import { useCollateralPrice, useUserPoolData } from 'hooks/usePoolData'
+import { useCollateralPrice, useLiquidationPrice, useUserPoolData } from 'hooks/usePoolData'
 import { useLPData } from 'hooks/useLPData'
 import { useContract } from 'hooks/useContract'
 import { formatAmount, formatDollarAmount } from 'utils/numbers'
@@ -67,6 +67,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
   const { borrowCurrency } = useCurrenciesFromPool(pool)
   const { userCollateral, userBorrow, userDebt, userCap } = useUserPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
+  const liquidationPrice = useLiquidationPrice(pool)
   const poolContract = useContract(pool.contract.address, pool.abi, true)
   const { balance0, balance1 } = useLPData(pool)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
@@ -131,7 +132,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
       />
       <PositionRow
         label="Liquidation Price"
-        value="N/A"
+        value={liquidationPrice}
         explanation="Collateral Price at which your Position will be Liquidated"
       />
       <PositionRow

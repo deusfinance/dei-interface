@@ -160,6 +160,11 @@ export function useCollateralPrice(pool: BorrowPool): string {
   return useMemo(() => (price?.result ? formatUnits(price.result[0], 18) : '0'), [price])
 }
 
+// TODO ADD CORRECT LOGIC
+export function useLiquidationPrice(pool: BorrowPool): string {
+  return useMemo(() => 'N/A', [pool])
+}
+
 export function useAvailableForWithdrawal(pool: BorrowPool): string {
   const { userCollateral, userDebt } = useUserPoolData(pool)
   const { liquidationRatio } = useGlobalPoolData(pool)

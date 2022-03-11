@@ -15,8 +15,9 @@ const Wrapper = styled.div`
   gap: 20px;
   padding: 20px;
   text-align: center;
+  margin-top: 40px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-top: 20px;
   `}
 `

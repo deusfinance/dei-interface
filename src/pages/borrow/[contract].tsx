@@ -30,6 +30,10 @@ const Wrapper = styled(Container)`
       flex-flow: row wrap;
       width: 100%;
       gap: 15px;
+
+      ${({ theme }) => theme.mediaWidth.upToSmall`
+        margin: 0;
+      `}
     }
   }
 `
@@ -43,6 +47,9 @@ const Navigation = styled.div`
 
 const BorrowButton = styled(PrimaryButton)`
   width: 180px;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+     width: fit-content;
+  `}
 `
 
 const CardWrapper = styled.div`
@@ -52,9 +59,6 @@ const CardWrapper = styled.div`
   gap: 10px;
   & > * {
     flex: 1;
-    &:first-child {
-      min-width: 450px;
-    }
   }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -64,19 +68,19 @@ const CardWrapper = styled.div`
 
 export default function BorrowDEI() {
   const pool = useBorrowPoolFromURL()
-  const { collateralCurrency, pairCurrency } = useCurrenciesFromPool(pool ?? undefined)
+  const { collateralCurrency, borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const [selectedAction, setSelectedAction] = useState<BorrowAction>(BorrowAction.BORROW)
   const isSupportedChainId = useSupportedChainId()
 
   return (
     <Container>
-      <Hero>Borrow {pool ? pool.pair.symbol : 'DEI'}</Hero>
+      <Hero>Borrow {borrowCurrency?.symbol}</Hero>
       <Wrapper>
         {!pool ? (
           <div>The imported contract is not a valid pool.</div>
         ) : !isSupportedChainId ? (
           <div>You are not connected with the Fantom Network.</div>
-        ) : !collateralCurrency || !pairCurrency ? (
+        ) : !collateralCurrency || !borrowCurrency ? (
           <div>Experiencing issues with the Fantom RPC. Unable to load pools.</div>
         ) : (
           <>

@@ -8,6 +8,7 @@ import { AppState, useAppSelector } from 'state'
 import { BorrowPool, BorrowState } from './reducer'
 import { useCurrency } from 'hooks/useCurrency'
 import { constructPercentage } from 'utils/prices'
+import { DEI_TOKEN } from 'constants/borrow'
 
 export function useBorrowState(): BorrowState {
   return useAppSelector((state: AppState) => state.borrow)
@@ -44,25 +45,25 @@ export function useBorrowPoolByContract(contract: string | undefined): BorrowPoo
   const pools = useBorrowPools()
   return useMemo(() => {
     if (!contract) return null
-    const pool = find(pools, (o) => o.contract.toLowerCase() === contract.toLowerCase())
+    const pool = find(pools, (o) => o.contract.address.toLowerCase() === contract.toLowerCase())
     return pool || null
   }, [contract, pools])
 }
 
 export function useCurrenciesFromPool(pool: BorrowPool | undefined): {
   collateralCurrency: Currency | undefined
-  pairCurrency: Currency | undefined
+  borrowCurrency: Currency | undefined
 } {
-  const collateralCurrency = useCurrency(pool?.collateral.address) || undefined
-  const pairCurrency = useCurrency(pool?.pair.address) || undefined
-  return { collateralCurrency, pairCurrency }
+  const collateralCurrency = useCurrency(pool?.contract.address) || undefined
+  const borrowCurrency = useCurrency(DEI_TOKEN.address) || undefined
+  return { collateralCurrency, borrowCurrency }
 }
 
 export function useAllPoolTokens() {
   const pools = useBorrowPools()
   return useMemo(() => {
     return pools.reduce((acc: Token[], pool) => {
-      acc.push(...[pool.collateral, pool.pair])
+      acc.push(...[pool.token0, pool.token1])
       return acc
     }, [])
   }, [pools])

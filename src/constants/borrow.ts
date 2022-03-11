@@ -2,29 +2,31 @@ import { Token } from '@sushiswap/core-sdk'
 
 import { UnserializedBorrowPool } from 'state/borrow/reducer'
 import { SupportedChainId } from 'constants/chains'
-import CauldronV2FTM from 'constants/abi/pools/CauldronV2FTM.json'
+import BASE_V1_PAIR from 'constants/abi/BASE_V1_PAIR.json'
 
-// NOTE: these value are real pools by Abracadabra
+// TODO NEEDS CHANGING
+export const DEI_TOKEN = new Token(
+  SupportedChainId.FANTOM,
+  '0x4A4573B03B0800e24dEcD8fE497BFeD98ee344B8',
+  18,
+  'DEI',
+  'TestDEI'
+)
+
 export const BorrowPools: UnserializedBorrowPool[] = [
   {
-    contract: '0x8e45af6743422e488afacdad842ce75a09eaed34',
-    abi: CauldronV2FTM,
-    composition: 'wFTM/MIM',
-    collateral: new Token(
+    contract: new Token(
       SupportedChainId.FANTOM,
-      '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+      '0x24e96523c98911589C45CBB9C5DB5E2354B2adCe',
       18,
-      'wFTM',
-      'Wrapped Fantom'
+      'StableV1 AMM - TDEI/TUSDC',
+      'sAMM-TDEI/TUSDC'
     ),
-    pair: new Token(
-      SupportedChainId.FANTOM,
-      '0x82f0B8B456c1A451378467398982d4834b6829c1',
-      18,
-      'MIM',
-      'Magic Internet Money'
-    ),
-    ltv: 75,
+    token0: new Token(SupportedChainId.FANTOM, '0xCD9a7E6383F218e13c868c2328E9F4ad8a65f312', 18, 'TUSDC', 'TestUSDC'),
+    token1: new Token(SupportedChainId.FANTOM, '0x4A4573B03B0800e24dEcD8fE497BFeD98ee344B8', 18, 'TDEI', 'TestDEI'),
+    abi: BASE_V1_PAIR,
+    composition: 'TUSDC/TDEI',
+    type: 'SpiritSwap LP Tokens',
     interestRate: 0.035,
     borrowFee: 0.0005,
     liquidationFee: 0.125,

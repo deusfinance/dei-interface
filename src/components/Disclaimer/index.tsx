@@ -13,7 +13,12 @@ const Wrapper = styled.div`
   font-size: 13px;
   color: ${({ theme }) => theme.text2};
   gap: 20px;
-  margin-top: 45px;
+  padding: 20px;
+  text-align: center;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    margin-top: 20px;
+  `}
 `
 
 export default function Disclaimer() {

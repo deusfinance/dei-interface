@@ -1,13 +1,14 @@
 import { useMemo } from 'react'
-import { Currency, ZERO } from '@sushiswap/core-sdk'
+import { Currency, CurrencyAmount, NativeCurrency, Token, ZERO } from '@sushiswap/core-sdk'
 
 import useWeb3React from './useWeb3'
-import { TypedField, BorrowAction } from 'state/borrow/reducer'
+import { TypedField, BorrowAction, BorrowPool } from 'state/borrow/reducer'
 import { useBorrowState } from 'state/borrow/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 
 import { maxAmountSpend } from 'utils/currency'
 import { tryParseAmount } from 'utils/parse'
+import { useAvailableForWithdrawal, useUserPoolData } from './usePoolData'
 
 export enum UserError {
   ACCOUNT = 'ACCOUNT',
@@ -18,59 +19,56 @@ export enum UserError {
 
 export default function useBorrowPage(
   collateralCurrency: Currency | undefined,
-  pairCurrency: Currency | undefined,
+  borrowCurrency: Currency | undefined,
+  pool: BorrowPool,
   action: BorrowAction
-) {
+): {
+  error: UserError
+  typedField: TypedField
+  formattedAmounts: string[]
+  parsedAmounts: (CurrencyAmount<NativeCurrency | Token> | null | undefined)[]
+} {
   const { chainId, account } = useWeb3React()
   const { typedValue, typedField } = useBorrowState()
   const collateralBalance = useCurrencyBalance(account ?? undefined, collateralCurrency)
-  const pairBalance = useCurrencyBalance(account ?? undefined, pairCurrency)
+  const borrowBalance = useCurrencyBalance(account ?? undefined, borrowCurrency)
+  const { userCollateral, userDebt } = useUserPoolData(pool)
+  const availableForWithdrawal = useAvailableForWithdrawal(pool)
 
-  // Amount typed in either input or output fields
+  // Amount typed in either fields
   const typedAmount = useMemo(() => {
-    return tryParseAmount(typedValue, typedField === TypedField.A ? collateralCurrency : pairCurrency)
-  }, [collateralCurrency, pairCurrency, typedValue, typedField])
+    return tryParseAmount(typedValue, typedField === TypedField.COLLATERAL ? collateralCurrency : borrowCurrency)
+  }, [collateralCurrency, borrowCurrency, typedValue, typedField])
 
-  // Computed counter amount by typedAmount and its corresponding price
-  const computedAmount = useMemo(() => {
-    if (!typedAmount) return undefined
-
-    // inputfield
-    if (typedField === TypedField.A && action === BorrowAction.BORROW) {
-      return typedAmount
-    }
-    if (typedField === TypedField.A && action === BorrowAction.REPAY) {
-      return typedAmount
-    }
-
-    // outputfield
-    if (action === BorrowAction.BORROW) {
-      return typedAmount
-    }
-    return typedAmount
-  }, [typedAmount, typedField, action])
-
+  // Reset counterCurrency when typing in the other
   const parsedAmounts = useMemo(() => {
     return [
-      typedField === TypedField.A ? typedAmount : computedAmount,
-      typedField === TypedField.A ? computedAmount : typedAmount,
+      typedField === TypedField.COLLATERAL ? typedAmount : undefined,
+      typedField === TypedField.COLLATERAL ? undefined : typedAmount,
     ]
-  }, [typedField, typedAmount, computedAmount])
+  }, [typedField, typedAmount])
 
   // Stringified values purely for user display
   const formattedAmounts = useMemo(() => {
-    return [
-      typedField === TypedField.A ? typedValue : computedAmount?.toSignificant(9) ?? '',
-      typedField === TypedField.B ? typedValue : computedAmount?.toSignificant(9) ?? '',
-    ]
-  }, [typedField, typedValue, computedAmount])
+    return [typedField === TypedField.COLLATERAL ? typedValue : '', typedField === TypedField.BORROW ? typedValue : '']
+  }, [typedField, typedValue])
 
   const balanceError = useMemo(() => {
-    if (action === BorrowAction.BORROW) {
+    // adding collateral
+    if (typedField === TypedField.COLLATERAL && action === BorrowAction.BORROW) {
       return collateralBalance && parsedAmounts[0] && maxAmountSpend(collateralBalance)?.lessThan(parsedAmounts[0])
     }
-    return pairBalance && parsedAmounts[1] && maxAmountSpend(pairBalance)?.lessThan(parsedAmounts[1])
-  }, [collateralBalance, pairBalance, parsedAmounts, action])
+    // removing collateral
+    if (typedField === TypedField.COLLATERAL && action === BorrowAction.REPAY) {
+      return parsedAmounts[0] && availableForWithdrawal < parsedAmounts[0].toExact()
+    }
+    // borrowing
+    if (action === BorrowAction.BORROW) {
+      return borrowBalance && parsedAmounts[1] && maxAmountSpend(borrowBalance)?.lessThan(parsedAmounts[1])
+    }
+    // repaying
+    return parsedAmounts[1] && userDebt < parsedAmounts[1].toExact()
+  }, [collateralBalance, borrowBalance, userCollateral, userDebt, parsedAmounts, typedField])
 
   const error = useMemo(
     () =>
@@ -87,6 +85,7 @@ export default function useBorrowPage(
   return useMemo(
     () => ({
       error,
+      typedField,
       formattedAmounts,
       parsedAmounts,
     }),

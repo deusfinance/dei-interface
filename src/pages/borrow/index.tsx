@@ -18,17 +18,26 @@ const Container = styled.div`
 const Wrapper = styled(Container)`
   margin: 0 auto;
   margin-top: 50px;
-  width: clamp(250px, 90%, 900px);
+  width: clamp(250px, 90%, 1200px);
 
   & > * {
-    &:first-child {
-      margin-bottom: 45px;
+    &:nth-child(2) {
+      margin-bottom: 25px;
       display: flex;
-      flex-flow: row wrap;
+      flex-flow: row nowrap;
       width: 100%;
       gap: 15px;
+      & > * {
+        &:last-child {
+          max-width: 300px;
+        }
+      }
     }
   }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    margin-top: 20px;
+  `}
 `
 
 export default function Borrow() {
@@ -46,8 +55,10 @@ export default function Borrow() {
     <Container>
       <Hero>Get ready to borrow.</Hero>
       <Wrapper>
+        <div style={{ marginBottom: '15px' }}>Total DEI Borrowed: N/A</div>
         <div>
           <SearchField searchProps={searchProps} />
+          {/* <PrimaryButton>Claim All</PrimaryButton> */}
         </div>
         <Table options={snapshot.options as unknown as BorrowPool[]} onMintClick={onMintClick} />
       </Wrapper>

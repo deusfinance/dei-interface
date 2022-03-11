@@ -1,24 +1,34 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { useAppDispatch } from 'state'
+import { ZERO } from '@sushiswap/core-sdk'
 
 import { useBorrowState, useCurrenciesFromPool } from 'state/borrow/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { BorrowAction, BorrowPool, setUserState, TypedField } from 'state/borrow/reducer'
+import {
+  BorrowAction,
+  BorrowPool,
+  setAttemptingTxn,
+  setShowReview,
+  setBorrowState,
+  TypedField,
+} from 'state/borrow/reducer'
 import useBorrowPage, { UserError } from 'hooks/useBorrowPage'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useWeb3React from 'hooks/useWeb3'
 import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
+import { useSupportedChainId } from 'hooks/useSupportedChainId'
+import useBorrowCallback from 'hooks/useBorrowCallback'
 
-import { SolidlyChains, SupportedChainId } from 'constants/chains'
-import { MasterContract } from 'constants/addresses'
+import { SupportedChainId } from 'constants/chains'
+import { GeneralLender } from 'constants/addresses'
 
 import { Card } from 'components/Card'
+import ConfirmBorrowModal from 'components/TransactionConfirmationModal/ConfirmBorrow'
 import InputBox from './InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import { CardTitle } from 'components/Title'
-import SummaryPanel from './SummaryPanel'
 
 const Wrapper = styled(Card)`
   gap: 15px;
@@ -40,34 +50,44 @@ const Panel = styled.div`
 export default function Borrow({ pool, action }: { pool: BorrowPool; action: BorrowAction }) {
   const { chainId, account } = useWeb3React()
   const dispatch = useAppDispatch()
-  const { collateralCurrency, pairCurrency } = useCurrenciesFromPool(pool)
-  const borrowState = useBorrowState()
-  const { error: borrowStateError } = borrowState
-  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const toggleWalletModal = useWalletModalToggle()
   const rpcChangerCallback = useRpcChangerCallback()
+  const isSupportedChainId = useSupportedChainId()
+  const { collateralCurrency, borrowCurrency } = useCurrenciesFromPool(pool)
+  const borrowState = useBorrowState()
+  const { attemptingTxn, showReview, error: borrowStateError } = borrowState
 
-  const [inputCurrency, outputCurrency] = useMemo(() => {
-    const borrow = [collateralCurrency, pairCurrency]
-    return action === BorrowAction.BORROW ? borrow : borrow.reverse()
-  }, [collateralCurrency, pairCurrency, action])
+  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
+  const [txHash, setTxHash] = useState<string>('')
 
-  const { formattedAmounts, parsedAmounts, error: userError } = useBorrowPage(collateralCurrency, pairCurrency, action)
+  const {
+    typedField,
+    formattedAmounts,
+    parsedAmounts,
+    error: userError,
+  } = useBorrowPage(collateralCurrency, borrowCurrency, pool, action)
 
-  // Allow user to connect any chain globally, but restrict unsupported ones on this page
-  const isSupportedChainId: boolean = useMemo(() => {
-    if (!chainId || !account) return false
-    return SolidlyChains.includes(chainId)
-  }, [chainId, account])
+  const inputCurrency = useMemo(() => {
+    return typedField === TypedField.COLLATERAL ? collateralCurrency : borrowCurrency
+  }, [collateralCurrency, borrowCurrency, typedField])
 
   const spender = useMemo(() => {
     if (!isSupportedChainId || !chainId) {
       return undefined
     }
-    return MasterContract[chainId]
+    return GeneralLender[chainId]
   }, [isSupportedChainId, chainId])
 
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency, spender)
+
+  const { state: mainCallbackState, callback: mainCallback } = useBorrowCallback(
+    collateralCurrency,
+    borrowCurrency,
+    parsedAmounts[0],
+    parsedAmounts[1],
+    action,
+    typedField
+  )
 
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = inputCurrency && approvalState !== ApprovalState.APPROVED
@@ -80,18 +100,44 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     setAwaitingApproveConfirmation(false)
   }
 
-  // TODO implement this
-  const handleMain = async () => {
-    setAwaitingApproveConfirmation(true)
-    await approveCallback()
-    setAwaitingApproveConfirmation(false)
-  }
+  const onMain = useCallback(() => {
+    if (typedField === TypedField.COLLATERAL && parsedAmounts[0]?.greaterThan(ZERO)) {
+      dispatch(setShowReview(true))
+    }
+    if (typedField === TypedField.BORROW && parsedAmounts[1]?.greaterThan(ZERO)) {
+      dispatch(setShowReview(true))
+    }
+  }, [dispatch, typedField, parsedAmounts])
 
-  function getApproveButton(): JSX.Element | null {
-    if (!isSupportedChainId || !account || userError !== UserError.VALID || !formattedAmounts[0]) {
-      return null
+  const handleMain = useCallback(async () => {
+    if (!mainCallback) return
+    dispatch(setAttemptingTxn(true))
+
+    let error = ''
+    try {
+      const txHash = await mainCallback()
+      setTxHash(txHash)
+    } catch (e) {
+      if (e instanceof Error) {
+        error = e.message
+      } else {
+        console.error(e)
+        error = 'An unknown error occured.'
+      }
     }
 
+    dispatch(setBorrowState({ ...borrowState, error, attemptingTxn: false }))
+  }, [dispatch, mainCallback, borrowState])
+
+  const handleOnDismiss = useCallback(() => {
+    setTxHash('')
+    dispatch(setBorrowState({ ...borrowState, showReview: false, attemptingTxn: false, error: undefined }))
+  }, [dispatch, borrowState])
+
+  function getApproveButton(): JSX.Element | null {
+    if (!isSupportedChainId || !account || userError !== UserError.VALID) {
+      return null
+    }
     if (awaitingApproveConfirmation) {
       return (
         <PrimaryButton active>
@@ -107,7 +153,7 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
       )
     }
     if (showApprove) {
-      return <PrimaryButton onClick={handleApprove}>Approve {inputCurrency?.symbol}</PrimaryButton>
+      return <PrimaryButton onClick={handleApprove}>Allow us to spend {inputCurrency?.symbol}</PrimaryButton>
     }
     return null
   }
@@ -126,8 +172,14 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
       return <PrimaryButton disabled>Insufficient {inputCurrency?.symbol} Balance</PrimaryButton>
     }
     return (
-      <PrimaryButton onClick={handleMain}>
-        {action.toUpperCase()} {pairCurrency?.symbol}
+      <PrimaryButton onClick={onMain}>
+        {typedField === TypedField.COLLATERAL && action === BorrowAction.BORROW
+          ? `DEPOSIT ${collateralCurrency?.symbol}`
+          : typedField === TypedField.COLLATERAL && typedField === TypedField.COLLATERAL
+          ? `WITHDRAW ${collateralCurrency?.symbol}`
+          : typedField === TypedField.BORROW && action === BorrowAction.BORROW
+          ? `BORROW ${borrowCurrency?.symbol}`
+          : `REPAY ${borrowCurrency?.symbol}`}
       </PrimaryButton>
     )
   }
@@ -135,30 +187,48 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   return (
     <Wrapper>
       <Panel>
-        <CardTitle>{action === BorrowAction.BORROW ? 'Deposit Collateral' : `Repay ${pairCurrency?.symbol}`}</CardTitle>
+        <CardTitle>{action === BorrowAction.BORROW ? 'Deposit Collateral' : 'Withdraw Collateral'}</CardTitle>
         <InputBox
-          currency={inputCurrency}
+          currency={collateralCurrency}
+          pool={pool}
+          action={action}
+          isCollateralCurrency
           value={formattedAmounts[0]}
           onChange={(value) => {
-            dispatch(setUserState({ ...borrowState, typedValue: value || '', typedField: TypedField.A }))
+            dispatch(setBorrowState({ ...borrowState, typedValue: value || '', typedField: TypedField.COLLATERAL }))
           }}
         />
       </Panel>
       <Panel>
-        <CardTitle>{action === BorrowAction.BORROW ? `Borrow ${pairCurrency?.symbol}` : 'Remove Collateral'}</CardTitle>
+        <CardTitle>
+          {action === BorrowAction.BORROW ? `Borrow ${borrowCurrency?.symbol}` : `Repay ${borrowCurrency?.symbol}`}
+        </CardTitle>
         <InputBox
-          currency={outputCurrency}
+          currency={borrowCurrency}
+          pool={pool}
+          action={action}
+          isBorrowCurrency
           value={formattedAmounts[1]}
           onChange={(value) => {
-            dispatch(setUserState({ ...borrowState, typedValue: value || '', typedField: TypedField.B }))
+            dispatch(setBorrowState({ ...borrowState, typedValue: value || '', typedField: TypedField.BORROW }))
           }}
         />
-      </Panel>
-      <Panel>
-        <SummaryPanel pool={pool} />
       </Panel>
       {getApproveButton()}
       {getActionButton()}
+      <ConfirmBorrowModal
+        isOpen={showReview}
+        onDismiss={handleOnDismiss}
+        onConfirm={handleMain}
+        attemptingTxn={attemptingTxn}
+        txHash={txHash}
+        errorMessage={borrowStateError}
+        currency={inputCurrency}
+        pool={pool}
+        amount={typedField === TypedField.COLLATERAL ? parsedAmounts[0] : parsedAmounts[1]}
+        action={action}
+        typedField={typedField}
+      />
     </Wrapper>
   )
 }

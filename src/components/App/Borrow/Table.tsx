@@ -1,12 +1,15 @@
 import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 
+import { useCurrenciesFromPool } from 'state/borrow/hooks'
 import { BorrowPool } from 'state/borrow/reducer'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useGlobalPoolData } from 'hooks/usePoolData'
+import { useLPData } from 'hooks/useLPData'
 
 import Pagination from 'components/Pagination'
 import { PrimaryButton } from 'components/Button'
+import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { formatAmount } from 'utils/numbers'
 
@@ -14,7 +17,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-flow: column nowrap;
   justify-content: space-between;
-  min-height: 350px; /* hardcoded because a non-complete page will shift the height */
 `
 
 const TableWrapper = styled.table`
@@ -48,22 +50,18 @@ const Cel = styled.td<{
   padding: 5px;
   border: 1px solid ${({ theme }) => theme.border1};
   height: 90px;
-`
 
-const Component = styled.div`
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: center;
-
-  & > * {
-    &:first-child {
-      transform: translateX(10%);
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    :nth-child(3),
+    :nth-child(4) {
+      display: none;
     }
-    &:nth-child(2) {
-      transform: translateX(-10%);
+  `}
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    :nth-child(2) {
+      display: none;
     }
-  }
+  `}
 `
 
 const itemsPerPage = 10
@@ -94,10 +92,9 @@ export default function Table({
         <Head>
           <tr>
             <Cel>Composition</Cel>
-            <Cel>Total DEI Borrowed</Cel>
-            <Cel>DEI left to borrow</Cel>
-            <Cel>Interest</Cel>
-            <Cel>Liquidation Fee</Cel>
+            <Cel>Type</Cel>
+            <Cel>Borrowed</Cel>
+            <Cel>Rewards</Cel>
             <Cel>Action</Cel>
           </tr>
         </Head>
@@ -108,7 +105,7 @@ export default function Table({
             ))
           ) : (
             <tr>
-              <td colSpan={7} style={{ textAlign: 'center', padding: '20px' }}>
+              <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}>
                 No Results Found
               </td>
             </tr>
@@ -121,26 +118,31 @@ export default function Table({
 }
 
 function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contract: string) => void }) {
-  const logoOne = useCurrencyLogo(pool.collateral.address)
-  const logoTwo = useCurrencyLogo(pool.pair.address)
-
-  const { borrowedBase, maxBorrow } = useGlobalPoolData(pool)
+  const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
+  const logoOne = useCurrencyLogo(pool.token0.address)
+  const logoTwo = useCurrencyLogo(pool.token1.address)
+  const { balance0, balance1 } = useLPData(pool)
+  const { borrowedElastic } = useGlobalPoolData(pool)
 
   return (
     <Row>
       <Cel>
-        <Component>
-          <ImageWithFallback src={logoOne} alt={`${pool.collateral.symbol} logo`} width={20} height={20} />
-          <ImageWithFallback src={logoTwo} alt={`${pool.pair.symbol} logo`} width={20} height={20} />
+        <DualImageWrapper>
+          <ImageWithFallback src={logoOne} alt={`${pool.token0.symbol} logo`} width={30} height={30} />
+          <ImageWithFallback src={logoTwo} alt={`${pool.token1.symbol} logo`} width={30} height={30} />
           {pool.composition}
-        </Component>
+        </DualImageWrapper>
       </Cel>
-      <Cel>{formatAmount(borrowedBase)}</Cel>
-      <Cel>{formatAmount(maxBorrow)}</Cel>
-      <Cel>{pool.interestRate.toSignificant()}%</Cel>
-      <Cel>{pool.liquidationFee.toSignificant()}%</Cel>
+      <Cel>{pool.type}</Cel>
+      <Cel>
+        {formatAmount(parseFloat(borrowedElastic))} {borrowCurrency?.symbol}
+      </Cel>
+      <Cel>
+        {balance0} SEX <br />
+        {balance1} SOLID
+      </Cel>
       <Cel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => onMintClick(pool.contract)}>Borrow</PrimaryButton>
+        <PrimaryButton onClick={() => onMintClick(pool.contract.address)}>Borrow</PrimaryButton>
       </Cel>
     </Row>
   )

@@ -33,7 +33,7 @@ interface TokenBalanceMap {
 
 export default function Balances({ pool }: { pool: BorrowPool }) {
   const { account } = useWeb3React()
-  const tokens = useMemo(() => [pool.collateral, pool.pair], [pool])
+  const tokens = useMemo(() => [pool.token0, pool.token1], [pool])
   const balances = useTokenBalances(account ?? undefined, tokens)
   const nativeBalances = useNativeCurrencyBalances([account ?? undefined])
 
@@ -46,9 +46,8 @@ export default function Balances({ pool }: { pool: BorrowPool }) {
   const filteredBalances = useMemo(() => {
     return tokens.reduce((acc: TokenBalanceMap, token) => {
       const balance = balances[token.address]
-      if (!balance || balance.toSignificant() === '0') return acc
       acc[token.address] = {
-        balance: balance.toSignificant(),
+        balance: balance ? balance.toSignificant() : '0.00',
         symbol: token.symbol ?? '',
       }
       return acc
@@ -68,7 +67,7 @@ export default function Balances({ pool }: { pool: BorrowPool }) {
 
 function BalanceRow({ address, symbol, balance }: { address: string; symbol: string; balance: string }) {
   const logo = useCurrencyLogo(address)
-  return balance === '0' ? null : (
+  return (
     <Row>
       <ImageWithFallback src={logo} alt={`${symbol} logo`} width={20} height={20} />
       {symbol} {balance}

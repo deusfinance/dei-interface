@@ -13,8 +13,18 @@ export const DeiAddress: AddressMap = {
 }
 
 // NEEDS CHANGING
-export const MasterContract: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xF5BCE5077908a1b7370B9ae04AdC565EBd643966',
+export const GeneralLender: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xc654d54d5404c1d92dB820a3C04041B957A43aD6',
+}
+
+// NEEDS CHANGING
+export const LenderManager: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xc02f204bab0248c694516dbaf985d40718ed4f86',
+}
+
+// NEEDS CHANGING
+export const LenderOracle: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x45716366916E10322067921A463111bA6b4770dE',
 }
 
 // NEEDS CHANGING

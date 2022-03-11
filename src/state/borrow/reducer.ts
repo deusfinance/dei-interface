@@ -2,8 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Percent, Token } from '@sushiswap/core-sdk'
 
 export enum TypedField {
-  A,
-  B,
+  COLLATERAL,
+  BORROW,
 }
 
 export enum BorrowAction {
@@ -12,12 +12,12 @@ export enum BorrowAction {
 }
 
 export interface UnserializedBorrowPool {
-  contract: string
+  contract: Token
+  token0: Token
+  token1: Token
   abi: any
   composition: string
-  collateral: Token
-  pair: Token
-  ltv: number
+  type: string
   interestRate: number
   borrowFee: number
   liquidationFee: number
@@ -32,13 +32,17 @@ export interface BorrowPool extends Omit<UnserializedBorrowPool, 'interestRate' 
 export interface BorrowState {
   typedValue: string
   typedField: TypedField
+  attemptingTxn: boolean
+  showReview: boolean
   error?: string
   pools: UnserializedBorrowPool[]
 }
 
 const initialState: BorrowState = {
   typedValue: '',
-  typedField: TypedField.A,
+  typedField: TypedField.COLLATERAL,
+  attemptingTxn: false,
+  showReview: false,
   error: undefined,
   pools: [],
 }
@@ -47,13 +51,21 @@ export const borrowSlice = createSlice({
   name: 'borrow',
   initialState,
   reducers: {
-    setUserState: (state, action: PayloadAction<BorrowState>) => {
+    setBorrowState: (state, action: PayloadAction<BorrowState>) => {
       state.typedValue = action.payload.typedValue
       state.typedField = action.payload.typedField
+      state.attemptingTxn = action.payload.attemptingTxn
+      state.showReview = action.payload.showReview
       state.error = action.payload.error
     },
     setPools: (state, action: PayloadAction<UnserializedBorrowPool[]>) => {
       state.pools = action.payload
+    },
+    setAttemptingTxn: (state, action: PayloadAction<boolean>) => {
+      state.attemptingTxn = action.payload
+    },
+    setShowReview: (state, action: PayloadAction<boolean>) => {
+      state.showReview = action.payload
     },
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload
@@ -61,5 +73,5 @@ export const borrowSlice = createSlice({
   },
 })
 
-export const { setUserState, setPools, setError } = borrowSlice.actions
+export const { setBorrowState, setAttemptingTxn, setShowReview, setPools, setError } = borrowSlice.actions
 export default borrowSlice.reducer

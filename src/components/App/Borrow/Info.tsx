@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
 import { BorrowPool } from 'state/borrow/reducer'
@@ -7,6 +7,7 @@ import { Card } from 'components/Card'
 import { Info as InfoIcon } from 'components/Icons'
 import { CardTitle } from 'components/Title'
 import { ToolTip } from 'components/ToolTip'
+import { useGlobalPoolData } from 'hooks/usePoolData'
 
 const Wrapper = styled(Card)`
   display: flex;
@@ -30,27 +31,31 @@ const Row = styled.div`
 `
 
 export default function Info({ pool }: { pool: BorrowPool }) {
+  const { liquidationRatio, borrowFee, interestPerSecond } = useGlobalPoolData(pool)
+  const annualizedInterest = useMemo(() => {
+    return (interestPerSecond * 60 * 24 * 365).toFixed(0)
+  }, [interestPerSecond])
   return (
     <Wrapper>
       <CardTitle>Info</CardTitle>
       <PositionRow
-        label="Maximum c-ratio "
-        value={`${pool.ltv}%`}
-        explanation="Maximum collateral ratio (MCR) - MCR represents the maximum amount of debt a user can borrow with a selected collateral token."
+        label="Liquidation Ratio"
+        value={`${liquidationRatio.toSignificant()}%`}
+        explanation="The maximum amount of debt you can borrow with a selected collateral token."
       />
       <PositionRow
         label="Liquidation fee "
-        value={`${pool.liquidationFee.toSignificant()}%`}
+        value="N/A"
         explanation="This is the discount a liquidator gets when buying collateral flagged for liquidation."
       />
       <PositionRow
         label="Borrow fee "
-        value={`${pool.borrowFee.toSignificant()}%`}
-        explanation={`This fee is added to your debt every time you borrow ${pool.pair.symbol}.`}
+        value={`${borrowFee.toSignificant()}%`}
+        explanation={`This fee is added to your debt every time you borrow DEI.`}
       />
       <PositionRow
         label="Interest rate "
-        value={`${pool.interestRate.toSignificant()}%`}
+        value={`${annualizedInterest}%`}
         explanation="This is the annualized percent that your debt will increase each year."
       />
     </Wrapper>

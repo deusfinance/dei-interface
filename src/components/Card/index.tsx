@@ -9,4 +9,8 @@ export const Card = styled.div`
   border: 1px solid ${({ theme }) => theme.border1};
   border-radius: 2px;
   padding: 2rem;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 1rem;
+  `}
 `

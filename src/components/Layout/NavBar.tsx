@@ -106,12 +106,12 @@ export default function NavBar() {
       <DefaultWrapper>
         <NavLogo />
         <Routes>
-          <Link href="/convert" passHref>
+          {/* <Link href="/convert" passHref>
             <NavLink active={router.route === '/convert'}>Convert</NavLink>
           </Link>
           <Link href="/vote" passHref>
             <NavLink active={router.route === '/vote'}>Vote</NavLink>
-          </Link>
+          </Link> */}
           <Link href="/borrow" passHref>
             <NavLink active={router.route === '/borrow'}>Borrow</NavLink>
           </Link>

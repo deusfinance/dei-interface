@@ -11,6 +11,7 @@ import {
   IconWrapper,
   Telegram as TelegramIcon,
   Trade as TradeIcon,
+  CreditCard as CreditCardIcon,
   Twitter as TwitterIcon,
   Github as GithubIcon,
 } from 'components/Icons'
@@ -58,6 +59,7 @@ const Row = styled.div<{
   `};
 `
 
+// TODO ADD PROPER ICONS
 export default function Menu() {
   const ref = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -73,11 +75,10 @@ export default function Menu() {
       </NavButton>
       <div>
         <InlineModal isOpen={isOpen}>
-          <Link href="/convert" passHref>
+          {/* <Link href="/convert" passHref>
             <Row onClick={() => toggle()} active={router.route === '/convert'}>
               <div>Convert</div>
               <IconWrapper>
-                {/* todo: add proper icon */}
                 <TradeIcon size={15} />
               </IconWrapper>
             </Row>
@@ -86,24 +87,18 @@ export default function Menu() {
             <Row active={router.route === '/vote'}>
               <div>Vote</div>
               <IconWrapper>
-                {/* todo: add proper icon */}
                 <TradeIcon size={15} />
               </IconWrapper>
             </Row>
-          </Link>
+          </Link> */}
           <Link href="/borrow" passHref>
             <Row active={router.route === '/borrow'}>
               <div>Borrow</div>
               <IconWrapper>
-                {/* todo: add proper icon */}
-                <TradeIcon size={15} />
+                <CreditCardIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
-          {/* <Row onClick={() => toggleDarkMode()}>
-            <div>{darkMode ? 'Light Theme' : 'Dark Theme'}</div>
-            <ThemeToggle />
-          </Row> */}
           <ExternalLink href="https://twitter.com/deusdao">
             <Row onClick={() => toggle()}>
               <div>Twitter</div>

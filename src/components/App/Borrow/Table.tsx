@@ -123,7 +123,6 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
   const logoTwo = useCurrencyLogo(pool.token1.address)
   const { balance0, balance1 } = useLPData(pool)
   const { borrowedElastic } = useGlobalPoolData(pool)
-  console.log({ balance0, balance1 })
 
   return (
     <Row>
@@ -139,8 +138,8 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
         {formatAmount(parseFloat(borrowedElastic))} {borrowCurrency?.symbol}
       </Cel>
       <Cel>
-        {balance0} SEX <br />
-        {balance1} SOLID
+        {formatAmount(parseFloat(balance0))} SEX <br />
+        {formatAmount(parseFloat(balance1))} SOLID
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
         <PrimaryButton onClick={() => onMintClick(pool.contract.address)}>Borrow</PrimaryButton>

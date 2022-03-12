@@ -58,7 +58,7 @@ export default function Borrow() {
 
   return (
     <Container>
-      <Hero>Get ready to borrow.</Hero>
+      <Hero>Imago DEI</Hero>
       <Wrapper>
         <div style={{ marginBottom: '15px' }}>Global DEI Borrowed: {formatAmount(parseFloat(borrowedElastic))}</div>
         <div>

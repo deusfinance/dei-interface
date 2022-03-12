@@ -87,9 +87,9 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   )
 
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = inputCurrency && approvalState !== ApprovalState.APPROVED
+    const show = inputCurrency && typedField === TypedField.COLLATERAL && approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [inputCurrency, approvalState])
+  }, [inputCurrency, typedField, approvalState])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -119,7 +119,7 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
         error = e.message
       } else {
         console.error(e)
-        error = 'An unknown error occured.'
+        error = 'An unknown error occurred.'
       }
     }
 

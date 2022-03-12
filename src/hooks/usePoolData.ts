@@ -12,12 +12,14 @@ import { DEI_TOKEN } from 'constants/borrow'
 import { constructPercentage } from 'utils/prices'
 import useWeb3React from './useWeb3'
 import { Interface } from '@ethersproject/abi'
+import { AddressZero } from '@ethersproject/constants'
 
 export function useUserPoolData(pool: BorrowPool): {
   userCollateral: string
   userBorrow: string
   userCap: string
   userDebt: string
+  userHolder: string
 } {
   const { account } = useWeb3React()
   const generalLenderContract = useGeneralLenderContract(pool)
@@ -40,6 +42,19 @@ export function useUserPoolData(pool: BorrowPool): {
     [account]
   )
 
+  const userHolderCalls = useMemo(
+    () =>
+      !account
+        ? []
+        : [
+            {
+              methodName: 'userHolder',
+              callInputs: [account],
+            },
+          ],
+    [account]
+  )
+
   const userCapCalls = useMemo(
     () =>
       !account
@@ -54,6 +69,7 @@ export function useUserPoolData(pool: BorrowPool): {
   )
 
   const [userCollateral, userBorrow] = useSingleContractMultipleMethods(generalLenderContract, collateralBorrowCalls)
+  const [userHolder] = useSingleContractMultipleMethods(generalLenderContract, userHolderCalls)
   const [userCap] = useSingleContractMultipleMethods(lenderManagerContract, userCapCalls)
 
   const { userCollateralValue, userBorrowValue, userCapValue } = useMemo(
@@ -71,7 +87,6 @@ export function useUserPoolData(pool: BorrowPool): {
     [collateralBorrowCalls, userCapCalls, userCollateral, userBorrow, userCap, pool]
   )
 
-  // It's impossible to call debt if the user has no deposits, hence the userBorrowValue check
   const debtCalls = useMemo(
     () =>
       !account || !parseFloat(userBorrowValue)
@@ -84,10 +99,16 @@ export function useUserPoolData(pool: BorrowPool): {
           ],
     [account, userBorrowValue]
   )
+
   const [userDebt] = useSingleContractMultipleMethods(generalLenderContract, debtCalls)
   const userDebtValue = useMemo(
     () => (debtCalls.length && userDebt?.result ? formatUnits(userDebt.result[0], DEI_TOKEN.decimals) : '0'),
     [debtCalls, userDebt]
+  )
+
+  const userHolderAddress = useMemo(
+    () => (userHolderCalls.length && userHolder?.result ? userHolder?.result[0].toString() : AddressZero),
+    [userHolderCalls, userHolder]
   )
 
   return useMemo(
@@ -96,8 +117,9 @@ export function useUserPoolData(pool: BorrowPool): {
       userBorrow: userBorrowValue,
       userCap: userCapValue,
       userDebt: userDebtValue,
+      userHolder: userHolderAddress,
     }),
-    [userCollateralValue, userBorrowValue, userCapValue, userDebtValue]
+    [userCollateralValue, userBorrowValue, userCapValue, userDebtValue, userHolderAddress]
   )
 }
 
@@ -145,10 +167,10 @@ export function useGlobalPoolData(pool: BorrowPool): {
       borrowedElastic: totalBorrow?.result ? formatUnits(totalBorrow.result[0], pool.contract.decimals) : '0',
       borrowedBase: totalBorrow?.result ? formatUnits(totalBorrow.result[1], pool.contract.decimals) : '0',
       liquidationRatio: liquidationRatio?.result
-        ? constructPercentage(Number(formatUnits(liquidationRatio.result[0], 2))) // LIQUIDATION_RATIO_PRECISION
+        ? constructPercentage(Number(formatUnits(liquidationRatio.result[0], 18))) // LIQUIDATION_RATIO_PRECISION
         : constructPercentage(100),
       borrowFee: borrowFee?.result
-        ? constructPercentage(Number(formatUnits(borrowFee.result[0], 2))) // BORROW_OPENING_FEE_PRECISION
+        ? constructPercentage(Number(formatUnits(borrowFee.result[0], 18))) // BORROW_OPENING_FEE_PRECISION
         : constructPercentage(100),
       interestPerSecond: accrueInfo?.result ? Number(formatUnits(accrueInfo.result[2], 18)) : 0,
     }),

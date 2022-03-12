@@ -3,6 +3,7 @@ import { Token } from '@sushiswap/core-sdk'
 import { UnserializedBorrowPool } from 'state/borrow/reducer'
 import { SupportedChainId } from 'constants/chains'
 import BASE_V1_PAIR from 'constants/abi/BASE_V1_PAIR.json'
+import BASE_V1_MAIN_PAIR from 'constants/abi/BASE_V1_MAIN_PAIR.json'
 
 // TODO SWITCH THIS TOKEN WITH THE BELOW COMMENTED OUT TOKEN FOR PRODUCTION RELEASE
 export const DEI_TOKEN = new Token(
@@ -35,7 +36,8 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     abi: BASE_V1_PAIR,
     composition: 'TUSDC/TDEI',
     oracle: '0x45716366916E10322067921A463111bA6b4770dE',
-    generalLender: '0xc654d54d5404c1d92dB820a3C04041B957A43aD6',
+    generalLender: '0x61E6685AeBAA23914AeB7C41C18DeEbB1201aeEf',
+    lpPool: '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
     type: 'SpiritSwap LP Tokens',
     liquidationFee: 5, // 5%
   },
@@ -43,18 +45,19 @@ export const BorrowPools: UnserializedBorrowPool[] = [
   {
     contract: new Token(
       SupportedChainId.FANTOM,
-      '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0', // MODIFY THIS
+      '0xd82001b651f7fb67db99c679133f384244e20e79',
       18,
-      'Solidex sAMM-USDC/DEI', // MODIFY THIS
-      'sex-sAMM-USDC/DEI' // MODIFY THIS
+      'Solidex sAMM-USDC/DEI',
+      'sex-sAMM-USDC/DEI'
     ),
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
-    token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 18, 'USDC', 'USDC'),
-    abi: BASE_V1_PAIR, // MODIFY THIS
+    token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
+    abi: BASE_V1_MAIN_PAIR,
     composition: 'USDC/DEI',
-    oracle: '0x45716366916E10322067921A463111bA6b4770dE', // MODIFY THIS
-    generalLender: '0xc654d54d5404c1d92dB820a3C04041B957A43aD6', // MODIFY THIS
-    type: 'Solidex LP Token', // MODIFY THIS
+    oracle: '0x6B38a39bEE3c8C8392133f7eceeF75bA8Ca4a1ED',
+    generalLender: '0xcdcDF1429E6f2ED6aBFA2CF27FBD12B823368fF4',
+    lpPool: '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
+    type: 'Solidex LP Token',
     liquidationFee: 5, // 5%
   },
 ]

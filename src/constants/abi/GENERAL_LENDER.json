@@ -4,7 +4,10 @@
       { "internalType": "contract IDEIStablecoin", "name": "dei_", "type": "address" },
       { "internalType": "contract IERC20", "name": "collateral_", "type": "address" },
       { "internalType": "contract IOracle", "name": "oracle_", "type": "address" },
-      { "internalType": "contract IManager", "name": "manager_", "type": "address" },
+      { "internalType": "contract IERC20", "name": "solid_", "type": "address" },
+      { "internalType": "contract IERC20", "name": "solidex_", "type": "address" },
+      { "internalType": "address", "name": "lpDepositor_", "type": "address" },
+      { "internalType": "uint256", "name": "maxCap_", "type": "uint256" },
       { "internalType": "uint256", "name": "interestPerSecond_", "type": "uint256" },
       { "internalType": "uint256", "name": "borrowOpeningFee", "type": "uint256" },
       { "internalType": "uint256", "name": "liquidationRatio", "type": "uint256" }
@@ -79,21 +82,7 @@
   },
   {
     "inputs": [],
-    "name": "BORROW_OPENING_FEE_PRECISION",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "LIQUIDATION_RATIO",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "LIQUIDATION_RATIO_PRECISION",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
@@ -130,11 +119,35 @@
     "stateMutability": "nonpayable",
     "type": "function"
   },
+  {
+    "inputs": [{ "internalType": "address[]", "name": "pools", "type": "address[]" }],
+    "name": "claim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "pools", "type": "address[]" },
+      { "internalType": "address", "name": "to", "type": "address" }
+    ],
+    "name": "claimAndWithdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
   { "inputs": [], "name": "claimOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   {
     "inputs": [],
     "name": "collateral",
     "outputs": [{ "internalType": "contract IERC20", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "debt", "type": "uint256" }],
+    "name": "debtToBorrow",
+    "outputs": [{ "internalType": "uint256", "name": "borrow", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -146,6 +159,29 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "contract SolidexHolder", "name": "holder", "type": "address" },
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "emergencyHolderWithdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "contract HIERC20", "name": "token", "type": "address" },
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "emergencyWithdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
     "name": "getDebt",
     "outputs": [{ "internalType": "uint256", "name": "debt", "type": "uint256" }],
@@ -153,9 +189,23 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
+    "name": "getLiquidationPrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
     "name": "getRepayAmount",
     "outputs": [{ "internalType": "uint256", "name": "repayAmount", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
+    "name": "getWithdrawableCollateralAmount",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -172,8 +222,15 @@
   },
   {
     "inputs": [],
-    "name": "manager",
-    "outputs": [{ "internalType": "contract IManager", "name": "", "type": "address" }],
+    "name": "lpDepositor",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "maxCap",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -209,6 +266,38 @@
     "name": "repay",
     "outputs": [{ "internalType": "uint256", "name": "repayAmount", "type": "uint256" }],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "contract IDEIStablecoin", "name": "dei_", "type": "address" },
+      { "internalType": "contract IERC20", "name": "collateral_", "type": "address" },
+      { "internalType": "contract IOracle", "name": "oracle_", "type": "address" },
+      { "internalType": "contract IERC20", "name": "solid_", "type": "address" },
+      { "internalType": "contract IERC20", "name": "solidex_", "type": "address" },
+      { "internalType": "address", "name": "lpDepositor_", "type": "address" },
+      { "internalType": "uint256", "name": "maxCap_", "type": "uint256" },
+      { "internalType": "uint256", "name": "interestPerSecond_", "type": "uint256" },
+      { "internalType": "uint256", "name": "borrowOpeningFee", "type": "uint256" },
+      { "internalType": "uint256", "name": "liquidationRatio", "type": "uint256" }
+    ],
+    "name": "setVariables",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "solid",
+    "outputs": [{ "internalType": "contract IERC20", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "solidex",
+    "outputs": [{ "internalType": "contract IERC20", "name": "", "type": "address" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -250,6 +339,13 @@
     "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "userCollateral",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "userHolder",
+    "outputs": [{ "internalType": "contract SolidexHolder", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },

@@ -6,7 +6,7 @@ import { BorrowPool } from 'state/borrow/reducer'
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
 import { useCollateralPrice, useLiquidationPrice, useUserPoolData } from 'hooks/usePoolData'
 import { useLPData } from 'hooks/useLPData'
-import { useContract } from 'hooks/useContract'
+import { useContract, useGeneralLenderContract } from 'hooks/useContract'
 import { formatAmount, formatDollarAmount } from 'utils/numbers'
 
 import { Card } from 'components/Card'
@@ -14,6 +14,7 @@ import { DotFlashing, Info } from 'components/Icons'
 import { CardTitle } from 'components/Title'
 import { ToolTip } from 'components/ToolTip'
 import { PrimaryButton } from 'components/Button'
+import useWeb3React from '../../../hooks/useWeb3'
 
 const Wrapper = styled(Card)`
   display: flex;
@@ -69,9 +70,11 @@ export default function Position({ pool }: { pool: BorrowPool }) {
   const collateralPrice = useCollateralPrice(pool)
   const liquidationPrice = useLiquidationPrice(pool)
   const poolContract = useContract(pool.contract.address, pool.abi, true)
+  const generalLender = useGeneralLenderContract(pool)
+
   const { balance0, balance1 } = useLPData(pool)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
-
+  const { account } = useWeb3React()
   const borrowSymbol = useMemo(() => {
     return borrowCurrency?.symbol ?? ''
   }, [borrowCurrency])
@@ -86,15 +89,15 @@ export default function Position({ pool }: { pool: BorrowPool }) {
 
   const onClaim = useCallback(async () => {
     try {
-      if (!poolContract) return
+      if (!generalLender || !account) return
       setAwaitingClaimConfirmation(true)
-      await poolContract.claimFees([])
+      await generalLender.claimAndWithdraw([pool.lpPool], account)
       setAwaitingClaimConfirmation(false)
     } catch (err) {
       console.error(err)
       setAwaitingClaimConfirmation(false)
     }
-  }, [poolContract])
+  }, [generalLender, pool, account])
 
   function getClaimButton() {
     if (awaitingClaimConfirmation) {

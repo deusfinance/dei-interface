@@ -185,7 +185,7 @@ export default function ConfirmBorrow({
       attemptingTxn={attemptingTxn}
       hash={txHash}
       summary={summary}
-      currencyToAdd={currency}
+      // currencyToAdd={currency}
       content={
         errorMessage ? (
           <TransactionErrorContent onDismiss={onDismiss} message={errorMessage} />

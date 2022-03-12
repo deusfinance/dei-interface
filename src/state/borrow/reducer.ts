@@ -19,6 +19,7 @@ export interface UnserializedBorrowPool {
   composition: string
   oracle: string
   generalLender: string
+  lpPool: string
   type: string
   liquidationFee: number
 }

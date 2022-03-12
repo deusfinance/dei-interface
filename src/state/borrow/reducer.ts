@@ -20,14 +20,10 @@ export interface UnserializedBorrowPool {
   oracle: string
   generalLender: string
   type: string
-  interestRate: number
-  borrowFee: number
   liquidationFee: number
 }
 
-export interface BorrowPool extends Omit<UnserializedBorrowPool, 'interestRate' | 'borrowFee' | 'liquidationFee'> {
-  interestRate: Percent
-  borrowFee: Percent
+export interface BorrowPool extends Omit<UnserializedBorrowPool, 'liquidationFee'> {
   liquidationFee: Percent
 }
 

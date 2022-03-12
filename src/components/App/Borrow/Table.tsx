@@ -5,13 +5,15 @@ import { useCurrenciesFromPool } from 'state/borrow/hooks'
 import { BorrowPool } from 'state/borrow/reducer'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useGlobalPoolData } from 'hooks/usePoolData'
-import { useLPData } from 'hooks/useLPData'
+// import { useLPData } from 'hooks/useLPData'
 
 import Pagination from 'components/Pagination'
 import { PrimaryButton } from 'components/Button'
 import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { formatAmount } from 'utils/numbers'
+import { ToolTip } from 'components/ToolTip'
+import { Info } from 'components/Icons'
 
 const Wrapper = styled.div`
   display: flex;
@@ -121,7 +123,7 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
   const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const logoOne = useCurrencyLogo(pool.token0.address)
   const logoTwo = useCurrencyLogo(pool.token1.address)
-  const { balance0, balance1 } = useLPData(pool)
+  // const { balance0, balance1 } = useLPData(pool)
   const { borrowedElastic } = useGlobalPoolData(pool)
 
   return (
@@ -137,9 +139,18 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
       <Cel>
         {formatAmount(parseFloat(borrowedElastic))} {borrowCurrency?.symbol}
       </Cel>
-      <Cel>
-        {balance0} SEX <br />
-        {balance1} SOLID
+      <Cel
+        style={{ display: 'flex', flexFlow: 'row nowrap', justifyContent: 'center', gap: '5px', alignItems: 'center' }}
+      >
+        <ToolTip id="tooltip" />
+        <Info
+          data-for="tooltip"
+          data-tip="Rewards are flowing and are collected in the background, claiming will be made available soon."
+          size={15}
+        />
+        <div>Coming Soon</div>
+        {/* {balance0} SEX <br />
+        {balance1} SOLID */}
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
         <PrimaryButton onClick={() => onMintClick(pool.contract.address)}>Borrow</PrimaryButton>

@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js'
 import { BorrowPool } from 'state/borrow/reducer'
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
 import { useCollateralPrice, useLiquidationPrice, useUserPoolData } from 'hooks/usePoolData'
-import { useLPData } from 'hooks/useLPData'
+// import { useLPData } from 'hooks/useLPData'
 import { useContract } from 'hooks/useContract'
 import { formatAmount, formatDollarAmount } from 'utils/numbers'
 
@@ -69,7 +69,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
   const collateralPrice = useCollateralPrice(pool)
   const liquidationPrice = useLiquidationPrice(pool)
   const poolContract = useContract(pool.contract.address, pool.abi, true)
-  const { balance0, balance1 } = useLPData(pool)
+  // const { balance0, balance1 } = useLPData(pool)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
 
   const borrowSymbol = useMemo(() => {
@@ -104,7 +104,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
         </StyledPrimaryButton>
       )
     }
-    return <StyledPrimaryButton onClick={onClaim}>Claim Rewards</StyledPrimaryButton>
+    return <StyledPrimaryButton>Claim Rewards (soon)</StyledPrimaryButton>
   }
 
   return (
@@ -142,9 +142,10 @@ export default function Position({ pool }: { pool: BorrowPool }) {
       />
       <PositionRow
         label="Underlying LP Rewards"
-        subLabel={`${balance0} SOLID + ${balance1} SEX`}
         value=""
-        explanation="SEX + SOLID your position has earned so far"
+        explanation="Rewards are flowing and are collected in the background, claiming will be made available soon."
+        // subLabel={`${balance0} SOLID + ${balance1} SEX`}
+        // explanation="SEX + SOLID your position has earned so far"
       />
       {getClaimButton()}
     </Wrapper>

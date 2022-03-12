@@ -93,8 +93,8 @@ export default function Table({
           <tr>
             <Cel>Composition</Cel>
             <Cel>Type</Cel>
-            <Cel>Borrowed</Cel>
-            <Cel>Rewards</Cel>
+            <Cel>Total Borrowed</Cel>
+            <Cel>Your Rewards</Cel>
             <Cel>Action</Cel>
           </tr>
         </Head>

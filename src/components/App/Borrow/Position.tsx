@@ -128,7 +128,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
       <PositionRow
         label="Outstanding Debt"
         value={formatAmount(parseFloat(userDebt), 4)}
-        explanation={`${borrowSymbol} Amount to be Repayed`}
+        explanation={`${borrowSymbol} Amount that is considered Debt`}
       />
       <PositionRow
         label="Liquidation Price"

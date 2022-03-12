@@ -11,8 +11,10 @@ import ERC20_BYTES32_ABI from 'constants/abi/ERC20'
 import MULTICALL2_ABI from 'constants/abi/MULTICALL2.json'
 import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
 import LENDER_MANAGER_ABI from 'constants/abi/LENDER_MANAGER.json'
+import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
 import { Providers } from 'constants/providers'
-import { GeneralLender, LenderManager, Multicall2 } from 'constants/addresses'
+import { LenderManager, Multicall2 } from 'constants/addresses'
+import { BorrowPool } from 'state/borrow/reducer'
 
 export function useContract<T extends Contract = Contract>(
   addressOrAddressMap: string | null | undefined,
@@ -44,10 +46,12 @@ export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossi
   return useContract(tokenAddress, ERC20_BYTES32_ABI, withSignerIfPossible)
 }
 
-export function useGeneralLenderContract() {
-  const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? GeneralLender[chainId] : undefined), [chainId])
-  return useContract(address, GENERAL_LENDER_ABI)
+export function useGeneralLenderContract(pool: BorrowPool) {
+  return useContract(pool.generalLender, GENERAL_LENDER_ABI)
+}
+
+export function useOracleContract(pool: BorrowPool) {
+  return useContract(pool.oracle, LENDER_ORACLE_ABI)
 }
 
 export function useLenderManagerContract() {
@@ -70,7 +74,7 @@ export function getSigner(library: any, account: string): any {
   return library.getSigner(account).connectUnchecked()
 }
 
-function getContract(
+export function getContract(
   address: string,
   ABI: any,
   library: Web3Provider,

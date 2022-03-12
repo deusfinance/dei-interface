@@ -32,7 +32,7 @@ export default function useBorrowPage(
   const { typedValue, typedField } = useBorrowState()
   const collateralBalance = useCurrencyBalance(account ?? undefined, collateralCurrency)
   const borrowBalance = useCurrencyBalance(account ?? undefined, borrowCurrency)
-  const { userCollateral, userDebt } = useUserPoolData(pool)
+  const { userDebt } = useUserPoolData(pool)
   const availableForWithdrawal = useAvailableForWithdrawal(pool)
 
   // Amount typed in either fields
@@ -68,16 +68,7 @@ export default function useBorrowPage(
     }
     // repaying
     return parsedAmounts[1] && userDebt < parsedAmounts[1].toExact()
-  }, [
-    collateralBalance,
-    borrowBalance,
-    userCollateral,
-    userDebt,
-    parsedAmounts,
-    typedField,
-    action,
-    availableForWithdrawal,
-  ])
+  }, [collateralBalance, borrowBalance, userDebt, parsedAmounts, typedField, action, availableForWithdrawal])
 
   const error = useMemo(
     () =>
@@ -98,6 +89,6 @@ export default function useBorrowPage(
       formattedAmounts,
       parsedAmounts,
     }),
-    [error, formattedAmounts, parsedAmounts]
+    [error, typedField, formattedAmounts, parsedAmounts]
   )
 }

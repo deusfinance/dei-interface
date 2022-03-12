@@ -11,6 +11,10 @@ import Disclaimer from 'components/Disclaimer'
 import { PrimaryButton } from 'components/Button'
 import { ArrowBubble } from 'components/Icons'
 import { useRouter } from 'next/router'
+import useWeb3React from 'hooks/useWeb3'
+import { useWalletModalToggle } from 'state/application/hooks'
+import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
+import { SupportedChainId } from 'constants/chains'
 
 const Container = styled.div`
   display: flex;
@@ -89,15 +93,73 @@ const CardWrapper = styled.div`
 `
 
 export default function BorrowDEI() {
+  const { chainId, account } = useWeb3React()
   const router = useRouter()
   const pool = useBorrowPoolFromURL()
   const { collateralCurrency, borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const [selectedAction, setSelectedAction] = useState<BorrowAction>(BorrowAction.BORROW)
   const isSupportedChainId = useSupportedChainId()
+  const toggleWalletModal = useWalletModalToggle()
+  const rpcChangerCallback = useRpcChangerCallback()
 
   const onReturnClick = useCallback(() => {
     router.push('/borrow')
   }, [router])
+
+  function getMainContent() {
+    if (!chainId || !account) {
+      return (
+        <>
+          <div>Connect your Wallet in order to start borrowing.</div>
+          <PrimaryButton onClick={toggleWalletModal}>Connect Wallet</PrimaryButton>
+        </>
+      )
+    }
+    if (!isSupportedChainId) {
+      return (
+        <>
+          <div>You are not connected to the Fantom Opera Network.</div>
+          <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
+        </>
+      )
+    }
+    if (!pool) {
+      return <div>The imported contract is not a valid pool. Return to Pool Overview for a valid list.</div>
+    }
+    if (!collateralCurrency || !borrowCurrency) {
+      return (
+        <div>
+          Experiencing issues with the Fantom RPC, unable to load pools. If this issue persist, try to refresh the page.
+        </div>
+      )
+    }
+    return (
+      <>
+        <Navigation>
+          <BorrowButton
+            disabled={selectedAction !== BorrowAction.BORROW}
+            onClick={() => setSelectedAction(BorrowAction.BORROW)}
+          >
+            {BorrowAction.BORROW}
+          </BorrowButton>
+          <BorrowButton
+            disabled={selectedAction !== BorrowAction.REPAY}
+            onClick={() => setSelectedAction(BorrowAction.REPAY)}
+          >
+            {BorrowAction.REPAY}
+          </BorrowButton>
+        </Navigation>
+        <CardWrapper>
+          <Borrow pool={pool} action={selectedAction} />
+          <Position pool={pool} />
+        </CardWrapper>
+        <CardWrapper>
+          <Balances pool={pool} />
+          <Info pool={pool} />
+        </CardWrapper>
+      </>
+    )
+  }
 
   return (
     <Container>
@@ -107,38 +169,7 @@ export default function BorrowDEI() {
           <ArrowBubble size={20}>Back</ArrowBubble>
           Pool Overview
         </ReturnWrapper>
-        {!pool ? (
-          <div>The imported contract is not a valid pool.</div>
-        ) : !isSupportedChainId ? (
-          <div>You are not connected with the Fantom Network.</div>
-        ) : !collateralCurrency || !borrowCurrency ? (
-          <div>Experiencing issues with the Fantom RPC. Unable to load pools.</div>
-        ) : (
-          <>
-            <Navigation>
-              <BorrowButton
-                disabled={selectedAction !== BorrowAction.BORROW}
-                onClick={() => setSelectedAction(BorrowAction.BORROW)}
-              >
-                {BorrowAction.BORROW}
-              </BorrowButton>
-              <BorrowButton
-                disabled={selectedAction !== BorrowAction.REPAY}
-                onClick={() => setSelectedAction(BorrowAction.REPAY)}
-              >
-                {BorrowAction.REPAY}
-              </BorrowButton>
-            </Navigation>
-            <CardWrapper>
-              <Borrow pool={pool} action={selectedAction} />
-              <Position pool={pool} />
-            </CardWrapper>
-            <CardWrapper>
-              <Balances pool={pool} />
-              <Info pool={pool} />
-            </CardWrapper>
-          </>
-        )}
+        {getMainContent()}
       </Wrapper>
       <Disclaimer />
     </Container>

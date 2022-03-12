@@ -4,13 +4,14 @@ import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
 
 import { BorrowPool } from 'state/borrow/reducer'
-import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { useContract, useGeneralLenderContract, useLenderManagerContract } from './useContract'
+import { useMultipleContractSingleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
+import { useGeneralLenderContract, useLenderManagerContract, useOracleContract } from './useContract'
+import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
 
-import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
 import { DEI_TOKEN } from 'constants/borrow'
 import { constructPercentage } from 'utils/prices'
 import useWeb3React from './useWeb3'
+import { Interface } from '@ethersproject/abi'
 
 export function useUserPoolData(pool: BorrowPool): {
   userCollateral: string
@@ -19,7 +20,7 @@ export function useUserPoolData(pool: BorrowPool): {
   userDebt: string
 } {
   const { account } = useWeb3React()
-  const generalLenderContract = useGeneralLenderContract()
+  const generalLenderContract = useGeneralLenderContract(pool)
   const lenderManagerContract = useLenderManagerContract()
 
   const collateralBorrowCalls = useMemo(
@@ -108,7 +109,7 @@ export function useGlobalPoolData(pool: BorrowPool): {
   borrowFee: Percent
   interestPerSecond: number
 } {
-  const generalLenderContract = useGeneralLenderContract()
+  const generalLenderContract = useGeneralLenderContract(pool)
 
   const calls = [
     {
@@ -155,9 +156,44 @@ export function useGlobalPoolData(pool: BorrowPool): {
   )
 }
 
-export function useCollateralPrice(pool: BorrowPool): string {
-  const oracleContract = useContract(pool.oracle, LENDER_ORACLE_ABI)
+export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
+  borrowedBase: string
+  borrowedElastic: string
+} {
+  const contracts = useMemo(() => pools.map((pool) => pool.generalLender), [pools])
+  const results = useMultipleContractSingleData(contracts, new Interface(GENERAL_LENDER_ABI), 'totalBorrow', [])
 
+  const elasticSum = useMemo(() => {
+    return results.reduce((acc, value, index) => {
+      if (value.error || !value.result) return acc
+      const amount = formatUnits(value.result[0], pools[index].contract.decimals)
+      acc = acc.plus(amount)
+      console.log('elasse', amount)
+
+      return acc
+    }, new BigNumber('0'))
+  }, [results, pools])
+
+  const baseSum = useMemo(() => {
+    return results.reduce((acc, value, index) => {
+      if (value.error || !value.result) return acc
+      const amount = formatUnits(value.result[1], pools[index].contract.decimals)
+      acc = acc.plus(amount)
+      return acc
+    }, new BigNumber('0'))
+  }, [results, pools])
+
+  return useMemo(
+    () => ({
+      borrowedBase: baseSum.toString(),
+      borrowedElastic: elasticSum.toString(),
+    }),
+    [baseSum, elasticSum]
+  )
+}
+
+export function useCollateralPrice(pool: BorrowPool): string {
+  const oracleContract = useOracleContract(pool)
   const [price] = useSingleContractMultipleMethods(oracleContract, [{ methodName: 'getPrice', callInputs: [] }])
   return useMemo(() => (price?.result ? formatUnits(price.result[0], 18) : '0'), [price])
 }

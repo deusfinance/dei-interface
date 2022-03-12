@@ -21,7 +21,6 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useBorrowCallback from 'hooks/useBorrowCallback'
 
 import { SupportedChainId } from 'constants/chains'
-import { GeneralLender } from 'constants/addresses'
 
 import { Card } from 'components/Card'
 import ConfirmBorrowModal from 'components/TransactionConfirmationModal/ConfirmBorrow'
@@ -48,7 +47,7 @@ const Panel = styled.div`
 `
 
 export default function Borrow({ pool, action }: { pool: BorrowPool; action: BorrowAction }) {
-  const { chainId, account } = useWeb3React()
+  const { account } = useWeb3React()
   const dispatch = useAppDispatch()
   const toggleWalletModal = useWalletModalToggle()
   const rpcChangerCallback = useRpcChangerCallback()
@@ -72,11 +71,8 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   }, [collateralCurrency, borrowCurrency, typedField])
 
   const spender = useMemo(() => {
-    if (!isSupportedChainId || !chainId) {
-      return undefined
-    }
-    return GeneralLender[chainId]
-  }, [isSupportedChainId, chainId])
+    return pool.generalLender
+  }, [pool])
 
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency, spender)
 
@@ -85,6 +81,7 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     borrowCurrency,
     parsedAmounts[0],
     parsedAmounts[1],
+    pool,
     action,
     typedField
   )

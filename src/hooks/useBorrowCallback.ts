@@ -3,7 +3,7 @@ import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Currency, CurrencyAmount, NativeCurrency, Token, ZERO } from '@sushiswap/core-sdk'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { BorrowAction, TypedField } from 'state/borrow/reducer'
+import { BorrowAction, BorrowPool, TypedField } from 'state/borrow/reducer'
 
 import useWeb3React from './useWeb3'
 import { useGeneralLenderContract } from './useContract'
@@ -20,6 +20,7 @@ export default function useBorrowCallback(
   borrowCurrency: Currency | undefined,
   collateralAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
   borrowAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+  pool: BorrowPool,
   action: BorrowAction,
   typedField: TypedField
 ): {
@@ -29,7 +30,7 @@ export default function useBorrowCallback(
 } {
   const { chainId, account, library } = useWeb3React()
   const addTransaction = useTransactionAdder()
-  const GeneralLender = useGeneralLenderContract()
+  const GeneralLender = useGeneralLenderContract(pool)
 
   const constructCall = useCallback(() => {
     try {

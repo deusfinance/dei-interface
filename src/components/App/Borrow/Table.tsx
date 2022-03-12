@@ -139,18 +139,26 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
       <Cel>
         {formatAmount(parseFloat(borrowedElastic))} {borrowCurrency?.symbol}
       </Cel>
-      <Cel
-        style={{ display: 'flex', flexFlow: 'row nowrap', justifyContent: 'center', gap: '5px', alignItems: 'center' }}
-      >
-        <ToolTip id="tooltip" />
-        <Info
-          data-for="tooltip"
-          data-tip="Rewards are flowing and are collected in the background, claiming will be made available soon."
-          size={15}
-        />
-        <div>Coming Soon</div>
-        {/* {balance0} SEX <br />
+      <Cel>
+        <div
+          style={{
+            display: 'flex',
+            flexFlow: 'row nowrap',
+            justifyContent: 'center',
+            gap: '5px',
+            alignItems: 'center',
+          }}
+        >
+          <ToolTip id="tooltip" />
+          <Info
+            data-for="tooltip"
+            data-tip="Rewards are flowing and are collected in the background, claiming will be made available soon."
+            size={15}
+          />
+          <div>Coming Soon</div>
+          {/* {balance0} SEX <br />
         {balance1} SOLID */}
+        </div>
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
         <PrimaryButton onClick={() => onMintClick(pool.contract.address)}>Borrow</PrimaryButton>

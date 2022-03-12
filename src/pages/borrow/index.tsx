@@ -6,7 +6,7 @@ import { BorrowPool } from 'state/borrow/reducer'
 import { useBorrowPools } from 'state/borrow/hooks'
 import { useGlobalDEIBorrowed } from 'hooks/usePoolData'
 
-import Hero from 'components/Hero'
+import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { useSearch, SearchField, Table } from 'components/App/Borrow'
 import { formatAmount } from 'utils/numbers'
@@ -58,7 +58,10 @@ export default function Borrow() {
 
   return (
     <Container>
-      <Hero>Imago DEI</Hero>
+      <Hero>
+        <div>Imago DEI</div>
+        <HeroSubtext>Borrow DEI against Interest Bearing Tokens.</HeroSubtext>
+      </Hero>
       <Wrapper>
         <div style={{ marginBottom: '15px' }}>Global DEI Borrowed: {formatAmount(parseFloat(borrowedElastic))}</div>
         <div>

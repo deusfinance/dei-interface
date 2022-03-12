@@ -29,8 +29,6 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     oracle: '0x45716366916E10322067921A463111bA6b4770dE',
     generalLender: '0xc654d54d5404c1d92dB820a3C04041B957A43aD6',
     type: 'SpiritSwap LP Tokens',
-    interestRate: 0.035,
-    borrowFee: 0.0005,
-    liquidationFee: 0.125,
+    liquidationFee: 5, // 5%
   },
 ]

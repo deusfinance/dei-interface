@@ -45,7 +45,7 @@ export default function Info({ pool }: { pool: BorrowPool }) {
       />
       <PositionRow
         label="Liquidation Fee "
-        value="N/A"
+        value={`${pool.liquidationFee.divide(100).toSignificant()}%`}
         explanation="This is the discount a liquidator gets when buying collateral flagged for liquidation."
       />
       <PositionRow

@@ -19,8 +19,6 @@ export function useBorrowPools(): BorrowPool[] {
   return useMemo(() => {
     return pools.map((o) => ({
       ...o,
-      interestRate: constructPercentage(o.interestRate),
-      borrowFee: constructPercentage(o.borrowFee),
       liquidationFee: constructPercentage(o.liquidationFee),
     }))
   }, [pools])

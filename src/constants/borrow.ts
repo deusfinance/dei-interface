@@ -43,18 +43,18 @@ export const BorrowPools: UnserializedBorrowPool[] = [
   {
     contract: new Token(
       SupportedChainId.FANTOM,
-      '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
+      '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0', // MODIFY THIS
       18,
-      'StableV1 AMM - USDC/DEI',
-      'sAMM-USDC/DEI'
+      'Solidex sAMM-USDC/DEI', // MODIFY THIS
+      'sex-sAMM-USDC/DEI' // MODIFY THIS
     ),
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 18, 'USDC', 'USDC'),
-    abi: BASE_V1_PAIR,
+    abi: BASE_V1_PAIR, // MODIFY THIS
     composition: 'USDC/DEI',
     oracle: '0x45716366916E10322067921A463111bA6b4770dE', // MODIFY THIS
     generalLender: '0xc654d54d5404c1d92dB820a3C04041B957A43aD6', // MODIFY THIS
-    type: 'Solidly LP Tokens',
+    type: 'Solidex LP Token', // MODIFY THIS
     liquidationFee: 5, // 5%
   },
 ]

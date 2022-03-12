@@ -129,7 +129,8 @@ export default function BorrowDEI() {
     if (!collateralCurrency || !borrowCurrency) {
       return (
         <div>
-          Experiencing issues with the Fantom RPC, unable to load pools. If this issue persist, try to refresh the page.
+          Experiencing issues with the Fantom RPC, unable to load this pool. If this issue persist, try to refresh the
+          page.
         </div>
       )
     }

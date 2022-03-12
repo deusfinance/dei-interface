@@ -168,8 +168,6 @@ export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
       if (value.error || !value.result) return acc
       const amount = formatUnits(value.result[0], pools[index].contract.decimals)
       acc = acc.plus(amount)
-      console.log('elasse', amount)
-
       return acc
     }, new BigNumber('0'))
   }, [results, pools])

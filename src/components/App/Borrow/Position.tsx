@@ -154,7 +154,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
       />
       <PositionRow
         label="Underlying LP Rewards"
-        subLabel={`${balance0} SOLID + ${balance1} SEX`}
+        subLabel={`${formatAmount(parseFloat(balance0), 2)} SOLID + ${formatAmount(parseFloat(balance1), 2)} SEX`}
         value=""
         explanation="SEX + SOLID your position has earned so far"
       />

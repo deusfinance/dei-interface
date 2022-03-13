@@ -4,7 +4,13 @@ import BigNumber from 'bignumber.js'
 
 import { BorrowPool } from 'state/borrow/reducer'
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
-import { useCollateralPrice, useGlobalPoolData, useLiquidationPrice, useUserPoolData } from 'hooks/usePoolData'
+import {
+  useAvailableToBorrow,
+  useCollateralPrice,
+  useGlobalPoolData,
+  useLiquidationPrice,
+  useUserPoolData,
+} from 'hooks/usePoolData'
 import { useLPData } from 'hooks/useLPData'
 import { useGeneralLenderContract } from 'hooks/useContract'
 import { formatAmount, formatDollarAmount } from 'utils/numbers'
@@ -66,14 +72,16 @@ const StyledPrimaryButton = styled(PrimaryButton)`
 
 export default function Position({ pool }: { pool: BorrowPool }) {
   const { borrowCurrency } = useCurrenciesFromPool(pool)
-  const { userCollateral, userDebt, userCap } = useUserPoolData(pool)
-  const { maxCap, borrowedElastic } = useGlobalPoolData(pool)
+  const { userCollateral, userDebt } = useUserPoolData(pool)
+  const borrowable = useAvailableToBorrow(pool)
+  const { maxCap, borrowedElastic, borrowFee } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
   const liquidationPrice = useLiquidationPrice(pool)
   const generalLender = useGeneralLenderContract(pool)
   const { balance0, balance1 } = useLPData(pool)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
   const { account } = useWeb3React()
+
   const borrowSymbol = useMemo(() => {
     return borrowCurrency?.symbol ?? ''
   }, [borrowCurrency])
@@ -81,10 +89,6 @@ export default function Position({ pool }: { pool: BorrowPool }) {
   const collateralUSDValue = useMemo(() => {
     return new BigNumber(userCollateral).times(collateralPrice).toNumber()
   }, [userCollateral, collateralPrice])
-
-  const borrowable = useMemo(() => {
-    return new BigNumber(userCap).minus(userDebt).toNumber()
-  }, [userCap, userDebt])
 
   const onClaim = useCallback(async () => {
     try {
@@ -108,7 +112,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
     }
     return <StyledPrimaryButton onClick={onClaim}>Claim Rewards</StyledPrimaryButton>
   }
-
+  const numerator = (100 - Number(borrowFee.toSignificant())) / 100
   return (
     <Wrapper>
       <CardTitle>Your Position</CardTitle>
@@ -119,7 +123,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
       />
       <PositionRow
         label="Total Remaining Cap"
-        value={`${formatAmount(parseFloat(maxCap) - parseFloat(borrowedElastic), 0)} DEI`}
+        value={`${formatAmount((parseFloat(maxCap) - parseFloat(borrowedElastic)) * numerator, 0)} DEI`}
         explanation="Total Remaining Capacity for borrowing DEI"
       />
       <PositionRow
@@ -149,7 +153,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
       />
       <PositionRow
         label={`${borrowSymbol} Left to Borrow`}
-        value={formatAmount(borrowable, 3)}
+        value={`${formatAmount(parseFloat(borrowable), 0)} DEI`}
         explanation={`${borrowSymbol} Borrowable based on the Collateral Deposited`}
       />
       <PositionRow

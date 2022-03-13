@@ -22,6 +22,7 @@ export interface UnserializedBorrowPool {
   lpPool: string
   type: string
   liquidationFee: number
+  mintHelper: string
 }
 
 export interface BorrowPool extends Omit<UnserializedBorrowPool, 'liquidationFee'> {

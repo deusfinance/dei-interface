@@ -50,6 +50,7 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   const { account } = useWeb3React()
   const dispatch = useAppDispatch()
   const toggleWalletModal = useWalletModalToggle()
+  const [payOff, setPayOff] = useState<boolean | null>(null)
   const rpcChangerCallback = useRpcChangerCallback()
   const isSupportedChainId = useSupportedChainId()
   const { collateralCurrency, borrowCurrency } = useCurrenciesFromPool(pool)
@@ -71,8 +72,8 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   }, [collateralCurrency, borrowCurrency, typedField])
 
   const spender = useMemo(() => {
-    return pool.generalLender
-  }, [pool])
+    return action === BorrowAction.REPAY ? pool.mintHelper : pool.generalLender
+  }, [pool, action])
 
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency, spender)
 
@@ -83,7 +84,8 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     parsedAmounts[1],
     pool,
     action,
-    typedField
+    typedField,
+    payOff
   )
 
   const [showApprove, showApproveLoader] = useMemo(() => {
@@ -169,6 +171,9 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     if (!isSupportedChainId) {
       return <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
     }
+    if (!isSupportedChainId) {
+      return <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
+    }
     //TODO
     // if (userError === UserError.BALANCE) {
     //   return <PrimaryButton disabled>Insufficient {inputCurrency?.symbol} Balance</PrimaryButton>
@@ -211,8 +216,10 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
           action={action}
           isBorrowCurrency
           value={formattedAmounts[1]}
+          onMax={(x: boolean) => setPayOff(x)}
           onChange={(value) => {
             dispatch(setBorrowState({ ...borrowState, typedValue: value || '', typedField: TypedField.BORROW }))
+            setPayOff(false)
           }}
         />
       </Panel>

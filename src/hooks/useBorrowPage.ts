@@ -14,6 +14,7 @@ export enum UserError {
   ACCOUNT = 'ACCOUNT',
   BALANCE = 'BALANCE',
   AMOUNT = 'AMOUNT',
+  CAP = 'CAP',
   VALID = 'VALID',
 }
 

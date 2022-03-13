@@ -12,8 +12,6 @@ import { PrimaryButton } from 'components/Button'
 import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { formatAmount } from 'utils/numbers'
-import { ToolTip } from 'components/ToolTip'
-import { Info } from 'components/Icons'
 
 const Wrapper = styled.div`
   display: flex;
@@ -140,20 +138,8 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
         {formatAmount(parseFloat(borrowedElastic))} {borrowCurrency?.symbol}
       </Cel>
       <Cel>
-        <div
-          style={{
-            display: 'flex',
-            flexFlow: 'row nowrap',
-            justifyContent: 'center',
-            gap: '5px',
-            alignItems: 'center',
-          }}
-        >
-          <ToolTip id="tooltip" />
-          <Info data-for="tooltip" data-tip="SEX + SOLID your position has earned so far." size={15} />
-          {formatAmount(parseFloat(balance0))} SEX <br />
-          {formatAmount(parseFloat(balance1))} SOLID
-        </div>
+        {formatAmount(parseFloat(balance0))} SEX <br />
+        {formatAmount(parseFloat(balance1))} SOLID
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
         <PrimaryButton onClick={() => onMintClick(pool.contract.address)}>Borrow</PrimaryButton>

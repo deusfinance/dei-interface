@@ -174,10 +174,9 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     if (!isSupportedChainId) {
       return <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
     }
-    //TODO
-    // if (userError === UserError.BALANCE) {
-    //   return <PrimaryButton disabled>Insufficient {inputCurrency?.symbol} Balance</PrimaryButton>
-    // }
+    if (userError === UserError.BALANCE) {
+      return <PrimaryButton disabled>Insufficient {inputCurrency?.symbol} Balance</PrimaryButton>
+    }
     return (
       <PrimaryButton onClick={onMain}>
         {typedField === TypedField.COLLATERAL && action === BorrowAction.BORROW

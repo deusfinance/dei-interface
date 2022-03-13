@@ -1,7 +1,9 @@
+import { useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Percent } from '@sushiswap/core-sdk'
 import BigNumber from 'bignumber.js'
-import { useMemo } from 'react'
+import { Interface } from '@ethersproject/abi'
+import { AddressZero } from '@ethersproject/constants'
 
 import { BorrowPool } from 'state/borrow/reducer'
 import { useMultipleContractSingleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
@@ -11,9 +13,6 @@ import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
 import { DEI_TOKEN } from 'constants/borrow'
 import { constructPercentage } from 'utils/prices'
 import useWeb3React from './useWeb3'
-import { Interface } from '@ethersproject/abi'
-import { AddressZero } from '@ethersproject/constants'
-import { formatAmount } from 'utils/numbers'
 
 export function useUserPoolData(pool: BorrowPool): {
   userCollateral: string
@@ -223,12 +222,15 @@ export function useCollateralPrice(pool: BorrowPool): string {
   return useMemo(() => (price?.result ? formatUnits(price.result[0], 18) : '0'), [price])
 }
 
-export function useAvailableForWithdrawal(pool: BorrowPool): string {
+export function useAvailableForWithdrawal(pool: BorrowPool): {
+  availableForWithdrawal: string
+  availableForWithdrawalFactored: string
+} {
   const { userCollateral, userDebt } = useUserPoolData(pool)
   const { liquidationRatio } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
 
-  return useMemo(() => {
+  const result = useMemo(() => {
     if (!parseFloat(collateralPrice) || !parseFloat(userCollateral)) {
       return '0'
     }
@@ -237,13 +239,18 @@ export function useAvailableForWithdrawal(pool: BorrowPool): string {
     const withdrawable = new BigNumber(userCollateral).minus(minimumCollateral)
     return withdrawable.gt(0) ? withdrawable.toPrecision(pool.contract.decimals) : '0'
   }, [userCollateral, userDebt, liquidationRatio, collateralPrice, pool])
+
+  return {
+    availableForWithdrawal: result,
+    availableForWithdrawalFactored: new BigNumber(result).times(0.995).toString(),
+  }
 }
 
 export function useAvailableToBorrow(pool: BorrowPool): string {
   const { userCollateral } = useUserPoolData(pool)
   const { liquidationRatio } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
-  const availableForWithdrawal = useAvailableForWithdrawal(pool)
+  const { availableForWithdrawal } = useAvailableForWithdrawal(pool)
 
   return useMemo(() => {
     if (!parseFloat(collateralPrice) || !parseFloat(userCollateral) || !parseFloat(availableForWithdrawal)) {
@@ -262,11 +269,11 @@ export function useAvailableToBorrow(pool: BorrowPool): string {
 // TODO ADD CORRECT LOGIC
 
 /**
-   uint256 userCollateralAmount = userCollateral[user];
-        if (userCollateralAmount == 0) return 0;
+  uint256 userCollateralAmount = userCollateral[user];
+  if (userCollateralAmount == 0) return 0;
 
-        uint256 liquidationPrice = (getDebt(user) * 1e18 * 1e18) /
-            (userCollateralAmount * LIQUIDATION_RATIO);
+  uint256 liquidationPrice = (getDebt(user) * 1e18 * 1e18) /
+      (userCollateralAmount * LIQUIDATION_RATIO);
  */
 
 export function useLiquidationPrice(pool: BorrowPool): string {
@@ -275,7 +282,7 @@ export function useLiquidationPrice(pool: BorrowPool): string {
 
   return useMemo(() => {
     if (!liquidationRatio || !parseFloat(userCollateral) || !parseFloat(userDebt)) {
-      return 'N/A'
+      return '0'
     }
     const liquidationPrice = new BigNumber(userDebt)
       .div(liquidationRatio.toSignificant())
@@ -283,8 +290,6 @@ export function useLiquidationPrice(pool: BorrowPool): string {
       .div(userCollateral)
     // .times(1e18)853014145177894607214922
 
-    const fromWeiAmount = liquidationPrice.toPrecision(pool.contract.decimals)
-
-    return `$${formatAmount(Number(fromWeiAmount), 3)}`
+    return liquidationPrice.toPrecision(pool.contract.decimals)
   }, [userCollateral, userDebt, liquidationRatio, pool])
 }

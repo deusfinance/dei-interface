@@ -113,6 +113,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
     return <StyledPrimaryButton onClick={onClaim}>Claim Rewards</StyledPrimaryButton>
   }
   const numerator = (100 - Number(borrowFee.toSignificant())) / 100
+
   return (
     <Wrapper>
       <CardTitle>Your Position</CardTitle>
@@ -138,17 +139,17 @@ export default function Position({ pool }: { pool: BorrowPool }) {
       />
       <PositionRow
         label="Outstanding Debt"
-        value={formatAmount(parseFloat(userDebt), 4)}
+        value={`${formatAmount(parseFloat(userDebt), 4)} DEI`}
         explanation={`${borrowSymbol} Amount that is considered Debt`}
       />
       <PositionRow
         label="LP Token Price"
-        value={`$${formatAmount(Number(collateralPrice), 3)}`}
+        value={`${formatDollarAmount(parseFloat(collateralPrice), 4)}`}
         explanation="LP Token Price"
       />
       <PositionRow
         label="Liquidation Price"
-        value={`${liquidationPrice}`}
+        value={`${formatDollarAmount(parseFloat(liquidationPrice), 4)}`}
         explanation="Collateral Price at which your Position will be Liquidated"
       />
       <PositionRow

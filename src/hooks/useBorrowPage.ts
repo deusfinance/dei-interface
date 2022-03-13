@@ -8,7 +8,8 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 
 import { maxAmountSpend } from 'utils/currency'
 import { tryParseAmount } from 'utils/parse'
-import { useAvailableForWithdrawal, useUserPoolData } from './usePoolData'
+import { useAvailableForWithdrawal, useAvailableToBorrow, useUserPoolData } from './usePoolData'
+import BigNumber from 'bignumber.js'
 
 export enum UserError {
   ACCOUNT = 'ACCOUNT',
@@ -29,12 +30,13 @@ export default function useBorrowPage(
   formattedAmounts: string[]
   parsedAmounts: (CurrencyAmount<NativeCurrency | Token> | null | undefined)[]
 } {
-  const { chainId, account } = useWeb3React()
+  const { account, chainId } = useWeb3React()
   const { typedValue, typedField } = useBorrowState()
   const collateralBalance = useCurrencyBalance(account ?? undefined, collateralCurrency)
   const borrowBalance = useCurrencyBalance(account ?? undefined, borrowCurrency)
+  const availableToBorrow = useAvailableToBorrow(pool)
   const { userDebt } = useUserPoolData(pool)
-  const availableForWithdrawal = useAvailableForWithdrawal(pool)
+  const { availableForWithdrawal } = useAvailableForWithdrawal(pool)
 
   // Amount typed in either fields
   const typedAmount = useMemo(() => {
@@ -65,11 +67,20 @@ export default function useBorrowPage(
     }
     // borrowing
     if (action === BorrowAction.BORROW) {
-      return borrowBalance && parsedAmounts[1] && maxAmountSpend(borrowBalance)?.lessThan(parsedAmounts[1])
+      return availableToBorrow && parsedAmounts[1] && new BigNumber(availableToBorrow).lt(parsedAmounts[1].toExact())
     }
     // repaying
     return parsedAmounts[1] && userDebt < parsedAmounts[1].toExact()
-  }, [collateralBalance, borrowBalance, userDebt, parsedAmounts, typedField, action, availableForWithdrawal])
+  }, [
+    collateralBalance,
+    borrowBalance,
+    userDebt,
+    parsedAmounts,
+    typedField,
+    action,
+    availableForWithdrawal,
+    availableToBorrow,
+  ])
 
   const error = useMemo(
     () =>

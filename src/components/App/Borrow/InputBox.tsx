@@ -92,20 +92,18 @@ export default function InputBox({
   onChange(x?: string): void
   onMax?: (x: boolean) => void
 }) {
-  const BN = BigNumber.clone({ EXPONENTIAL_AT: 18 })
   const { account } = useWeb3React()
   const logo0 = useCurrencyLogo(isBorrowCurrency ? currency?.wrapped.address : pool.token0.address)
   const logo1 = useCurrencyLogo(pool ? pool.token1.address : undefined)
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
   const { userDebt } = useUserPoolData(pool)
-  const availableForWithdrawal = useAvailableForWithdrawal(pool)
-  const ImmuneAvailableForWithdrawal = new BN(availableForWithdrawal).times(0.995)
+  const { availableForWithdrawal, availableForWithdrawalFactored } = useAvailableForWithdrawal(pool)
   const availableToBorrow = useAvailableToBorrow(pool)
 
   const [balanceExact, balanceDisplay] = useMemo(() => {
     if (action === BorrowAction.BORROW && isBorrowCurrency) {
       return [
-        new BN(availableToBorrow).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
+        new BigNumber(availableToBorrow).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
         parseFloat(availableToBorrow).toPrecision(6),
       ]
     }
@@ -114,21 +112,21 @@ export default function InputBox({
     }
     if (isCollateralCurrency) {
       return [
-        new BN(ImmuneAvailableForWithdrawal).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
-        parseFloat(ImmuneAvailableForWithdrawal.toString()).toPrecision(6),
+        new BigNumber(availableForWithdrawalFactored).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
+        parseFloat(availableForWithdrawalFactored.toString()).toPrecision(6),
       ]
     }
     return [userDebt, parseFloat(userDebt).toPrecision(6)]
   }, [
     action,
-    ImmuneAvailableForWithdrawal,
     userDebt,
     currencyBalance,
     isCollateralCurrency,
     isBorrowCurrency,
     availableToBorrow,
     currency,
-    BN,
+    availableForWithdrawal,
+    availableForWithdrawalFactored,
   ])
 
   const handleClick = useCallback(() => {

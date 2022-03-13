@@ -9,8 +9,13 @@ import TransactionConfirmationModal, { ConfirmationContent, TransactionErrorCont
 import ImageWithFallback from 'components/ImageWithFallback'
 import { BorrowAction, BorrowPool, TypedField } from 'state/borrow/reducer'
 import { DualImageWrapper } from 'components/DualImage'
-import { useCollateralPrice, useGlobalPoolData, useLiquidationPrice } from 'hooks/usePoolData'
-import { formatAmount } from 'utils/numbers'
+import {
+  useAvailableForWithdrawal,
+  useCollateralPrice,
+  useGlobalPoolData,
+  useLiquidationPrice,
+} from 'hooks/usePoolData'
+import { formatDollarAmount } from 'utils/numbers'
 
 const MainWrapper = styled.div`
   display: flex;
@@ -73,6 +78,16 @@ const Disclaimer = styled.div`
   padding: 0.7rem;
 `
 
+const Warning = styled.div`
+  text-align: center;
+  width: 100%;
+  height: fit-content;
+  padding: 10px;
+  font-size: 0.6rem;
+  border: 1px solid ${({ theme }) => theme.red1};
+  box-shadow: 1px 1px ${({ theme }) => theme.red2};
+`
+
 export default function ConfirmBorrow({
   isOpen,
   onDismiss,
@@ -104,6 +119,7 @@ export default function ConfirmBorrow({
   const liquidationPrice = useLiquidationPrice(pool)
   const { borrowFee } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
+  const { availableForWithdrawal } = useAvailableForWithdrawal(pool)
 
   const method = useMemo(() => {
     return action === BorrowAction.BORROW && isBorrowCurrency
@@ -127,7 +143,11 @@ export default function ConfirmBorrow({
     return `${type} ${amount?.toSignificant()} ${currency?.symbol}`
   }, [action, currency, amount, isBorrowCurrency])
 
-  const BN = BigNumber.clone({ EXPONENTIAL_AT: 30 })
+  const showDangerousWithdrawalWarning = useMemo(() => {
+    if (!amount || isBorrowCurrency || action !== BorrowAction.REPAY) return false
+    const HALF_AVAILABLE = new BigNumber(parseFloat(availableForWithdrawal)).times(0.5)
+    return new BigNumber(amount.toExact()).gt(HALF_AVAILABLE)
+  }, [amount, availableForWithdrawal, isBorrowCurrency, action])
 
   function getImage() {
     if (!isBorrowCurrency) {
@@ -162,7 +182,11 @@ export default function ConfirmBorrow({
             </InfoRow>
             <InfoRow>
               <div>LP Token Price</div>
-              <div>${formatAmount(Number(collateralPrice), 2)}</div>
+              <div>{formatDollarAmount(parseFloat(collateralPrice), 2)}</div>
+            </InfoRow>
+            <InfoRow>
+              <div>Liquidation Price</div>
+              <div>{formatDollarAmount(parseFloat(liquidationPrice), 2)}</div>
             </InfoRow>
             <InfoRow>
               <div>Borrow Fee</div>
@@ -172,6 +196,12 @@ export default function ConfirmBorrow({
         }
         bottomContent={
           <BottomWrapper>
+            {showDangerousWithdrawalWarning && (
+              <Warning>
+                WARNING: You are about to withdraw more than 50% of your available collateral. This will result in your
+                liquidation price moving into dangerous territory.
+              </Warning>
+            )}
             <Disclaimer>
               You are about to {method}. By confirming this transaction you acknowledge you know what you are doing and
               are aware of the risks involved.

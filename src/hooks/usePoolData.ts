@@ -11,7 +11,7 @@ import { useGeneralLenderContract, useLenderManagerContract, useOracleContract }
 import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
 
 import { DEI_TOKEN } from 'constants/borrow'
-import { constructPercentage } from 'utils/prices'
+import { constructPercentage, ONE_HUNDRED_PERCENT } from 'utils/prices'
 import useWeb3React from './useWeb3'
 
 export function useUserPoolData(pool: BorrowPool): {
@@ -248,9 +248,13 @@ export function useAvailableForWithdrawal(pool: BorrowPool): {
 
 export function useAvailableToBorrow(pool: BorrowPool): string {
   const { userCollateral } = useUserPoolData(pool)
-  const { liquidationRatio } = useGlobalPoolData(pool)
+  const { liquidationRatio, borrowFee } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
   const { availableForWithdrawal } = useAvailableForWithdrawal(pool)
+
+  const borrowFeeMultipler = useMemo(() => {
+    return ONE_HUNDRED_PERCENT.subtract(borrowFee).divide(100).toSignificant()
+  }, [borrowFee])
 
   return useMemo(() => {
     if (!parseFloat(collateralPrice) || !parseFloat(userCollateral) || !parseFloat(availableForWithdrawal)) {
@@ -260,10 +264,10 @@ export function useAvailableToBorrow(pool: BorrowPool): string {
       .times(collateralPrice)
       .times(liquidationRatio.toSignificant())
       .div(100)
-      .times(0.995) //borrow fee
+      .times(borrowFeeMultipler)
       .times(1 - 0.005) //1 - health ratio
       .toPrecision(pool.contract.decimals)
-  }, [userCollateral, liquidationRatio, availableForWithdrawal, collateralPrice, pool])
+  }, [userCollateral, liquidationRatio, availableForWithdrawal, collateralPrice, pool, borrowFeeMultipler])
 }
 
 // TODO ADD CORRECT LOGIC

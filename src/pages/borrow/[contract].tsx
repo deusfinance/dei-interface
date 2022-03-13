@@ -6,7 +6,7 @@ import { useBorrowPoolFromURL, useCurrenciesFromPool } from 'state/borrow/hooks'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 
 import { Borrow, Balances, Info, Position } from 'components/App/Borrow'
-import Hero from 'components/Hero'
+import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { PrimaryButton } from 'components/Button'
 import { ArrowBubble } from 'components/Icons'
@@ -164,7 +164,12 @@ export default function BorrowDEI() {
 
   return (
     <Container>
-      <Hero>Borrow {borrowCurrency?.symbol}</Hero>
+      <Hero>
+        <div>Borrow {borrowCurrency?.symbol}</div>
+        <HeroSubtext>
+          {pool?.contract.name} | {pool?.type}
+        </HeroSubtext>
+      </Hero>
       <Wrapper>
         <ReturnWrapper onClick={onReturnClick}>
           <ArrowBubble size={20}>Back</ArrowBubble>

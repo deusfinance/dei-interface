@@ -12,8 +12,9 @@ import MULTICALL2_ABI from 'constants/abi/MULTICALL2.json'
 import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
 import LENDER_MANAGER_ABI from 'constants/abi/LENDER_MANAGER.json'
 import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
+import SOLIDEX_LP_DEPOSITOR_ABI from 'constants/abi/SOLIDEX_LP_DEPOSITOR.json'
 import { Providers } from 'constants/providers'
-import { LenderManager, Multicall2 } from 'constants/addresses'
+import { LenderManager, Multicall2, SolidexLpDepositor } from 'constants/addresses'
 import { BorrowPool } from 'state/borrow/reducer'
 
 export function useContract<T extends Contract = Contract>(
@@ -52,6 +53,11 @@ export function useGeneralLenderContract(pool: BorrowPool) {
 
 export function useOracleContract(pool: BorrowPool) {
   return useContract(pool.oracle, LENDER_ORACLE_ABI)
+}
+export function useSolidexLpDepositor() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? SolidexLpDepositor[chainId] : undefined), [chainId])
+  return useContract(address, SOLIDEX_LP_DEPOSITOR_ABI)
 }
 
 export function useLenderManagerContract() {

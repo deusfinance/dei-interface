@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import { Currency } from '@sushiswap/core-sdk'
+import BigNumber from 'bignumber.js'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import useWeb3React from 'hooks/useWeb3'
@@ -14,6 +15,7 @@ import { NumericalInput } from 'components/Input'
 import { DualImageWrapper } from 'components/DualImage'
 import { useAvailableForWithdrawal, useUserPoolData } from 'hooks/usePoolData'
 import { isMobile } from 'react-device-detect'
+import { useAvailableToBorrow } from '../../../hooks/usePoolData'
 
 const Wrapper = styled(Box)`
   justify-content: space-between;
@@ -79,6 +81,7 @@ export default function InputBox({
   isBorrowCurrency,
   value,
   onChange,
+  onMax,
 }: {
   currency: Currency | undefined
   pool: BorrowPool
@@ -87,28 +90,50 @@ export default function InputBox({
   isBorrowCurrency?: boolean
   value: string
   onChange(x?: string): void
+  onMax?: (x: boolean) => void
 }) {
   const { account } = useWeb3React()
   const logo0 = useCurrencyLogo(isBorrowCurrency ? currency?.wrapped.address : pool.token0.address)
   const logo1 = useCurrencyLogo(pool ? pool.token1.address : undefined)
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
-  const { userBorrow } = useUserPoolData(pool)
-  const availableForWithdrawal = useAvailableForWithdrawal(pool)
+  const { userDebt } = useUserPoolData(pool)
+  const { availableForWithdrawal, availableForWithdrawalFactored } = useAvailableForWithdrawal(pool)
+  const availableToBorrow = useAvailableToBorrow(pool)
 
   const [balanceExact, balanceDisplay] = useMemo(() => {
+    if (action === BorrowAction.BORROW && isBorrowCurrency) {
+      return [
+        new BigNumber(availableToBorrow).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
+        parseFloat(availableToBorrow).toPrecision(6),
+      ]
+    }
     if (action === BorrowAction.BORROW) {
       return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
     }
     if (isCollateralCurrency) {
-      return [availableForWithdrawal, parseFloat(availableForWithdrawal).toPrecision(6)]
+      return [
+        new BigNumber(availableForWithdrawalFactored).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
+        parseFloat(availableForWithdrawalFactored.toString()).toPrecision(6),
+      ]
     }
-    return [userBorrow, parseFloat(userBorrow).toPrecision(6)]
-  }, [action, availableForWithdrawal, userBorrow, currencyBalance, isCollateralCurrency])
+    return [userDebt, parseFloat(userDebt).toPrecision(6)]
+  }, [
+    action,
+    userDebt,
+    currencyBalance,
+    isCollateralCurrency,
+    isBorrowCurrency,
+    availableToBorrow,
+    currency,
+    availableForWithdrawal,
+    availableForWithdrawalFactored,
+  ])
 
   const handleClick = useCallback(() => {
     if (!balanceExact || !onChange) return
     onChange(balanceExact)
-  }, [balanceExact, onChange])
+    onMax && onMax(true)
+  }, [balanceExact, onChange, onMax])
 
   if (!currency) {
     return null

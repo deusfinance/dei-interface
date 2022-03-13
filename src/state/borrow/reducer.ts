@@ -19,8 +19,10 @@ export interface UnserializedBorrowPool {
   composition: string
   oracle: string
   generalLender: string
+  lpPool: string
   type: string
   liquidationFee: number
+  mintHelper: string
 }
 
 export interface BorrowPool extends Omit<UnserializedBorrowPool, 'liquidationFee'> {

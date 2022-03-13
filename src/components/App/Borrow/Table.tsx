@@ -138,8 +138,8 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
         {formatAmount(parseFloat(borrowedElastic))} {borrowCurrency?.symbol}
       </Cel>
       <Cel>
-        {balance0} SEX <br />
-        {balance1} SOLID
+        {formatAmount(parseFloat(balance0))} SEX <br />
+        {formatAmount(parseFloat(balance1))} SOLID
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
         <PrimaryButton onClick={() => onMintClick(pool.contract.address)}>Borrow</PrimaryButton>

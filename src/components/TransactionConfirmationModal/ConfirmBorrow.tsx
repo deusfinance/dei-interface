@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import { Currency, CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core-sdk'
+import BigNumber from 'bignumber.js'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { PrimaryButton } from 'components/Button'
@@ -8,7 +9,8 @@ import TransactionConfirmationModal, { ConfirmationContent, TransactionErrorCont
 import ImageWithFallback from 'components/ImageWithFallback'
 import { BorrowAction, BorrowPool, TypedField } from 'state/borrow/reducer'
 import { DualImageWrapper } from 'components/DualImage'
-import { useGlobalPoolData, useLiquidationPrice } from 'hooks/usePoolData'
+import { useCollateralPrice, useGlobalPoolData, useLiquidationPrice } from 'hooks/usePoolData'
+import { formatAmount } from 'utils/numbers'
 
 const MainWrapper = styled.div`
   display: flex;
@@ -101,6 +103,7 @@ export default function ConfirmBorrow({
   const logo1 = useCurrencyLogo(pool ? pool.token1.address : undefined)
   const liquidationPrice = useLiquidationPrice(pool)
   const { borrowFee } = useGlobalPoolData(pool)
+  const collateralPrice = useCollateralPrice(pool)
 
   const method = useMemo(() => {
     return action === BorrowAction.BORROW && isBorrowCurrency
@@ -123,6 +126,8 @@ export default function ConfirmBorrow({
         : 'Withdraw'
     return `${type} ${amount?.toSignificant()} ${currency?.symbol}`
   }, [action, currency, amount, isBorrowCurrency])
+
+  const BN = BigNumber.clone({ EXPONENTIAL_AT: 30 })
 
   function getImage() {
     if (!isBorrowCurrency) {
@@ -156,12 +161,12 @@ export default function ConfirmBorrow({
               <div>{amount?.toSignificant(6)}</div>
             </InfoRow>
             <InfoRow>
-              <div>Est. Liquidation Price</div>
-              <div>{liquidationPrice}</div>
+              <div>LP Token Price</div>
+              <div>${formatAmount(Number(collateralPrice), 2)}</div>
             </InfoRow>
             <InfoRow>
               <div>Borrow Fee</div>
-              <div>{borrowFee.divide(100).toSignificant()}%</div>
+              <div>{borrowFee.toSignificant()}%</div>
             </InfoRow>
           </MainWrapper>
         }
@@ -185,7 +190,7 @@ export default function ConfirmBorrow({
       attemptingTxn={attemptingTxn}
       hash={txHash}
       summary={summary}
-      currencyToAdd={currency}
+      // currencyToAdd={currency}
       content={
         errorMessage ? (
           <TransactionErrorContent onDismiss={onDismiss} message={errorMessage} />

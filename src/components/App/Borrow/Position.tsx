@@ -4,9 +4,15 @@ import BigNumber from 'bignumber.js'
 
 import { BorrowPool } from 'state/borrow/reducer'
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
-import { useCollateralPrice, useLiquidationPrice, useUserPoolData } from 'hooks/usePoolData'
-// import { useLPData } from 'hooks/useLPData'
-import { useContract } from 'hooks/useContract'
+import {
+  useAvailableToBorrow,
+  useCollateralPrice,
+  useGlobalPoolData,
+  useLiquidationPrice,
+  useUserPoolData,
+} from 'hooks/usePoolData'
+import { useLPData } from 'hooks/useLPData'
+import { useGeneralLenderContract } from 'hooks/useContract'
 import { formatAmount, formatDollarAmount } from 'utils/numbers'
 
 import { Card } from 'components/Card'
@@ -14,6 +20,7 @@ import { DotFlashing, Info } from 'components/Icons'
 import { CardTitle } from 'components/Title'
 import { ToolTip } from 'components/ToolTip'
 import { PrimaryButton } from 'components/Button'
+import useWeb3React from '../../../hooks/useWeb3'
 
 const Wrapper = styled(Card)`
   display: flex;
@@ -65,12 +72,15 @@ const StyledPrimaryButton = styled(PrimaryButton)`
 
 export default function Position({ pool }: { pool: BorrowPool }) {
   const { borrowCurrency } = useCurrenciesFromPool(pool)
-  const { userCollateral, userBorrow, userDebt, userCap } = useUserPoolData(pool)
+  const { userCollateral, userDebt } = useUserPoolData(pool)
+  const borrowable = useAvailableToBorrow(pool)
+  const { maxCap, borrowedElastic, borrowFee } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
   const liquidationPrice = useLiquidationPrice(pool)
-  const poolContract = useContract(pool.contract.address, pool.abi, true)
-  // const { balance0, balance1 } = useLPData(pool)
+  const generalLender = useGeneralLenderContract(pool)
+  const { balance0, balance1 } = useLPData(pool)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
+  const { account } = useWeb3React()
 
   const borrowSymbol = useMemo(() => {
     return borrowCurrency?.symbol ?? ''
@@ -80,21 +90,17 @@ export default function Position({ pool }: { pool: BorrowPool }) {
     return new BigNumber(userCollateral).times(collateralPrice).toNumber()
   }, [userCollateral, collateralPrice])
 
-  const borrowable = useMemo(() => {
-    return new BigNumber(userCap).minus(userDebt).toNumber()
-  }, [userCap, userDebt])
-
   const onClaim = useCallback(async () => {
     try {
-      if (!poolContract) return
+      if (!generalLender || !account) return
       setAwaitingClaimConfirmation(true)
-      await poolContract.claimFees([])
+      await generalLender.claimAndWithdraw([pool.lpPool], account)
       setAwaitingClaimConfirmation(false)
     } catch (err) {
       console.error(err)
       setAwaitingClaimConfirmation(false)
     }
-  }, [poolContract])
+  }, [generalLender, pool, account])
 
   function getClaimButton() {
     if (awaitingClaimConfirmation) {
@@ -104,12 +110,22 @@ export default function Position({ pool }: { pool: BorrowPool }) {
         </StyledPrimaryButton>
       )
     }
-    return <StyledPrimaryButton>Claim Rewards (soon)</StyledPrimaryButton>
+    return <StyledPrimaryButton onClick={onClaim}>Claim Rewards</StyledPrimaryButton>
   }
-
+  const numerator = (100 - Number(borrowFee.toSignificant())) / 100
   return (
     <Wrapper>
       <CardTitle>Your Position</CardTitle>
+      <PositionRow
+        label="Max Cap"
+        value={`${formatAmount(parseFloat(maxCap), 0)} DEI`}
+        explanation="Max Capacity for borrowing DEI"
+      />
+      <PositionRow
+        label="Total Remaining Cap"
+        value={`${formatAmount((parseFloat(maxCap) - parseFloat(borrowedElastic)) * numerator, 0)} DEI`}
+        explanation="Total Remaining Capacity for borrowing DEI"
+      />
       <PositionRow
         label="Collateral Deposited"
         value={formatAmount(parseFloat(userCollateral), 4)}
@@ -121,31 +137,30 @@ export default function Position({ pool }: { pool: BorrowPool }) {
         explanation={`${borrowSymbol} Value of the Collateral Deposited in your Position`}
       />
       <PositionRow
-        label={`${borrowSymbol} Borrowed`}
-        value={formatAmount(parseFloat(userBorrow), 4)}
-        explanation={`${borrowSymbol} Currently Borrowed in your Position`}
-      />
-      <PositionRow
         label="Outstanding Debt"
         value={formatAmount(parseFloat(userDebt), 4)}
         explanation={`${borrowSymbol} Amount that is considered Debt`}
       />
       <PositionRow
+        label="LP Token Price"
+        value={`$${formatAmount(Number(collateralPrice), 3)}`}
+        explanation="LP Token Price"
+      />
+      <PositionRow
         label="Liquidation Price"
-        value={liquidationPrice}
+        value={`${liquidationPrice}`}
         explanation="Collateral Price at which your Position will be Liquidated"
       />
       <PositionRow
         label={`${borrowSymbol} Left to Borrow`}
-        value={formatAmount(borrowable, 3)}
+        value={`${formatAmount(parseFloat(borrowable), 0)} DEI`}
         explanation={`${borrowSymbol} Borrowable based on the Collateral Deposited`}
       />
       <PositionRow
         label="Underlying LP Rewards"
+        subLabel={`${formatAmount(parseFloat(balance0), 2)} SOLID + ${formatAmount(parseFloat(balance1), 2)} SEX`}
         value=""
-        explanation="Rewards are flowing and are collected in the background, claiming will be made available soon."
-        // subLabel={`${balance0} SOLID + ${balance1} SEX`}
-        // explanation="SEX + SOLID your position has earned so far"
+        explanation="SEX + SOLID your position has earned so far"
       />
       {getClaimButton()}
     </Wrapper>

@@ -50,6 +50,7 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   const { account } = useWeb3React()
   const dispatch = useAppDispatch()
   const toggleWalletModal = useWalletModalToggle()
+  const [payOff, setPayOff] = useState<boolean | null>(null)
   const rpcChangerCallback = useRpcChangerCallback()
   const isSupportedChainId = useSupportedChainId()
   const { collateralCurrency, borrowCurrency } = useCurrenciesFromPool(pool)
@@ -71,8 +72,8 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   }, [collateralCurrency, borrowCurrency, typedField])
 
   const spender = useMemo(() => {
-    return pool.generalLender
-  }, [pool])
+    return action === BorrowAction.REPAY ? pool.mintHelper : pool.generalLender
+  }, [pool, action])
 
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency, spender)
 
@@ -83,13 +84,18 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     parsedAmounts[1],
     pool,
     action,
-    typedField
+    typedField,
+    payOff
   )
 
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = inputCurrency && approvalState !== ApprovalState.APPROVED
+    const show =
+      inputCurrency &&
+      ((action === BorrowAction.BORROW && typedField === TypedField.COLLATERAL) ||
+        (action === BorrowAction.REPAY && typedField === TypedField.BORROW)) &&
+      approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [inputCurrency, approvalState])
+  }, [inputCurrency, action, typedField, approvalState])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -119,7 +125,7 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
         error = e.message
       } else {
         console.error(e)
-        error = 'An unknown error occured.'
+        error = 'An unknown error occurred.'
       }
     }
 
@@ -165,9 +171,13 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     if (!isSupportedChainId) {
       return <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
     }
-    if (userError === UserError.BALANCE) {
-      return <PrimaryButton disabled>Insufficient {inputCurrency?.symbol} Balance</PrimaryButton>
+    if (!isSupportedChainId) {
+      return <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
     }
+    //TODO
+    // if (userError === UserError.BALANCE) {
+    //   return <PrimaryButton disabled>Insufficient {inputCurrency?.symbol} Balance</PrimaryButton>
+    // }
     return (
       <PrimaryButton onClick={onMain}>
         {typedField === TypedField.COLLATERAL && action === BorrowAction.BORROW
@@ -206,8 +216,10 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
           action={action}
           isBorrowCurrency
           value={formattedAmounts[1]}
+          onMax={(x: boolean) => setPayOff(x)}
           onChange={(value) => {
             dispatch(setBorrowState({ ...borrowState, typedValue: value || '', typedField: TypedField.BORROW }))
+            setPayOff(false)
           }}
         />
       </Panel>

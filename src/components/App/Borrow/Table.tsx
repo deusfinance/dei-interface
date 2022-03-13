@@ -5,7 +5,7 @@ import { useCurrenciesFromPool } from 'state/borrow/hooks'
 import { BorrowPool } from 'state/borrow/reducer'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useGlobalPoolData } from 'hooks/usePoolData'
-// import { useLPData } from 'hooks/useLPData'
+import { useLPData } from 'hooks/useLPData'
 
 import Pagination from 'components/Pagination'
 import { PrimaryButton } from 'components/Button'
@@ -123,7 +123,7 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
   const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const logoOne = useCurrencyLogo(pool.token0.address)
   const logoTwo = useCurrencyLogo(pool.token1.address)
-  // const { balance0, balance1 } = useLPData(pool)
+  const { balance0, balance1 } = useLPData(pool)
   const { borrowedElastic } = useGlobalPoolData(pool)
 
   return (
@@ -150,14 +150,9 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
           }}
         >
           <ToolTip id="tooltip" />
-          <Info
-            data-for="tooltip"
-            data-tip="Rewards are flowing and are collected in the background, claiming will be made available soon."
-            size={15}
-          />
-          <div>Coming Soon</div>
-          {/* {balance0} SEX <br />
-        {balance1} SOLID */}
+          <Info data-for="tooltip" data-tip="SEX + SOLID your position has earned so far." size={15} />
+          {formatAmount(parseFloat(balance0))} SEX <br />
+          {formatAmount(parseFloat(balance1))} SOLID
         </div>
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>

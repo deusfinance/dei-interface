@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Currency, CurrencyAmount, NativeCurrency, Token, ZERO } from '@sushiswap/core-sdk'
+import BigNumber from 'bignumber.js'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { BorrowAction, BorrowPool, TypedField } from 'state/borrow/reducer'
@@ -9,6 +10,7 @@ import useWeb3React from './useWeb3'
 import { useGeneralLenderContract } from './useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { toHex } from 'utils/hex'
+import { useUserPoolData } from 'hooks/usePoolData'
 
 export enum BorrowCallbackState {
   INVALID = 'INVALID',
@@ -22,7 +24,8 @@ export default function useBorrowCallback(
   borrowAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
   pool: BorrowPool,
   action: BorrowAction,
-  typedField: TypedField
+  typedField: TypedField,
+  payOff: boolean | null
 ): {
   state: BorrowCallbackState
   callback: null | (() => Promise<string>)
@@ -31,7 +34,7 @@ export default function useBorrowCallback(
   const { chainId, account, library } = useWeb3React()
   const addTransaction = useTransactionAdder()
   const GeneralLender = useGeneralLenderContract(pool)
-
+  const { userBorrow } = useUserPoolData(pool)
   const constructCall = useCallback(() => {
     try {
       if (!account || !chainId || !library || !GeneralLender || !collateralCurrency || !borrowCurrency) {
@@ -53,10 +56,15 @@ export default function useBorrowCallback(
         if (!borrowAmount) throw new Error('Missing borrowAmount.')
         args = [account, toHex(borrowAmount.quotient)]
         methodName = 'borrow'
+      } else if (action === BorrowAction.REPAY && typedField === TypedField.BORROW && payOff) {
+        if (!userBorrow) throw new Error('Missing userBorrow.')
+        args = [account, new BigNumber(userBorrow).times(1e18).toFixed(0)]
+        console.log('userBorrow = ', new BigNumber(userBorrow).times(1e18).toFixed(0))
+        methodName = 'repayBase'
       } else {
         if (!borrowAmount) throw new Error('Missing borrowAmount.')
         args = [account, toHex(borrowAmount.quotient)]
-        methodName = 'repay'
+        methodName = 'repayElastic'
       }
 
       return {
@@ -80,6 +88,8 @@ export default function useBorrowCallback(
     typedField,
     collateralAmount,
     borrowAmount,
+    payOff,
+    userBorrow,
   ])
 
   return useMemo(() => {

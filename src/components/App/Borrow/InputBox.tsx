@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import { Currency } from '@sushiswap/core-sdk'
+import BigNumber from 'bignumber.js'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import useWeb3React from 'hooks/useWeb3'
@@ -14,6 +15,7 @@ import { NumericalInput } from 'components/Input'
 import { DualImageWrapper } from 'components/DualImage'
 import { useAvailableForWithdrawal, useUserPoolData } from 'hooks/usePoolData'
 import { isMobile } from 'react-device-detect'
+import { useAvailableToBorrow } from '../../../hooks/usePoolData'
 
 const Wrapper = styled(Box)`
   justify-content: space-between;
@@ -88,14 +90,19 @@ export default function InputBox({
   value: string
   onChange(x?: string): void
 }) {
+  const BN = BigNumber.clone({ EXPONENTIAL_AT: 18 })
   const { account } = useWeb3React()
   const logo0 = useCurrencyLogo(isBorrowCurrency ? currency?.wrapped.address : pool.token0.address)
   const logo1 = useCurrencyLogo(pool ? pool.token1.address : undefined)
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
   const { userBorrow } = useUserPoolData(pool)
   const availableForWithdrawal = useAvailableForWithdrawal(pool)
+  const availableToBorrow = useAvailableToBorrow(pool)
 
   const [balanceExact, balanceDisplay] = useMemo(() => {
+    if (action === BorrowAction.BORROW && isBorrowCurrency) {
+      return [availableToBorrow, parseFloat(availableToBorrow).toPrecision(6)]
+    }
     if (action === BorrowAction.BORROW) {
       return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
     }
@@ -103,12 +110,20 @@ export default function InputBox({
       return [availableForWithdrawal, parseFloat(availableForWithdrawal).toPrecision(6)]
     }
     return [userBorrow, parseFloat(userBorrow).toPrecision(6)]
-  }, [action, availableForWithdrawal, userBorrow, currencyBalance, isCollateralCurrency])
+  }, [
+    action,
+    availableForWithdrawal,
+    userBorrow,
+    currencyBalance,
+    isCollateralCurrency,
+    isBorrowCurrency,
+    availableToBorrow,
+  ])
 
   const handleClick = useCallback(() => {
     if (!balanceExact || !onChange) return
-    onChange(balanceExact)
-  }, [balanceExact, onChange])
+    onChange(new BN(balanceExact).toString())
+  }, [balanceExact, onChange, BN])
 
   if (!currency) {
     return null

@@ -29,12 +29,10 @@ export function useLPData(pool: BorrowPool) {
   return useMemo(
     () => ({
       balance0:
-        balanceCalls.length && balances.result && balances?.result[0][0]
-          ? formatUnits(balances?.result.pending[0].solid, 18)
-          : '0',
+        balanceCalls.length && balances?.result?.pending ? formatUnits(balances.result.pending[0].solid, 18) : '0',
       balance1:
-        balanceCalls.length && balances && balances.result && balances?.result[0][1]
-          ? formatUnits(balances?.result.pending[0].sex, 18)
+        balanceCalls.length && balances && balances?.result?.pending
+          ? formatUnits(balances.result.pending[0].sex, 18)
           : '0',
     }),
     [balanceCalls, balances]

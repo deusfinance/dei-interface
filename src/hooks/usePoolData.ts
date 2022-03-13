@@ -13,6 +13,7 @@ import { constructPercentage } from 'utils/prices'
 import useWeb3React from './useWeb3'
 import { Interface } from '@ethersproject/abi'
 import { AddressZero } from '@ethersproject/constants'
+import { formatAmount } from 'utils/numbers'
 
 export function useUserPoolData(pool: BorrowPool): {
   userCollateral: string
@@ -124,6 +125,7 @@ export function useUserPoolData(pool: BorrowPool): {
 }
 
 export function useGlobalPoolData(pool: BorrowPool): {
+  maxCap: string
   totalCollateral: string
   borrowedElastic: string
   borrowedBase: string
@@ -134,6 +136,10 @@ export function useGlobalPoolData(pool: BorrowPool): {
   const generalLenderContract = useGeneralLenderContract(pool)
 
   const calls = [
+    {
+      methodName: 'maxCap',
+      callInputs: [],
+    },
     {
       methodName: 'totalCollateral',
       callInputs: [],
@@ -156,13 +162,12 @@ export function useGlobalPoolData(pool: BorrowPool): {
     },
   ]
 
-  const [totalCollateral, totalBorrow, liquidationRatio, borrowFee, accrueInfo] = useSingleContractMultipleMethods(
-    generalLenderContract,
-    calls
-  )
+  const [maxCap, totalCollateral, totalBorrow, liquidationRatio, borrowFee, accrueInfo] =
+    useSingleContractMultipleMethods(generalLenderContract, calls)
 
   return useMemo(
     () => ({
+      maxCap: maxCap?.result ? formatUnits(maxCap.result[0], pool.contract.decimals) : '0',
       totalCollateral: totalCollateral?.result ? formatUnits(totalCollateral.result[0], pool.contract.decimals) : '0',
       borrowedElastic: totalBorrow?.result ? formatUnits(totalBorrow.result[0], pool.contract.decimals) : '0',
       borrowedBase: totalBorrow?.result ? formatUnits(totalBorrow.result[1], pool.contract.decimals) : '0',
@@ -174,7 +179,7 @@ export function useGlobalPoolData(pool: BorrowPool): {
         : constructPercentage(100),
       interestPerSecond: accrueInfo?.result ? Number(formatUnits(accrueInfo.result[2], 18)) : 0,
     }),
-    [pool, totalCollateral, totalBorrow, liquidationRatio, borrowFee, accrueInfo]
+    [pool, maxCap, totalCollateral, totalBorrow, liquidationRatio, borrowFee, accrueInfo]
   )
 }
 
@@ -218,30 +223,68 @@ export function useCollateralPrice(pool: BorrowPool): string {
   return useMemo(() => (price?.result ? formatUnits(price.result[0], 18) : '0'), [price])
 }
 
-// TODO ADD CORRECT LOGIC
-export function useLiquidationPrice(pool: BorrowPool): string {
-  return useMemo(() => 'N/A', [pool])
-}
-
 export function useAvailableForWithdrawal(pool: BorrowPool): string {
   const { userCollateral, userDebt } = useUserPoolData(pool)
   const { liquidationRatio } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
 
-  /* 
-    userCollateral >= userDebt /(liquidationRatio * price)
-    const minimumCollateral = userDebt / (liquidationRatio * price)
-    userCollateral - withdrawable >= minimumCollateral
-    userCollateral - minimumCollateral = withdrawable
-    withdrawable = userCollateral - userDebt / (liquidationRatio * price)
-  */
   return useMemo(() => {
-    if (!parseFloat(collateralPrice) || !parseFloat(userDebt) || !parseFloat(userCollateral)) {
+    if (!parseFloat(collateralPrice) || !parseFloat(userCollateral)) {
       return '0'
     }
     const liquidationPrice = new BigNumber(liquidationRatio.toSignificant()).div(100).times(collateralPrice)
     const minimumCollateral = new BigNumber(userDebt).div(liquidationPrice)
     const withdrawable = new BigNumber(userCollateral).minus(minimumCollateral)
-    return withdrawable.toPrecision(pool.contract.decimals)
+    return withdrawable.gt(0) ? withdrawable.toPrecision(pool.contract.decimals) : '0'
   }, [userCollateral, userDebt, liquidationRatio, collateralPrice, pool])
+}
+
+export function useAvailableToBorrow(pool: BorrowPool): string {
+  const { userCollateral } = useUserPoolData(pool)
+  const { liquidationRatio } = useGlobalPoolData(pool)
+  const collateralPrice = useCollateralPrice(pool)
+  const availableForWithdrawal = useAvailableForWithdrawal(pool)
+
+  return useMemo(() => {
+    if (!parseFloat(collateralPrice) || !parseFloat(userCollateral) || !parseFloat(availableForWithdrawal)) {
+      return '0'
+    }
+    return new BigNumber(availableForWithdrawal)
+      .times(collateralPrice)
+      .times(liquidationRatio.toSignificant())
+      .div(100)
+      .times(0.995) //borrow fee
+      .times(1 - 0.005) //1 - health ratio
+      .toPrecision(pool.contract.decimals)
+  }, [userCollateral, liquidationRatio, availableForWithdrawal, collateralPrice, pool])
+}
+
+// TODO ADD CORRECT LOGIC
+
+/**
+   uint256 userCollateralAmount = userCollateral[user];
+        if (userCollateralAmount == 0) return 0;
+
+        uint256 liquidationPrice = (getDebt(user) * 1e18 * 1e18) /
+            (userCollateralAmount * LIQUIDATION_RATIO);
+ */
+
+export function useLiquidationPrice(pool: BorrowPool): string {
+  const { liquidationRatio } = useGlobalPoolData(pool)
+  const { userCollateral, userDebt } = useUserPoolData(pool)
+
+  return useMemo(() => {
+    if (!liquidationRatio || !parseFloat(userCollateral) || !parseFloat(userDebt)) {
+      return 'N/A'
+    }
+    const liquidationPrice = new BigNumber(userDebt)
+      .div(liquidationRatio.toSignificant())
+      .times(100)
+      .div(userCollateral)
+    // .times(1e18)853014145177894607214922
+
+    const fromWeiAmount = liquidationPrice.toPrecision(pool.contract.decimals)
+
+    return `$${formatAmount(Number(fromWeiAmount), 3)}`
+  }, [userCollateral, userDebt, liquidationRatio, pool])
 }

@@ -123,7 +123,6 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
   const logoTwo = useCurrencyLogo(pool.token1.address)
   const { balance0, balance1 } = useLPData(pool)
   const { borrowedElastic } = useGlobalPoolData(pool)
-  console.log({ balance0, balance1 })
 
   return (
     <Row>

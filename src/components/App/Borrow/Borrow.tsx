@@ -87,9 +87,13 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   )
 
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = inputCurrency && typedField === TypedField.COLLATERAL && approvalState !== ApprovalState.APPROVED
+    const show =
+      inputCurrency &&
+      ((action === BorrowAction.BORROW && typedField === TypedField.COLLATERAL) ||
+        (action === BorrowAction.REPAY && typedField === TypedField.BORROW)) &&
+      approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [inputCurrency, typedField, approvalState])
+  }, [inputCurrency, action, typedField, approvalState])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -165,9 +169,10 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     if (!isSupportedChainId) {
       return <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
     }
-    if (userError === UserError.BALANCE) {
-      return <PrimaryButton disabled>Insufficient {inputCurrency?.symbol} Balance</PrimaryButton>
-    }
+    //TODO
+    // if (userError === UserError.BALANCE) {
+    //   return <PrimaryButton disabled>Insufficient {inputCurrency?.symbol} Balance</PrimaryButton>
+    // }
     return (
       <PrimaryButton onClick={onMain}>
         {typedField === TypedField.COLLATERAL && action === BorrowAction.BORROW

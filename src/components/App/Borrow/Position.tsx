@@ -4,9 +4,9 @@ import BigNumber from 'bignumber.js'
 
 import { BorrowPool } from 'state/borrow/reducer'
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
-import { useCollateralPrice, useLiquidationPrice, useUserPoolData } from 'hooks/usePoolData'
+import { useCollateralPrice, useGlobalPoolData, useLiquidationPrice, useUserPoolData } from 'hooks/usePoolData'
 import { useLPData } from 'hooks/useLPData'
-import { useContract, useGeneralLenderContract } from 'hooks/useContract'
+import { useGeneralLenderContract } from 'hooks/useContract'
 import { formatAmount, formatDollarAmount } from 'utils/numbers'
 
 import { Card } from 'components/Card'
@@ -66,12 +66,11 @@ const StyledPrimaryButton = styled(PrimaryButton)`
 
 export default function Position({ pool }: { pool: BorrowPool }) {
   const { borrowCurrency } = useCurrenciesFromPool(pool)
-  const { userCollateral, userBorrow, userDebt, userCap } = useUserPoolData(pool)
+  const { userCollateral, userDebt, userCap } = useUserPoolData(pool)
+  const { maxCap, borrowedElastic } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
   const liquidationPrice = useLiquidationPrice(pool)
-  const poolContract = useContract(pool.contract.address, pool.abi, true)
   const generalLender = useGeneralLenderContract(pool)
-
   const { balance0, balance1 } = useLPData(pool)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
   const { account } = useWeb3React()
@@ -114,6 +113,16 @@ export default function Position({ pool }: { pool: BorrowPool }) {
     <Wrapper>
       <CardTitle>Your Position</CardTitle>
       <PositionRow
+        label="Max Cap"
+        value={`${formatAmount(parseFloat(maxCap), 0)} DEI`}
+        explanation="Max Capacity for borrowing DEI"
+      />
+      <PositionRow
+        label="Total Remaining Cap"
+        value={`${formatAmount(parseFloat(maxCap) - parseFloat(borrowedElastic), 0)} DEI`}
+        explanation="Total Remaining Capacity for borrowing DEI"
+      />
+      <PositionRow
         label="Collateral Deposited"
         value={formatAmount(parseFloat(userCollateral), 4)}
         explanation="Amount of Tokens Deposited as Collateral"
@@ -124,18 +133,18 @@ export default function Position({ pool }: { pool: BorrowPool }) {
         explanation={`${borrowSymbol} Value of the Collateral Deposited in your Position`}
       />
       <PositionRow
-        label={`${borrowSymbol} Borrowed`}
-        value={formatAmount(parseFloat(userBorrow), 4)}
-        explanation={`${borrowSymbol} Currently Borrowed in your Position`}
-      />
-      <PositionRow
         label="Outstanding Debt"
         value={formatAmount(parseFloat(userDebt), 4)}
         explanation={`${borrowSymbol} Amount that is considered Debt`}
       />
       <PositionRow
+        label="LP Token Price"
+        value={`$${formatAmount(Number(collateralPrice), 3)}`}
+        explanation="LP Token Price"
+      />
+      <PositionRow
         label="Liquidation Price"
-        value={liquidationPrice}
+        value={`${liquidationPrice}`}
         explanation="Collateral Price at which your Position will be Liquidated"
       />
       <PositionRow

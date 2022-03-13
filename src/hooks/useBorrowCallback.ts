@@ -56,7 +56,7 @@ export default function useBorrowCallback(
       } else {
         if (!borrowAmount) throw new Error('Missing borrowAmount.')
         args = [account, toHex(borrowAmount.quotient)]
-        methodName = 'repay'
+        methodName = 'repayElastic'
       }
 
       return {

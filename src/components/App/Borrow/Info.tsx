@@ -33,7 +33,7 @@ const Row = styled.div`
 export default function Info({ pool }: { pool: BorrowPool }) {
   const { liquidationRatio, borrowFee, interestPerSecond } = useGlobalPoolData(pool)
   const annualizedInterest = useMemo(() => {
-    return (interestPerSecond * 60 * 24 * 365).toFixed(0)
+    return (interestPerSecond * 60 * 60 * 24 * 365 * 100).toFixed(1)
   }, [interestPerSecond])
   return (
     <Wrapper>
@@ -42,11 +42,6 @@ export default function Info({ pool }: { pool: BorrowPool }) {
         label="Liquidation Ratio"
         value={`${liquidationRatio.toSignificant()}%`}
         explanation="The maximum amount of debt you can borrow with a selected collateral token."
-      />
-      <PositionRow
-        label="Liquidation Fee "
-        value={`${pool.liquidationFee.divide(100).toSignificant()}%`}
-        explanation="This is the discount a liquidator gets when buying collateral flagged for liquidation."
       />
       <PositionRow
         label="Borrow Fee "

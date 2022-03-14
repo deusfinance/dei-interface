@@ -270,16 +270,6 @@ export function useAvailableToBorrow(pool: BorrowPool): string {
   }, [userCollateral, liquidationRatio, availableForWithdrawal, collateralPrice, pool, borrowFeeMultipler])
 }
 
-// TODO ADD CORRECT LOGIC
-
-/**
-  uint256 userCollateralAmount = userCollateral[user];
-  if (userCollateralAmount == 0) return 0;
-
-  uint256 liquidationPrice = (getDebt(user) * 1e18 * 1e18) /
-      (userCollateralAmount * LIQUIDATION_RATIO);
- */
-
 export function useLiquidationPrice(pool: BorrowPool): string {
   const { liquidationRatio } = useGlobalPoolData(pool)
   const { userCollateral, userDebt } = useUserPoolData(pool)
@@ -292,7 +282,6 @@ export function useLiquidationPrice(pool: BorrowPool): string {
       .div(liquidationRatio.toSignificant())
       .times(100)
       .div(userCollateral)
-    // .times(1e18)853014145177894607214922
 
     return liquidationPrice.toPrecision(pool.contract.decimals)
   }, [userCollateral, userDebt, liquidationRatio, pool])

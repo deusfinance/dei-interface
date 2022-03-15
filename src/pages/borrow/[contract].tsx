@@ -15,6 +15,7 @@ import useWeb3React from 'hooks/useWeb3'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
 import { SupportedChainId } from 'constants/chains'
+import MaintenanceModal from 'components/MaintenanceModal'
 
 const Container = styled.div`
   display: flex;
@@ -178,6 +179,7 @@ export default function BorrowDEI() {
         {getMainContent()}
       </Wrapper>
       <Disclaimer />
+      <MaintenanceModal content="Borrowing is temporarily suspended for maintenance. Please check again at a later stage." />
     </Container>
   )
 }

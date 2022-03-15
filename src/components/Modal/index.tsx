@@ -67,17 +67,19 @@ export const ModalHeader = ({
   border = true,
   onClose,
   onBack,
+  hideClose,
 }: {
   title?: string
   border?: boolean
   onClose: () => void
   onBack?: () => void
+  hideClose?: boolean
 }) => {
   return (
     <HeaderWrapper border={border}>
       {onBack && <ChevronLeftIcon onClick={onBack} />}
       {title && <ThemedText.MediumHeader>{title}</ThemedText.MediumHeader>}
-      <CloseIcon size={'1.4rem'} onClick={onClose} />
+      {!hideClose && <CloseIcon size={'1.4rem'} onClick={onClose} />}
     </HeaderWrapper>
   )
 }

@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import { Currency } from '@sushiswap/core-sdk'
+import { isMobile } from 'react-device-detect'
 import BigNumber from 'bignumber.js'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
@@ -14,7 +15,6 @@ import Box from 'components/Box'
 import { NumericalInput } from 'components/Input'
 import { DualImageWrapper } from 'components/DualImage'
 import { useAvailableForWithdrawal, useUserPoolData } from 'hooks/usePoolData'
-import { isMobile } from 'react-device-detect'
 import { useAvailableToBorrow } from '../../../hooks/usePoolData'
 
 const Wrapper = styled(Box)`
@@ -97,7 +97,7 @@ export default function InputBox({
   const logo1 = useCurrencyLogo(pool ? pool.token1.address : undefined)
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
   const { userDebt } = useUserPoolData(pool)
-  const { availableForWithdrawal, availableForWithdrawalFactored } = useAvailableForWithdrawal(pool)
+  const { availableForWithdrawalFactored } = useAvailableForWithdrawal(pool)
   const availableToBorrow = useAvailableToBorrow(pool)
 
   const [balanceExact, balanceDisplay] = useMemo(() => {
@@ -125,7 +125,6 @@ export default function InputBox({
     isBorrowCurrency,
     availableToBorrow,
     currency,
-    availableForWithdrawal,
     availableForWithdrawalFactored,
   ])
 

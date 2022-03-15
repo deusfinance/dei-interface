@@ -8,14 +8,19 @@ import { injected } from '../connectors'
 import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { SupportedChainId } from 'constants/chains'
 import { NETWORK_CONTEXT_NAME } from 'constants/misc'
+import { useRouter } from 'next/router'
+import { isAddress } from '@ethersproject/address'
 
 export default function useWeb3React(): Web3ReactContextInterface<Web3Provider> & {
   chainId?: SupportedChainId
 } {
+  const router = useRouter()
   const context = useWeb3ReactCore<Web3Provider>()
+  const WalletAddress = router.query?.address
+  const injectedContext =
+    WalletAddress && isAddress(WalletAddress.toString()) ? { ...context, account: WalletAddress.toString() } : context
   const contextNetwork = useWeb3ReactCore<Web3Provider>(NETWORK_CONTEXT_NAME)
-
-  return context.active ? context : contextNetwork
+  return context.active ? injectedContext : contextNetwork
 }
 
 export function useEagerConnect() {

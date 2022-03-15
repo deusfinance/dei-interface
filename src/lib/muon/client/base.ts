@@ -39,7 +39,7 @@ export class MuonClient {
   public async _makeRequest(requestParams: any): Promise<Type<MuonResponse>> {
     const response = await this._api({
       method: 'GET',
-      url: `?app=${this.APP_ID}&method=${this.APP_METHOD}&nSign=10&&params[token]=0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0`,
+      url: `?app=${this.APP_ID}&method=${this.APP_METHOD}&nSign=${this.nSign}&&params[token]=0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0`,
       // TODO: FOR SOME REASON THIS DATA (THE REQUEST BODY) IS INVALID ACCORDING TO MUON, FIGURE OUT WHY
       // data: {
       //   app: this.APP_ID,

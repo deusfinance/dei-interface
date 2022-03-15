@@ -22,6 +22,7 @@
     "@web3-react/types": "^6.0.7",
     "@web3-react/walletconnect-connector": "^7.0.2-alpha.0",
     "@web3-react/walletlink-connector": "^6.2.11",
+    "axios": "^0.26.1",
     "bignumber.js": "^9.0.2",
     "copy-to-clipboard": "^3.3.1",
     "fortmatic": "^2.2.1",

@@ -5,12 +5,13 @@ import BigNumber from 'bignumber.js'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { BorrowAction, BorrowPool, TypedField } from 'state/borrow/reducer'
+import { useUserPoolData } from 'hooks/usePoolData'
+import { BorrowClient } from 'lib/muon'
 
 import useWeb3React from './useWeb3'
 import { useGeneralLenderContract } from './useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { toHex } from 'utils/hex'
-import { useUserPoolData } from 'hooks/usePoolData'
 
 export enum BorrowCallbackState {
   INVALID = 'INVALID',
@@ -35,11 +36,23 @@ export default function useBorrowCallback(
   const addTransaction = useTransactionAdder()
   const GeneralLender = useGeneralLenderContract(pool)
   const { userBorrow } = useUserPoolData(pool)
-  const constructCall = useCallback(() => {
+
+  const getCollateralPrice = useCallback(async () => {
+    const result = await BorrowClient.getCollateralPrice(pool.contract.address)
+    if (result.success === false) {
+      throw new Error(`Unable to fetch Muon collateral price: ${result.error}`)
+    }
+    return result.data.calldata.price
+  }, [pool])
+
+  const constructCall = useCallback(async () => {
     try {
       if (!account || !chainId || !library || !GeneralLender || !collateralCurrency || !borrowCurrency) {
         throw new Error('Missing dependencies.')
       }
+
+      const collateralPrice = await getCollateralPrice()
+      console.log(collateralPrice)
 
       let args = []
       let methodName
@@ -59,7 +72,6 @@ export default function useBorrowCallback(
       } else if (action === BorrowAction.REPAY && typedField === TypedField.BORROW && payOff) {
         if (!userBorrow) throw new Error('Missing userBorrow.')
         args = [account, new BigNumber(userBorrow).times(1e18).toFixed(0)]
-        console.log('userBorrow = ', new BigNumber(userBorrow).times(1e18).toFixed(0))
         methodName = 'repayBase'
       } else {
         if (!borrowAmount) throw new Error('Missing borrowAmount.')
@@ -90,6 +102,7 @@ export default function useBorrowCallback(
     borrowAmount,
     payOff,
     userBorrow,
+    getCollateralPrice,
   ])
 
   return useMemo(() => {
@@ -111,9 +124,9 @@ export default function useBorrowCallback(
     return {
       state: BorrowCallbackState.VALID,
       error: null,
-      callback: async function onTrade(): Promise<string> {
+      callback: async function onBorrow(): Promise<string> {
         console.log('onBorrow callback')
-        const call = constructCall()
+        const call = await constructCall()
         const { address, calldata, value } = call
 
         if ('error' in call) {

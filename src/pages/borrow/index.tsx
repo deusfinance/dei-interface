@@ -48,7 +48,6 @@ export default function Borrow() {
   const { snapshot, searchProps } = useSearch()
   const pools = useBorrowPools()
   const { borrowedElastic } = useGlobalDEIBorrowed(pools)
-
   const onMintClick = useCallback(
     (contract: string) => {
       router.push(`/borrow/${contract}`)

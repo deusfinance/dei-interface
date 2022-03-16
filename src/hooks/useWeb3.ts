@@ -1,24 +1,21 @@
 import { useEffect, useState } from 'react'
 import { Web3Provider } from '@ethersproject/providers'
+import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
 import { isMobile } from 'react-device-detect'
 
 import { injected } from '../connectors'
+import { useInjectedAddress } from './useInjectedAddress'
 
-import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { SupportedChainId } from 'constants/chains'
 import { NETWORK_CONTEXT_NAME } from 'constants/misc'
-import { useRouter } from 'next/router'
-import { isAddress } from '@ethersproject/address'
 
 export default function useWeb3React(): Web3ReactContextInterface<Web3Provider> & {
   chainId?: SupportedChainId
 } {
-  const router = useRouter()
   const context = useWeb3ReactCore<Web3Provider>()
-  const WalletAddress = router.query?.address
-  const injectedContext =
-    WalletAddress && isAddress(WalletAddress.toString()) ? { ...context, account: WalletAddress.toString() } : context
+  const WalletAddress = useInjectedAddress()
+  const injectedContext = WalletAddress ? { ...context, account: WalletAddress } : context
   const contextNetwork = useWeb3ReactCore<Web3Provider>(NETWORK_CONTEXT_NAME)
   return context.active ? injectedContext : contextNetwork
 }

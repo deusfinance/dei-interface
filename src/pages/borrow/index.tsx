@@ -10,7 +10,6 @@ import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { useSearch, SearchField, Table } from 'components/App/Borrow'
 import { formatAmount } from 'utils/numbers'
-import MaintenanceModal from 'components/MaintenanceModal'
 
 const Container = styled.div`
   display: flex;
@@ -72,7 +71,6 @@ export default function Borrow() {
         <Table options={snapshot.options as unknown as BorrowPool[]} onMintClick={onMintClick} />
       </Wrapper>
       <Disclaimer />
-      <MaintenanceModal content="Borrowing is temporarily suspended for maintenance. Please check again at a later stage." />
     </Container>
   )
 }

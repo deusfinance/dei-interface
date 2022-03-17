@@ -11,7 +11,7 @@ import { useReimburseContract } from 'hooks/useContract'
 import useWeb3React from 'hooks/useWeb3'
 import { useReimburse } from 'hooks/useReimburse'
 
-// import PendingRewards from 'constants/sex_solid.json'
+import PendingRewards from 'constants/sex_solid.json'
 import { PrimaryButton } from 'components/Button'
 import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
@@ -39,6 +39,11 @@ const Head = styled.thead`
     color: ${({ theme }) => theme.text1};
     background: ${({ theme }) => theme.bg0};
   }
+`
+const SmallDescription = styled.p`
+  margin-top: 4px;
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.text2};
 `
 
 const Row = styled.tr`
@@ -83,8 +88,9 @@ export default function Table({ options }: { options: BorrowPool[] }) {
         <Head>
           <tr>
             <Cel>Composition</Cel>
-            <Cel>Your Repay</Cel>
+            <Cel>Your Outstanding Debt</Cel>
             <Cel>Your Collateral</Cel>
+            <Cel>Your Pending Rewards</Cel>
             <Cel>Your Rewards</Cel>
             <Cel>Claim Rewards</Cel>
             <Cel>Withdraw Collateral</Cel>
@@ -111,7 +117,7 @@ function TableRow({ pool }: { pool: BorrowPool }) {
   const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const logoOne = useCurrencyLogo(pool.token0.address)
   const logoTwo = useCurrencyLogo(pool.token1.address)
-  // const affectedUser = PendingRewards.filter((user) => user.address === account)
+  const affectedUser = PendingRewards.filter((user) => user.address === account)
 
   const { userHolder, userCollateral, userRepay } = useReimburse(pool)
   const { balance0, balance1 } = useLPData(pool, userHolder)
@@ -223,10 +229,11 @@ function TableRow({ pool }: { pool: BorrowPool }) {
         {formatAmount(parseFloat(userRepay), 4)} {borrowCurrency?.symbol}
       </Cel>
       <Cel>{formatAmount(parseFloat(userCollateral), 5)}</Cel>
-      {/* <Cel>
+      <Cel>
         {affectedUser.length ? formatAmount(affectedUser[0].solid) : 0} SOLID <br />
-        {affectedUser.length ? formatAmount(affectedUser[0].sex) : 0} SEX
-      </Cel> */}
+        {affectedUser.length ? formatAmount(affectedUser[0].sex) : 0} SEX <br />
+        <SmallDescription>(claimable in 24h)</SmallDescription>
+      </Cel>
       <Cel>
         {formatAmount(parseFloat(balance0))} SOLID <br />
         {formatAmount(parseFloat(balance1))} SEX

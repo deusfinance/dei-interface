@@ -115,6 +115,9 @@ export default function NavBar() {
           <Link href="/borrow" passHref>
             <NavLink active={router.route === '/borrow'}>Borrow</NavLink>
           </Link>
+          <Link href="/reimburse" passHref>
+            <NavLink active={router.route === '/reimburse'}>Reimburse</NavLink>
+          </Link>
         </Routes>
         <Items>
           <Web3Network />

@@ -12,6 +12,7 @@ import { PrimaryButton } from 'components/Button'
 import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { formatAmount } from 'utils/numbers'
+import { useReimburse } from '../../../hooks/useReimburse'
 
 const Wrapper = styled.div`
   display: flex;
@@ -121,7 +122,8 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
   const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const logoOne = useCurrencyLogo(pool.token0.address)
   const logoTwo = useCurrencyLogo(pool.token1.address)
-  const { balance0, balance1 } = useLPData(pool)
+  const { userHolder } = useReimburse(pool)
+  const { balance0, balance1 } = useLPData(pool, userHolder)
   const { borrowedElastic } = useGlobalPoolData(pool)
 
   return (

@@ -5,12 +5,10 @@ import { BorrowPool } from 'state/borrow/reducer'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { useSolidexLpDepositor } from './useContract'
 import useWeb3React from './useWeb3'
-import { useUserPoolData } from 'hooks/usePoolData'
 
-export function useLPData(pool: BorrowPool) {
+export function useLPData(pool: BorrowPool, userHolder: string) {
   const { account } = useWeb3React()
   const contract = useSolidexLpDepositor()
-  const { userHolder } = useUserPoolData(pool)
   const balanceCalls = useMemo(
     () =>
       !account || !userHolder

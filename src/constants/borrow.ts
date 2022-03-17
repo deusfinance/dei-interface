@@ -34,7 +34,7 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
     abi: BASE_V1_MAIN_PAIR,
     composition: 'USDC/DEI',
-    oracle: '0x5CEB2b0308a7f21CcC0915DB29fa5095bEAdb48D',
+    oracle: '0x8878Eb7F44f969D0ed72c6010932791397628546',
     generalLender: '0xeC1Fc57249CEa005fC16b2980470504806fcA20d',
     lpPool: '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
     mintHelper: '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',

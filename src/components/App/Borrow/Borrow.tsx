@@ -178,9 +178,6 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     if (typedField === TypedField.BORROW && action === BorrowAction.BORROW) {
       return <PrimaryButton disabled>Only add Collateral</PrimaryButton>
     }
-    if (typedField === TypedField.COLLATERAL && action === BorrowAction.REPAY) {
-      return <PrimaryButton disabled>Only Repay</PrimaryButton>
-    }
     /************************/
     if (userError === UserError.BALANCE) {
       return <PrimaryButton disabled>Insufficient {inputCurrency?.symbol} Balance</PrimaryButton>

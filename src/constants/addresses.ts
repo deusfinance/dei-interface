@@ -29,5 +29,5 @@ export const SolidexLpDepositor: AddressMap = {
 }
 
 export const Reimburse: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x98097553Af9EB8F17F4f668C8C8eB78712eE2c43',
+  [SupportedChainId.FANTOM]: '0x85B6996ab768600C14dA1464205bd6b3a864417D',
 }

@@ -28,11 +28,11 @@ const Wrapper = styled(Card)`
   gap: 10px;
   max-width: 280px;
 
-  & > * {
+  /* & > * {
     &:last-child {
       margin-top: auto;
     }
-  }
+  } */
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     max-width: 100%;
@@ -72,13 +72,13 @@ const StyledPrimaryButton = styled(PrimaryButton)`
 
 export default function Position({ pool }: { pool: BorrowPool }) {
   const { borrowCurrency } = useCurrenciesFromPool(pool)
-  const { userCollateral, userDebt } = useUserPoolData(pool)
+  const { userCollateral, userDebt, userHolder } = useUserPoolData(pool)
   const borrowable = useAvailableToBorrow(pool)
   const { maxCap, borrowedElastic, borrowFee } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
   const liquidationPrice = useLiquidationPrice(pool)
   const generalLender = useGeneralLenderContract(pool)
-  const { balance0, balance1 } = useLPData(pool)
+  const { balance0, balance1 } = useLPData(pool, userHolder)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
   const { account } = useWeb3React()
 
@@ -157,13 +157,17 @@ export default function Position({ pool }: { pool: BorrowPool }) {
         value={`${formatAmount(parseFloat(borrowable), 0)} DEI`}
         explanation={`${borrowSymbol} Borrowable based on the Collateral Deposited`}
       />
-      <PositionRow
-        label="Underlying LP Rewards"
-        subLabel={`${formatAmount(parseFloat(balance0), 2)} SOLID + ${formatAmount(parseFloat(balance1), 2)} SEX`}
-        value=""
-        explanation="SEX + SOLID your position has earned so far"
-      />
-      {getClaimButton()}
+      {parseFloat(balance0) > 0 && (
+        <>
+          <PositionRow
+            label="Underlying LP Rewards"
+            subLabel={`${formatAmount(parseFloat(balance0), 2)} SOLID + ${formatAmount(parseFloat(balance1), 2)} SEX`}
+            value=""
+            explanation="SEX + SOLID your position has earned so far"
+          />
+          {parseFloat(balance0) > 0 && getClaimButton()}
+        </>
+      )}
     </Wrapper>
   )
 }

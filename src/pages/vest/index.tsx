@@ -1,14 +1,15 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import Link from 'next/link'
 import styled from 'styled-components'
 
-import { BorrowPool } from 'state/borrow/reducer'
-
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import { useSearch } from 'components/App/Borrow'
 import { Table } from 'components/App/Vest'
 import { PrimaryButton } from 'components/Button'
+import useWeb3React from 'hooks/useWeb3'
+import { useSupportedChainId } from 'hooks/useSupportedChainId'
+import { useSingleContractMultipleData } from 'state/multicall/hooks'
+import { useVeDeusContract } from 'hooks/useContract'
 
 const Container = styled.div`
   display: flex;
@@ -54,7 +55,8 @@ const CreateButton = styled(PrimaryButton)`
 `
 
 export default function Vest() {
-  const { snapshot } = useSearch()
+  const nftIds = useOwnedNfts()
+
   return (
     <Container>
       <Hero>
@@ -67,12 +69,33 @@ export default function Vest() {
             Create Lock
           </Link>
         </CreateButton>
-        <Table
-          options={snapshot.options as unknown as BorrowPool[]}
-          onCreate={(id: string) => console.log('onCreate Called', id)}
-        />
+        <Table nftIds={nftIds} />
       </Wrapper>
       <Disclaimer />
     </Container>
   )
+}
+
+const idMapping = Array.from(Array(1000).keys())
+
+function useOwnedNfts() {
+  const { account, chainId } = useWeb3React()
+  const isSupportedChainId = useSupportedChainId()
+  const veDEUSContract = useVeDeusContract()
+
+  const callInputs = useMemo(() => {
+    return !chainId || !isSupportedChainId || !account ? [] : idMapping.map((id) => [account, id])
+  }, [account, chainId, isSupportedChainId])
+
+  const results = useSingleContractMultipleData(veDEUSContract, 'tokenOfOwnerByIndex', callInputs)
+
+  return useMemo(() => {
+    return results.reduce((acc: number[], value) => {
+      if (!value.result) return acc
+      const result = value.result[0].toString()
+      if (!result || result == 0) return acc
+      acc.push(result)
+      return acc
+    }, [])
+  }, [results])
 }

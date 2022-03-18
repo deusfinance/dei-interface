@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from 'state'
 
 import useWeb3React from 'hooks/useWeb3'
 import { addTransaction } from './actions'
-import { TransactionDetails, TransactionState, Approval } from './reducer'
+import { TransactionDetails, TransactionState, Approval, Vest } from './reducer'
 
 export interface TransactionResponseLight {
   hash: string
@@ -14,6 +14,7 @@ export function useTransactionAdder(): (
   customData?: {
     summary?: string
     approval?: Approval
+    vest?: Vest
   }
 ) => void {
   const { chainId, account } = useWeb3React()
@@ -25,9 +26,11 @@ export function useTransactionAdder(): (
       {
         summary,
         approval,
+        vest,
       }: {
         summary?: string
         approval?: Approval
+        vest?: Vest
       } = {}
     ) => {
       if (!account || !chainId) return
@@ -44,6 +47,7 @@ export function useTransactionAdder(): (
           chainId,
           summary,
           approval,
+          vest,
         })
       )
     },
@@ -91,5 +95,25 @@ export function useHasPendingApproval(tokenAddress: string | null | undefined, s
         }
       }),
     [allTransactions, spender, tokenAddress]
+  )
+}
+
+export function useHasPendingVest(hash: string | null | undefined) {
+  const allTransactions = useAllTransactions()
+  return useMemo(
+    () =>
+      typeof hash === 'string' &&
+      Object.keys(allTransactions).some((hash) => {
+        const tx = allTransactions[hash]
+        if (!tx) return false
+        if (tx.receipt) {
+          return false
+        } else {
+          const vest = tx.vest
+          if (!vest) return false
+          return vest.hash === hash && isTransactionRecent(tx)
+        }
+      }),
+    [allTransactions, hash]
   )
 }

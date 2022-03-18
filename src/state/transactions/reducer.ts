@@ -15,9 +15,14 @@ export interface Approval {
   spender?: string
 }
 
+export interface Vest {
+  hash?: string
+}
+
 export interface TransactionDetails {
   hash: string
   approval?: Approval
+  vest?: Vest
   summary?: string
   receipt?: SerializableTransactionReceipt
   lastCheckedBlockNumber?: number
@@ -36,7 +41,7 @@ export const initialState: TransactionState = {}
 
 export default createReducer(initialState, (builder) =>
   builder
-    .addCase(addTransaction, (state, { payload: { chainId, from, hash, summary, approval } }) => {
+    .addCase(addTransaction, (state, { payload: { chainId, from, hash, summary, approval, vest } }) => {
       if (state[chainId]?.[hash]) {
         throw new Error('Attempted to add existing transaction.')
       }
@@ -46,9 +51,10 @@ export default createReducer(initialState, (builder) =>
         from,
         summary,
         approval,
+        vest,
         addedTime: now(),
       }
-      txs[hash] = { hash, from, summary, approval, addedTime: now() }
+      txs[hash] = { hash, from, summary, approval, vest, addedTime: now() }
       state[chainId] = txs
     })
     .addCase(clearAllTransactions, (transactions, { payload: { chainId } }) => {

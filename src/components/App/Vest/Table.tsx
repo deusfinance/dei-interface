@@ -1,10 +1,19 @@
 import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
+import { formatUnits } from '@ethersproject/units'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 
-import { BorrowPool } from 'state/borrow/reducer'
+dayjs.extend(relativeTime)
+dayjs.extend(localizedFormat)
+
+import useWeb3React from 'hooks/useWeb3'
+import { useSupportedChainId } from 'hooks/useSupportedChainId'
+import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
+import { useVeDeusContract } from 'hooks/useContract'
 
 import Pagination from 'components/Pagination'
-import { PrimaryButton } from 'components/Button'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { RowCenter } from 'components/Row'
 import Column from 'components/Column'
@@ -54,11 +63,6 @@ const Cel = styled.td<{
       display: none;
     }
   `}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    :nth-child(2) {
-      display: none;
-    }
-  `}
 `
 const NFTWrap = styled(Column)`
   margin-left: 10px;
@@ -80,16 +84,16 @@ const CelDescription = styled.div`
 `
 
 const itemsPerPage = 10
-export default function Table({ options, onCreate }: { options: BorrowPool[]; onCreate: (tokenId: string) => void }) {
+export default function Table({ nftIds }: { nftIds: number[] }) {
   const [offset, setOffset] = useState(0)
 
-  const paginatedOptions = useMemo(() => {
-    return options.slice(offset, offset + itemsPerPage)
-  }, [options, offset])
+  const paginatedItems = useMemo(() => {
+    return nftIds.slice(offset, offset + itemsPerPage)
+  }, [nftIds, offset])
 
   const pageCount = useMemo(() => {
-    return Math.ceil(options.length / itemsPerPage)
-  }, [options])
+    return Math.ceil(nftIds.length / itemsPerPage)
+  }, [nftIds])
 
   const onPageChange = ({ selected }: { selected: number }) => {
     setOffset(Math.ceil(selected * itemsPerPage))
@@ -104,49 +108,80 @@ export default function Table({ options, onCreate }: { options: BorrowPool[]; on
             <Cel>Vest Amount</Cel>
             <Cel>Vest Value</Cel>
             <Cel>Vest Expires</Cel>
-            <Cel>Actions</Cel>
+            {/* <Cel>Actions</Cel> */}
           </tr>
         </Head>
         <tbody>
-          {paginatedOptions.length ? (
-            paginatedOptions.map((pool: BorrowPool, index) => <TableRow key={index} pool={pool} onCreate={onCreate} />)
+          {paginatedItems.length ? (
+            paginatedItems.map((nftId: number, index) => <TableRow key={index} nftId={nftId} />)
           ) : (
             <tr>
-              <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}>
+              <td colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>
                 No Results Found
               </td>
             </tr>
           )}
         </tbody>
       </TableWrapper>
-      {paginatedOptions.length > 0 && <Pagination pageCount={pageCount} onPageChange={onPageChange} />}
+      {paginatedItems.length > 0 && <Pagination pageCount={pageCount} onPageChange={onPageChange} />}
     </Wrapper>
   )
 }
 
-function TableRow({ pool, onCreate }: { pool: BorrowPool; onCreate: (tokenId: string) => void }) {
+function TableRow({ nftId }: { nftId: number }) {
+  const { account, chainId } = useWeb3React()
+  const isSupportedChainId = useSupportedChainId()
+  const veDEUSContract = useVeDeusContract()
+
+  const calls = useMemo(
+    () =>
+      !account || !chainId || !isSupportedChainId
+        ? []
+        : [
+            {
+              methodName: 'balanceOfNFT',
+              callInputs: [nftId],
+            },
+            {
+              methodName: 'locked',
+              callInputs: [nftId],
+            },
+          ],
+    [account, chainId, isSupportedChainId, nftId]
+  )
+
+  const [balanceResult, lockedResult] = useSingleContractMultipleMethods(veDEUSContract, calls)
+  const { deusAmount, veDEUSAmount, lockEnd } = useMemo(
+    () => ({
+      deusAmount: calls.length && lockedResult.result ? formatUnits(lockedResult.result[0], 18) : '0',
+      lockEnd: calls.length && lockedResult.result ? Number(formatUnits(lockedResult.result[1], 0)) : 0,
+      veDEUSAmount: calls.length && balanceResult.result ? formatUnits(balanceResult.result[0], 18) : '0',
+    }),
+    [calls, balanceResult, lockedResult]
+  )
+
   return (
     <Row>
       <Cel>
         <RowCenter>
           <ImageWithFallback src={DEUS_LOGO} alt={`veDeus logo`} width={30} height={30} />
           <NFTWrap>
-            <CelAmount>10586</CelAmount>
-            <CelDescription>NFT ID</CelDescription>
+            <CelAmount>{nftId}</CelAmount>
+            <CelDescription>veDEUS ID</CelDescription>
           </NFTWrap>
         </RowCenter>
       </Cel>
-      <Cel>0.11 DEUS</Cel>
-      <Cel>0.11 veDEUS</Cel>
+      <Cel>{deusAmount} DEUS</Cel>
+      <Cel>{veDEUSAmount} veDEUS</Cel>
       <Cel>
         <CelWrap>
-          <CelAmount>2026-02-26</CelAmount>
-          <CelDescription>Expires in 4 years</CelDescription>
+          <CelAmount>{dayjs.unix(lockEnd).format('LLL')}</CelAmount>
+          <CelDescription>Expires in {dayjs.unix(lockEnd).fromNow(true)}</CelDescription>
         </CelWrap>
       </Cel>
-      <Cel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => onCreate('1')}>Manage</PrimaryButton>
-      </Cel>
+      {/* <Cel style={{ padding: '5px 10px' }}>
+        <PrimaryButton>Manage</PrimaryButton>
+      </Cel> */}
     </Row>
   )
 }

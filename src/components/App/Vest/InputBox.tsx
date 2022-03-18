@@ -11,7 +11,6 @@ import { maxAmountSpend } from 'utils/currency'
 import ImageWithFallback from 'components/ImageWithFallback'
 import Box from 'components/Box'
 import { NumericalInput } from 'components/Input'
-import { RowEnd } from 'components/Row'
 
 const Wrapper = styled(Box)`
   justify-content: space-between;
@@ -20,6 +19,7 @@ const Wrapper = styled(Box)`
   gap: 10px;
   padding: 0.6rem;
   align-items: center;
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 0.5rem;
   `}
@@ -29,7 +29,6 @@ const Column = styled.div`
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
-  margin-right: 10px;
 `
 
 const Row = styled.div`
@@ -37,16 +36,11 @@ const Row = styled.div`
   flex-flow: row nowrap;
   align-items: center;
   gap: 10px;
-  font-size: 0.8rem;
+  font-size: 1.5rem;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     gap: 3px;
   `}
-`
-const LogoWrap = styled.div`
-  padding: 3px;
-  border-radius: 50%;
-  border: 1px solid #afafd6;
 `
 
 const Balance = styled(Row)`
@@ -62,7 +56,7 @@ const Balance = styled(Row)`
     border-radius: 6px;
     padding: 2px 4px;
     font-size: 0.5rem;
-    color: white;
+    color: ${({ theme }) => theme.text1};
 
     &:hover {
       background: ${({ theme }) => theme.secondary2};
@@ -75,17 +69,17 @@ const Balance = styled(Row)`
   }
 `
 
-export default function InputDeus({
+export default function InputBox({
   currency,
   value,
   onChange,
 }: {
-  currency: Currency | undefined
+  currency: Currency
   value: string
-  onChange(x?: string): void
+  onChange(values: string): void
 }) {
   const { account } = useWeb3React()
-  const logo0 = useCurrencyLogo(currency?.wrapped.address)
+  const logo = useCurrencyLogo(currency?.wrapped.address)
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
 
   const [balanceExact, balanceDisplay] = useMemo(() => {
@@ -97,42 +91,35 @@ export default function InputDeus({
     onChange(balanceExact)
   }, [balanceExact, onChange])
 
-  if (!currency) {
-    return null
-  }
-
   function getImageSize() {
     return isMobile ? 25 : 40
   }
 
   return (
     <>
-      <RowEnd my="10px" pr="5px">
-        {currency && (
-          <Balance onClick={handleClick}>
-            {balanceDisplay ? balanceDisplay : '0.00'} {currency?.symbol}
-            <span>MAX</span>
-          </Balance>
-        )}
-      </RowEnd>
       <Wrapper>
         <Column>
-          <LogoWrap>
+          <Row>
             <ImageWithFallback
-              src={logo0}
+              src={logo}
               width={getImageSize()}
               height={getImageSize()}
               alt={`${currency?.symbol} Logo`}
               round
             />
-          </LogoWrap>
+            {currency.symbol}
+          </Row>
+          <Balance onClick={handleClick}>
+            {balanceDisplay ? balanceDisplay : '0.00'} {currency?.symbol}
+            <span>MAX</span>
+          </Balance>
         </Column>
         <NumericalInput
           value={value || ''}
           onUserInput={onChange}
-          placeholder={`0.0`}
+          placeholder="Enter an amount"
           autoFocus
-          style={{ textAlign: 'left', height: '50px', fontSize: '1.75rem' }}
+          style={{ textAlign: 'right', height: '50px', fontSize: '1.3rem' }}
         />
       </Wrapper>
     </>

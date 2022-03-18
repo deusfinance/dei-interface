@@ -98,6 +98,15 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          {/* TODO: Find a good icon for it           
+          <Link href="/reimburse" passHref>
+            <Row active={router.route === '/reimburse'}>
+              <div>Reimburse</div>
+              <IconWrapper>
+                <CreditCardIcon size={20} /> 
+              </IconWrapper>
+            </Row>
+          </Link> */}
           <ExternalLink href="https://twitter.com/deusdao">
             <Row onClick={() => toggle()}>
               <div>Twitter</div>

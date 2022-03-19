@@ -8,6 +8,10 @@ export const Multicall2: AddressMap = {
   [SupportedChainId.FANTOM]: '0x22D4cF72C45F8198CfbF4B568dBdB5A85e8DC0B5',
 }
 
+export const veDEUS: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x8b42c6cb07c8dd5fe5db3ac03693867afd11353d',
+}
+
 // NEEDS CHANGING
 export const LenderManager: AddressMap = {
   [SupportedChainId.FANTOM]: '0xc02f204bab0248c694516dbaf985d40718ed4f86',

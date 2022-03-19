@@ -13,6 +13,7 @@ import {
   CreditCard as CreditCardIcon,
   Twitter as TwitterIcon,
   Github as GithubIcon,
+  Lock as LockIcon,
 } from 'components/Icons'
 import { Card } from 'components/Card'
 import { NavButton } from 'components/Button'
@@ -74,6 +75,22 @@ export default function Menu() {
       </NavButton>
       <div>
         <InlineModal isOpen={isOpen}>
+          <Link href="/borrow" passHref>
+            <Row active={router.route === '/borrow'}>
+              <div>Borrow</div>
+              <IconWrapper>
+                <CreditCardIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/vest" passHref>
+            <Row active={router.route === '/vest'}>
+              <div>Vest</div>
+              <IconWrapper>
+                <LockIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           {/* <Link href="/convert" passHref>
             <Row onClick={() => toggle()} active={router.route === '/convert'}>
               <div>Convert</div>
@@ -90,14 +107,15 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link> */}
-          <Link href="/borrow" passHref>
-            <Row active={router.route === '/borrow'}>
-              <div>Borrow</div>
+          {/* TODO: Find a good icon for it           
+          <Link href="/reimburse" passHref>
+            <Row active={router.route === '/reimburse'}>
+              <div>Reimburse</div>
               <IconWrapper>
-                <CreditCardIcon size={20} />
+                <CreditCardIcon size={20} /> 
               </IconWrapper>
             </Row>
-          </Link>
+          </Link> */}
           <ExternalLink href="https://twitter.com/deusdao">
             <Row onClick={() => toggle()}>
               <div>Twitter</div>

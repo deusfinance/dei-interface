@@ -171,12 +171,12 @@ export function useGlobalPoolData(pool: BorrowPool): {
       borrowedElastic: totalBorrow?.result ? formatUnits(totalBorrow.result[0], pool.contract.decimals) : '0',
       borrowedBase: totalBorrow?.result ? formatUnits(totalBorrow.result[1], pool.contract.decimals) : '0',
       liquidationRatio: liquidationRatio?.result
-        ? constructPercentage(Number(formatUnits(liquidationRatio.result[0], 18))) // LIQUIDATION_RATIO_PRECISION
+        ? constructPercentage(parseFloat(formatUnits(liquidationRatio.result[0], 18))) // LIQUIDATION_RATIO_PRECISION
         : constructPercentage(0.8),
       borrowFee: borrowFee?.result
-        ? constructPercentage(Number(formatUnits(borrowFee.result[0], 18))) // BORROW_OPENING_FEE_PRECISION
+        ? constructPercentage(parseFloat(formatUnits(borrowFee.result[0], 18))) // BORROW_OPENING_FEE_PRECISION
         : constructPercentage(0.005),
-      interestPerSecond: accrueInfo?.result ? Number(formatUnits(accrueInfo.result[2], 18)) : 0,
+      interestPerSecond: accrueInfo?.result ? parseFloat(formatUnits(accrueInfo.result[2], 18)) : 0,
     }),
     [pool, maxCap, totalCollateral, totalBorrow, liquidationRatio, borrowFee, accrueInfo]
   )

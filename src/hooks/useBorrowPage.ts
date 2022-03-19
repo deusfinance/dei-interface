@@ -71,16 +71,7 @@ export default function useBorrowPage(
     }
     // repaying
     return parsedAmounts[1] && userDebt < parsedAmounts[1].toExact()
-  }, [
-    collateralBalance,
-    borrowBalance,
-    userDebt,
-    parsedAmounts,
-    typedField,
-    action,
-    availableForWithdrawal,
-    availableToBorrow,
-  ])
+  }, [collateralBalance, userDebt, parsedAmounts, typedField, action, availableForWithdrawal, availableToBorrow])
 
   const error = useMemo(
     () =>

@@ -4,18 +4,21 @@ import { Currency, CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core
 import BigNumber from 'bignumber.js'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
-import { PrimaryButton } from 'components/Button'
-import TransactionConfirmationModal, { ConfirmationContent, TransactionErrorContent } from './index'
-import ImageWithFallback from 'components/ImageWithFallback'
 import { BorrowAction, BorrowPool, TypedField } from 'state/borrow/reducer'
-import { DualImageWrapper } from 'components/DualImage'
 import {
   useAvailableForWithdrawal,
   useCollateralPrice,
   useGlobalPoolData,
   useLiquidationPrice,
 } from 'hooks/usePoolData'
+
 import { formatDollarAmount } from 'utils/numbers'
+
+import { PrimaryButton } from 'components/Button'
+import TransactionConfirmationModal, { ConfirmationContent, TransactionErrorContent } from './index'
+import ImageWithFallback from 'components/ImageWithFallback'
+import { DualImageWrapper } from 'components/DualImage'
+import { Warning } from 'components/Warning'
 
 const MainWrapper = styled.div`
   display: flex;
@@ -76,16 +79,6 @@ const Disclaimer = styled.div`
   font-size: 0.7rem;
   border-radius: 5px;
   padding: 0.7rem;
-`
-
-const Warning = styled.div`
-  text-align: center;
-  width: 100%;
-  height: fit-content;
-  padding: 10px;
-  font-size: 0.6rem;
-  border: 1px solid ${({ theme }) => theme.red1};
-  box-shadow: 1px 1px ${({ theme }) => theme.red2};
 `
 
 export default function ConfirmBorrow({

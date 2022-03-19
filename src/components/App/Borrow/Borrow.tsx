@@ -77,7 +77,7 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
 
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency, spender)
 
-  const { state: mainCallbackState, callback: mainCallback } = useBorrowCallback(
+  const { callback: mainCallback } = useBorrowCallback(
     collateralCurrency,
     borrowCurrency,
     parsedAmounts[0],

@@ -172,7 +172,7 @@ export default function BorrowDEI() {
       </Hero>
       <Wrapper>
         <ReturnWrapper onClick={onReturnClick}>
-          <ArrowBubble size={20}>Back</ArrowBubble>
+          <ArrowBubble size={20} />
           Pool Overview
         </ReturnWrapper>
         {getMainContent()}

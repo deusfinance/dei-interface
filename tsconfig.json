@@ -20,6 +20,7 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "module": "esnext",
     "useUnknownInCatchVariables": false,
     "moduleResolution": "node",

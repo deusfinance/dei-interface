@@ -112,7 +112,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
     }
     return <StyledPrimaryButton onClick={onClaim}>Claim Rewards</StyledPrimaryButton>
   }
-  const numerator = (100 - Number(borrowFee.toSignificant())) / 100
+  const numerator = (100 - parseFloat(borrowFee.toSignificant())) / 100
 
   return (
     <Wrapper>

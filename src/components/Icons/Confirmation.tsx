@@ -21,7 +21,7 @@ const rotate = keyframes`
 `
 
 export const ConfirmationAnimation = styled(({ size = '15px', color = '#919191', ...props }) => (
-  <SettingsIcon {...props} />
+  <SettingsIcon size={size} color={color} {...props} />
 ))<SvgStyledProps>`
   width: ${(props) => props.size};
   height: ${(props) => props.size};

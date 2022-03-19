@@ -19,6 +19,7 @@ import { RowCenter } from 'components/Row'
 import Column from 'components/Column'
 
 import DEUS_LOGO from '/public/static/images/tokens/deus.svg'
+import { formatAmount } from 'utils/numbers'
 
 const Wrapper = styled.div`
   display: flex;
@@ -49,7 +50,7 @@ const Row = styled.tr`
   color: ${({ theme }) => theme.text1};
 `
 
-const Cel = styled.td<{
+const Cell = styled.td<{
   justify?: boolean
 }>`
   text-align: center;
@@ -64,6 +65,12 @@ const Cel = styled.td<{
     }
   `}
 `
+
+const NoResults = styled.div`
+  text-align: center;
+  padding: 20px;
+`
+
 const NFTWrap = styled(Column)`
   margin-left: 10px;
   align-items: flex-start;
@@ -104,25 +111,19 @@ export default function Table({ nftIds }: { nftIds: number[] }) {
       <TableWrapper>
         <Head>
           <tr>
-            <Cel>Token ID</Cel>
-            <Cel>Vest Amount</Cel>
-            <Cel>Vest Value</Cel>
-            <Cel>Vest Expires</Cel>
-            {/* <Cel>Actions</Cel> */}
+            <Cell>Token ID</Cell>
+            <Cell>Vest Amount</Cell>
+            <Cell>Vest Value</Cell>
+            <Cell>Vest Expires</Cell>
+            {/* <Cell>Actions</Cell> */}
           </tr>
         </Head>
         <tbody>
-          {paginatedItems.length ? (
-            paginatedItems.map((nftId: number, index) => <TableRow key={index} nftId={nftId} />)
-          ) : (
-            <tr>
-              <td colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>
-                No Results Found
-              </td>
-            </tr>
-          )}
+          {paginatedItems.length > 0 &&
+            paginatedItems.map((nftId: number, index) => <TableRow key={index} nftId={nftId} />)}
         </tbody>
       </TableWrapper>
+      {paginatedItems.length == 0 && <NoResults>No Results Found</NoResults>}
       {paginatedItems.length > 0 && <Pagination pageCount={pageCount} onPageChange={onPageChange} />}
     </Wrapper>
   )
@@ -154,7 +155,7 @@ function TableRow({ nftId }: { nftId: number }) {
   const { deusAmount, veDEUSAmount, lockEnd } = useMemo(
     () => ({
       deusAmount: calls.length && lockedResult.result ? formatUnits(lockedResult.result[0], 18) : '0',
-      lockEnd: calls.length && lockedResult.result ? Number(formatUnits(lockedResult.result[1], 0)) : 0,
+      lockEnd: calls.length && lockedResult.result ? parseFloat(formatUnits(lockedResult.result[1], 0)) : 0,
       veDEUSAmount: calls.length && balanceResult.result ? formatUnits(balanceResult.result[0], 18) : '0',
     }),
     [calls, balanceResult, lockedResult]
@@ -162,7 +163,7 @@ function TableRow({ nftId }: { nftId: number }) {
 
   return (
     <Row>
-      <Cel>
+      <Cell>
         <RowCenter>
           <ImageWithFallback src={DEUS_LOGO} alt={`veDeus logo`} width={30} height={30} />
           <NFTWrap>
@@ -170,18 +171,18 @@ function TableRow({ nftId }: { nftId: number }) {
             <CelDescription>veDEUS ID</CelDescription>
           </NFTWrap>
         </RowCenter>
-      </Cel>
-      <Cel>{deusAmount} DEUS</Cel>
-      <Cel>{veDEUSAmount} veDEUS</Cel>
-      <Cel>
+      </Cell>
+      <Cell>{deusAmount} DEUS</Cell>
+      <Cell>{formatAmount(parseFloat(veDEUSAmount))} veDEUS</Cell>
+      <Cell>
         <CelWrap>
           <CelAmount>{dayjs.unix(lockEnd).format('LLL')}</CelAmount>
           <CelDescription>Expires in {dayjs.unix(lockEnd).fromNow(true)}</CelDescription>
         </CelWrap>
-      </Cel>
-      {/* <Cel style={{ padding: '5px 10px' }}>
+      </Cell>
+      {/* <Cell style={{ padding: '5px 10px' }}>
         <PrimaryButton>Manage</PrimaryButton>
-      </Cel> */}
+      </Cell> */}
     </Row>
   )
 }

@@ -11,6 +11,8 @@ import { RowCenter } from 'components/Row'
 import 'react-datepicker/dist/react-datepicker.css'
 import { darken, lighten } from 'polished'
 
+dayjs.extend(isoWeek)
+
 const Wrapper = styled(Box)`
   justify-content: flex-start;
   align-items: center;
@@ -70,63 +72,6 @@ const LogoWrap = styled(RowCenter)`
   height: 50px;
 `
 
-function getMinimum() {
-  dayjs.extend(isoWeek)
-  const today = dayjs().day()
-  // if we haven't yet passed Thursday
-  if (today <= 4) {
-    // then just return this week's instance of Thursday
-    return dayjs().isoWeekday(4).toDate()
-  }
-  // otherwise, return *next week's* instance
-  return dayjs().add(1, 'week').isoWeekday(4).toDate()
-}
-
-function getMaximum() {
-  return dayjs().add(4, 'year').add(3, 'day').toDate()
-}
-
-export default function InputDate({ selectedDate, onDateSelect }: { selectedDate: Date; onDateSelect(x: Date): void }) {
-  const [minDate, maxDate] = useMemo(() => {
-    return [getMinimum(), getMaximum()]
-  }, [])
-
-  useEffect(() => {
-    onDateSelect(minDate)
-  }, [minDate])
-
-  return (
-    <>
-      <Wrapper>
-        <Column>
-          <LogoWrap>
-            <Calendar color="#31dbea" size={'30px'} />
-          </LogoWrap>
-        </Column>
-        <div>
-          <DatePicker
-            selected={selectedDate}
-            className="styled-date-picker"
-            dateFormat="MMMM d, yyyy"
-            onChange={(value: Date) => {
-              // check if the 7-day minimum applies
-              const minimum = getMinimum()
-              if (value.getTime() < minimum.getTime()) {
-                return onDateSelect(minimum)
-              }
-              return onDateSelect(value)
-            }}
-            minDate={minDate}
-            maxDate={maxDate}
-            showMonthDropdown
-            showWeekNumbers
-          />
-        </div>
-      </Wrapper>
-    </>
-  )
-}
-
 const ExpirationWrapper = styled(Box)`
   display: flex;
   flex-flow: row nowrap;
@@ -161,6 +106,68 @@ enum Checked {
   Y4,
 }
 
+const THURSDAY = 4
+
+function getMinimum() {
+  const today = dayjs().day()
+  // if we haven't yet passed Thursday
+  if (today <= THURSDAY) {
+    // then just return this week's instance of Thursday
+    return dayjs().isoWeekday(THURSDAY).toDate()
+  }
+  // otherwise, return *next week's* instance
+  return dayjs().add(1, 'week').isoWeekday(THURSDAY).toDate()
+}
+
+function getMaximum() {
+  const target = dayjs().add(4, 'year')
+  const result = target.day() <= THURSDAY ? target : target.isoWeekday(THURSDAY)
+  // remove additional day due to leap years
+  return result.subtract(1, 'day').toDate()
+}
+
+export default function InputDate({ selectedDate, onDateSelect }: { selectedDate: Date; onDateSelect(x: Date): void }) {
+  const [minDate, maxDate] = useMemo(() => {
+    return [getMinimum(), getMaximum()]
+  }, [])
+
+  useEffect(() => {
+    onDateSelect(minDate)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [minDate])
+
+  return (
+    <>
+      <Wrapper>
+        <Column>
+          <LogoWrap>
+            <Calendar color="#31dbea" size={'30px'} />
+          </LogoWrap>
+        </Column>
+        <div>
+          <DatePicker
+            selected={selectedDate}
+            className="styled-date-picker"
+            dateFormat="MMMM d, yyyy"
+            onChange={(value: Date) => {
+              // check if the 7-day minimum applies
+              const minimum = getMinimum()
+              if (value.getTime() < minimum.getTime()) {
+                return onDateSelect(minimum)
+              }
+              return onDateSelect(value)
+            }}
+            minDate={minDate}
+            maxDate={maxDate}
+            showMonthDropdown
+            showWeekNumbers
+          />
+        </div>
+      </Wrapper>
+    </>
+  )
+}
+
 export function DateToggle({ onDateSelect }: { onDateSelect: (x: Date) => void }) {
   const [checked, setChecked] = useState<Checked>(Checked.W)
 
@@ -174,7 +181,8 @@ export function DateToggle({ onDateSelect }: { onDateSelect: (x: Date) => void }
     if (checked === Checked.Y) {
       return onDateSelect(dayjs().add(1, 'year').toDate())
     }
-    return onDateSelect(dayjs().add(4, 'years').toDate())
+    return onDateSelect(getMaximum())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checked])
 
   return (

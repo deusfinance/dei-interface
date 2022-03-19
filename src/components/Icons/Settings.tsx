@@ -6,7 +6,7 @@ interface SvgStyledProps {
   isOpen: boolean
 }
 
-export const Settings = styled(({ isOpen, ...props }) => <SettingsIcon {...props} />)<SvgStyledProps>`
+export const Settings = styled(({ isOpen, ...props }) => <SettingsIcon isOpen={isOpen} {...props} />)<SvgStyledProps>`
   width: ${(props) => props.size ?? '15px'};
   height: ${(props) => props.size ?? '15px'};
   color: ${(props) => props.color ?? '#919191'};

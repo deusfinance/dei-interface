@@ -209,8 +209,8 @@ export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
 
   return useMemo(
     () => ({
-      borrowedBase: baseSum.toString(),
-      borrowedElastic: elasticSum.toString(),
+      borrowedBase: baseSum.toFixed(),
+      borrowedElastic: elasticSum.toFixed(),
     }),
     [baseSum, elasticSum]
   )
@@ -242,7 +242,7 @@ export function useAvailableForWithdrawal(pool: BorrowPool): {
 
   return {
     availableForWithdrawal: result,
-    availableForWithdrawalFactored: new BigNumber(result).times(0.995).toString(),
+    availableForWithdrawalFactored: new BigNumber(result).times(0.995).toFixed(),
   }
 }
 

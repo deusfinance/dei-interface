@@ -125,7 +125,7 @@ export default function Create() {
       if (amountBN.isEqualTo('0') || !veDEUSContract || INSUFFICIENT_BALANCE) return
       setAwaitingConfirmation(true)
       const response = await veDEUSContract.create_lock(
-        amountBN.toString(),
+        amountBN.toFixed(),
         getDurationSeconds(selectedDate, RoundMode.ROUND_UP)
       )
       addTransaction(response, { summary: `Lock up ${typedValue} DEUS`, vest: { hash: response.hash } })

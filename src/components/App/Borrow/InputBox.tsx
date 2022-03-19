@@ -113,7 +113,7 @@ export default function InputBox({
     if (isCollateralCurrency) {
       return [
         new BigNumber(availableForWithdrawalFactored).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
-        parseFloat(availableForWithdrawalFactored.toString()).toPrecision(6),
+        parseFloat(availableForWithdrawalFactored).toPrecision(6),
       ]
     }
     return [userDebt, parseFloat(userDebt).toPrecision(6)]

@@ -42,7 +42,7 @@ export default function DynamicInfo({ amount, selectedDate }: { amount: string; 
     return new BigNumber(amount)
       .times(effectiveWeek)
       .div(365 * 4)
-      .toPrecision(6) // 208 = 4 years in weeks
+      .toFixed(2) // 208 = 4 years in weeks
   }, [account, chainId, amount, selectedDate])
 
   const targetDate = useMemo(() => {

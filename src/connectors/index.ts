@@ -6,13 +6,8 @@ import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 import { NetworkConnector } from './NetworkConnector'
 
 import { getLibrary } from 'utils/library'
-import { INFURA_KEY } from 'constants/keys'
 
 import { FALLBACK_CHAIN_ID, NETWORK_URLS, SUPPORTED_CHAIN_IDS } from 'constants/chains'
-
-if (!INFURA_KEY || typeof INFURA_KEY === 'undefined') {
-  throw new Error('NEXT_PUBLIC_INFURA_KEY must be a defined environment variable')
-}
 
 let networkLibrary: Web3Provider | undefined
 export function getNetworkLibrary(): Web3Provider {

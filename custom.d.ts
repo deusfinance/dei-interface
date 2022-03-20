@@ -2,7 +2,6 @@ declare global {
   namespace NodeJS {
     interface Process {
       NODE_ENV: 'development' | 'production'
-      NEXT_PUBLIC_INFURA_KEY: string
     }
   }
 

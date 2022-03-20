@@ -1,5 +1,3 @@
-import { INFURA_KEY } from './keys'
-
 // We allow the user to connect with these chains, so we can force them to change to Fantom.
 // E.g. if the user's chain is not in the list, web3react will deny connection and then we can't change to Fantom.
 export enum SupportedChainId {
@@ -54,6 +52,5 @@ export const SolidlyChains = [SupportedChainId.FANTOM]
 export const FALLBACK_CHAIN_ID = SupportedChainId.FANTOM
 
 export const NETWORK_URLS: { [chainId: number]: string } = {
-  [SupportedChainId.RINKEBY]: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
   [SupportedChainId.FANTOM]: 'https://rpc.ftm.tools',
 }

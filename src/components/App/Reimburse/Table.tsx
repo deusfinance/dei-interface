@@ -11,7 +11,6 @@ import { useReimburseContract } from 'hooks/useContract'
 import useWeb3React from 'hooks/useWeb3'
 import { useReimburse } from 'hooks/useReimburse'
 
-import PendingRewards from 'constants/sex_solid.json'
 import { PrimaryButton } from 'components/Button'
 import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'

@@ -18,8 +18,15 @@ import { DEUS_TOKEN } from 'constants/vest'
 import { SupportedChainId } from 'constants/chains'
 import { veDEUS } from 'constants/addresses'
 import { getDurationSeconds, RoundMode } from 'utils/time'
+import { getMaximumDate, getMinimumDate } from 'utils/vest'
 
-import { InputBox, InputDate, DateToggle, GeneralLockInformation, UserLockInformation } from 'components/App/Vest'
+import {
+  InputBox,
+  InputDate,
+  SelectDatePresets,
+  GeneralLockInformation,
+  UserLockInformation,
+} from 'components/App/Vest'
 import Hero, { HeroSubtext } from 'components/Hero'
 import { PrimaryButton } from 'components/Button'
 import { Card } from 'components/Card'
@@ -218,8 +225,18 @@ export default function Create() {
     return (
       <CardWrapper>
         <InputBox currency={deusCurrency} value={typedValue} onChange={(value: string) => setTypedValue(value)} />
-        <InputDate selectedDate={selectedDate} onDateSelect={setSelectedDate} />
-        <DateToggle onDateSelect={setSelectedDate} />
+        <InputDate
+          selectedDate={selectedDate}
+          minimumDate={getMinimumDate()}
+          maximumDate={getMaximumDate()}
+          onDateSelect={setSelectedDate}
+        />
+        <SelectDatePresets
+          selectedDate={selectedDate}
+          minimumDate={getMinimumDate()}
+          maximumDate={getMaximumDate()}
+          onDateSelect={setSelectedDate}
+        />
         {getActionButton()}
         <UserLockInformation amount={typedValue} selectedDate={selectedDate} />
         <GeneralLockInformation />

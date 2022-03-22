@@ -8,7 +8,7 @@ export const BaseButton = styled.div<{
   width: 100%;
   font-weight: 500;
   text-align: center;
-  border-radius: 2px;
+  border-radius: 4px;
   outline: none;
   border: 1px solid transparent;
   color: black;

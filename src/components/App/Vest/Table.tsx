@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { formatUnits } from '@ethersproject/units'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -8,16 +7,13 @@ import localizedFormat from 'dayjs/plugin/localizedFormat'
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
-import useWeb3React from 'hooks/useWeb3'
-import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { useVeDeusContract } from 'hooks/useContract'
-
 import Pagination from 'components/Pagination'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { RowCenter } from 'components/Row'
 import Column from 'components/Column'
+import { PrimaryButton } from 'components/Button'
 
+import { useUserLocked } from 'hooks/useUserLocked'
 import DEUS_LOGO from '/public/static/images/tokens/deus.svg'
 import { formatAmount } from 'utils/numbers'
 
@@ -91,7 +87,13 @@ const CelDescription = styled.div`
 `
 
 const itemsPerPage = 10
-export default function Table({ nftIds }: { nftIds: number[] }) {
+export default function Table({
+  nftIds,
+  toggleLockManager,
+}: {
+  nftIds: number[]
+  toggleLockManager: (nftId: number) => void
+}) {
   const [offset, setOffset] = useState(0)
 
   const paginatedItems = useMemo(() => {
@@ -115,12 +117,14 @@ export default function Table({ nftIds }: { nftIds: number[] }) {
             <Cell>Vest Amount</Cell>
             <Cell>Vest Value</Cell>
             <Cell>Vest Expires</Cell>
-            {/* <Cell>Actions</Cell> */}
+            <Cell>Actions</Cell>
           </tr>
         </Head>
         <tbody>
           {paginatedItems.length > 0 &&
-            paginatedItems.map((nftId: number, index) => <TableRow key={index} nftId={nftId} />)}
+            paginatedItems.map((nftId: number, index) => (
+              <TableRow key={index} nftId={nftId} toggleLockManager={toggleLockManager} />
+            ))}
         </tbody>
       </TableWrapper>
       {paginatedItems.length == 0 && <NoResults>No Results Found</NoResults>}
@@ -129,37 +133,8 @@ export default function Table({ nftIds }: { nftIds: number[] }) {
   )
 }
 
-function TableRow({ nftId }: { nftId: number }) {
-  const { account, chainId } = useWeb3React()
-  const isSupportedChainId = useSupportedChainId()
-  const veDEUSContract = useVeDeusContract()
-
-  const calls = useMemo(
-    () =>
-      !account || !chainId || !isSupportedChainId
-        ? []
-        : [
-            {
-              methodName: 'balanceOfNFT',
-              callInputs: [nftId],
-            },
-            {
-              methodName: 'locked',
-              callInputs: [nftId],
-            },
-          ],
-    [account, chainId, isSupportedChainId, nftId]
-  )
-
-  const [balanceResult, lockedResult] = useSingleContractMultipleMethods(veDEUSContract, calls)
-  const { deusAmount, veDEUSAmount, lockEnd } = useMemo(
-    () => ({
-      deusAmount: calls.length && lockedResult.result ? formatUnits(lockedResult.result[0], 18) : '0',
-      lockEnd: calls.length && lockedResult.result ? parseFloat(formatUnits(lockedResult.result[1], 0)) : 0,
-      veDEUSAmount: calls.length && balanceResult.result ? formatUnits(balanceResult.result[0], 18) : '0',
-    }),
-    [calls, balanceResult, lockedResult]
-  )
+function TableRow({ nftId, toggleLockManager }: { nftId: number; toggleLockManager: (nftId: number) => void }) {
+  const { deusAmount, veDEUSAmount, lockEnd } = useUserLocked(nftId)
 
   return (
     <Row>
@@ -176,13 +151,13 @@ function TableRow({ nftId }: { nftId: number }) {
       <Cell>{formatAmount(parseFloat(veDEUSAmount))} veDEUS</Cell>
       <Cell>
         <CelWrap>
-          <CelAmount>{dayjs.unix(lockEnd).format('LLL')}</CelAmount>
-          <CelDescription>Expires in {dayjs.unix(lockEnd).fromNow(true)}</CelDescription>
+          <CelAmount>{dayjs(lockEnd).format('LLL')}</CelAmount>
+          <CelDescription>Expires in {dayjs(lockEnd).fromNow(true)}</CelDescription>
         </CelWrap>
       </Cell>
-      {/* <Cell style={{ padding: '5px 10px' }}>
-        <PrimaryButton>Manage</PrimaryButton>
-      </Cell> */}
+      <Cell style={{ padding: '5px 10px' }}>
+        <PrimaryButton onClick={() => toggleLockManager(nftId)}>Manage</PrimaryButton>
+      </Cell>
     </Row>
   )
 }

@@ -8,7 +8,7 @@ const Box = styled.div`
   align-items: center;
   background: ${({ theme }) => theme.bg1};
   border: 1px solid ${({ theme }) => theme.border1};
-  border-radius: 2px;
+  border-radius: 4px;
   padding: 20px;
   color: ${({ theme }) => theme.text2};
   overflow: hidden;

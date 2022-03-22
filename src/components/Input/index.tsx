@@ -21,7 +21,7 @@ export const InputField = styled.input<{
     outline: none;
   }
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    font-size: 0.9rem;
+    font-size: 0.9rem !important;
   `}
 `
 

@@ -1,16 +1,19 @@
 import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
+
+import { useWalletModalToggle } from 'state/application/hooks'
+import { useGeneralLenderContract } from 'hooks/useContract'
+import useWeb3React from 'hooks/useWeb3'
+import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
+import { useSupportedChainId } from 'hooks/useSupportedChainId'
+
+import { BorrowPools } from 'constants/borrow'
+import { SupportedChainId } from 'constants/chains'
+import { constructPercentage } from 'utils/prices'
+
 import { Modal, ModalHeader } from 'components/Modal'
 import { ConfirmationAnimation, DotFlashing } from 'components/Icons'
 import { PrimaryButton } from 'components/Button'
-import { useGeneralLenderContract } from 'hooks/useContract'
-import useWeb3React from 'hooks/useWeb3'
-import { BorrowPools } from 'constants/borrow'
-import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
-import { useWalletModalToggle } from 'state/application/hooks'
-import { SupportedChainId } from 'constants/chains'
-import { constructPercentage } from 'utils/prices'
-import { useSupportedChainId } from 'hooks/useSupportedChainId'
 
 const ModalInnerWrapper = styled.div`
   display: flex;
@@ -19,10 +22,12 @@ const ModalInnerWrapper = styled.div`
   gap: 30px;
   padding: 2rem;
 `
+
 const StyledPrimaryButton = styled(PrimaryButton)`
   font-size: 0.8rem;
   padding: 1rem 0;
 `
+
 export default function MaintenanceModal({ content }: { content: string }) {
   const rpcChangerCallback = useRpcChangerCallback()
   const pool = BorrowPools[0]

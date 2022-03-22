@@ -1,15 +1,14 @@
-import React, { useMemo } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import styled from 'styled-components'
+
+import useOwnedNfts from 'hooks/useOwnedNfts'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { Table } from 'components/App/Vest'
 import { PrimaryButton } from 'components/Button'
-import useWeb3React from 'hooks/useWeb3'
-import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { useSingleContractMultipleData } from 'state/multicall/hooks'
-import { useVeDeusContract } from 'hooks/useContract'
+import LockManager from 'components/App/Vest/LockManager'
 
 const Container = styled.div`
   display: flex;
@@ -55,6 +54,8 @@ const CreateButton = styled(PrimaryButton)`
 `
 
 export default function Vest() {
+  const [showLockManager, setShowLockManager] = useState(false)
+  const [lockId, setLockId] = useState(0)
   const nftIds = useOwnedNfts()
 
   return (
@@ -69,33 +70,16 @@ export default function Vest() {
             Create Lock
           </Link>
         </CreateButton>
-        <Table nftIds={nftIds} />
+        <Table
+          nftIds={nftIds}
+          toggleLockManager={(nftId: number) => {
+            setShowLockManager(true)
+            setLockId(nftId)
+          }}
+        />
       </Wrapper>
+      <LockManager isOpen={showLockManager} onDismiss={() => setShowLockManager(false)} nftId={lockId} />
       <Disclaimer />
     </Container>
   )
-}
-
-const idMapping = Array.from(Array(1000).keys())
-
-function useOwnedNfts() {
-  const { account, chainId } = useWeb3React()
-  const isSupportedChainId = useSupportedChainId()
-  const veDEUSContract = useVeDeusContract()
-
-  const callInputs = useMemo(() => {
-    return !chainId || !isSupportedChainId || !account ? [] : idMapping.map((id) => [account, id])
-  }, [account, chainId, isSupportedChainId])
-
-  const results = useSingleContractMultipleData(veDEUSContract, 'tokenOfOwnerByIndex', callInputs)
-
-  return useMemo(() => {
-    return results.reduce((acc: number[], value) => {
-      if (!value.result) return acc
-      const result = value.result[0].toString()
-      if (!result || result == 0) return acc
-      acc.push(result)
-      return acc
-    }, [])
-  }, [results])
 }

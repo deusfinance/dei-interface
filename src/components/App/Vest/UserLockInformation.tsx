@@ -1,53 +1,66 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
-import { RowBetween } from 'components/Row'
-import useWeb3React from 'hooks/useWeb3'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import BigNumber from 'bignumber.js'
 
+import useWeb3React from 'hooks/useWeb3'
+import { lastThursday } from 'utils/vest'
+
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
-const Wrapper = styled(RowBetween)`
-  margin: 15px 0;
+const Wrapper = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  gap: 0px;
 `
 
-const VotePower = styled.div`
-  text-align: left;
+const Row = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+  justify-content: space-between;
+  font-size: 0.8rem;
+
   & > * {
-    &:first-child {
-      font-size: 0.8rem;
-      margin-bottom: 5px;
-    }
+    color: ${({ theme }) => theme.text1};
     &:last-child {
-      font-size: 1.2rem;
+      color: ${({ theme }) => theme.text2};
     }
   }
 `
 
-const LockWrap = styled.div`
-  text-align: right;
-  color: ${({ theme }) => theme.text2};
-  font-size: 0.7rem;
+const Title = styled.div`
+  font-size: 0.8rem;
+  border-bottom: 1px solid ${({ theme }) => theme.border1};
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  font-weight: bold;
 `
 
-export default function DynamicInfo({ amount, selectedDate }: { amount: string; selectedDate: Date }) {
+export default function UserLockInformation({
+  amount,
+  selectedDate,
+  title,
+}: {
+  amount: string
+  selectedDate: Date
+  title?: string
+}) {
   const { account, chainId } = useWeb3React()
 
-  const votingPower = useMemo(() => {
-    if (!account || !chainId || !amount) return '0'
-    const effectiveWeek = Math.floor(dayjs(selectedDate).diff(dayjs(), 'day', true))
-    return new BigNumber(amount)
-      .times(effectiveWeek)
-      .div(365 * 4)
-      .toFixed(2) // 208 = 4 years in weeks
-  }, [account, chainId, amount, selectedDate])
-
-  const targetDate = useMemo(() => {
-    return dayjs(selectedDate).format('LL')
+  const effectiveDate = useMemo(() => {
+    return lastThursday(selectedDate)
   }, [selectedDate])
+
+  const votingPower = useMemo(() => {
+    if (!account || !chainId || !amount) return '0.00'
+    const effectiveWeek = Math.floor(dayjs(effectiveDate).diff(dayjs(), 'week', true))
+    return new BigNumber(amount).times(effectiveWeek).div(208).toFixed(2) // 208 = 4 years in weeks
+  }, [account, chainId, amount, effectiveDate])
 
   const durationUntilTarget = useMemo(() => {
     return dayjs(selectedDate).fromNow(true)
@@ -55,16 +68,19 @@ export default function DynamicInfo({ amount, selectedDate }: { amount: string; 
 
   return (
     <Wrapper>
-      <VotePower>
-        <div>Your voting power will be: </div>
+      {title && <Title>{title}</Title>}
+      <Row>
+        <div>Voting Power:</div>
         <div>{votingPower} veDEUS</div>
-      </VotePower>
-      <LockWrap>
-        <div>
-          {votingPower} DEUS expires in {durationUntilTarget}
-        </div>
-        <div>Locked until {targetDate}</div>
-      </LockWrap>
+      </Row>
+      <Row>
+        <div>Expiration in: </div>
+        <div>~ {durationUntilTarget}</div>
+      </Row>
+      <Row>
+        <div>Locked until: </div>
+        <div>{dayjs(effectiveDate).format('LL')}</div>
+      </Row>
     </Wrapper>
   )
 }

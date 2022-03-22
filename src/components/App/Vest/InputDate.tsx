@@ -1,17 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import DatePicker from 'react-datepicker'
 import { Calendar } from 'react-feather'
+import { darken, lighten } from 'polished'
 import dayjs from 'dayjs'
-import isoWeek from 'dayjs/plugin/isoWeek'
 
 import Box from 'components/Box'
 import { RowCenter } from 'components/Row'
 
 import 'react-datepicker/dist/react-datepicker.css'
-import { darken, lighten } from 'polished'
-
-dayjs.extend(isoWeek)
+import { addMonth, addWeek, addYear, VestOptions } from 'utils/vest'
 
 const Wrapper = styled(Box)`
   justify-content: flex-start;
@@ -46,6 +44,7 @@ const Wrapper = styled(Box)`
     background: transparent;
     outline: none;
     color: ${({ theme }) => theme.text2};
+    width: 200px;
   }
 
   // dont touch this
@@ -80,7 +79,13 @@ const ExpirationWrapper = styled(Box)`
   align-items: center;
   background: ${({ theme }) => theme.bg1};
   padding: 5px;
+`
+
+const Label = styled.div`
   font-size: 0.8rem;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 0.6rem;
+  `}
 `
 
 const Toggle = styled.div<{
@@ -93,49 +98,29 @@ const Toggle = styled.div<{
   border-radius: 5px;
   text-align: center;
   font-size: 0.8rem;
+  max-width: 85px;
   color: ${({ theme }) => theme.text3};
   &:hover {
     cursor: pointer;
+    background: ${({ theme }) => lighten(0.08, theme.bg3)};
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 0.6rem;
+  `}
 `
 
-enum Checked {
-  W,
-  M,
-  Y,
-  Y4,
-}
-
-const THURSDAY = 4
-
-function getMinimum() {
-  const today = dayjs().day()
-  // if we haven't yet passed Thursday
-  if (today <= THURSDAY) {
-    // then just return this week's instance of Thursday
-    return dayjs().isoWeekday(THURSDAY).toDate()
-  }
-  // otherwise, return *next week's* instance
-  return dayjs().add(1, 'week').isoWeekday(THURSDAY).toDate()
-}
-
-function getMaximum() {
-  const target = dayjs().add(4, 'year')
-  const result = target.day() <= THURSDAY ? target : target.isoWeekday(THURSDAY)
-  // remove additional day due to leap years
-  return result.subtract(1, 'day').toDate()
-}
-
-export default function InputDate({ selectedDate, onDateSelect }: { selectedDate: Date; onDateSelect(x: Date): void }) {
-  const [minDate, maxDate] = useMemo(() => {
-    return [getMinimum(), getMaximum()]
-  }, [])
-
-  useEffect(() => {
-    onDateSelect(minDate)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minDate])
-
+export default function InputDate({
+  selectedDate,
+  minimumDate,
+  maximumDate,
+  onDateSelect,
+}: {
+  selectedDate: Date
+  minimumDate: Date
+  maximumDate: Date
+  onDateSelect(x: Date): void
+}) {
   return (
     <>
       <Wrapper>
@@ -151,14 +136,13 @@ export default function InputDate({ selectedDate, onDateSelect }: { selectedDate
             dateFormat="MMMM d, yyyy"
             onChange={(value: Date) => {
               // check if the 7-day minimum applies
-              const minimum = getMinimum()
-              if (value.getTime() < minimum.getTime()) {
-                return onDateSelect(minimum)
+              if (value.getTime() < minimumDate.getTime()) {
+                return onDateSelect(minimumDate)
               }
               return onDateSelect(value)
             }}
-            minDate={minDate}
-            maxDate={maxDate}
+            minDate={minimumDate}
+            maxDate={maximumDate}
             showMonthDropdown
             showWeekNumbers
           />
@@ -168,38 +152,115 @@ export default function InputDate({ selectedDate, onDateSelect }: { selectedDate
   )
 }
 
-export function DateToggle({ onDateSelect }: { onDateSelect: (x: Date) => void }) {
-  const [checked, setChecked] = useState<Checked>(Checked.W)
-
-  useEffect(() => {
-    if (checked === Checked.W) {
-      return onDateSelect(dayjs().add(1, 'week').toDate())
+export function SelectDatePresets({
+  selectedDate,
+  minimumDate,
+  maximumDate,
+  onDateSelect,
+}: {
+  selectedDate: Date
+  minimumDate: Date
+  maximumDate: Date
+  onDateSelect: (x: Date) => void
+}) {
+  const onSelect = (checked: VestOptions) => {
+    if (checked === VestOptions.MIN) {
+      return onDateSelect(minimumDate)
     }
-    if (checked === Checked.M) {
-      return onDateSelect(dayjs().add(1, 'month').toDate())
+    if (checked === VestOptions.MONTH) {
+      return onDateSelect(addMonth())
     }
-    if (checked === Checked.Y) {
-      return onDateSelect(dayjs().add(1, 'year').toDate())
+    if (checked === VestOptions.YEAR) {
+      return onDateSelect(addYear())
     }
-    return onDateSelect(getMaximum())
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checked])
+    if (checked === VestOptions.MAX) {
+      return onDateSelect(maximumDate)
+    }
+  }
 
   return (
     <ExpirationWrapper>
-      Expiration:
-      <Toggle selected={checked === Checked.W} onClick={() => setChecked(Checked.W)}>
+      <Label>Expiration:</Label>
+      <Toggle selected={dayjs(selectedDate).isSame(minimumDate, 'day')} onClick={() => onSelect(VestOptions.MIN)}>
         1 Week
       </Toggle>
-      <Toggle selected={checked === Checked.M} onClick={() => setChecked(Checked.M)}>
+      <Toggle selected={dayjs(selectedDate).isSame(addMonth(), 'day')} onClick={() => onSelect(VestOptions.MONTH)}>
         1 Month
       </Toggle>
-      <Toggle selected={checked === Checked.Y} onClick={() => setChecked(Checked.Y)}>
+      <Toggle selected={dayjs(selectedDate).isSame(addYear(), 'day')} onClick={() => onSelect(VestOptions.YEAR)}>
         1 Year
       </Toggle>
-      <Toggle selected={checked === Checked.Y4} onClick={() => setChecked(Checked.Y4)}>
+      <Toggle selected={dayjs(selectedDate).isSame(maximumDate, 'day')} onClick={() => onSelect(VestOptions.MAX)}>
         4 Years
       </Toggle>
+    </ExpirationWrapper>
+  )
+}
+
+export function IncreaseDatePresets({
+  selectedDate,
+  lockEnd,
+  minimumDate,
+  maximumDate,
+  onDateSelect,
+}: {
+  selectedDate: Date
+  lockEnd: Date
+  minimumDate: Date
+  maximumDate: Date
+  onDateSelect: (x: Date) => void
+}) {
+  const [showMinimum, showMonth, showYear, showMax] = useMemo(() => {
+    return [
+      dayjs(minimumDate).isBefore(dayjs().add(14, 'days'), 'day'),
+      dayjs(addMonth(lockEnd)).isBefore(maximumDate, 'day'),
+      dayjs(addYear(lockEnd)).isBefore(maximumDate, 'day'),
+      true,
+    ]
+  }, [lockEnd, minimumDate, maximumDate])
+
+  const onSelect = (checked: VestOptions) => {
+    if (checked === VestOptions.MIN) {
+      return onDateSelect(minimumDate)
+    }
+    if (checked === VestOptions.MONTH) {
+      return onDateSelect(addMonth(lockEnd))
+    }
+    if (checked === VestOptions.YEAR) {
+      return onDateSelect(addYear(lockEnd))
+    }
+    return onDateSelect(maximumDate)
+  }
+
+  return (
+    <ExpirationWrapper>
+      <Label>Add Expiration:</Label>
+      {showMinimum && (
+        <Toggle selected={dayjs(selectedDate).isSame(minimumDate, 'day')} onClick={() => onSelect(VestOptions.MIN)}>
+          {dayjs(addWeek(lockEnd)).fromNow(true)}
+        </Toggle>
+      )}
+      {showMonth && (
+        <Toggle
+          selected={dayjs(selectedDate).isSame(addMonth(lockEnd), 'day')}
+          onClick={() => onSelect(VestOptions.MONTH)}
+        >
+          1 Month
+        </Toggle>
+      )}
+      {showYear && (
+        <Toggle
+          selected={dayjs(selectedDate).isSame(addYear(lockEnd), 'day')}
+          onClick={() => onSelect(VestOptions.YEAR)}
+        >
+          1 Year
+        </Toggle>
+      )}
+      {showMax && (
+        <Toggle selected={dayjs(selectedDate).isSame(maximumDate, 'day')} onClick={() => onSelect(VestOptions.MAX)}>
+          Max
+        </Toggle>
+      )}
     </ExpirationWrapper>
   )
 }

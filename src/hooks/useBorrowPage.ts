@@ -33,7 +33,6 @@ export default function useBorrowPage(
   const { account, chainId } = useWeb3React()
   const { typedValue, typedField } = useBorrowState()
   const collateralBalance = useCurrencyBalance(account ?? undefined, collateralCurrency)
-  const borrowBalance = useCurrencyBalance(account ?? undefined, borrowCurrency)
   const availableToBorrow = useAvailableToBorrow(pool)
   const { userDebt } = useUserPoolData(pool)
   const { availableForWithdrawal } = useAvailableForWithdrawal(pool)

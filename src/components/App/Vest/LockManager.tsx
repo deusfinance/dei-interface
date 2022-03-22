@@ -9,7 +9,7 @@ import { useHasPendingVest, useTransactionAdder } from 'state/transactions/hooks
 import { useCurrency } from 'hooks/useCurrency'
 import useWeb3React from 'hooks/useWeb3'
 import { useVeDeusContract } from 'hooks/useContract'
-import { useUserLocked } from 'hooks/useUserLocked'
+import { useVestedInformation } from 'hooks/useVested'
 
 import { DEUS_TOKEN } from 'constants/vest'
 import { getDurationSeconds, RoundMode } from 'utils/time'
@@ -117,7 +117,7 @@ function IncreaseAmount({ nftId }: { nftId: number }) {
   const [pendingTxHash, setPendingTxHash] = useState('')
   const showTransactionPending = useHasPendingVest(pendingTxHash)
   const addTransaction = useTransactionAdder()
-  const { deusAmount, lockEnd } = useUserLocked(nftId)
+  const { deusAmount, lockEnd } = useVestedInformation(nftId)
 
   const INSUFFICIENT_BALANCE = useMemo(() => {
     if (!deusBalance || deusBalance.equalTo(ZERO)) return false
@@ -175,7 +175,7 @@ function IncreaseDuration({ nftId }: { nftId: number }) {
   const [pendingTxHash, setPendingTxHash] = useState('')
   const showTransactionPending = useHasPendingVest(pendingTxHash)
   const addTransaction = useTransactionAdder()
-  const { deusAmount, lockEnd } = useUserLocked(nftId)
+  const { deusAmount, lockEnd } = useVestedInformation(nftId)
 
   const minimumDate = useMemo(() => getMinimumDateByLockEnd(lockEnd), [lockEnd])
   const [selectedDate, setSelectedDate] = useState<Date>(minimumDate)

@@ -12,8 +12,9 @@ import ImageWithFallback from 'components/ImageWithFallback'
 import { RowCenter } from 'components/Row'
 import Column from 'components/Column'
 import { PrimaryButton } from 'components/Button'
+import { Info } from 'components/Icons'
 
-import { useUserLocked } from 'hooks/useUserLocked'
+import { useVestedInformation, useVestedAPY } from 'hooks/useVested'
 import DEUS_LOGO from '/public/static/images/tokens/deus.svg'
 import { formatAmount } from 'utils/numbers'
 
@@ -50,13 +51,15 @@ const Cell = styled.td<{
   justify?: boolean
 }>`
   text-align: center;
+  align-items: center;
   padding: 5px;
   border: 1px solid ${({ theme }) => theme.border1};
   height: 90px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     :nth-child(3),
-    :nth-child(4) {
+    :nth-child(4),
+    :nth-child(5) {
       display: none;
     }
   `}
@@ -72,16 +75,20 @@ const NFTWrap = styled(Column)`
   align-items: flex-start;
 `
 
-const CelWrap = styled(Column)`
+const CellWrap = styled(Column)`
   gap: 5px;
 `
 
-const CelAmount = styled.div`
+const CellRow = styled(RowCenter)`
+  gap: 5px;
+`
+
+const CellAmount = styled.div`
   font-size: 0.8rem;
   color: ${({ theme }) => theme.text1};
 `
 
-const CelDescription = styled.div`
+const CellDescription = styled.div`
   font-size: 0.6rem;
   color: ${({ theme }) => theme.text2};
 `
@@ -90,9 +97,11 @@ const itemsPerPage = 10
 export default function Table({
   nftIds,
   toggleLockManager,
+  toggleAPYManager,
 }: {
   nftIds: number[]
   toggleLockManager: (nftId: number) => void
+  toggleAPYManager: (nftId: number) => void
 }) {
   const [offset, setOffset] = useState(0)
 
@@ -109,32 +118,49 @@ export default function Table({
   }
 
   return (
-    <Wrapper>
-      <TableWrapper>
-        <Head>
-          <tr>
-            <Cell>Token ID</Cell>
-            <Cell>Vest Amount</Cell>
-            <Cell>Vest Value</Cell>
-            <Cell>Vest Expires</Cell>
-            <Cell>Actions</Cell>
-          </tr>
-        </Head>
-        <tbody>
-          {paginatedItems.length > 0 &&
-            paginatedItems.map((nftId: number, index) => (
-              <TableRow key={index} nftId={nftId} toggleLockManager={toggleLockManager} />
-            ))}
-        </tbody>
-      </TableWrapper>
-      {paginatedItems.length == 0 && <NoResults>No Results Found</NoResults>}
-      {paginatedItems.length > 0 && <Pagination pageCount={pageCount} onPageChange={onPageChange} />}
-    </Wrapper>
+    <>
+      <Wrapper>
+        <TableWrapper>
+          <Head>
+            <tr>
+              <Cell>Token ID</Cell>
+              <Cell>Vest Amount</Cell>
+              <Cell>Vest Value</Cell>
+              <Cell>Vest Expires</Cell>
+              <Cell>APY</Cell>
+              <Cell>Actions</Cell>
+            </tr>
+          </Head>
+          <tbody>
+            {paginatedItems.length > 0 &&
+              paginatedItems.map((nftId: number, index) => (
+                <TableRow
+                  key={index}
+                  nftId={nftId}
+                  toggleLockManager={toggleLockManager}
+                  toggleAPYManager={toggleAPYManager}
+                />
+              ))}
+          </tbody>
+        </TableWrapper>
+        {paginatedItems.length == 0 && <NoResults>No Results Found</NoResults>}
+        {paginatedItems.length > 0 && <Pagination pageCount={pageCount} onPageChange={onPageChange} />}
+      </Wrapper>
+    </>
   )
 }
 
-function TableRow({ nftId, toggleLockManager }: { nftId: number; toggleLockManager: (nftId: number) => void }) {
-  const { deusAmount, veDEUSAmount, lockEnd } = useUserLocked(nftId)
+function TableRow({
+  nftId,
+  toggleLockManager,
+  toggleAPYManager,
+}: {
+  nftId: number
+  toggleLockManager: (nftId: number) => void
+  toggleAPYManager: (nftId: number) => void
+}) {
+  const { deusAmount, veDEUSAmount, lockEnd } = useVestedInformation(nftId)
+  const { userAPY } = useVestedAPY(nftId)
 
   return (
     <Row>
@@ -142,21 +168,27 @@ function TableRow({ nftId, toggleLockManager }: { nftId: number; toggleLockManag
         <RowCenter>
           <ImageWithFallback src={DEUS_LOGO} alt={`veDeus logo`} width={30} height={30} />
           <NFTWrap>
-            <CelAmount>{nftId}</CelAmount>
-            <CelDescription>veDEUS ID</CelDescription>
+            <CellAmount>#{nftId}</CellAmount>
+            <CellDescription>veDEUS ID</CellDescription>
           </NFTWrap>
         </RowCenter>
       </Cell>
       <Cell>{deusAmount} DEUS</Cell>
       <Cell>{formatAmount(parseFloat(veDEUSAmount))} veDEUS</Cell>
       <Cell>
-        <CelWrap>
-          <CelAmount>{dayjs(lockEnd).format('LLL')}</CelAmount>
-          <CelDescription>Expires in {dayjs(lockEnd).fromNow(true)}</CelDescription>
-        </CelWrap>
+        <CellWrap>
+          <CellAmount>{dayjs(lockEnd).format('LLL')}</CellAmount>
+          <CellDescription>Expires in {dayjs(lockEnd).fromNow(true)}</CellDescription>
+        </CellWrap>
+      </Cell>
+      <Cell>
+        <CellRow>
+          {formatAmount(parseFloat(userAPY), 0)}%
+          <Info onClick={() => toggleAPYManager(nftId)} />
+        </CellRow>
       </Cell>
       <Cell style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => toggleLockManager(nftId)}>Manage</PrimaryButton>
+        <PrimaryButton onClick={() => toggleLockManager(nftId)}>Update Lock</PrimaryButton>
       </Cell>
     </Row>
   )

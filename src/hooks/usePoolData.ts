@@ -130,6 +130,7 @@ export function useGlobalPoolData(pool: BorrowPool): {
   borrowedBase: string
   liquidationRatio: Percent
   borrowFee: Percent
+  feesEarned: string
   interestPerSecond: number
 } {
   const generalLenderContract = useGeneralLenderContract(pool)
@@ -176,6 +177,7 @@ export function useGlobalPoolData(pool: BorrowPool): {
       borrowFee: borrowFee?.result
         ? constructPercentage(parseFloat(formatUnits(borrowFee.result[0], 18))) // BORROW_OPENING_FEE_PRECISION
         : constructPercentage(0.005),
+      feesEarned: accrueInfo?.result ? formatUnits(accrueInfo.result[1], 18) : '0',
       interestPerSecond: accrueInfo?.result ? parseFloat(formatUnits(accrueInfo.result[2], 18)) : 0,
     }),
     [pool, maxCap, totalCollateral, totalBorrow, liquidationRatio, borrowFee, accrueInfo]

@@ -6,7 +6,10 @@ import localizedFormat from 'dayjs/plugin/localizedFormat'
 import BigNumber from 'bignumber.js'
 
 import useWeb3React from 'hooks/useWeb3'
+import { useVestedAPY } from 'hooks/useVested'
+
 import { lastThursday } from 'utils/vest'
+import { formatAmount } from 'utils/numbers'
 
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
@@ -52,17 +55,19 @@ export default function UserLockInformation({
 }) {
   const { account, chainId } = useWeb3React()
 
-  const effectiveDate = useMemo(() => {
+  const effectiveDate: Date = useMemo(() => {
     return lastThursday(selectedDate)
   }, [selectedDate])
 
-  const votingPower = useMemo(() => {
+  const votingPower: string = useMemo(() => {
     if (!account || !chainId || !amount) return '0.00'
     const effectiveWeek = Math.floor(dayjs(effectiveDate).diff(dayjs(), 'week', true))
     return new BigNumber(amount).times(effectiveWeek).div(208).toFixed(2) // 208 = 4 years in weeks
   }, [account, chainId, amount, effectiveDate])
 
-  const durationUntilTarget = useMemo(() => {
+  const { userAPY } = useVestedAPY(undefined, effectiveDate)
+
+  const durationUntilTarget: string = useMemo(() => {
     return dayjs(selectedDate).fromNow(true)
   }, [selectedDate])
 
@@ -72,6 +77,10 @@ export default function UserLockInformation({
       <Row>
         <div>Voting Power:</div>
         <div>{votingPower} veDEUS</div>
+      </Row>
+      <Row>
+        <div>Est. APY</div>
+        <div>{formatAmount(parseFloat(userAPY), 0)}%</div>
       </Row>
       <Row>
         <div>Expiration in: </div>

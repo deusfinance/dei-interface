@@ -937,6 +937,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/coingecko-api@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@types/coingecko-api/-/coingecko-api-1.0.10.tgz#e841f75c1dc5c6ab8f251011b28a9aec0576ec19"
+  integrity sha512-ENJO5JzV7qTj8GfrRWAy8lom4RPQv03stvw2z9riz0z7WOXcaorc8OPov8JEekoGQ397O1BbvgPjZj7bWgqdgg==
+
 "@types/hoist-non-react-statics@*", "@types/hoist-non-react-statics@^3.3.0":
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/@types/hoist-non-react-statics/-/hoist-non-react-statics-3.3.1.tgz#1124aafe5118cb591977aeb1ceaaed1070eb039f"
@@ -1649,6 +1654,11 @@ bn.js@^5.1.1, bn.js@^5.2.0:
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.2.0.tgz#358860674396c6997771a9d051fcc1b57d4ae002"
   integrity sha512-D7iWRBvnZE8ecXiLj/9wbxH7Tk79fAh8IHaTNq1RWRixsS02W+5qS+iE9yq6RYl0asXx5tw0bLhmT5pIfbSquw==
 
+bottleneck@^2.19.5:
+  version "2.19.5"
+  resolved "https://registry.yarnpkg.com/bottleneck/-/bottleneck-2.19.5.tgz#5df0b90f59fd47656ebe63c78a98419205cadd91"
+  integrity sha512-VHiNCbI1lKdl44tGrhNfU3lup0Tj/ZBMJB5/2ZbNXRCPuRCO7ed2mgcK4r17y+KB2EfuYuRaVlwNbAeaWGSpbw==
+
 brace-expansion@^1.1.7:
   version "1.1.11"
   resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-1.1.11.tgz#3c7fcbf529d87226f3d2f52b966ff5271eb441dd"
@@ -1825,6 +1835,11 @@ clsx@^1.1.0, clsx@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.1.1.tgz#98b3134f9abbdf23b2663491ace13c5c03a73188"
   integrity sha512-6/bPho624p3S2pMyvP5kKBPXnI3ufHLObBFCfgx+LkeR5lg2XYy2hqZqUf45ypD8COn2bhgGJSUE+l5dhNBieA==
+
+coingecko-api@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/coingecko-api/-/coingecko-api-1.0.10.tgz#ac8694d5999f00727fe55f0078ce2917603076b2"
+  integrity sha512-7YLLC85+daxAw5QlBWoHVBVpJRwoPr4HtwanCr8V/WRjoyHTa1Lb9DQAvv4MDJZHiz4no6HGnDQnddtjV35oRA==
 
 color-convert@^1.9.0:
   version "1.9.3"

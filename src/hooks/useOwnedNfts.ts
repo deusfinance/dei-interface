@@ -26,6 +26,6 @@ export default function useOwnedNfts() {
         acc.push(result)
         return acc
       }, [])
-      .reverse()
+      .sort((a: number, b: number) => (a > b ? 1 : -1))
   }, [results])
 }

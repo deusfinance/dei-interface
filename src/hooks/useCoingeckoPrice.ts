@@ -18,7 +18,7 @@ export default function useCoingeckoPrice(symbol: string): string {
   const [price, setPrice] = useState(DEFAULT_PRICE)
 
   useEffect(() => {
-    const fetch = () => {
+    const fetchPrice = () => {
       CoingeckoQueue.add(async () => {
         try {
           const result = await CoinGeckoClient.simple.price({
@@ -34,7 +34,7 @@ export default function useCoingeckoPrice(symbol: string): string {
         }
       })
     }
-    fetch()
+    fetchPrice()
   }, [symbol])
 
   return price

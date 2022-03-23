@@ -1,8 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import styled from 'styled-components'
 
 import useOwnedNfts from 'hooks/useOwnedNfts'
+import { useDeusPrice } from 'hooks/useCoingeckoPrice'
+import useWeb3React from 'hooks/useWeb3'
+import { useVestedAPY } from 'hooks/useVested'
+
+import { formatAmount, formatDollarAmount } from 'utils/numbers'
+import { getMaximumDate } from 'utils/vest'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
@@ -12,10 +18,6 @@ import LockManager from 'components/App/Vest/LockManager'
 import APYManager from 'components/App/Vest/APYManager'
 import { RowEnd } from 'components/Row'
 import Box from 'components/Box'
-import { formatAmount, formatDollarAmount } from 'utils/numbers'
-import { useVestedAPY } from 'hooks/useVested'
-import { getMaximumDate } from 'utils/vest'
-import { useDeusPrice } from 'hooks/useCoingeckoPrice'
 
 const Container = styled.div`
   display: flex;
@@ -77,12 +79,18 @@ const UpperRow = styled(RowEnd)`
 `
 
 export default function Vest() {
+  const { chainId, account } = useWeb3React()
   const [showLockManager, setShowLockManager] = useState(false)
   const [showAPYManager, setShowAPYManager] = useState(false)
   const [nftId, setNftId] = useState(0)
   const nftIds = useOwnedNfts()
   const { lockedVeDEUS, globalAPY } = useVestedAPY(undefined, getMaximumDate())
   const deusPrice = useDeusPrice()
+
+  useEffect(() => {
+    setShowLockManager(false)
+    setShowAPYManager(false)
+  }, [chainId, account])
 
   const toggleLockManager = (nftId: number) => {
     setShowLockManager(true)

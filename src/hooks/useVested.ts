@@ -4,9 +4,8 @@ import dayjs from 'dayjs'
 import BigNumber from 'bignumber.js'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { useVeDeusContract } from './useContract'
 import { useSupportedChainId } from './useSupportedChainId'
-import useWeb3React from './useWeb3'
+import { useVeDeusContract } from './useContract'
 import { useDeusPrice } from './useCoingeckoPrice'
 
 export function useVestedInformation(nftId: number): {
@@ -14,13 +13,12 @@ export function useVestedInformation(nftId: number): {
   veDEUSAmount: string
   lockEnd: Date
 } {
-  const { account, chainId } = useWeb3React()
   const isSupportedChainId = useSupportedChainId()
   const veDEUSContract = useVeDeusContract()
 
   const calls = useMemo(
     () =>
-      !account || !chainId || !isSupportedChainId
+      !isSupportedChainId
         ? []
         : [
             {
@@ -32,7 +30,7 @@ export function useVestedInformation(nftId: number): {
               callInputs: [nftId],
             },
           ],
-    [account, chainId, isSupportedChainId, nftId]
+    [isSupportedChainId, nftId]
   )
 
   const [balanceResult, lockedResult] = useSingleContractMultipleMethods(veDEUSContract, calls)
@@ -66,7 +64,6 @@ export function useVestedAPY(
   globalAPY: string
   userAPY: string
 } {
-  const { account, chainId } = useWeb3React()
   const isSupportedChainId = useSupportedChainId()
   const veDEUSContract = useVeDeusContract()
   const effectiveNftId = useMemo(() => nftId ?? 0, [nftId])
@@ -76,7 +73,7 @@ export function useVestedAPY(
 
   const veDEUSCalls = useMemo(
     () =>
-      !account || !chainId || !isSupportedChainId
+      !isSupportedChainId
         ? []
         : [
             {
@@ -88,7 +85,7 @@ export function useVestedAPY(
               callInputs: [],
             },
           ],
-    [account, chainId, isSupportedChainId]
+    [isSupportedChainId]
   )
 
   const [totalSupplyResult, supplyResult] = useSingleContractMultipleMethods(veDEUSContract, veDEUSCalls)
@@ -123,10 +120,10 @@ export function useVestedAPY(
     [annualUSDEmissionToVeDEUS, annualDEIEmissionToVeDEUS]
   )
 
-  const globalAPY: BigNumber = useMemo(
-    () => totalValueToVeDEUS.div(totalVeDEUS).div(deusPrice).times(100),
-    [totalValueToVeDEUS, totalVeDEUS, deusPrice]
-  )
+  const globalAPY: BigNumber = useMemo(() => {
+    if (!totalVeDEUS || totalVeDEUS === '0' || !deusPrice || deusPrice === '0') return new BigNumber('0')
+    return totalValueToVeDEUS.div(totalVeDEUS).div(deusPrice).times(100)
+  }, [totalValueToVeDEUS, totalVeDEUS, deusPrice])
 
   const userAPY: BigNumber = useMemo(() => {
     const lockDurationInDays = Math.abs(dayjs().diff(effectiveLockEnd, 'day'))

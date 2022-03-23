@@ -81,10 +81,7 @@ export default function APYManager({
   toggleLockManager: (nftId: number) => void
 }) {
   const { deusAmount, veDEUSAmount, lockEnd } = useVestedInformation(nftId)
-  const { weeklyDEUSEmission, lockedVeDEUS, globalAPY, userAPY, antiDilutiveAPY, deiAPY, bribesAPY } = useVestedAPY(
-    nftId,
-    lockEnd
-  )
+  const { lockedVeDEUS, globalAPY, userAPY, antiDilutiveAPY, deiAPY, bribesAPY } = useVestedAPY(nftId, lockEnd)
   const deusPrice = useDeusPrice()
 
   return (
@@ -108,12 +105,6 @@ export default function APYManager({
         <Row>
           <div>DEUS Price: </div>
           <div>{formatDollarAmount(parseFloat(deusPrice), 2)}</div>
-        </Row>
-        <Row>
-          <div>
-            DEUS Emission: <span>(weekly)</span>
-          </div>
-          <div>{formatAmount(weeklyDEUSEmission, 0)}</div>
         </Row>
         <Row>
           <div>

@@ -25,10 +25,10 @@ export function lastThursday(targetDate: Date): Date {
 
 export function getMinimumDate(lockEnd?: Date): Date {
   const now = lockEnd ? dayjs(lockEnd) : dayjs()
-  const day = dayjs(now).day()
+  const day = now.day()
 
   // if we haven't yet passed Thursday
-  if (day <= THURSDAY) {
+  if (day < THURSDAY) {
     // then just return this week's instance of Thursday
     return dayjs().isoWeekday(THURSDAY).toDate()
   }

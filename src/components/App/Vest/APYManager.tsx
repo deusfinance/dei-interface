@@ -95,11 +95,11 @@ export default function APYManager({
         </Row>
         <Row>
           <div>Locked Amount:</div>
-          <div>{formatAmount(parseFloat(veDEUSAmount), 0)} DEUS</div>
+          <div>{formatAmount(parseFloat(deusAmount), 0)} DEUS</div>
         </Row>
         <Row>
           <div>Current Voting Power:</div>
-          <div>{formatAmount(parseFloat(deusAmount), 0)} DEUS</div>
+          <div>{formatAmount(parseFloat(veDEUSAmount), 2)} DEUS</div>
         </Row>
         <HorPartition />
         <Row>

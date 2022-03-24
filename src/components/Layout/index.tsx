@@ -25,11 +25,13 @@ const Content = styled.div`
 `
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const TestMode = useInjectedAddress()
+  const hasInjected = useInjectedAddress()
   return (
     <Wrapper>
       <NavBar />
-      {TestMode && <Warning message={`❌ Your mode is "READ-ONLY" .Please dont confirm any transactions! ❌ `} />}
+      {hasInjected && (
+        <Warning message={`❌ You are in "READ-ONLY" mode. Please do not confirm any transactions! ❌ `} />
+      )}
       <Content>{children}</Content>
     </Wrapper>
   )

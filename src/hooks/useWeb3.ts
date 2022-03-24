@@ -14,8 +14,8 @@ export default function useWeb3React(): Web3ReactContextInterface<Web3Provider> 
   chainId?: SupportedChainId
 } {
   const context = useWeb3ReactCore<Web3Provider>()
-  const WalletAddress = useInjectedAddress()
-  const injectedContext = WalletAddress ? { ...context, account: WalletAddress } : context
+  const injectedAddress = useInjectedAddress()
+  const injectedContext = injectedAddress ? { ...context, account: injectedAddress } : context
   const contextNetwork = useWeb3ReactCore<Web3Provider>(NETWORK_CONTEXT_NAME)
   return context.active ? injectedContext : contextNetwork
 }

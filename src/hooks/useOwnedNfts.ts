@@ -6,7 +6,7 @@ import { useVeDeusContract } from 'hooks/useContract'
 
 const idMapping = Array.from(Array(1000).keys())
 
-export default function useOwnedNfts() {
+export default function useOwnedNfts(): number[] {
   const { account, chainId } = useWeb3React()
   const isSupportedChainId = useSupportedChainId()
   const veDEUSContract = useVeDeusContract()
@@ -23,7 +23,7 @@ export default function useOwnedNfts() {
         if (!value.result) return acc
         const result = value.result[0].toString()
         if (!result || result == 0) return acc
-        acc.push(result)
+        acc.push(parseInt(result))
         return acc
       }, [])
       .sort((a: number, b: number) => (a > b ? 1 : -1))

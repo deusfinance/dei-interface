@@ -59,17 +59,19 @@ export default function UserLockInformation({
     return lastThursday(selectedDate)
   }, [selectedDate])
 
+  const lockHasEnded = useMemo(() => dayjs(effectiveDate).isBefore(dayjs()), [effectiveDate])
+
   const votingPower: string = useMemo(() => {
     if (!account || !chainId || !amount) return '0.00'
     const effectiveWeek = Math.floor(dayjs(effectiveDate).diff(dayjs(), 'week', true))
-    return new BigNumber(amount).times(effectiveWeek).div(208).toFixed(2) // 208 = 4 years in weeks
+    return new BigNumber(amount).times(effectiveWeek).div(208).abs().toFixed(2) // 208 = 4 years in weeks
   }, [account, chainId, amount, effectiveDate])
 
   const { userAPY } = useVestedAPY(undefined, effectiveDate)
 
   const durationUntilTarget: string = useMemo(() => {
-    return dayjs(selectedDate).fromNow(true)
-  }, [selectedDate])
+    return dayjs(effectiveDate).fromNow(true)
+  }, [effectiveDate])
 
   return (
     <Wrapper>
@@ -84,7 +86,7 @@ export default function UserLockInformation({
       </Row>
       <Row>
         <div>Expiration in: </div>
-        <div>~ {durationUntilTarget}</div>
+        {lockHasEnded ? <div>Expired</div> : <div>~ {durationUntilTarget}</div>}
       </Row>
       <Row>
         <div>Locked until: </div>

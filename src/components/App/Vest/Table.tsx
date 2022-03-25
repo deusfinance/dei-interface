@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -7,14 +7,17 @@ import localizedFormat from 'dayjs/plugin/localizedFormat'
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
+import { useVeDeusContract } from 'hooks/useContract'
+import { useHasPendingVest, useTransactionAdder } from 'state/transactions/hooks'
+import { useVestedInformation, useVestedAPY } from 'hooks/useVested'
+
 import Pagination from 'components/Pagination'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { RowCenter } from 'components/Row'
 import Column from 'components/Column'
 import { PrimaryButton } from 'components/Button'
-import { Info } from 'components/Icons'
+import { DotFlashing, Info } from 'components/Icons'
 
-import { useVestedInformation, useVestedAPY } from 'hooks/useVested'
 import DEUS_LOGO from '/public/static/images/tokens/deus.svg'
 import { formatAmount } from 'utils/numbers'
 
@@ -126,7 +129,7 @@ export default function Table({
               <Cell>Token ID</Cell>
               <Cell>Vest Amount</Cell>
               <Cell>Vest Value</Cell>
-              <Cell>Vest Expires</Cell>
+              <Cell>Vest Expiration</Cell>
               <Cell>APY</Cell>
               <Cell>Actions</Cell>
             </tr>
@@ -159,8 +162,56 @@ function TableRow({
   toggleLockManager: (nftId: number) => void
   toggleAPYManager: (nftId: number) => void
 }) {
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false)
+  const [pendingTxHash, setPendingTxHash] = useState('')
   const { deusAmount, veDEUSAmount, lockEnd } = useVestedInformation(nftId)
   const { userAPY } = useVestedAPY(nftId)
+  const veDEUSContract = useVeDeusContract()
+  const addTransaction = useTransactionAdder()
+  const showTransactionPending = useHasPendingVest(pendingTxHash)
+
+  const lockHasEnded = useMemo(() => dayjs(lockEnd).isBefore(dayjs().subtract(10, 'seconds')), [lockEnd]) // subtracting 10 seconds to mitigate this from being true on page load
+
+  const onWithdraw = useCallback(async () => {
+    try {
+      if (!veDEUSContract || !lockHasEnded) return
+      setAwaitingConfirmation(true)
+      const response = await veDEUSContract.withdraw(nftId)
+      addTransaction(response, { summary: `Withdraw #${nftId} from Vesting`, vest: { hash: response.hash } })
+      setPendingTxHash(response.hash)
+      setAwaitingConfirmation(false)
+    } catch (err) {
+      console.error(err)
+      setAwaitingConfirmation(false)
+      setPendingTxHash('')
+    }
+  }, [veDEUSContract, lockHasEnded, nftId, addTransaction])
+
+  function getExpirationCell() {
+    if (!lockHasEnded) {
+      return (
+        <CellWrap>
+          <CellAmount>{dayjs(lockEnd).format('LLL')}</CellAmount>
+          <CellDescription>Expires in {dayjs(lockEnd).fromNow(true)}</CellDescription>
+        </CellWrap>
+      )
+    }
+    if (awaitingConfirmation) {
+      return (
+        <PrimaryButton active>
+          Confirming <DotFlashing style={{ marginLeft: '10px' }} />
+        </PrimaryButton>
+      )
+    }
+    if (showTransactionPending) {
+      return (
+        <PrimaryButton active>
+          Withdrawing <DotFlashing style={{ marginLeft: '10px' }} />
+        </PrimaryButton>
+      )
+    }
+    return <PrimaryButton onClick={onWithdraw}>Withdraw</PrimaryButton>
+  }
 
   return (
     <Row>
@@ -175,12 +226,7 @@ function TableRow({
       </Cell>
       <Cell>{deusAmount} DEUS</Cell>
       <Cell>{formatAmount(parseFloat(veDEUSAmount))} veDEUS</Cell>
-      <Cell>
-        <CellWrap>
-          <CellAmount>{dayjs(lockEnd).format('LLL')}</CellAmount>
-          <CellDescription>Expires in {dayjs(lockEnd).fromNow(true)}</CellDescription>
-        </CellWrap>
-      </Cell>
+      <Cell style={{ padding: '5px 10px' }}>{getExpirationCell()}</Cell>
       <Cell>
         <CellRow>
           {formatAmount(parseFloat(userAPY), 0)}%

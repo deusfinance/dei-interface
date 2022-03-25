@@ -22,7 +22,7 @@ export default function useOwnedNfts(): number[] {
       .reduce((acc: number[], value) => {
         if (!value.result) return acc
         const result = value.result[0].toString()
-        if (!result || result == 0) return acc
+        if (!result || result === '0') return acc
         acc.push(parseInt(result))
         return acc
       }, [])

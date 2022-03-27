@@ -47,10 +47,12 @@ const Title = styled.div`
 export default function UserLockInformation({
   amount,
   selectedDate,
+  currentVotingPower,
   title,
 }: {
   amount: string
   selectedDate: Date
+  currentVotingPower?: string
   title?: string
 }) {
   const { account, chainId } = useWeb3React()
@@ -61,11 +63,16 @@ export default function UserLockInformation({
 
   const lockHasEnded = useMemo(() => dayjs(effectiveDate).isBefore(dayjs()), [effectiveDate])
 
-  const votingPower: string = useMemo(() => {
-    if (!account || !chainId || !amount) return '0.00'
+  const computedVotingPower: BigNumber = useMemo(() => {
+    if (!account || !chainId || !amount) return new BigNumber(0)
     const effectiveWeek = Math.floor(dayjs(effectiveDate).diff(dayjs(), 'week', true))
-    return new BigNumber(amount).times(effectiveWeek).div(208).abs().toFixed(2) // 208 = 4 years in weeks
+    return new BigNumber(amount).times(effectiveWeek).div(208).abs() // 208 = 4 years in weeks
   }, [account, chainId, amount, effectiveDate])
+
+  const totalVotingPower: string = useMemo(() => {
+    const current = currentVotingPower ? parseFloat(currentVotingPower) : 0
+    return computedVotingPower.plus(current).toFixed(2)
+  }, [computedVotingPower, currentVotingPower])
 
   const { userAPY } = useVestedAPY(undefined, effectiveDate)
 
@@ -78,7 +85,7 @@ export default function UserLockInformation({
       {title && <Title>{title}</Title>}
       <Row>
         <div>Voting Power:</div>
-        <div>{votingPower} veDEUS</div>
+        <div>{totalVotingPower} veDEUS</div>
       </Row>
       <Row>
         <div>Est. APY</div>

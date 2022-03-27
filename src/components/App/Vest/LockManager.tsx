@@ -117,7 +117,7 @@ function IncreaseAmount({ nftId }: { nftId: number }) {
   const [pendingTxHash, setPendingTxHash] = useState('')
   const showTransactionPending = useHasPendingVest(pendingTxHash)
   const addTransaction = useTransactionAdder()
-  const { deusAmount, lockEnd } = useVestedInformation(nftId)
+  const { veDEUSAmount, deusAmount, lockEnd } = useVestedInformation(nftId)
 
   const INSUFFICIENT_BALANCE = useMemo(() => {
     if (!deusBalance || deusBalance.equalTo(ZERO)) return false
@@ -150,7 +150,12 @@ function IncreaseAmount({ nftId }: { nftId: number }) {
     <>
       <InputBox currency={deusCurrency} value={typedValue} onChange={(value: string) => setTypedValue(value)} />
       <UserLockInformation amount={deusAmount} selectedDate={lockEnd} title="Current vesting setup:" />
-      <UserLockInformation amount={typedValue} selectedDate={lockEnd} title="New vesting setup:" />
+      <UserLockInformation
+        amount={typedValue}
+        selectedDate={lockEnd}
+        currentVotingPower={veDEUSAmount}
+        title="New vesting setup:"
+      />
       {INSUFFICIENT_BALANCE ? (
         <PrimaryButton disabled>INSUFFICIENT BALANCE</PrimaryButton>
       ) : awaitingConfirmation ? (

@@ -4,7 +4,7 @@ import { Currency, CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core
 import BigNumber from 'bignumber.js'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
-import { BorrowAction, BorrowPool, TypedField } from 'state/borrow/reducer'
+import { BorrowAction, BorrowPool, LenderVersion, TypedField } from 'state/borrow/reducer'
 import {
   useAvailableForWithdrawal,
   useCollateralPrice,
@@ -142,6 +142,16 @@ export default function ConfirmBorrow({
     return new BigNumber(amount.toExact()).gt(HALF_AVAILABLE)
   }, [amount, availableForWithdrawal, isBorrowCurrency, action])
 
+  const showDangerousExpireWarning = useMemo(() => {
+    if (pool.version == LenderVersion.V1) return false
+    if (
+      (action == BorrowAction.BORROW && typedField == TypedField.BORROW) ||
+      (action == BorrowAction.REPAY && typedField == TypedField.COLLATERAL)
+    )
+      return true
+    return false
+  }, [pool, action, typedField])
+
   function getImage() {
     if (!isBorrowCurrency) {
       return (
@@ -193,6 +203,11 @@ export default function ConfirmBorrow({
               <Warning>
                 WARNING: You are about to withdraw more than 50% of your available collateral. This will result in your
                 liquidation price moving into dangerous territory.
+              </Warning>
+            )}
+            {showDangerousExpireWarning && (
+              <Warning>
+                WARNING: This transaction should mint in 30s from now.so make sure your gas price is enough to do.
               </Warning>
             )}
             <Disclaimer>

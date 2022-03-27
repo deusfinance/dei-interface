@@ -44,6 +44,12 @@ const Row = styled.tr`
   color: ${({ theme }) => theme.text1};
 `
 
+const Deprecated = styled.div`
+  color: ${({ theme }) => theme.text3};
+  margin: auto;
+  margin-top: 10px;
+`
+
 const Cel = styled.td<{
   justify?: boolean
 }>`
@@ -140,6 +146,7 @@ function TableRow({
           <ImageWithFallback src={logoTwo} alt={`${pool.token1.symbol} logo`} width={30} height={30} />
           {pool.composition}
         </DualImageWrapper>
+        {pool.version == LenderVersion.V1 && <Deprecated>(deprecated)</Deprecated>}
       </Cel>
       <Cel>{pool.type}</Cel>
       <Cel>

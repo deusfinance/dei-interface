@@ -4,13 +4,14 @@ import { Currency, CurrencyAmount, NativeCurrency, Token, ZERO } from '@sushiswa
 import BigNumber from 'bignumber.js'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { BorrowAction, BorrowPool, TypedField } from 'state/borrow/reducer'
+import { BorrowAction, BorrowPool, LenderVersion, TypedField } from 'state/borrow/reducer'
+import { useUserPoolData } from 'hooks/usePoolData'
+import { BorrowClient } from 'lib/muon'
 
 import useWeb3React from './useWeb3'
 import { useGeneralLenderContract } from './useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { toHex } from 'utils/hex'
-import { useUserPoolData } from 'hooks/usePoolData'
 
 export enum BorrowCallbackState {
   INVALID = 'INVALID',
@@ -35,7 +36,16 @@ export default function useBorrowCallback(
   const addTransaction = useTransactionAdder()
   const GeneralLender = useGeneralLenderContract(pool)
   const { userBorrow } = useUserPoolData(pool)
-  const constructCall = useCallback(() => {
+
+  const getOracleData = useCallback(async () => {
+    const result = await BorrowClient.getCollateralPrice(pool.lpPool)
+    if (result.success === false) {
+      throw new Error(`Unable to fetch Muon collateral price: ${result.error}`)
+    }
+    return result.data.calldata
+  }, [pool])
+
+  const constructCall = useCallback(async () => {
     try {
       if (!account || !chainId || !library || !GeneralLender || !collateralCurrency || !borrowCurrency) {
         throw new Error('Missing dependencies.')
@@ -51,15 +61,26 @@ export default function useBorrowCallback(
       } else if (action === BorrowAction.REPAY && typedField === TypedField.COLLATERAL) {
         if (!collateralAmount) throw new Error('Missing collateralAmount.')
         args = [account, toHex(collateralAmount.quotient)]
+
+        if (pool.version == LenderVersion.V2) {
+          const { price, reqId, sigs, timestamp } = await getOracleData()
+          if (!price || !reqId || !sigs || !timestamp) throw new Error('Missing dependencies from muon oracles.')
+          args = [...args, price, timestamp, reqId, sigs]
+        }
         methodName = 'removeCollateral'
       } else if (action === BorrowAction.BORROW && typedField === TypedField.BORROW) {
         if (!borrowAmount) throw new Error('Missing borrowAmount.')
         args = [account, toHex(borrowAmount.quotient)]
+
+        if (pool.version == LenderVersion.V2) {
+          const { price, reqId, sigs, timestamp } = await getOracleData()
+          if (!price || !reqId || !sigs || !timestamp) throw new Error('Missing dependencies from muon oracles.')
+          args = [...args, price, timestamp, reqId, sigs]
+        }
         methodName = 'borrow'
       } else if (action === BorrowAction.REPAY && typedField === TypedField.BORROW && payOff) {
         if (!userBorrow) throw new Error('Missing userBorrow.')
         args = [account, new BigNumber(userBorrow).times(1e18).toFixed(0)]
-        console.log('userBorrow = ', new BigNumber(userBorrow).times(1e18).toFixed(0))
         methodName = 'repayBase'
       } else {
         if (!borrowAmount) throw new Error('Missing borrowAmount.')
@@ -78,6 +99,7 @@ export default function useBorrowCallback(
       }
     }
   }, [
+    pool,
     chainId,
     account,
     library,
@@ -90,6 +112,7 @@ export default function useBorrowCallback(
     borrowAmount,
     payOff,
     userBorrow,
+    getOracleData,
   ])
 
   return useMemo(() => {
@@ -113,7 +136,7 @@ export default function useBorrowCallback(
       error: null,
       callback: async function onTrade(): Promise<string> {
         console.log('onBorrow callback')
-        const call = constructCall()
+        const call = await constructCall()
         const { address, calldata, value } = call
 
         if ('error' in call) {

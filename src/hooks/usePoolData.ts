@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js'
 import { Interface } from '@ethersproject/abi'
 import { AddressZero } from '@ethersproject/constants'
 
-import { BorrowPool } from 'state/borrow/reducer'
+import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 import { useMultipleContractSingleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { useGeneralLenderContract, useLenderManagerContract, useOracleContract } from './useContract'
 import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
@@ -218,9 +218,11 @@ export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
   )
 }
 
+//TODO: needs to get data from api(al least muon oracle api)
 export function useCollateralPrice(pool: BorrowPool): string {
   const oracleContract = useOracleContract(pool)
-  const [price] = useSingleContractMultipleMethods(oracleContract, [{ methodName: 'getPrice', callInputs: [] }])
+  const methodName = pool.version == LenderVersion.V1 ? 'getPrice' : 'getOnChainPrice'
+  const [price] = useSingleContractMultipleMethods(oracleContract, [{ methodName, callInputs: [] }])
   return useMemo(() => (price?.result ? formatUnits(price.result[0], 18) : '0'), [price])
 }
 

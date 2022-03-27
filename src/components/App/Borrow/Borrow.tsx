@@ -198,6 +198,8 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
 
   return (
     <Wrapper>
+      {/* TODO:  REMOVE IT IN PRODUCTION*/}
+      <p style={{ fontSize: '30px', color: '#f0f' }}>version: {pool.version.toUpperCase()}</p>
       <Panel>
         <CardTitle>{action === BorrowAction.BORROW ? 'Deposit Collateral' : 'Withdraw Collateral'}</CardTitle>
         <InputBox

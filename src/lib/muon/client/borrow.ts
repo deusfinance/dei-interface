@@ -5,6 +5,7 @@ import { MUON_BASE_URL } from '../config'
 
 interface RequestParams {
   token: string
+  hashTimestamp: boolean
 }
 
 interface CollateralPriceData {
@@ -14,6 +15,7 @@ interface CollateralPriceData {
     calldata: {
       price: string
       reqId: string
+      timestamp: number
       sigs: {
         signature: string
         owner: string
@@ -27,7 +29,7 @@ export class BorrowClient extends MuonClient {
   constructor(baseURL?: string) {
     super({
       baseURL: baseURL ?? MUON_BASE_URL,
-      nSign: 2,
+      nSign: 4,
       APP_ID: 'dei_oracles',
       APP_METHOD: 'lp_price',
     })
@@ -41,6 +43,7 @@ export class BorrowClient extends MuonClient {
 
     return {
       token: address,
+      hashTimestamp: false,
     }
   }
 
@@ -57,7 +60,7 @@ export class BorrowClient extends MuonClient {
       if ('error' in response) {
         throw new Error(response.error)
       } else if (!response.success || !response.result.confirmed) {
-        throw new Error('An unknown Muon error has occured')
+        throw new Error('An unknown Muon error has occurred')
       }
 
       const result = response.result
@@ -79,6 +82,7 @@ export class BorrowClient extends MuonClient {
           response,
           calldata: {
             price: result?.data?.result?.tokenPrice,
+            timestamp: result?.data?.result?.timestamp,
             reqId,
             sigs,
           },

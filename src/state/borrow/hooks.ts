@@ -9,6 +9,7 @@ import { BorrowPool, BorrowState } from './reducer'
 import { useCurrency } from 'hooks/useCurrency'
 import { constructPercentage } from 'utils/prices'
 import { DEI_TOKEN } from 'constants/borrow'
+import { LenderVersion } from 'state/borrow/reducer'
 
 export function useBorrowState(): BorrowState {
   return useAppSelector((state: AppState) => state.borrow)
@@ -36,16 +37,32 @@ export function useBorrowPoolFromURL(): BorrowPool | null {
     }
   }, [router])
 
-  return useBorrowPoolByContract(contract ?? undefined)
+  const version: string | null = useMemo(() => {
+    try {
+      const version = router.query?.version || undefined
+      return typeof version === 'string' ? version : null
+    } catch (err) {
+      // err will be thrown by getAddress invalidation
+      return null
+    }
+  }, [router])
+
+  return useBorrowPoolByContract(contract ?? undefined, version ?? LenderVersion.V2)
 }
 
-export function useBorrowPoolByContract(contract: string | undefined): BorrowPool | null {
+export function useBorrowPoolByContract(
+  contract: string | undefined,
+  version: LenderVersion | string | undefined
+): BorrowPool | null {
   const pools = useBorrowPools()
   return useMemo(() => {
-    if (!contract) return null
-    const pool = find(pools, (o) => o.contract.address.toLowerCase() === contract.toLowerCase())
+    if (!contract || !version) return null
+    const pool = find(
+      pools,
+      (o) => o.contract.address.toLowerCase() === contract.toLowerCase() && o.version === version.toLowerCase()
+    )
     return pool || null
-  }, [contract, pools])
+  }, [contract, version, pools])
 }
 
 export function useCurrenciesFromPool(pool: BorrowPool | undefined): {

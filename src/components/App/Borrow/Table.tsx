@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
-import { BorrowPool } from 'state/borrow/reducer'
+import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useGlobalPoolData } from 'hooks/usePoolData'
 import { useLPData } from 'hooks/useLPData'
@@ -71,7 +71,7 @@ export default function Table({
   onMintClick,
 }: {
   options: BorrowPool[]
-  onMintClick: (contract: string) => void
+  onMintClick: (contract: string, version: LenderVersion) => void
 }) {
   const [offset, setOffset] = useState(0)
 
@@ -118,7 +118,13 @@ export default function Table({
   )
 }
 
-function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contract: string) => void }) {
+function TableRow({
+  pool,
+  onMintClick,
+}: {
+  pool: BorrowPool
+  onMintClick: (contract: string, version: LenderVersion) => void
+}) {
   const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const logoOne = useCurrencyLogo(pool.token0.address)
   const logoTwo = useCurrencyLogo(pool.token1.address)
@@ -144,7 +150,7 @@ function TableRow({ pool, onMintClick }: { pool: BorrowPool; onMintClick: (contr
         {formatAmount(parseFloat(balance1))} SEX
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => onMintClick(pool.contract.address)}>Borrow</PrimaryButton>
+        <PrimaryButton onClick={() => onMintClick(pool.contract.address, pool.version)}>Borrow</PrimaryButton>
       </Cel>
     </Row>
   )

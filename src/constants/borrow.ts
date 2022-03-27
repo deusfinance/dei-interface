@@ -1,6 +1,6 @@
 import { Token } from '@sushiswap/core-sdk'
 
-import { UnserializedBorrowPool } from 'state/borrow/reducer'
+import { LenderVersion, UnserializedBorrowPool } from 'state/borrow/reducer'
 import { SupportedChainId } from 'constants/chains'
 import BASE_V1_MAIN_PAIR from 'constants/abi/BASE_V1_MAIN_PAIR.json'
 
@@ -32,6 +32,7 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     ),
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
+    version: LenderVersion.V1,
     abi: BASE_V1_MAIN_PAIR,
     composition: 'USDC/DEI',
     oracle: '0x8878Eb7F44f969D0ed72c6010932791397628546',
@@ -39,6 +40,27 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     lpPool: '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
     mintHelper: '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
     type: 'Solidex LP Token',
+    liquidationFee: 5, // 5%
+  },
+  //TODO: All bellow data is almost fake, just keep the version of each lender
+  {
+    contract: new Token(
+      SupportedChainId.FANTOM,
+      '0xd82001b651f7fb67db99c679133f384244e20e79',
+      18,
+      'Solidex sAMM-USDC/DEI',
+      'sex-sAMM-USDC/DEI'
+    ),
+    token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
+    token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
+    version: LenderVersion.V2,
+    abi: BASE_V1_MAIN_PAIR,
+    composition: 'USDC/DEI TEST',
+    oracle: '0x8878Eb7F44f969D0ed72c6010932791397628546',
+    generalLender: '0xeC1Fc57249CEa005fC16b2980470504806fcA20d',
+    lpPool: '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
+    mintHelper: '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
+    type: 'Solidex LP Token Test',
     liquidationFee: 5, // 5%
   },
 ]

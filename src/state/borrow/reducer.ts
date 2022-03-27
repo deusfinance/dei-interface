@@ -11,11 +11,17 @@ export enum BorrowAction {
   REPAY = 'repay',
 }
 
+export enum LenderVersion {
+  V1 = 'v1',
+  V2 = 'v2',
+}
+
 export interface UnserializedBorrowPool {
   contract: Token
   token0: Token
   token1: Token
   abi: any
+  version: LenderVersion
   composition: string
   oracle: string
   generalLender: string

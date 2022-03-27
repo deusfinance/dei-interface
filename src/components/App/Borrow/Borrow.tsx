@@ -12,6 +12,7 @@ import {
   setShowReview,
   setBorrowState,
   TypedField,
+  LenderVersion,
 } from 'state/borrow/reducer'
 import useBorrowPage, { UserError } from 'hooks/useBorrowPage'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
@@ -175,7 +176,7 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
       return <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
     }
     /** *******REMOVE IT IN PRODUCTION******** */
-    if (typedField === TypedField.BORROW && action === BorrowAction.BORROW) {
+    if (pool.version == LenderVersion.V1 && typedField === TypedField.BORROW && action === BorrowAction.BORROW) {
       return <PrimaryButton disabled>Only add Collateral</PrimaryButton>
     }
     /************************/

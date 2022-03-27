@@ -82,7 +82,7 @@ export class BorrowClient extends MuonClient {
           response,
           calldata: {
             price: result?.data?.result?.tokenPrice,
-            timestamp: result?.data?.result?.timestamp,
+            timestamp: result?.data?.timestamp,
             reqId,
             sigs,
           },

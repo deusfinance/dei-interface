@@ -10,7 +10,7 @@ import ERC20_ABI from 'constants/abi/ERC20.json'
 import ERC20_BYTES32_ABI from 'constants/abi/ERC20'
 import MULTICALL2_ABI from 'constants/abi/MULTICALL2.json'
 import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
-import GENERAL_LENDER_V2_ABI from 'constants/abi/GENERAL_LENDER.json' //TODO: Add GENERAL_LENDER_V2_ABI here
+import GENERAL_LENDER_V2_ABI from 'constants/abi/GENERAL_LENDER_V2.json'
 import LENDER_MANAGER_ABI from 'constants/abi/LENDER_MANAGER.json'
 import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
 import SOLIDEX_LP_DEPOSITOR_ABI from 'constants/abi/SOLIDEX_LP_DEPOSITOR.json'

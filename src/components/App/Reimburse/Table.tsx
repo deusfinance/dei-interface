@@ -1,10 +1,9 @@
-import React, { useMemo, useState, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
 
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
 import { BorrowPool } from 'state/borrow/reducer'
 
-import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useLPData } from 'hooks/useLPData'
 import { useReimburseContract } from 'hooks/useContract'
@@ -15,7 +14,6 @@ import { PrimaryButton } from 'components/Button'
 import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { DotFlashing } from 'components/Icons'
-import { DEI_TOKEN } from 'constants/borrow'
 import { formatAmount } from 'utils/numbers'
 
 const Wrapper = styled.div`
@@ -79,7 +77,6 @@ export default function Table({ options }: { options: BorrowPool[] }) {
             <Cel>Your Collateral</Cel>
             <Cel>Your Rewards</Cel>
             <Cel>Claim Rewards</Cel>
-            <Cel>Withdraw Collateral</Cel>
           </tr>
         </Head>
         <tbody>
@@ -101,48 +98,6 @@ function TableRow({ pool }: { pool: BorrowPool }) {
   const reimburseContract = useReimburseContract()
 
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState(false)
-  const [awaitingRepayBackConfirmation, setAwaitingRepayBackConfirmation] = useState(false)
-  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
-
-  const spender = useMemo(() => reimburseContract?.address, [reimburseContract])
-  const [approvalState, approveCallback] = useApproveCallback(DEI_TOKEN, spender)
-
-  const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = approvalState !== ApprovalState.APPROVED
-    return [show, show && approvalState === ApprovalState.PENDING]
-  }, [approvalState])
-
-  const handleApprove = async () => {
-    setAwaitingApproveConfirmation(true)
-    await approveCallback()
-    setAwaitingApproveConfirmation(false)
-  }
-
-  function getApproveButton(): JSX.Element | null {
-    if (!account) {
-      return null
-    }
-
-    if (awaitingApproveConfirmation) {
-      return (
-        <PrimaryButton active>
-          Awaiting <DotFlashing style={{ marginLeft: '10px' }} />
-        </PrimaryButton>
-      )
-    }
-    if (showApproveLoader) {
-      return (
-        <PrimaryButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
-        </PrimaryButton>
-      )
-    }
-
-    if (showApprove) {
-      return <PrimaryButton onClick={handleApprove}>Approve DEI</PrimaryButton>
-    }
-    return null
-  }
 
   const onClaim = useCallback(async () => {
     try {
@@ -156,18 +111,6 @@ function TableRow({ pool }: { pool: BorrowPool }) {
     }
   }, [reimburseContract, pool, account])
 
-  const onRepayBack = useCallback(async () => {
-    try {
-      if (!reimburseContract || !account) return
-      setAwaitingRepayBackConfirmation(true)
-      await reimburseContract.deiToCollateral(account)
-      setAwaitingRepayBackConfirmation(false)
-    } catch (err) {
-      console.error(err)
-      setAwaitingRepayBackConfirmation(false)
-    }
-  }, [reimburseContract, account])
-
   function getClaimButton() {
     if (awaitingClaimConfirmation) {
       return (
@@ -177,20 +120,6 @@ function TableRow({ pool }: { pool: BorrowPool }) {
       )
     }
     return <PrimaryButton onClick={onClaim}>Claim</PrimaryButton>
-  }
-
-  function getRepayBackButton() {
-    if (!!getApproveButton()) {
-      return null
-    }
-    if (awaitingRepayBackConfirmation) {
-      return (
-        <PrimaryButton active>
-          Awaiting <DotFlashing style={{ marginLeft: '10px' }} />
-        </PrimaryButton>
-      )
-    }
-    return <PrimaryButton onClick={onRepayBack}>Repay & Withdraw </PrimaryButton>
   }
 
   return (
@@ -211,10 +140,6 @@ function TableRow({ pool }: { pool: BorrowPool }) {
         {formatAmount(parseFloat(balance1))} SEX
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>{getClaimButton()}</Cel>
-      <Cel style={{ padding: '5px 10px' }}>
-        {getApproveButton()}
-        {getRepayBackButton()}
-      </Cel>
     </Row>
   )
 }

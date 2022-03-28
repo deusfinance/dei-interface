@@ -97,9 +97,9 @@ export default function InputBox({
   const logo1 = useCurrencyLogo(pool ? pool.token1.address : undefined)
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
   const { userDebt } = useUserPoolData(pool)
-  const { availableForWithdrawalFactored } = useAvailableForWithdrawal(pool)
+  const { availableForWithdrawalFactored, availableForWithdrawal } = useAvailableForWithdrawal(pool)
+  const withdrawableAmount = new BigNumber(userDebt).isZero() ? availableForWithdrawal : availableForWithdrawalFactored //handling max amount when userDebt is zero
   const availableToBorrow = useAvailableToBorrow(pool)
-
   const [balanceExact, balanceDisplay] = useMemo(() => {
     if (action === BorrowAction.BORROW && isBorrowCurrency) {
       return [
@@ -112,8 +112,8 @@ export default function InputBox({
     }
     if (isCollateralCurrency) {
       return [
-        new BigNumber(availableForWithdrawalFactored).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
-        parseFloat(availableForWithdrawalFactored).toPrecision(6),
+        new BigNumber(withdrawableAmount).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
+        parseFloat(withdrawableAmount).toPrecision(6),
       ]
     }
     return [userDebt, parseFloat(userDebt).toPrecision(6)]
@@ -125,7 +125,7 @@ export default function InputBox({
     isBorrowCurrency,
     availableToBorrow,
     currency,
-    availableForWithdrawalFactored,
+    withdrawableAmount,
   ])
 
   const handleClick = useCallback(() => {

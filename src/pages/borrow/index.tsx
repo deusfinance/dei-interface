@@ -51,7 +51,7 @@ export default function Borrow() {
   const onMintClick = useCallback(
     (contract: string, version: LenderVersion) => {
       const param = version == LenderVersion.V1 ? `?version=${version}` : ''
-      router.push(`/borrow/${contract}${param}`)
+      router.push(`/borrow/[contract]${param}`, `/borrow/${contract}${param}`)
     },
     [router]
   )

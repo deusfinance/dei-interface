@@ -238,6 +238,7 @@ export function useAvailableForWithdrawal(pool: BorrowPool): {
     if (!parseFloat(collateralPrice) || !parseFloat(userCollateral)) {
       return '0'
     }
+
     const liquidationPrice = new BigNumber(liquidationRatio.toSignificant()).div(100).times(collateralPrice)
     const minimumCollateral = new BigNumber(userDebt).div(liquidationPrice)
     const withdrawable = new BigNumber(userCollateral).minus(minimumCollateral)

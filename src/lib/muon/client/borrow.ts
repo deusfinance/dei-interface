@@ -30,7 +30,7 @@ export class BorrowClient extends MuonClient {
     super({
       baseURL: baseURL ?? MUON_BASE_URL,
       nSign: 4,
-      APP_ID: 'dei_oracles',
+      APP_ID: 'dei_oracles_vwap',
       APP_METHOD: 'lp_price',
     })
   }

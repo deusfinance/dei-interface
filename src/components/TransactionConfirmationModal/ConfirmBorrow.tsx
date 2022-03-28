@@ -207,7 +207,7 @@ export default function ConfirmBorrow({
             )}
             {showDangerousExpireWarning && (
               <Warning>
-                WARNING: This transaction should mint in 30s from now.so make sure your gas price is enough to do.
+                WARNING: This transaction should be minted in the 30s. Make sure your gas price is enough.
               </Warning>
             )}
             <Disclaimer>

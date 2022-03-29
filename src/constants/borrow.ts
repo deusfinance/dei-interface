@@ -27,8 +27,8 @@ export const BorrowPools: UnserializedBorrowPool[] = [
       SupportedChainId.FANTOM,
       '0xE9e2f34B0BD4f67E82DD96769d00BB6111aE150E',
       18,
-      'Solidex sAMM-DEI/DEUS',
-      'sex-sAMM-DEI/DEUS'
+      'Solidex vAMM-DEI/DEUS',
+      'sex-vAMM-DEI/DEUS'
     ),
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44', 18, 'DEUS', 'DEUS'),

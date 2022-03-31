@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
-import { useGlobalPoolData } from 'hooks/usePoolData'
+import { useGlobalPoolData, useUserPoolData } from 'hooks/usePoolData'
 import { useLPData } from 'hooks/useLPData'
 
 import Pagination from 'components/Pagination'
@@ -12,7 +12,6 @@ import { PrimaryButton } from 'components/Button'
 import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { formatAmount } from 'utils/numbers'
-import { useReimburse } from '../../../hooks/useReimburse'
 
 const Wrapper = styled.div`
   display: flex;
@@ -134,7 +133,7 @@ function TableRow({
   const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const logoOne = useCurrencyLogo(pool.token0.address)
   const logoTwo = useCurrencyLogo(pool.token1.address)
-  const { userHolder } = useReimburse(pool)
+  const { userHolder } = useUserPoolData(pool)
   const { balance0, balance1 } = useLPData(pool, userHolder)
   const { borrowedElastic } = useGlobalPoolData(pool)
 

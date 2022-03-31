@@ -20,7 +20,9 @@ export enum VestOptions {
 export function lastThursday(targetDate: Date): Date {
   const target = dayjs(targetDate)
   const targetWeek = target.day() >= THURSDAY ? target : target.subtract(7, 'days')
-  return targetWeek.isoWeekday(THURSDAY).toDate()
+  let date = targetWeek.isoWeekday(THURSDAY).toDate()
+  date.setHours(0, 0, 0, 0)
+  return date
 }
 
 export function getMinimumDate(lockEnd?: Date): Date {

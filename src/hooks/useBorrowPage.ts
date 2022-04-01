@@ -33,6 +33,8 @@ export default function useBorrowPage(
   const { account, chainId } = useWeb3React()
   const { typedValue, typedField } = useBorrowState()
   const collateralBalance = useCurrencyBalance(account ?? undefined, collateralCurrency)
+  const borrowBalance = useCurrencyBalance(account ?? undefined, borrowCurrency)
+
   const availableToBorrow = useAvailableToBorrow(pool)
   const { userDebt } = useUserPoolData(pool)
   const { availableForWithdrawal } = useAvailableForWithdrawal(pool)
@@ -62,15 +64,31 @@ export default function useBorrowPage(
     }
     // removing collateral
     if (typedField === TypedField.COLLATERAL && action === BorrowAction.REPAY) {
-      return parsedAmounts[0] && availableForWithdrawal < parsedAmounts[0].toExact()
+      return parsedAmounts[0] && new BigNumber(availableForWithdrawal).isLessThan(parsedAmounts[0].toExact())
     }
     // borrowing
     if (action === BorrowAction.BORROW) {
-      return availableToBorrow && parsedAmounts[1] && new BigNumber(availableToBorrow).lt(parsedAmounts[1].toExact())
+      return (
+        availableToBorrow && parsedAmounts[1] && new BigNumber(availableToBorrow).isLessThan(parsedAmounts[1].toExact())
+      )
     }
     // repaying
-    return parsedAmounts[1] && userDebt < parsedAmounts[1].toExact()
-  }, [collateralBalance, userDebt, parsedAmounts, typedField, action, availableForWithdrawal, availableToBorrow])
+    const debtRepayError = parsedAmounts[1] && new BigNumber(userDebt).isLessThan(parsedAmounts[1].toExact())
+    const debtBalanceError =
+      parsedAmounts[1] &&
+      borrowBalance &&
+      new BigNumber(parsedAmounts[1].toExact()).isGreaterThan(borrowBalance?.toExact())
+    return debtRepayError || debtBalanceError
+  }, [
+    collateralBalance,
+    userDebt,
+    parsedAmounts,
+    typedField,
+    action,
+    availableForWithdrawal,
+    availableToBorrow,
+    borrowBalance,
+  ])
 
   const error = useMemo(
     () =>

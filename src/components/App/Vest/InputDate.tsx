@@ -137,11 +137,19 @@ export default function InputDate({
             className="styled-date-picker"
             dateFormat="MMMM d, yyyy"
             onChange={(value: Date) => {
+              /**
+               * This date is the user's locale => set it to 23:59 and then return the UTC value.
+               * If the UTC is > 23:59 the 'lastThursday' function will correct it
+               * If the UTC is < 23:59 we're already on the right day.
+               */
+              const correctedDate = value
+              correctedDate.setHours(23, 59)
+
               // check if the 7-day minimum applies
-              if (value.getTime() < minimumDate.getTime()) {
+              if (correctedDate.getTime() < minimumDate.getTime()) {
                 return onDateSelect(minimumDate)
               }
-              return onDateSelect(value)
+              return onDateSelect(correctedDate)
             }}
             minDate={minimumDate}
             maxDate={maximumDate}

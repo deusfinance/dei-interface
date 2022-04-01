@@ -72,7 +72,7 @@ export function useSolidlyPairData(pair: SolidlyPair): {
   gaugeWeight: string
 } {
   const { account } = useWeb3React()
-  const addressMap = useMemo(() => (account ? [pair.id, pair.token0.id, pair.token1.id] : []), [account])
+  const addressMap = useMemo(() => (account ? [pair.id, pair.token0.id, pair.token1.id] : []), [account, pair])
   const PairContract = useBaseV1PairContract(pair.id)
   const VoterContract = useBaseV1VoterContract()
 
@@ -180,7 +180,7 @@ export function useSolidlyPairData(pair: SolidlyPair): {
       gaugeAddress: voterResults.length && voterResults[1]?.result ? voterResults[1].result[0] : ZERO_ADDRESS,
       gaugeWeight: voterResults.length && voterResults[2]?.result ? formatUnits(voterResults[2].result[0], 0) : '0',
     }),
-    [addressMap, balances, pairResults, voterResults]
+    [addressMap, pair, balances, claimableResults, pairResults, voterResults]
   )
 }
 

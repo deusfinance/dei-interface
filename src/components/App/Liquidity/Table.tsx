@@ -215,17 +215,13 @@ function TableRow({ pair }: { pair: SolidlyPair }) {
     userPoolBalance,
     userToken0Balance,
     userToken1Balance,
-    userClaimable0,
-    userClaimable1,
     poolTotalSupply,
     poolReserve0,
     poolReserve1,
-    voterTotalWeight,
     gaugeAddress,
-    gaugeWeight,
   } = useSolidlyPairData(pair)
 
-  const { gaugeTotalSupply, gaugeBribeAddress, gaugeUserBalance } = useSolidlyGaugeData(gaugeAddress)
+  const { gaugeTotalSupply, gaugeUserBalance } = useSolidlyGaugeData(gaugeAddress)
   const { gaugeReserve0, gaugeReserve1 } = useSolidlyGaugeReserves(
     gaugeTotalSupply,
     poolTotalSupply,
@@ -247,7 +243,7 @@ function TableRow({ pair }: { pair: SolidlyPair }) {
       return new BigNumber('0')
     }
     return new BigNumber(userPoolBalance).div(poolTotalSupply).times(poolReserve1)
-  }, [userPoolBalance, poolTotalSupply, poolReserve0])
+  }, [userPoolBalance, poolTotalSupply, poolReserve1])
 
   const [balance0, balance1] = useMemo(
     () => [

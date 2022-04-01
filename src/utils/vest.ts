@@ -22,7 +22,7 @@ export enum VestOptions {
 export function lastThursday(targetDate?: Date): Date {
   const target = targetDate ? dayjs.utc(targetDate) : dayjs.utc()
   const targetWeek = target.day() >= THURSDAY ? target : target.subtract(7, 'days')
-  let date = targetWeek.isoWeekday(THURSDAY).toDate()
+  const date = targetWeek.isoWeekday(THURSDAY).toDate()
   date.setHours(0, 0, 0, 0)
   return date
 }

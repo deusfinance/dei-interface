@@ -67,7 +67,7 @@ export default function useCoingeckoPrice(id: string, DEFAULT_PRICE: string, for
     if (!forceRevert) {
       fetchPrice()
     }
-  }, [id, forceRevert])
+  }, [id, forceRevert, DEFAULT_PRICE])
 
   return price
 }

@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react'
 import Fuse from 'fuse.js'
 import { useSelect, SelectSearchOption } from 'react-select-search'
 
-import useWeb3React from 'hooks/useWeb3'
 import { useFetchSolidlyPairsCallback } from 'hooks/useSolidlyData'
 import { SolidlyPair } from 'apollo/queries'
 import { Search as SearchIcon } from 'components/Icons'
@@ -27,7 +26,6 @@ function fuzzySearch(options: SelectSearchOption[]): any {
 }
 
 export function useSearch() {
-  const { chainId } = useWeb3React()
   const [solidlyPairs, setSolidlyPairs] = useState<SolidlyPair[]>([])
   const fetchSolidlyPairs = useFetchSolidlyPairsCallback()
 

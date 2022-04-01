@@ -20,10 +20,15 @@ export enum VestOptions {
 }
 
 export function lastThursday(targetDate?: Date): Date {
-  const target = targetDate ? dayjs.utc(targetDate) : dayjs.utc()
+  // We should assume this date is the user's locale => set it to 23:59 and then return the UTC value.
+  const modifiedUTCTarget = targetDate ?? new Date()
+  modifiedUTCTarget.setHours(23, 59)
+  const target = targetDate ? dayjs.utc(modifiedUTCTarget) : dayjs.utc()
+
   const targetWeek = target.day() >= THURSDAY ? target : target.subtract(7, 'days')
-  let date = targetWeek.isoWeekday(THURSDAY).toDate()
-  date.setHours(0, 0, 0, 0)
+  const date = targetWeek.isoWeekday(THURSDAY).toDate()
+
+  date.setHours(23, 59) // I don't even know if this works tbh
   return date
 }
 

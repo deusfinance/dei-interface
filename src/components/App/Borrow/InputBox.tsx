@@ -100,6 +100,7 @@ export default function InputBox({
   const { availableForWithdrawalFactored, availableForWithdrawal } = useAvailableForWithdrawal(pool)
   const withdrawableAmount = new BigNumber(userDebt).isZero() ? availableForWithdrawal : availableForWithdrawalFactored //handling max amount when userDebt is zero
   const availableToBorrow = useAvailableToBorrow(pool)
+
   const [balanceExact, balanceDisplay] = useMemo(() => {
     if (action === BorrowAction.BORROW && isBorrowCurrency) {
       return [

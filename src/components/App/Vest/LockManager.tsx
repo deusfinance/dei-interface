@@ -87,7 +87,7 @@ export default function LockManager({
 
   return (
     <StyledModal isOpen={isOpen} onBackgroundClick={onDismissProxy} onEscapeKeydown={onDismissProxy}>
-      <ModalHeader title="Manage Existing Lock" border onClose={onDismissProxy} />
+      <ModalHeader title={`Manage Existing Lock #${nftId}`} border onClose={onDismissProxy} />
       <ModalInnerWrapper>
         <TabWrapper style={{ gap: '20px' }}>
           <StyledTabButton
@@ -190,6 +190,10 @@ function IncreaseDuration({ nftId }: { nftId: number }) {
     return [getDurationSeconds(selectedDate, RoundMode.ROUND_UP), dayjs.utc(selectedDate).fromNow(true)]
   }, [selectedDate])
 
+  const lockCanIncrease = useMemo(() => {
+    return dayjs(lockEnd).isBefore(getMaximumDate(), 'day')
+  }, [lockEnd])
+
   const onLock = useCallback(async () => {
     try {
       if (!veDEUSContract) return
@@ -235,6 +239,8 @@ function IncreaseDuration({ nftId }: { nftId: number }) {
         <PrimaryButton active>
           Increasing <DotFlashing style={{ marginLeft: '10px' }} />
         </PrimaryButton>
+      ) : !lockCanIncrease ? (
+        <PrimaryButton disabled>Maximum Lock Reached</PrimaryButton>
       ) : (
         <PrimaryButton onClick={onLock}>Increase Duration</PrimaryButton>
       )}

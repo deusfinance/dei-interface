@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { useAppDispatch } from 'state'
 import { ZERO } from '@sushiswap/core-sdk'
+import { darken } from 'polished'
 
 import { useBorrowState, useCurrenciesFromPool } from 'state/borrow/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -29,20 +30,31 @@ import InputBox from './InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import { CardTitle } from 'components/Title'
+import { useCurrencyBalance } from 'state/wallet/hooks'
+import { useUserPoolData } from 'hooks/usePoolData'
 
 const Wrapper = styled(Card)`
   gap: 15px;
+  & > * {
+    &:last-child {
+      margin-top: auto;
+    }
+  }
 `
 
 const Panel = styled.div`
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
-  gap: 10px;
 
   & > * {
     &:first-child {
-      font-size: 18px;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+    &:last-child {
+      font-size: 0.5rem;
+      color: ${({ theme }) => darken(0.4, theme.text1)};
     }
   }
 `
@@ -55,6 +67,8 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   const rpcChangerCallback = useRpcChangerCallback()
   const isSupportedChainId = useSupportedChainId()
   const { collateralCurrency, borrowCurrency } = useCurrenciesFromPool(pool)
+  const borrowCurrencyBalance = useCurrencyBalance(account ?? undefined, borrowCurrency)
+  const { userDebt } = useUserPoolData(pool)
   const borrowState = useBorrowState()
   const { attemptingTxn, showReview, error: borrowStateError } = borrowState
 
@@ -172,9 +186,6 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     if (!isSupportedChainId) {
       return <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
     }
-    if (!isSupportedChainId) {
-      return <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
-    }
     /** *******REMOVE IT IN PRODUCTION******** */
     if (pool.version == LenderVersion.V1 && typedField === TypedField.BORROW && action === BorrowAction.BORROW) {
       return <PrimaryButton disabled>Only add Collateral</PrimaryButton>
@@ -211,11 +222,15 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
             dispatch(setBorrowState({ ...borrowState, typedValue: value || '', typedField: TypedField.COLLATERAL }))
           }}
         />
+        {action === BorrowAction.REPAY && parseFloat(userDebt) && (
+          <div>
+            You won&apos;t be able to withdraw the full collateral because of your debt. When you pay it off you can
+            withdraw the remainder.
+          </div>
+        )}
       </Panel>
       <Panel>
-        <CardTitle>
-          {action === BorrowAction.BORROW ? `Borrow ${borrowCurrency?.symbol}` : `Repay ${borrowCurrency?.symbol}`}
-        </CardTitle>
+        <CardTitle>{action === BorrowAction.BORROW ? `Borrow ${borrowCurrency?.symbol}` : `Repay Debt`}</CardTitle>
         <InputBox
           currency={borrowCurrency}
           pool={pool}
@@ -228,6 +243,12 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
             setPayOff(false)
           }}
         />
+        {action === BorrowAction.REPAY && borrowCurrency && borrowCurrencyBalance && (
+          <div>
+            The above value is your debt. Your available {borrowCurrency.symbol} Balance:{' '}
+            {borrowCurrencyBalance.toSignificant()}
+          </div>
+        )}
       </Panel>
       {getApproveButton()}
       {getActionButton()}

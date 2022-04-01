@@ -14,6 +14,7 @@ import {
   Twitter as TwitterIcon,
   Github as GithubIcon,
   Lock as LockIcon,
+  Droplet as DropletIcon,
 } from 'components/Icons'
 import { Card } from 'components/Card'
 import { NavButton } from 'components/Button'
@@ -95,35 +96,10 @@ export default function Menu() {
             <Row active={router.route === '/liquidity'}>
               <div>Liquidity</div>
               <IconWrapper>
-                <LockIcon size={20} />
+                <DropletIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
-          {/* <Link href="/convert" passHref>
-            <Row onClick={() => toggle()} active={router.route === '/convert'}>
-              <div>Convert</div>
-              <IconWrapper>
-                <TradeIcon size={15} />
-              </IconWrapper>
-            </Row>
-          </Link>
-          <Link href="/vote" passHref>
-            <Row active={router.route === '/vote'}>
-              <div>Vote</div>
-              <IconWrapper>
-                <TradeIcon size={15} />
-              </IconWrapper>
-            </Row>
-          </Link> */}
-          {/* TODO: Find a good icon for it           
-          <Link href="/reimburse" passHref>
-            <Row active={router.route === '/reimburse'}>
-              <div>Reimburse</div>
-              <IconWrapper>
-                <CreditCardIcon size={20} /> 
-              </IconWrapper>
-            </Row>
-          </Link> */}
           <ExternalLink href="https://twitter.com/deusdao">
             <Row onClick={() => toggle()}>
               <div>Twitter</div>

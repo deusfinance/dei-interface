@@ -48,6 +48,31 @@ const Routes = styled.div`
   flex-flow: row nowrap;
   justify-content: center;
   gap: 5px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    & > * {
+      &:nth-child(4) {
+        display: none;
+      }
+    }
+  `};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    & > * {
+      &:nth-child(3) {
+        display: none;
+      }
+    }
+  `};
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    & > * {
+      &:nth-child(1),
+      &:nth-child(2) {
+        display: none;
+      }
+    }
+  `};
 `
 
 const Items = styled.div`
@@ -106,12 +131,6 @@ export default function NavBar() {
       <DefaultWrapper>
         <NavLogo />
         <Routes>
-          {/* <Link href="/convert" passHref>
-            <NavLink active={router.route === '/convert'}>Convert</NavLink>
-          </Link>
-          <Link href="/vote" passHref>
-            <NavLink active={router.route === '/vote'}>Vote</NavLink>
-          </Link> */}
           <Link href="/borrow" passHref>
             <NavLink active={router.route === '/borrow'}>Borrow</NavLink>
           </Link>

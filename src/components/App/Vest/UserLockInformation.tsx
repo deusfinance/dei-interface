@@ -3,14 +3,15 @@ import styled from 'styled-components'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
+import utc from 'dayjs/plugin/utc'
 import BigNumber from 'bignumber.js'
-
 import useWeb3React from 'hooks/useWeb3'
 import { useVestedAPY } from 'hooks/useVested'
 
 import { lastThursday } from 'utils/vest'
 import { formatAmount } from 'utils/numbers'
 
+dayjs.extend(utc)
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
@@ -61,11 +62,11 @@ export default function UserLockInformation({
     return lastThursday(selectedDate)
   }, [selectedDate])
 
-  const lockHasEnded = useMemo(() => dayjs(effectiveDate).isBefore(dayjs()), [effectiveDate])
+  const lockHasEnded = useMemo(() => dayjs.utc(effectiveDate).isBefore(dayjs.utc()), [effectiveDate])
 
   const computedVotingPower: BigNumber = useMemo(() => {
     if (!account || !chainId || !amount) return new BigNumber(0)
-    const effectiveWeek = Math.floor(dayjs(effectiveDate).diff(dayjs(), 'week', true))
+    const effectiveWeek = Math.floor(dayjs.utc(effectiveDate).diff(dayjs.utc(), 'week', true))
     return new BigNumber(amount).times(effectiveWeek).div(208).abs() // 208 = 4 years in weeks
   }, [account, chainId, amount, effectiveDate])
 
@@ -77,7 +78,7 @@ export default function UserLockInformation({
   const { userAPY } = useVestedAPY(undefined, effectiveDate)
 
   const durationUntilTarget: string = useMemo(() => {
-    return dayjs(effectiveDate).fromNow(true)
+    return dayjs.utc(effectiveDate).fromNow(true)
   }, [effectiveDate])
 
   return (
@@ -96,8 +97,8 @@ export default function UserLockInformation({
         {lockHasEnded ? <div>Expired</div> : <div>~ {durationUntilTarget}</div>}
       </Row>
       <Row>
-        <div>Locked until: </div>
-        <div>{dayjs(effectiveDate).format('LL')}</div>
+        <div>Locked until: (UTC)</div>
+        <div>{dayjs.utc(effectiveDate).format('LL')}</div>
       </Row>
     </Wrapper>
   )

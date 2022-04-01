@@ -3,6 +3,8 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 import { ZERO } from '@sushiswap/core-sdk'
 import BigNumber from 'bignumber.js'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -32,6 +34,8 @@ import { PrimaryButton } from 'components/Button'
 import { Card } from 'components/Card'
 import { ArrowBubble, DotFlashing } from 'components/Icons'
 import Disclaimer from 'components/Disclaimer'
+
+dayjs.extend(utc)
 
 const Container = styled.div`
   display: flex;
@@ -97,7 +101,7 @@ export default function Create() {
   const toggleWalletModal = useWalletModalToggle()
   const rpcChangerCallback = useRpcChangerCallback()
   const [typedValue, setTypedValue] = useState('')
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date>(dayjs.utc().toDate())
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false)
   const [pendingTxHash, setPendingTxHash] = useState('')

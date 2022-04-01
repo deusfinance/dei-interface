@@ -91,6 +91,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          <Link href="/liquidity" passHref>
+            <Row active={router.route === '/liquidity'}>
+              <div>Liquidity</div>
+              <IconWrapper>
+                <LockIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           {/* <Link href="/convert" passHref>
             <Row onClick={() => toggle()} active={router.route === '/convert'}>
               <div>Convert</div>

@@ -4,17 +4,46 @@ import CoinGecko from 'coingecko-api'
 import { CoingeckoQueue } from 'utils/queue'
 const CoinGeckoClient = new CoinGecko()
 
-export enum SymbolIdentifiers {
-  DEUS = 'deus-finance-2',
+export const SymbolIdentifiers: {
+  [x: string]: string
+} = {
+  BEETS: 'beethoven-x',
+  BTC: 'bitcoin',
+  BOO: 'spookyswap',
+  DAI: 'dai',
+  DEI: 'dei-token',
+  DEUS: 'deus-finance-2',
+  FTM: 'fantom',
+  LQDR: 'liquiddriver',
+  MIM: 'magic-internet-money',
+  MIMATIC: 'mimatic',
+  OXD: '0xdao',
+  OXSOLID: 'oxsolid',
+  SCREAM: 'scream',
+  SPELL: 'spell-token',
+  SOLID: 'solidly',
+  SOLIDsex: 'solidsex-tokenized-vesolid',
+  TOMB: 'tomb',
+  USDC: 'usd-coin',
+  WBTC: 'bitcoin',
+  WFTM: 'fantom',
 }
 
 export function useDeusPrice() {
-  return useCoingeckoPrice(SymbolIdentifiers.DEUS)
+  return useCoingeckoPrice(SymbolIdentifiers.DEUS, '700')
 }
 
-const DEFAULT_PRICE = '400'
+export function useSolidPrice() {
+  return useCoingeckoPrice(SymbolIdentifiers.SOLID, '2')
+}
 
-export default function useCoingeckoPrice(symbol: string): string {
+export function useCustomCoingeckoPrice(symbol: string) {
+  const valid = symbol in SymbolIdentifiers
+  return useCoingeckoPrice(valid ? SymbolIdentifiers[symbol] : '', '0', !valid)
+}
+
+// TODO add this to global state, so we don't refetch prices.
+export default function useCoingeckoPrice(id: string, DEFAULT_PRICE: string, forceRevert?: boolean): string {
   const [price, setPrice] = useState(DEFAULT_PRICE)
 
   useEffect(() => {
@@ -22,20 +51,23 @@ export default function useCoingeckoPrice(symbol: string): string {
       CoingeckoQueue.add(async () => {
         try {
           const result = await CoinGeckoClient.simple.price({
-            ids: [symbol],
+            ids: [id],
             vs_currencies: ['usd'],
           })
-          const price: number = result?.data?.[symbol]?.usd ?? 0
+
+          const price: number = result?.data?.[id]?.usd ?? 0
           setPrice(price.toString())
         } catch (err) {
-          console.log('Unable to fetch coingecko price:')
+          console.log('Unable to fetch Coingecko price:')
           console.error(err)
           setPrice(DEFAULT_PRICE)
         }
       })
     }
-    fetchPrice()
-  }, [symbol])
+    if (!forceRevert) {
+      fetchPrice()
+    }
+  }, [id, forceRevert])
 
   return price
 }

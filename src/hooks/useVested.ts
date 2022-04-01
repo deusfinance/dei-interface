@@ -1,12 +1,15 @@
 import { useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import BigNumber from 'bignumber.js'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { useSupportedChainId } from './useSupportedChainId'
 import { useVeDeusContract } from './useContract'
 import { useDeusPrice } from './useCoingeckoPrice'
+
+dayjs.extend(utc)
 
 export function useVestedInformation(nftId: number): {
   deusAmount: string
@@ -41,7 +44,7 @@ export function useVestedInformation(nftId: number): {
       lockEnd:
         calls.length && lockedResult?.result
           ? dayjs.unix(Number(formatUnits(lockedResult.result[1], 0))).toDate()
-          : new Date(),
+          : dayjs.utc().toDate(),
     }),
     [calls, balanceResult, lockedResult]
   )
@@ -126,7 +129,7 @@ export function useVestedAPY(
   }, [totalValueToVeDEUS, totalVeDEUS, deusPrice])
 
   const userAPY: BigNumber = useMemo(() => {
-    const lockDurationInDays = Math.abs(dayjs().diff(effectiveLockEnd, 'day'))
+    const lockDurationInDays = Math.abs(dayjs.utc().diff(effectiveLockEnd, 'day'))
     return new BigNumber(lockDurationInDays).div(365 * 4).times(globalAPY)
   }, [effectiveLockEnd, globalAPY])
 

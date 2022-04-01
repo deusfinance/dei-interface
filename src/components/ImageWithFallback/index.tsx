@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import styled from 'styled-components'
 
+import NotFound from '/public/static/images/fallback/not_found.png'
+
 const Wrapper = styled.div<{
   round?: boolean
 }>`
@@ -41,7 +43,7 @@ export default function ImageWithFallback({
 
   return (
     <Wrapper round={round}>
-      <Image src={imgSrc} alt={alt} width={width} height={height} {...rest} />
+      <Image src={imgSrc} alt={alt} width={width} height={height} onError={() => setImgSrc(NotFound.src)} {...rest} />
     </Wrapper>
   )
 }

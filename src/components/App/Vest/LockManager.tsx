@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { ZERO } from '@sushiswap/core-sdk'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
-
+import utc from 'dayjs/plugin/utc'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useHasPendingVest, useTransactionAdder } from 'state/transactions/hooks'
 import { useCurrency } from 'hooks/useCurrency'
@@ -23,6 +23,8 @@ import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import InputDate, { IncreaseDatePresets } from './InputDate'
 import UserLockInformation from './UserLockInformation'
+
+dayjs.extend(utc)
 
 const StyledModal = styled(Modal)`
   overflow: visible; // date picker needs an overflow
@@ -185,7 +187,7 @@ function IncreaseDuration({ nftId }: { nftId: number }) {
   const minimumDate = useMemo(() => getMinimumDateByLockEnd(lockEnd), [lockEnd])
   const [selectedDate, setSelectedDate] = useState<Date>(minimumDate)
   const [duration, selectedDateLabel] = useMemo(() => {
-    return [getDurationSeconds(selectedDate, RoundMode.ROUND_UP), dayjs(selectedDate).fromNow(true)]
+    return [getDurationSeconds(selectedDate, RoundMode.ROUND_UP), dayjs.utc(selectedDate).fromNow(true)]
   }, [selectedDate])
 
   const onLock = useCallback(async () => {

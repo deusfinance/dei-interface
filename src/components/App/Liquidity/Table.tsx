@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { darken } from 'polished'
 import BigNumber from 'bignumber.js'
+import { areEqual } from 'react-window'
 
 import Pagination from 'components/Pagination'
 import { DualImageWrapper } from 'components/DualImage'
@@ -165,7 +166,7 @@ const NameWrapper = styled.div`
   }
 `
 
-const itemsPerPage = 20
+const itemsPerPage = 5
 export default function Table({ options }: { options: SolidlyPair[] }) {
   const [offset, setOffset] = useState(0)
 
@@ -198,7 +199,7 @@ export default function Table({ options }: { options: SolidlyPair[] }) {
         </Head>
         <tbody>
           {paginatedOptions.length > 0 &&
-            paginatedOptions.map((pair: SolidlyPair, index) => <TableRow key={index} pair={pair} />)}
+            paginatedOptions.map((pair: SolidlyPair, index) => <MemoTableRow key={index} pair={pair} />)}
         </tbody>
       </TableWrapper>
       {paginatedOptions.length == 0 && <NoResults>No Results Found</NoResults>}
@@ -206,6 +207,8 @@ export default function Table({ options }: { options: SolidlyPair[] }) {
     </Wrapper>
   )
 }
+
+const MemoTableRow = React.memo(TableRow, areEqual)
 
 function TableRow({ pair }: { pair: SolidlyPair }) {
   const logoOne = useCurrencyLogo(pair.token0.symbol)

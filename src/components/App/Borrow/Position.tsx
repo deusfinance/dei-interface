@@ -4,10 +4,13 @@ import BigNumber from 'bignumber.js'
 
 import { BorrowPool } from 'state/borrow/reducer'
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
+
+import useWeb3React from 'hooks/useWeb3'
 import {
   useAvailableToBorrow,
   useCollateralPrice,
   useGlobalPoolData,
+  useHealthRatio,
   useLiquidationPrice,
   useUserPoolData,
 } from 'hooks/usePoolData'
@@ -20,7 +23,6 @@ import { DotFlashing, Info } from 'components/Icons'
 import { CardTitle } from 'components/Title'
 import { ToolTip } from 'components/ToolTip'
 import { PrimaryButton } from 'components/Button'
-import useWeb3React from '../../../hooks/useWeb3'
 
 const Wrapper = styled(Card)`
   display: flex;
@@ -59,6 +61,14 @@ const Row = styled.div`
     }
   }
 `
+//TODO: it hurt my brain to make it just with {color && theme[color]}, but i didn't find a good way without TS type warning!
+const RowValue = styled.div<{
+  color?: string
+}>`
+  color: ${({ theme, color }) =>
+    color &&
+    ((color == 'green1' && theme.green1) || (color == 'red1' && theme.red1) || (color == 'yellow2' && theme.yellow2))};
+`
 
 const SubLabel = styled.div`
   font-size: 0.5rem;
@@ -77,6 +87,8 @@ export default function Position({ pool }: { pool: BorrowPool }) {
   const { maxCap, borrowedElastic, borrowFee } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
   const liquidationPrice = useLiquidationPrice(pool)
+  const [healthRatio, healthColor] = useHealthRatio(pool)
+
   const generalLender = useGeneralLenderContract(pool)
   const { balance0, balance1 } = useLPData(pool, userHolder)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
@@ -128,6 +140,12 @@ export default function Position({ pool }: { pool: BorrowPool }) {
         explanation="Total Remaining Capacity for borrowing DEI"
       />
       <PositionRow
+        label="Health Ratio"
+        value={healthRatio}
+        color={healthColor}
+        explanation={`${healthRatio} is your current health in your Position.`}
+      />
+      <PositionRow
         label="Collateral Deposited"
         value={formatAmount(parseFloat(userCollateral), 4)}
         explanation="Amount of Tokens Deposited as Collateral"
@@ -177,11 +195,13 @@ function PositionRow({
   subLabel,
   value,
   explanation,
+  color,
 }: {
   label: string
   subLabel?: string
   value: string
   explanation: string
+  color?: string
 }) {
   return (
     <Column>
@@ -189,7 +209,7 @@ function PositionRow({
         <ToolTip id="id" />
         <Info data-for="id" data-tip={explanation} size={15} />
         <div>{label}</div>
-        <div>{value}</div>
+        <RowValue color={color}>{value}</RowValue>
       </Row>
       {subLabel && <SubLabel>{subLabel}</SubLabel>}
     </Column>

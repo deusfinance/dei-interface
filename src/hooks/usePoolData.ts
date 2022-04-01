@@ -257,7 +257,7 @@ export function useAvailableToBorrow(pool: BorrowPool): string {
   const collateralPrice = useCollateralPrice(pool)
   const { availableForWithdrawal } = useAvailableForWithdrawal(pool)
 
-  const borrowFeeMultipler = useMemo(() => {
+  const borrowFeeMultiplier = useMemo(() => {
     return ONE_HUNDRED_PERCENT.subtract(borrowFee).divide(100).toSignificant()
   }, [borrowFee])
 
@@ -269,16 +269,15 @@ export function useAvailableToBorrow(pool: BorrowPool): string {
       .times(collateralPrice)
       .times(liquidationRatio.toSignificant())
       .div(100)
-      .times(borrowFeeMultipler)
+      .times(borrowFeeMultiplier)
       .times(1 - 0.005) //1 - health ratio
       .toPrecision(pool.contract.decimals)
-  }, [userCollateral, liquidationRatio, availableForWithdrawal, collateralPrice, pool, borrowFeeMultipler])
+  }, [userCollateral, liquidationRatio, availableForWithdrawal, collateralPrice, pool, borrowFeeMultiplier])
 }
 
 export function useLiquidationPrice(pool: BorrowPool): string {
   const { liquidationRatio } = useGlobalPoolData(pool)
   const { userCollateral, userDebt } = useUserPoolData(pool)
-
   return useMemo(() => {
     if (!liquidationRatio || !parseFloat(userCollateral) || !parseFloat(userDebt)) {
       return '0'
@@ -290,4 +289,27 @@ export function useLiquidationPrice(pool: BorrowPool): string {
 
     return liquidationPrice.toPrecision(pool.contract.decimals)
   }, [userCollateral, userDebt, liquidationRatio, pool])
+}
+
+export function useHealthRatio(pool: BorrowPool): [string, string] {
+  const liquidationPrice = useLiquidationPrice(pool)
+  const collateralPrice = useCollateralPrice(pool)
+  const { userCollateral } = useUserPoolData(pool)
+
+  return useMemo(() => {
+    if (userCollateral && parseFloat(userCollateral) && parseFloat(liquidationPrice) == 0) return ['100%', 'green1']
+    if (!liquidationPrice || !collateralPrice || !parseFloat(liquidationPrice) || !parseFloat(collateralPrice)) {
+      return ['0', '']
+    }
+
+    const deathRatio = new BigNumber(liquidationPrice).div(collateralPrice)
+    const healthRatio = new BigNumber(1).minus(deathRatio).times(100)
+
+    let color = ''
+    if (healthRatio.gte(70)) color = 'green1'
+    else if (healthRatio.gte(40)) color = 'yellow2'
+    else color = 'red1'
+
+    return [healthRatio.toFixed(0) + '%', color]
+  }, [liquidationPrice, collateralPrice, userCollateral])
 }

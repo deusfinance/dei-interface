@@ -64,7 +64,7 @@ export function SearchField({ searchProps }: { searchProps: any }) {
         title="Search"
         autoFocus
         type="text"
-        placeholder="Search for a pool..."
+        placeholder="Search for a pool, symbol or contract"
         spellCheck="false"
         onBlur={() => null}
       />

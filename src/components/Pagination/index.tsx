@@ -9,6 +9,7 @@ const Wrapper = styled.div`
     display: flex;
     justify-content: center;
     list-style-type: none;
+    align-items: flex-end;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -17,7 +18,7 @@ const Wrapper = styled.div`
     }
     & > li a {
       display: block;
-      text-align: center;
+      text-align: bottom;
       padding: 1rem;
       text-decoration: none;
       :hover {
@@ -33,8 +34,10 @@ const Wrapper = styled.div`
   }
   .active {
     & > * {
+      font-size: 1rem;
       font-weight: 700;
       background: ${({ theme }) => theme.bg1};
+      color: ${({ theme }) => theme.primary3};
     }
   }
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -54,11 +57,11 @@ export default function Pagination({
       <ReactPaginate
         previousLabel={'←'}
         nextLabel={'→'}
-        breakLabel={'..'}
+        breakLabel={''}
         breakClassName={'break'}
         pageCount={pageCount}
-        marginPagesDisplayed={3} // how much to show at the beginning and end (using 2) => Previous 1, 2, .. , 9, 10 Next
-        pageRangeDisplayed={3} // how much to show left and right from the current page (using 2) => Previous 1, 2 .. 9 10 (11) 12 13 ... 23 24 Next
+        marginPagesDisplayed={0} // how much to show at the beginning and end (using 2) => Previous 1, 2, .. , 9, 10 Next
+        pageRangeDisplayed={4} // how much to show left and right from the current page (using 2) => Previous 1, 2 .. 9 10 (11) 12 13 ... 23 24 Next
         onPageChange={onPageChange}
         containerClassName={'pagination'}
         activeClassName={'active'}

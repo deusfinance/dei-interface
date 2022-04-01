@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import dayjs from 'dayjs'
-
+import utc from 'dayjs/plugin/utc'
 import { useVestedAPY, useVestedInformation } from 'hooks/useVested'
 import { useDeusPrice } from 'hooks/useCoingeckoPrice'
 
@@ -10,6 +10,8 @@ import { formatAmount, formatDollarAmount } from 'utils/numbers'
 import { HorPartition } from 'components/Partition'
 import { PrimaryButton } from 'components/Button'
 import { Modal, ModalHeader } from 'components/Modal'
+
+dayjs.extend(utc)
 
 const StyledModal = styled(Modal)`
   overflow: visible; // date picker needs an overflow
@@ -90,8 +92,10 @@ export default function APYManager({
       <ModalInnerWrapper>
         <Title>APY Breakdown</Title>
         <Row>
-          <div>Lock End:</div>
-          <div>{dayjs(lockEnd).format('LL')}</div>
+          <div>
+            Lock End: <span>(UTC)</span>
+          </div>
+          <div>{dayjs.utc(lockEnd).format('LL')}</div>
         </Row>
         <Row>
           <div>Locked Amount:</div>

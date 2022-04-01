@@ -4,12 +4,14 @@ import DatePicker from 'react-datepicker'
 import { Calendar } from 'react-feather'
 import { darken, lighten } from 'polished'
 import dayjs from 'dayjs'
-
+import utc from 'dayjs/plugin/utc'
 import Box from 'components/Box'
 import { RowCenter } from 'components/Row'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import { addMonth, addWeek, addYear, VestOptions } from 'utils/vest'
+
+dayjs.extend(utc)
 
 const Wrapper = styled(Box)`
   justify-content: flex-start;
@@ -181,16 +183,16 @@ export function SelectDatePresets({
   return (
     <ExpirationWrapper>
       <Label>Expiration:</Label>
-      <Toggle selected={dayjs(selectedDate).isSame(minimumDate, 'day')} onClick={() => onSelect(VestOptions.MIN)}>
+      <Toggle selected={dayjs.utc(selectedDate).isSame(minimumDate, 'day')} onClick={() => onSelect(VestOptions.MIN)}>
         1 Week
       </Toggle>
-      <Toggle selected={dayjs(selectedDate).isSame(addMonth(), 'day')} onClick={() => onSelect(VestOptions.MONTH)}>
+      <Toggle selected={dayjs.utc(selectedDate).isSame(addMonth(), 'day')} onClick={() => onSelect(VestOptions.MONTH)}>
         1 Month
       </Toggle>
-      <Toggle selected={dayjs(selectedDate).isSame(addYear(), 'day')} onClick={() => onSelect(VestOptions.YEAR)}>
+      <Toggle selected={dayjs.utc(selectedDate).isSame(addYear(), 'day')} onClick={() => onSelect(VestOptions.YEAR)}>
         1 Year
       </Toggle>
-      <Toggle selected={dayjs(selectedDate).isSame(maximumDate, 'day')} onClick={() => onSelect(VestOptions.MAX)}>
+      <Toggle selected={dayjs.utc(selectedDate).isSame(maximumDate, 'day')} onClick={() => onSelect(VestOptions.MAX)}>
         4 Years
       </Toggle>
     </ExpirationWrapper>
@@ -212,9 +214,9 @@ export function IncreaseDatePresets({
 }) {
   const [showMinimum, showMonth, showYear, showMax] = useMemo(() => {
     return [
-      dayjs(minimumDate).isBefore(dayjs().add(14, 'days'), 'day'),
-      dayjs(addMonth(lockEnd)).isBefore(maximumDate, 'day'),
-      dayjs(addYear(lockEnd)).isBefore(maximumDate, 'day'),
+      dayjs.utc(minimumDate).isBefore(dayjs.utc().add(14, 'days'), 'day'),
+      dayjs.utc(addMonth(lockEnd)).isBefore(maximumDate, 'day'),
+      dayjs.utc(addYear(lockEnd)).isBefore(maximumDate, 'day'),
       true,
     ]
   }, [lockEnd, minimumDate, maximumDate])
@@ -236,13 +238,13 @@ export function IncreaseDatePresets({
     <ExpirationWrapper>
       <Label>Add Expiration:</Label>
       {showMinimum && (
-        <Toggle selected={dayjs(selectedDate).isSame(minimumDate, 'day')} onClick={() => onSelect(VestOptions.MIN)}>
-          {dayjs(addWeek(lockEnd)).fromNow(true)}
+        <Toggle selected={dayjs.utc(selectedDate).isSame(minimumDate, 'day')} onClick={() => onSelect(VestOptions.MIN)}>
+          {dayjs.utc(addWeek(lockEnd)).fromNow(true)}
         </Toggle>
       )}
       {showMonth && (
         <Toggle
-          selected={dayjs(selectedDate).isSame(addMonth(lockEnd), 'day')}
+          selected={dayjs.utc(selectedDate).isSame(addMonth(lockEnd), 'day')}
           onClick={() => onSelect(VestOptions.MONTH)}
         >
           1 Month
@@ -250,14 +252,14 @@ export function IncreaseDatePresets({
       )}
       {showYear && (
         <Toggle
-          selected={dayjs(selectedDate).isSame(addYear(lockEnd), 'day')}
+          selected={dayjs.utc(selectedDate).isSame(addYear(lockEnd), 'day')}
           onClick={() => onSelect(VestOptions.YEAR)}
         >
           1 Year
         </Toggle>
       )}
       {showMax && (
-        <Toggle selected={dayjs(selectedDate).isSame(maximumDate, 'day')} onClick={() => onSelect(VestOptions.MAX)}>
+        <Toggle selected={dayjs.utc(selectedDate).isSame(maximumDate, 'day')} onClick={() => onSelect(VestOptions.MAX)}>
           Max
         </Toggle>
       )}

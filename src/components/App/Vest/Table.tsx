@@ -3,9 +3,7 @@ import styled from 'styled-components'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
-
-dayjs.extend(relativeTime)
-dayjs.extend(localizedFormat)
+import utc from 'dayjs/plugin/utc'
 
 import { useVeDeusContract } from 'hooks/useContract'
 import { useHasPendingVest, useTransactionAdder } from 'state/transactions/hooks'
@@ -20,6 +18,10 @@ import { DotFlashing, Info } from 'components/Icons'
 
 import DEUS_LOGO from '/public/static/images/tokens/deus.svg'
 import { formatAmount } from 'utils/numbers'
+
+dayjs.extend(utc)
+dayjs.extend(relativeTime)
+dayjs.extend(localizedFormat)
 
 const Wrapper = styled.div`
   display: flex;
@@ -170,7 +172,7 @@ function TableRow({
   const addTransaction = useTransactionAdder()
   const showTransactionPending = useHasPendingVest(pendingTxHash)
 
-  const lockHasEnded = useMemo(() => dayjs(lockEnd).isBefore(dayjs().subtract(10, 'seconds')), [lockEnd]) // subtracting 10 seconds to mitigate this from being true on page load
+  const lockHasEnded = useMemo(() => dayjs.utc(lockEnd).isBefore(dayjs.utc().subtract(10, 'seconds')), [lockEnd]) // subtracting 10 seconds to mitigate this from being true on page load
 
   const onWithdraw = useCallback(async () => {
     try {
@@ -191,8 +193,8 @@ function TableRow({
     if (!lockHasEnded) {
       return (
         <CellWrap>
-          <CellAmount>{dayjs(lockEnd).format('LLL')}</CellAmount>
-          <CellDescription>Expires in {dayjs(lockEnd).fromNow(true)}</CellDescription>
+          <CellAmount>{dayjs.utc(lockEnd).format('LLL')}</CellAmount>
+          <CellDescription>Expires in {dayjs.utc(lockEnd).fromNow(true)}</CellDescription>
         </CellWrap>
       )
     }

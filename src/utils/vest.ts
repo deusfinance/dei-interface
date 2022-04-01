@@ -1,6 +1,8 @@
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import isoWeek from 'dayjs/plugin/isoWeek'
 
+dayjs.extend(utc)
 dayjs.extend(isoWeek)
 
 /**
@@ -17,8 +19,8 @@ export enum VestOptions {
   MAX,
 }
 
-export function lastThursday(targetDate: Date): Date {
-  const target = dayjs(targetDate)
+export function lastThursday(targetDate?: Date): Date {
+  const target = targetDate ? dayjs.utc(targetDate) : dayjs.utc()
   const targetWeek = target.day() >= THURSDAY ? target : target.subtract(7, 'days')
   let date = targetWeek.isoWeekday(THURSDAY).toDate()
   date.setHours(0, 0, 0, 0)
@@ -26,43 +28,43 @@ export function lastThursday(targetDate: Date): Date {
 }
 
 export function getMinimumDate(lockEnd?: Date): Date {
-  const now = lockEnd ? dayjs(lockEnd) : dayjs()
+  const now = lockEnd ? dayjs.utc(lockEnd) : dayjs.utc()
   const day = now.day()
 
   // if we haven't yet passed Thursday
   if (day < THURSDAY) {
     // then just return this week's instance of Thursday
-    return dayjs().isoWeekday(THURSDAY).toDate()
+    return dayjs.utc().isoWeekday(THURSDAY).toDate()
   }
   // otherwise, return *next week's* instance
-  return dayjs().add(7, 'day').isoWeekday(THURSDAY).toDate()
+  return dayjs.utc().add(7, 'day').isoWeekday(THURSDAY).toDate()
 }
 
 export function getMaximumDate(): Date {
-  const target = dayjs().add(365 * 4, 'day')
+  const target = dayjs.utc().add(365 * 4, 'day')
   return lastThursday(target.toDate())
 }
 
 export function getMinimumDateByLockEnd(lockEnd: Date): Date {
   const minimum = addWeek(lockEnd)
   const maximum = getMaximumDate()
-  return dayjs(minimum).isBefore(maximum, 'day') ? minimum : maximum
+  return dayjs.utc(minimum).isBefore(maximum, 'day') ? minimum : maximum
 }
 
 export function addWeek(startDate: Date): Date {
-  const date = startDate ? dayjs(startDate) : dayjs()
+  const date = startDate ? dayjs.utc(startDate) : dayjs.utc()
   const target = date.add(7, 'day')
   return lastThursday(target.toDate())
 }
 
 export function addMonth(startDate?: Date): Date {
-  const date = startDate ? dayjs(startDate) : dayjs()
+  const date = startDate ? dayjs.utc(startDate) : dayjs.utc()
   const target = date.add(30, 'day')
   return lastThursday(target.toDate())
 }
 
 export function addYear(startDate?: Date): Date {
-  const date = startDate ? dayjs(startDate) : dayjs()
+  const date = startDate ? dayjs.utc(startDate) : dayjs.utc()
   const target = date.add(365, 'day')
   return lastThursday(target.toDate())
 }

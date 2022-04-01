@@ -16,9 +16,25 @@ import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
 import SOLIDEX_LP_DEPOSITOR_ABI from 'constants/abi/SOLIDEX_LP_DEPOSITOR.json'
 import VEDEUS_ABI from 'constants/abi/VEDEUS.json'
 import REIMBURSE_ABI from 'constants/abi/REIMBURSE.json'
+import BASE_V1_FACTORY_ABI from 'constants/abi/BASE_V1_FACTORY.json'
+import BASE_V1_PAIR_ABI from 'constants/abi/BASE_V1_PAIR.json'
+import BASE_V1_VOTER_ABI from 'constants/abi/BASE_V1_VOTER.json'
+import BASE_V1_GAUGE_ABI from 'constants/abi/BASE_V1_GAUGE.json'
+import BASE_V1_BRIBE_ABI from 'constants/abi/BASE_V1_BRIBE.json'
+import BASE_V1_MINTER_ABI from 'constants/abi/BASE_V1_MINTER.json'
 
 import { Providers } from 'constants/providers'
-import { LenderManager, Multicall2, SolidexLpDepositor, Reimburse, veDEUS } from 'constants/addresses'
+import {
+  LenderManager,
+  Multicall2,
+  SolidexLpDepositor,
+  Reimburse,
+  veDEUS,
+  BaseV1Factory,
+  BaseV1Voter,
+  ZERO_ADDRESS,
+  BaseV1Minter,
+} from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
 export function useContract<T extends Contract = Contract>(
@@ -33,7 +49,7 @@ export function useContract<T extends Contract = Contract>(
     let address: string | undefined
     if (typeof addressOrAddressMap === 'string') address = addressOrAddressMap
     else address = addressOrAddressMap[chainId]
-    if (!address) return null
+    if (!address || address === ZERO_ADDRESS) return null
     try {
       return getContract(address, ABI, library, withSignerIfPossible && account ? account : undefined)
     } catch (error) {
@@ -54,6 +70,36 @@ export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossi
 export function useGeneralLenderContract(pool: BorrowPool) {
   const ABI = pool.version == LenderVersion.V1 ? GENERAL_LENDER_ABI : GENERAL_LENDER_V2_ABI
   return useContract(pool.generalLender, ABI)
+}
+
+export function useBaseV1FactoryContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? BaseV1Factory[chainId] : undefined), [chainId])
+  return useContract(address, BASE_V1_FACTORY_ABI)
+}
+
+export function useBaseV1MinterContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? BaseV1Minter[chainId] : undefined), [chainId])
+  return useContract(address, BASE_V1_MINTER_ABI)
+}
+
+export function useBaseV1VoterContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? BaseV1Voter[chainId] : undefined), [chainId])
+  return useContract(address, BASE_V1_VOTER_ABI)
+}
+
+export function useBaseV1PairContract(address: string) {
+  return useContract(address, BASE_V1_PAIR_ABI)
+}
+
+export function useBaseV1GaugeContract(address: string) {
+  return useContract(address, BASE_V1_GAUGE_ABI)
+}
+
+export function useBaseV1BribeContract(address: string) {
+  return useContract(address, BASE_V1_BRIBE_ABI)
 }
 
 export function useReimburseContract() {

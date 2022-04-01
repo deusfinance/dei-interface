@@ -21,19 +21,21 @@ export default function Copy({
   toCopy,
   text,
   placement = 'left',
+  noFeedback,
 }: {
   toCopy: string
-  text: any
+  text?: any
   placement?: 'left' | 'right'
+  noFeedback?: boolean
 }): JSX.Element {
   const [isCopied, setCopied] = useCopyClipboard()
   const theme = useTheme()
 
   return isCopied ? (
     <Wrapper>
-      {placement == 'right' && 'Copied'}
+      {placement == 'right' && !noFeedback && 'Copied'}
       <CheckMark size={12} />
-      {placement == 'left' && 'Copied'}
+      {placement == 'left' && !noFeedback && 'Copied'}
     </Wrapper>
   ) : (
     <Wrapper onClick={() => setCopied(toCopy)}>

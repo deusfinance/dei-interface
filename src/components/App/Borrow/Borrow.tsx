@@ -222,7 +222,7 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
             dispatch(setBorrowState({ ...borrowState, typedValue: value || '', typedField: TypedField.COLLATERAL }))
           }}
         />
-        {action === BorrowAction.REPAY && parseFloat(userDebt) && (
+        {action === BorrowAction.REPAY && !!parseFloat(userDebt) && (
           <div>
             You won&apos;t be able to withdraw the full collateral because of your debt. When you pay it off you can
             withdraw the remainder.

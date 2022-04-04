@@ -45,8 +45,8 @@ export default function Reimburse() {
   return (
     <Container>
       <Hero>
-        <div>Reimago DEI</div>
-        <HeroSubtext>Reimbursements for recently affected users.</HeroSubtext>
+        <div>Rewards</div>
+        <HeroSubtext>Claim your reminded rewards from old lenders</HeroSubtext>
       </Hero>
       <Wrapper>
         <Table options={snapshot.options as unknown as BorrowPool[]} />

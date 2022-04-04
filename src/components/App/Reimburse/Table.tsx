@@ -1,14 +1,13 @@
 import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
 
-import { useCurrenciesFromPool } from 'state/borrow/hooks'
 import { BorrowPool } from 'state/borrow/reducer'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useLPData } from 'hooks/useLPData'
-import { useReimburseContract } from 'hooks/useContract'
+import { useUserPoolData } from 'hooks/usePoolData'
+import { useGeneralLenderContract } from 'hooks/useContract'
 import useWeb3React from 'hooks/useWeb3'
-import { useReimburse } from 'hooks/useReimburse'
 
 import { PrimaryButton } from 'components/Button'
 import { DualImageWrapper } from 'components/DualImage'
@@ -53,12 +52,6 @@ const Cel = styled.td<{
   padding: 5px;
   border: 1px solid ${({ theme }) => theme.border1};
   height: 90px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    :nth-child(3),
-    :nth-child(4) {
-      display: none;
-    }
-  `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     :nth-child(2) {
       display: none;
@@ -73,13 +66,14 @@ export default function Table({ options }: { options: BorrowPool[] }) {
         <Head>
           <tr>
             <Cel>Composition</Cel>
-            <Cel>Your Outstanding Debt</Cel>
-            <Cel>Your Collateral</Cel>
             <Cel>Your Rewards</Cel>
             <Cel>Claim Rewards</Cel>
           </tr>
         </Head>
-        <tbody>{options.length && <TableRow key={0} pool={options[0]} />}</tbody>
+        {/* <tbody>{options.length && <TableRow key={0} pool={options[0]} />}</tbody> */}
+        <tbody>
+          {options.length && options.map((pool: BorrowPool, index) => <TableRow key={index} pool={pool} />)}
+        </tbody>
       </TableWrapper>
     </Wrapper>
   )
@@ -87,27 +81,25 @@ export default function Table({ options }: { options: BorrowPool[] }) {
 
 function TableRow({ pool }: { pool: BorrowPool }) {
   const { account } = useWeb3React()
-  const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const logoOne = useCurrencyLogo(pool.token0.address)
   const logoTwo = useCurrencyLogo(pool.token1.address)
 
-  const { userHolder, userCollateral, userRepay } = useReimburse(pool)
+  const { userHolder } = useUserPoolData(pool)
   const { balance0, balance1 } = useLPData(pool, userHolder)
-  const reimburseContract = useReimburseContract()
-
+  const generalLender = useGeneralLenderContract(pool)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState(false)
 
   const onClaim = useCallback(async () => {
     try {
-      if (!reimburseContract || !account) return
+      if (!generalLender || !account) return
       setAwaitingClaimConfirmation(true)
-      await reimburseContract.claimAndWithdraw([pool.lpPool], account)
+      await generalLender.claimAndWithdraw([pool.lpPool], account)
       setAwaitingClaimConfirmation(false)
     } catch (err) {
       console.error(err)
       setAwaitingClaimConfirmation(false)
     }
-  }, [reimburseContract, pool, account])
+  }, [generalLender, pool, account])
 
   function getClaimButton() {
     if (awaitingClaimConfirmation) {
@@ -130,14 +122,10 @@ function TableRow({ pool }: { pool: BorrowPool }) {
         </DualImageWrapper>
       </Cel>
       <Cel>
-        {formatAmount(parseFloat(userRepay), 4)} {borrowCurrency?.symbol}
-      </Cel>
-      <Cel>{formatAmount(parseFloat(userCollateral), 5)}</Cel>
-      <Cel>
         {formatAmount(parseFloat(balance0))} SOLID <br />
         {formatAmount(parseFloat(balance1))} SEX
       </Cel>
-      <Cel style={{ padding: '5px 10px' }}>{getClaimButton()}</Cel>
+      <Cel style={{ padding: '15px 30px' }}>{getClaimButton()}</Cel>
     </Row>
   )
 }

@@ -137,9 +137,9 @@ export default function NavBar() {
           <Link href="/vest" passHref>
             <NavLink active={router.route === '/vest'}>Vest</NavLink>
           </Link>
-          <Link href="/reimburse" passHref>
+          {/* <Link href="/reimburse" passHref>
             <NavLink active={router.route === '/reimburse'}>Reimburse</NavLink>
-          </Link>
+          </Link> */}
           <Link href="/liquidity" passHref>
             <NavLink active={router.route === '/liquidity'}>Liquidity</NavLink>
           </Link>

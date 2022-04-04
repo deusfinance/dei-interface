@@ -36,7 +36,7 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     abi: BASE_V1_MAIN_PAIR,
     composition: 'DEI/DEUS',
     oracle: '0x9f3C610a731809b6F7630B187777c66194EDf27b',
-    generalLender: '0x6d9d6A0b927FE954700b29380ae7b1B118f58BF1',
+    generalLender: '0x118FF56bb12E5E0EfC14454B8D7Fa6009487D64E',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
     mintHelper: '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
     type: 'Solidex LP Token',

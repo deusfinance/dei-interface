@@ -291,25 +291,37 @@ export function useLiquidationPrice(pool: BorrowPool): string {
   }, [userCollateral, userDebt, liquidationRatio, pool])
 }
 
-export function useHealthRatio(pool: BorrowPool): [string, string] {
+export function useHealthRatio(pool: BorrowPool): [string, string, string] {
   const liquidationPrice = useLiquidationPrice(pool)
   const collateralPrice = useCollateralPrice(pool)
   const { userCollateral } = useUserPoolData(pool)
 
   return useMemo(() => {
-    if (userCollateral && parseFloat(userCollateral) && parseFloat(liquidationPrice) == 0) return ['100%', 'green1']
+    if (userCollateral && parseFloat(userCollateral) && parseFloat(liquidationPrice) == 0)
+      return ['100%', 'green1', 'safe']
     if (!liquidationPrice || !collateralPrice || !parseFloat(liquidationPrice) || !parseFloat(collateralPrice)) {
-      return ['0', '']
+      return ['0', '', '']
     }
 
     const deathRatio = new BigNumber(liquidationPrice).div(collateralPrice)
     const healthRatio = new BigNumber(1).minus(deathRatio).times(100)
 
     let color = ''
-    if (healthRatio.gte(70)) color = 'green1'
-    else if (healthRatio.gte(40)) color = 'yellow2'
-    else color = 'red1'
+    let text = ''
+    if (healthRatio.gte(70)) {
+      color = 'green1'
+      text = 'safe'
+    } else if (healthRatio.gte(40)) {
+      color = 'yellow2'
+      text = 'medium'
+    } else if (healthRatio.gte(25)) {
+      color = 'yellow2'
+      text = 'risky'
+    } else {
+      color = 'red1'
+      text = 'very risky'
+    }
 
-    return [healthRatio.toFixed(0) + '%', color]
+    return [healthRatio.toFixed(0) + '%', color, text]
   }, [liquidationPrice, collateralPrice, userCollateral])
 }

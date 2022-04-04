@@ -70,7 +70,6 @@ export default function Table({ options }: { options: BorrowPool[] }) {
             <Cel>Claim Rewards</Cel>
           </tr>
         </Head>
-        {/* <tbody>{options.length && <TableRow key={0} pool={options[0]} />}</tbody> */}
         <tbody>
           {options.length && options.map((pool: BorrowPool, index) => <TableRow key={index} pool={pool} />)}
         </tbody>

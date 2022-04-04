@@ -100,6 +100,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          <Link href="/claim" passHref>
+            <Row active={router.route === '/claim'}>
+              <div>Claim</div>
+              <IconWrapper>
+                <DropletIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <ExternalLink href="https://twitter.com/deusdao">
             <Row onClick={() => toggle()}>
               <div>Twitter</div>

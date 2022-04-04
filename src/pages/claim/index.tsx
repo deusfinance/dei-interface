@@ -5,8 +5,9 @@ import { BorrowPool } from 'state/borrow/reducer'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import { useSearch } from 'components/App/Borrow'
-import { Table } from 'components/App/Reimburse'
+import { Table } from 'components/App/Claim'
+
+import { DeprecatedBorrowPools } from 'constants/borrow'
 
 const Container = styled.div`
   display: flex;
@@ -41,15 +42,14 @@ const Wrapper = styled(Container)`
 `
 
 export default function Reimburse() {
-  const { snapshot } = useSearch()
   return (
     <Container>
       <Hero>
         <div>Rewards</div>
-        <HeroSubtext>Claim your reminded rewards from old lenders</HeroSubtext>
+        <HeroSubtext>claim your reminding rewards from old lenders</HeroSubtext>
       </Hero>
       <Wrapper>
-        <Table options={snapshot.options as unknown as BorrowPool[]} />
+        <Table options={DeprecatedBorrowPools as unknown as BorrowPool[]} />
       </Wrapper>
       <Disclaimer />
     </Container>

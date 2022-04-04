@@ -87,8 +87,8 @@ export default function Position({ pool }: { pool: BorrowPool }) {
   const { maxCap, borrowedElastic, borrowFee } = useGlobalPoolData(pool)
   const collateralPrice = useCollateralPrice(pool)
   const liquidationPrice = useLiquidationPrice(pool)
-  const [healthRatio, healthColor] = useHealthRatio(pool)
-
+  const [healthRatio, healthColor, healthText] = useHealthRatio(pool)
+  const healthTitle = parseFloat(healthRatio) != 0 ? `| ${healthText.toUpperCase()}` : ''
   const generalLender = useGeneralLenderContract(pool)
   const { balance0, balance1 } = useLPData(pool, userHolder)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
@@ -141,7 +141,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
       />
       <PositionRow
         label="Health Ratio"
-        value={healthRatio}
+        value={`${healthRatio} ${healthTitle}`}
         color={healthColor}
         explanation={`${healthRatio} is your current health in your Position.`}
       />

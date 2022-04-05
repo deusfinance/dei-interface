@@ -59,7 +59,8 @@
     "dev": "next dev",
     "build": "next build && next export",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest"
   },
   "browserslist": {
     "production": [
@@ -74,7 +75,12 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/dom": "^8.12.0",
+    "@testing-library/jest-dom": "^5.16.3",
+    "@testing-library/react": "^13.0.0",
+    "@testing-library/user-event": "^14.0.4",
     "@types/coingecko-api": "^1.0.10",
+    "@types/jest": "^27.4.1",
     "@types/lodash": "^4.14.178",
     "@types/node": "^17.0.10",
     "@types/react": "^17.0.38",
@@ -84,6 +90,7 @@
     "@types/styled-react-modal": "^1.2.2",
     "@typescript-eslint/eslint-plugin": "^5.9.0",
     "@typescript-eslint/parser": "^5.9.0",
+    "babel-jest": "^27.5.1",
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-styled-components": "^2.0.2",
     "eslint": "^8.6.0",
@@ -97,6 +104,7 @@
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-unused-imports": "^2.0.0",
+    "jest": "^27.5.1",
     "prettier": "^2.5.1",
     "typescript": "^4.5.4"
   },

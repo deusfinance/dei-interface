@@ -77,3 +77,7 @@ export function dynamicPrecision(
 
   return part.toString()
 }
+
+export function toSignificant(amount: string, significantDigits: number) {
+  return new BigNumber(amount).sd(significantDigits).toFixed()
+}

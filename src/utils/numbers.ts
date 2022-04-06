@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js'
 import numbro from 'numbro'
 
+BigNumber.config({ EXPONENTIAL_AT: 30 })
+
 export const formatDollarAmount = (num: number | undefined, digits = 2, round = true) => {
   if (num === 0) return '$0.00'
   if (!num) return '-'
@@ -35,7 +37,7 @@ export const formatAmount = (num: number | undefined, digits = 2, thousandSepara
   })
 }
 
-export function toBN(num: string): BigNumber {
+export function toBN(num: BigNumber.Value): BigNumber {
   return new BigNumber(num)
 }
 
@@ -78,6 +80,14 @@ export function dynamicPrecision(
   return part.toString()
 }
 
-export function toSignificant(amount: string, significantDigits: number) {
-  return new BigNumber(amount).sd(significantDigits).toFixed()
+export const formatBalance = (balance: BigNumber.Value, fixed = 6): string => {
+  const bnBalance = toBN(balance)
+  if (
+    toBN(10)
+      .pow(fixed - 1)
+      .lte(bnBalance)
+  ) {
+    return bnBalance.toFixed(0, BigNumber.ROUND_DOWN)
+  }
+  return bnBalance.sd(fixed, BigNumber.ROUND_DOWN).toFixed()
 }

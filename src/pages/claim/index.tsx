@@ -8,6 +8,7 @@ import Disclaimer from 'components/Disclaimer'
 import { Table } from 'components/App/Claim'
 
 import { DeprecatedBorrowPools } from 'constants/borrow'
+import { ContextError, InvalidContext, useInvalidContext } from 'components/InvalidContext'
 
 const Container = styled.div`
   display: flex;
@@ -41,7 +42,9 @@ const Wrapper = styled(Container)`
   `}
 `
 
-export default function Reimburse() {
+export default function Claim() {
+  const invalidContext = useInvalidContext()
+
   return (
     <Container>
       <Hero>
@@ -49,7 +52,11 @@ export default function Reimburse() {
         <HeroSubtext>claim your remaining rewards from old lending contracts</HeroSubtext>
       </Hero>
       <Wrapper>
-        <Table options={DeprecatedBorrowPools as unknown as BorrowPool[]} />
+        {invalidContext !== ContextError.VALID ? (
+          <InvalidContext connectText="Connect your Wallet in order to claim your rewards." />
+        ) : (
+          <Table options={DeprecatedBorrowPools as unknown as BorrowPool[]} />
+        )}
       </Wrapper>
       <Disclaimer />
     </Container>

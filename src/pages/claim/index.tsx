@@ -46,7 +46,7 @@ export default function Reimburse() {
     <Container>
       <Hero>
         <div>Rewards</div>
-        <HeroSubtext>claim your reminding rewards from old lenders</HeroSubtext>
+        <HeroSubtext>claim your remaining rewards from old lending contracts</HeroSubtext>
       </Hero>
       <Wrapper>
         <Table options={DeprecatedBorrowPools as unknown as BorrowPool[]} />

@@ -147,26 +147,65 @@ export const DeprecatedBorrowPools: UnserializedBorrowPool[] = [
     type: 'Solidex LP Token',
     liquidationFee: 5, // 5%
   },
-  /*
-  //TEST Lender
   {
     contract: new Token(
       SupportedChainId.FANTOM,
-      '0x24e96523c98911589C45CBB9C5DB5E2354B2adCe',
+      '0xd82001b651f7fb67db99c679133f384244e20e79',
       18,
       'Solidex sAMM-USDC/DEI',
-      'sex-sAMM-USDC/DEI TEST'
+      'sex-sAMM-USDC/DEI'
     ),
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
-    version: LenderVersion.V2,
+    version: LenderVersion.V1,
     abi: BASE_V1_MAIN_PAIR,
     composition: 'USDC/DEI',
-    oracle: '0x553F8E3ed0b88c5ceDa9816F0322512d69C3727b',
-    generalLender: '0x3e745B226BCF209386601Ba9f859349E06A64eFE',
+    oracle: '0x8878Eb7F44f969D0ed72c6010932791397628546',
+    generalLender: '0x853CA20E5f059bdbE452e146b91BD6D527f1e0B7',
     lpPool: '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
-    mintHelper: '0x729b600dB9472f9B3588e3782C7A9315D42F6E7d',
+    mintHelper: '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
     type: 'Solidex LP Token',
     liquidationFee: 5, // 5%
-  }, */
+  },
+  {
+    contract: new Token(
+      SupportedChainId.FANTOM,
+      '0xd82001b651f7fb67db99c679133f384244e20e79',
+      18,
+      'Solidex sAMM-USDC/DEI',
+      'sex-sAMM-USDC/DEI'
+    ),
+    token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
+    token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
+    version: LenderVersion.V1,
+    abi: BASE_V1_MAIN_PAIR,
+    composition: 'USDC/DEI',
+    oracle: '0x8878Eb7F44f969D0ed72c6010932791397628546',
+    generalLender: '0x1711dD39aC7540E9aa9F7c405c212466534c25f0',
+    lpPool: '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
+    mintHelper: '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
+    type: 'Solidex LP Token',
+    liquidationFee: 5, // 5%
+  },
 ]
+
+export const ReimbursePool: UnserializedBorrowPool = {
+  contract: new Token(
+    SupportedChainId.FANTOM,
+    '0xd82001b651f7fb67db99c679133f384244e20e79',
+    18,
+    'Solidex sAMM-USDC/DEI',
+    'sex-sAMM-USDC/DEI'
+  ),
+  token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
+  token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
+  version: LenderVersion.V1,
+  abi: BASE_V1_MAIN_PAIR,
+  composition: 'USDC/DEI',
+  oracle: '0x8878Eb7F44f969D0ed72c6010932791397628546',
+  generalLender: '0x85B6996ab768600C14dA1464205bd6b3a864417D',
+  lpPool: '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
+  mintHelper: '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
+  type: 'Solidex LP Token',
+  liquidationFee: 5, // 5%
+}

@@ -76,7 +76,7 @@ export default function Table({
   onMintClick,
 }: {
   options: BorrowPool[]
-  onMintClick: (contract: string, version: LenderVersion) => void
+  onMintClick: (contract: string, id: number | undefined) => void
 }) {
   const [offset, setOffset] = useState(0)
 
@@ -128,7 +128,7 @@ function TableRow({
   onMintClick,
 }: {
   pool: BorrowPool
-  onMintClick: (contract: string, version: LenderVersion) => void
+  onMintClick: (contract: string, id: number | undefined) => void
 }) {
   const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const logoOne = useCurrencyLogo(pool.token0.address)
@@ -156,7 +156,7 @@ function TableRow({
         {formatAmount(parseFloat(balance1))} SEX
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => onMintClick(pool.contract.address, pool.version)}>Borrow</PrimaryButton>
+        <PrimaryButton onClick={() => onMintClick(pool.generalLender, pool?.id)}>Borrow</PrimaryButton>
       </Cel>
     </Row>
   )

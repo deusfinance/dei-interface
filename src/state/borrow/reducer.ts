@@ -24,7 +24,7 @@ export interface UnserializedBorrowPool {
   token1: Token
   version: LenderVersion
   composition: string
-  oracle: string
+  oracle?: string
   generalLender: string
   lpPool: string
   type: string

@@ -61,14 +61,6 @@ const Row = styled.div`
     }
   }
 `
-//TODO: it hurt my brain to make it just with {color && theme[color]}, but i didn't find a good way without TS type warning!
-const RowValue = styled.div<{
-  color?: string
-}>`
-  color: ${({ theme, color }) =>
-    color &&
-    ((color == 'green1' && theme.green1) || (color == 'red1' && theme.red1) || (color == 'yellow2' && theme.yellow2))};
-`
 
 const SubLabel = styled.div`
   font-size: 0.5rem;
@@ -209,7 +201,7 @@ function PositionRow({
         <ToolTip id="id" />
         <Info data-for="id" data-tip={explanation} size={15} />
         <div>{label}</div>
-        <RowValue color={color}>{value}</RowValue>
+        <div style={{ color }}>{value}</div>
       </Row>
       {subLabel && <SubLabel>{subLabel}</SubLabel>}
     </Column>

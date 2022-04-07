@@ -15,12 +15,14 @@ import {
   TypedField,
   LenderVersion,
 } from 'state/borrow/reducer'
+import { useCurrencyBalance } from 'state/wallet/hooks'
 import useBorrowPage, { UserError } from 'hooks/useBorrowPage'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useWeb3React from 'hooks/useWeb3'
 import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useBorrowCallback from 'hooks/useBorrowCallback'
+import { useUserPoolData } from 'hooks/usePoolData'
 
 import { SupportedChainId } from 'constants/chains'
 
@@ -30,8 +32,6 @@ import InputBox from './InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import { CardTitle } from 'components/Title'
-import { useCurrencyBalance } from 'state/wallet/hooks'
-import { useUserPoolData } from 'hooks/usePoolData'
 
 const Wrapper = styled(Card)`
   gap: 15px;

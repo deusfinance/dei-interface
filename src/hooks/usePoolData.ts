@@ -4,15 +4,17 @@ import { Percent } from '@sushiswap/core-sdk'
 import BigNumber from 'bignumber.js'
 import { Interface } from '@ethersproject/abi'
 import { AddressZero } from '@ethersproject/constants'
+import { useTheme } from 'styled-components'
 
-import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
+import { BorrowPool, HealthType, LenderVersion } from 'state/borrow/reducer'
 import { useMultipleContractSingleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { useGeneralLenderContract, useLenderManagerContract, useOracleContract } from './useContract'
-import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER_V1.json'
+import useWeb3React from 'hooks/useWeb3'
 
+import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER_V1.json'
 import { DEI_TOKEN } from 'constants/borrow'
 import { constructPercentage, ONE_HUNDRED_PERCENT } from 'utils/prices'
-import useWeb3React from './useWeb3'
+import { BN_ZERO, BN_ONE_HUNDRED } from 'utils/numbers'
 
 export function useUserPoolData(pool: BorrowPool): {
   userCollateral: string
@@ -291,37 +293,43 @@ export function useLiquidationPrice(pool: BorrowPool): string {
   }, [userCollateral, userDebt, liquidationRatio, pool])
 }
 
-export function useHealthRatio(pool: BorrowPool): [string, string, string] {
+export function useHealthRatio(pool: BorrowPool): [string, any, string] {
+  const theme = useTheme()
   const liquidationPrice = useLiquidationPrice(pool)
   const collateralPrice = useCollateralPrice(pool)
   const { userCollateral } = useUserPoolData(pool)
 
-  return useMemo(() => {
-    if (userCollateral && parseFloat(userCollateral) && parseFloat(liquidationPrice) == 0)
-      return ['100%', 'green1', 'safe']
+  const healthRatio = useMemo(() => {
+    if (userCollateral && parseFloat(userCollateral) && parseFloat(liquidationPrice) == 0) return BN_ONE_HUNDRED
     if (!liquidationPrice || !collateralPrice || !parseFloat(liquidationPrice) || !parseFloat(collateralPrice)) {
-      return ['0', '', '']
+      return BN_ZERO
     }
-
     const deathRatio = new BigNumber(liquidationPrice).div(collateralPrice)
-    const healthRatio = new BigNumber(1).minus(deathRatio).times(100)
-
-    let color = ''
-    let text = ''
-    if (healthRatio.gte(70)) {
-      color = 'green1'
-      text = 'safe'
-    } else if (healthRatio.gte(40)) {
-      color = 'yellow2'
-      text = 'medium'
-    } else if (healthRatio.gte(25)) {
-      color = 'yellow2'
-      text = 'risky'
-    } else {
-      color = 'red1'
-      text = 'very risky'
-    }
-
-    return [healthRatio.toFixed(0) + '%', color, text]
+    const healthRatioBN = new BigNumber(1).minus(deathRatio).times(100)
+    return healthRatioBN
   }, [liquidationPrice, collateralPrice, userCollateral])
+
+  const healthLevel = useMemo(() => {
+    return parseFloat(userCollateral) == 0
+      ? HealthType.DEFAULT
+      : healthRatio.gte(70)
+      ? HealthType.SAFE
+      : healthRatio.gte(40)
+      ? HealthType.MEDIUM
+      : healthRatio.gte(25)
+      ? HealthType.RISKY
+      : HealthType.HIGH_RISK
+  }, [healthRatio, userCollateral])
+
+  const color = useMemo(() => {
+    return healthLevel == HealthType.SAFE
+      ? theme.green1
+      : healthLevel == HealthType.MEDIUM
+      ? theme.yellow2
+      : healthLevel == HealthType.RISKY || healthLevel == HealthType.HIGH_RISK
+      ? theme.red1
+      : theme.text1
+  }, [healthLevel, theme])
+
+  return [healthRatio.toFixed(0) + '%', color, healthLevel.toString()]
 }

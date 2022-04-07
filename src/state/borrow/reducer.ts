@@ -17,6 +17,19 @@ export enum LenderVersion {
   V3 = 'v3', //real general lender
 }
 
+export enum HealthType {
+  DEFAULT = '',
+  SAFE = 'safe',
+  MEDIUM = 'medium',
+  RISKY = 'risky',
+  HIGH_RISK = 'high risk',
+}
+
+export enum CollateralType {
+  SOLIDEX = 'Solidex LP Token',
+  OXDAO = '0xDAO LP Token',
+}
+
 export interface UnserializedBorrowPool {
   id?: number
   contract: Token

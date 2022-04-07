@@ -1,6 +1,6 @@
 import { Token } from '@sushiswap/core-sdk'
 
-import { LenderVersion, UnserializedBorrowPool } from 'state/borrow/reducer'
+import { CollateralType, LenderVersion, UnserializedBorrowPool } from 'state/borrow/reducer'
 import { SupportedChainId } from 'constants/chains'
 import BASE_V1_MAIN_PAIR from 'constants/abi/BASE_V1_MAIN_PAIR.json'
 import GENERAL_LENDER_V1_ABI from 'constants/abi/GENERAL_LENDER_V1.json'
@@ -10,11 +10,6 @@ import GENERAL_LENDER_V3_ABI from 'constants/abi/GENERAL_LENDER_V3.json'
 export enum MintHelper {
   MAIN = '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
   TEST = '0x08cA01cE05E90854Be793B65e7E3BFf5b4c2529D',
-}
-
-export enum CollateralType {
-  SOLIDEX = 'Solidex LP Token',
-  OXDAO = '0xDAO LP Token',
 }
 
 export const CollateralABI = {
@@ -98,7 +93,7 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     ),
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44', 18, 'DEUS', 'DEUS'),
-    version: LenderVersion.V2,
+    version: LenderVersion.V3,
     composition: 'DEI/DEUS',
     generalLender: '0x8D643d954798392403eeA19dB8108f595bB8B730',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',

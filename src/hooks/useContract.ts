@@ -9,8 +9,6 @@ import useWeb3React from './useWeb3'
 import ERC20_ABI from 'constants/abi/ERC20.json'
 import ERC20_BYTES32_ABI from 'constants/abi/ERC20'
 import MULTICALL2_ABI from 'constants/abi/MULTICALL2.json'
-import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
-import GENERAL_LENDER_V2_ABI from 'constants/abi/GENERAL_LENDER_V2.json'
 import LENDER_MANAGER_ABI from 'constants/abi/LENDER_MANAGER.json'
 import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
 import SOLIDEX_LP_DEPOSITOR_ABI from 'constants/abi/SOLIDEX_LP_DEPOSITOR.json'
@@ -35,7 +33,8 @@ import {
   ZERO_ADDRESS,
   BaseV1Minter,
 } from 'constants/addresses'
-import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
+import { BorrowPool } from 'state/borrow/reducer'
+import { LenderABI } from '../constants/borrow'
 
 export function useContract<T extends Contract = Contract>(
   addressOrAddressMap: string | null | undefined,
@@ -68,8 +67,7 @@ export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossi
 }
 
 export function useGeneralLenderContract(pool: BorrowPool) {
-  const ABI = pool.version == LenderVersion.V1 ? GENERAL_LENDER_ABI : GENERAL_LENDER_V2_ABI
-  return useContract(pool.generalLender, ABI)
+  return useContract(pool.generalLender, LenderABI[pool.version])
 }
 
 export function useBaseV1FactoryContract() {

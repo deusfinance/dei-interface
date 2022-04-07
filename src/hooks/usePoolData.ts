@@ -8,7 +8,7 @@ import { AddressZero } from '@ethersproject/constants'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 import { useMultipleContractSingleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { useGeneralLenderContract, useLenderManagerContract, useOracleContract } from './useContract'
-import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
+import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER_V1.json'
 
 import { DEI_TOKEN } from 'constants/borrow'
 import { constructPercentage, ONE_HUNDRED_PERCENT } from 'utils/prices'

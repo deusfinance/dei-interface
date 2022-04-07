@@ -14,13 +14,14 @@ export enum BorrowAction {
 export enum LenderVersion {
   V1 = 'v1',
   V2 = 'v2',
+  V3 = 'v3', //real general lender
 }
 
 export interface UnserializedBorrowPool {
+  id?: number
   contract: Token
   token0: Token
   token1: Token
-  abi: any
   version: LenderVersion
   composition: string
   oracle: string

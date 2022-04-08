@@ -16,6 +16,7 @@ import { NumericalInput } from 'components/Input'
 import { DualImageWrapper } from 'components/DualImage'
 import { useAvailableForWithdrawal, useUserPoolData } from 'hooks/usePoolData'
 import { useAvailableToBorrow } from '../../../hooks/usePoolData'
+import { formatBalance } from 'utils/numbers'
 
 const Wrapper = styled(Box)`
   justify-content: space-between;
@@ -105,7 +106,7 @@ export default function InputBox({
     if (action === BorrowAction.BORROW && isBorrowCurrency) {
       return [
         new BigNumber(availableToBorrow).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
-        parseFloat(availableToBorrow).toPrecision(6),
+        formatBalance(availableToBorrow),
       ]
     }
     if (action === BorrowAction.BORROW) {
@@ -114,10 +115,10 @@ export default function InputBox({
     if (isCollateralCurrency) {
       return [
         new BigNumber(withdrawableAmount).toFixed(currency?.decimals || 18, BigNumber.ROUND_DOWN),
-        parseFloat(withdrawableAmount).toPrecision(6),
+        formatBalance(withdrawableAmount),
       ]
     }
-    return [userDebt, parseFloat(userDebt).toPrecision(6)]
+    return [userDebt, formatBalance(userDebt)]
   }, [
     action,
     userDebt,

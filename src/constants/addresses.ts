@@ -26,12 +26,10 @@ export const BaseV1Minter: AddressMap = {
   [SupportedChainId.FANTOM]: '0xC4209c19b183e72A037b2D1Fb11fbe522054A90D',
 }
 
-// NEEDS CHANGING
-export const LenderManager: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xc02f204bab0248c694516dbaf985d40718ed4f86',
+export const HolderManager: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xE9A4e8d9b2C4F0cc9E26D3e9753Bb795B03BED33',
 }
 
-// NEEDS CHANGING
 export const SolidAddress: AddressMap = {
   [SupportedChainId.FANTOM]: '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
 }
@@ -41,7 +39,6 @@ export const Locker: AddressMap = {
   [SupportedChainId.FANTOM]: '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
 }
 
-// NEEDS CHANGING
 export const SolidexLpDepositor: AddressMap = {
   [SupportedChainId.FANTOM]: '0x26E1A0d851CF28E697870e1b7F053B605C8b060F',
 }

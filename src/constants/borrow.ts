@@ -24,21 +24,21 @@ export const LenderABI = {
 }
 
 // TODO SWITCH THIS TOKEN WITH THE BELOW COMMENTED OUT TOKEN FOR PRODUCTION RELEASE
-/* export const DEI_TOKEN = new Token(
+export const DEI_TOKEN = new Token(
   SupportedChainId.FANTOM,
   '0x4A4573B03B0800e24dEcD8fE497BFeD98ee344B8',
   18,
   'TDEI',
   'TestDEI'
-) */
-
-export const DEI_TOKEN = new Token(
-  SupportedChainId.FANTOM,
-  '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
-  18,
-  'DEI',
-  'DEI'
 )
+
+// export const DEI_TOKEN = new Token(
+//   SupportedChainId.FANTOM,
+//   '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
+//   18,
+//   'DEI',
+//   'DEI'
+// )
 
 export const BorrowPools: UnserializedBorrowPool[] = [
   {
@@ -79,7 +79,6 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     type: CollateralType.SOLIDEX,
     liquidationFee: 5, // 5%
   },
-  //**************TODO************** //
   //*********V3 TEST LENDER************** //
   //******Remove it in production************** //
   {
@@ -95,7 +94,8 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     token1: new Token(SupportedChainId.FANTOM, '0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44', 18, 'DEUS', 'DEUS'),
     version: LenderVersion.V3,
     composition: 'DEI/DEUS',
-    generalLender: '0x8D643d954798392403eeA19dB8108f595bB8B730',
+    oracle: '0x9f3C610a731809b6F7630B187777c66194EDf27b',
+    generalLender: '0x39Bc42a405B29789FdFB5Fcc2CbdC0bDc93403F6',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
     mintHelper: MintHelper.TEST,
     type: CollateralType.SOLIDEX,

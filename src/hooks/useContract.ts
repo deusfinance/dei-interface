@@ -9,7 +9,7 @@ import useWeb3React from './useWeb3'
 import ERC20_ABI from 'constants/abi/ERC20.json'
 import ERC20_BYTES32_ABI from 'constants/abi/ERC20'
 import MULTICALL2_ABI from 'constants/abi/MULTICALL2.json'
-import LENDER_MANAGER_ABI from 'constants/abi/LENDER_MANAGER.json'
+import HOLDER_MANAGER from 'constants/abi/HOLDER_MANAGER.json'
 import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
 import SOLIDEX_LP_DEPOSITOR_ABI from 'constants/abi/SOLIDEX_LP_DEPOSITOR.json'
 import VEDEUS_ABI from 'constants/abi/VEDEUS.json'
@@ -23,7 +23,7 @@ import BASE_V1_MINTER_ABI from 'constants/abi/BASE_V1_MINTER.json'
 
 import { Providers } from 'constants/providers'
 import {
-  LenderManager,
+  HolderManager,
   Multicall2,
   SolidexLpDepositor,
   Reimburse,
@@ -33,8 +33,8 @@ import {
   ZERO_ADDRESS,
   BaseV1Minter,
 } from 'constants/addresses'
+import { LenderABI } from 'constants/borrow'
 import { BorrowPool } from 'state/borrow/reducer'
-import { LenderABI } from '../constants/borrow'
 
 export function useContract<T extends Contract = Contract>(
   addressOrAddressMap: string | null | undefined,
@@ -122,10 +122,10 @@ export function useSolidexLpDepositor() {
   return useContract(address, SOLIDEX_LP_DEPOSITOR_ABI)
 }
 
-export function useLenderManagerContract() {
+export function useHolderManager() {
   const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? LenderManager[chainId] : undefined), [chainId])
-  return useContract(address, LENDER_MANAGER_ABI)
+  const address = useMemo(() => (chainId ? HolderManager[chainId] : undefined), [chainId])
+  return useContract(address, HOLDER_MANAGER)
 }
 
 export function useMulticall2Contract() {

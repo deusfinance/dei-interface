@@ -62,20 +62,22 @@ export default function useBorrowCallback(
         if (!collateralAmount) throw new Error('Missing collateralAmount.')
         args = [account, toHex(collateralAmount.quotient)]
 
-        if (pool.version == LenderVersion.V2) {
+        if (pool.version != LenderVersion.V1) {
           const { price, reqId, sigs, timestamp } = await getOracleData()
           if (!price || !reqId || !sigs || !timestamp) throw new Error('Missing dependencies from muon oracles.')
-          args = [...args, price, timestamp, reqId, sigs]
+          const signatures = [price, timestamp, reqId, sigs]
+          args = pool.version == LenderVersion.V2 ? [...args, ...signatures] : [...args, signatures]
         }
         methodName = 'removeCollateral'
       } else if (action === BorrowAction.BORROW && typedField === TypedField.BORROW) {
         if (!borrowAmount) throw new Error('Missing borrowAmount.')
         args = [account, toHex(borrowAmount.quotient)]
 
-        if (pool.version == LenderVersion.V2) {
+        if (pool.version != LenderVersion.V1) {
           const { price, reqId, sigs, timestamp } = await getOracleData()
+          const signatures = [price, timestamp, reqId, sigs]
           if (!price || !reqId || !sigs || !timestamp) throw new Error('Missing dependencies from muon oracles.')
-          args = [...args, price, timestamp, reqId, sigs]
+          args = pool.version == LenderVersion.V2 ? [...args, ...signatures] : [...args, signatures]
         }
         methodName = 'borrow'
       } else if (action === BorrowAction.REPAY && typedField === TypedField.BORROW && payOff) {
@@ -87,6 +89,13 @@ export default function useBorrowCallback(
         args = [account, toHex(borrowAmount.quotient)]
         methodName = 'repayElastic'
       }
+
+      //add collateralIndex in LenderVersion.V3
+      if (pool.version == LenderVersion.V3) {
+        args = [pool?.id, ...args]
+      }
+
+      console.log(methodName, args)
 
       return {
         address: GeneralLender.address,

@@ -4,7 +4,7 @@
       { "internalType": "address[]", "name": "pools", "type": "address[]" },
       { "internalType": "address", "name": "to", "type": "address" }
     ],
-    "name": "claimAndWithdraw",
+    "name": "claimAndWithdrawRewards",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

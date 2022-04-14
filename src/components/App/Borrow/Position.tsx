@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js'
 import { BorrowPool } from 'state/borrow/reducer'
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
 
-import useWeb3React from 'hooks/useWeb3'
 import {
   useAvailableToBorrow,
   useCollateralPrice,
@@ -15,7 +14,7 @@ import {
   useUserPoolData,
 } from 'hooks/usePoolData'
 import { useLPData } from 'hooks/useLPData'
-import { useGeneralLenderContract } from 'hooks/useContract'
+import useClaimLenderRewardCallback from 'hooks/useClaimLenderRewardCallback'
 import { formatAmount, formatDollarAmount } from 'utils/numbers'
 
 import { Card } from 'components/Card'
@@ -81,10 +80,8 @@ export default function Position({ pool }: { pool: BorrowPool }) {
   const liquidationPrice = useLiquidationPrice(pool)
   const [healthRatio, healthColor, healthText] = useHealthRatio(pool)
   const healthTitle = parseFloat(healthRatio) != 0 ? `| ${healthText.toUpperCase()}` : ''
-  const generalLender = useGeneralLenderContract(pool)
   const { balance0, balance1 } = useLPData(pool, userHolder)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
-  const { account } = useWeb3React()
 
   const borrowSymbol = useMemo(() => {
     return borrowCurrency?.symbol ?? ''
@@ -94,17 +91,19 @@ export default function Position({ pool }: { pool: BorrowPool }) {
     return new BigNumber(userCollateral).times(collateralPrice).toNumber()
   }, [userCollateral, collateralPrice])
 
-  const onClaim = useCallback(async () => {
+  const { callback: onClaimCallback } = useClaimLenderRewardCallback(pool, userHolder)
+
+  const handleClaim = useCallback(async () => {
+    if (!onClaimCallback) return
     try {
-      if (!generalLender || !account) return
       setAwaitingClaimConfirmation(true)
-      await generalLender.claimAndWithdraw([pool.lpPool], account)
+      await onClaimCallback()
       setAwaitingClaimConfirmation(false)
-    } catch (err) {
-      console.error(err)
+    } catch (error) {
+      console.log(error)
       setAwaitingClaimConfirmation(false)
     }
-  }, [generalLender, pool, account])
+  }, [onClaimCallback])
 
   function getClaimButton() {
     if (awaitingClaimConfirmation) {
@@ -114,7 +113,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
         </StyledPrimaryButton>
       )
     }
-    return <StyledPrimaryButton onClick={onClaim}>Claim Rewards</StyledPrimaryButton>
+    return <StyledPrimaryButton onClick={handleClaim}>Claim Rewards</StyledPrimaryButton>
   }
   const numerator = (100 - parseFloat(borrowFee.toSignificant())) / 100
 

@@ -39,7 +39,7 @@ export default function useClaimLenderRewardCallback(
 
       //because we just have two CollateralType types , i used [account] for else
       const args = CollateralType.SOLIDEX ? [[pool.lpPool], account] : [account]
-      const methodName = 'claimAndWithdraw'
+      const methodName = !(pool.version == LenderVersion.V3) ? 'claimAndWithdraw' : 'claimAndWithdrawRewards'
 
       console.log(methodName, args)
 
@@ -66,7 +66,7 @@ export default function useClaimLenderRewardCallback(
     return {
       state: ClaimCallbackState.VALID,
       error: null,
-      callback: async function onTrade(): Promise<string> {
+      callback: async function onClaim(): Promise<string> {
         console.log('onClaim callback')
         const call = await constructCall()
         const { address, calldata, value } = call

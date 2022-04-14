@@ -33,7 +33,7 @@ import {
   ZERO_ADDRESS,
   BaseV1Minter,
 } from 'constants/addresses'
-import { LenderABI } from 'constants/borrow'
+import { HolderABI, LenderABI } from 'constants/borrow'
 import { BorrowPool } from 'state/borrow/reducer'
 
 export function useContract<T extends Contract = Contract>(
@@ -126,6 +126,10 @@ export function useHolderManager() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? HolderManager[chainId] : undefined), [chainId])
   return useContract(address, HOLDER_MANAGER)
+}
+
+export function useHolderContract(pool: BorrowPool, holder: string) {
+  return useContract(holder, HolderABI[pool.type])
 }
 
 export function useMulticall2Contract() {

@@ -40,7 +40,7 @@ export interface UnserializedBorrowPool {
   oracle?: string
   generalLender: string
   lpPool: string
-  type: string
+  type: CollateralType
   liquidationFee: number
   mintHelper: string
 }

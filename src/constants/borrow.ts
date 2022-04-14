@@ -2,7 +2,9 @@ import { Token } from '@sushiswap/core-sdk'
 
 import { CollateralType, LenderVersion, UnserializedBorrowPool } from 'state/borrow/reducer'
 import { SupportedChainId } from 'constants/chains'
-import BASE_V1_MAIN_PAIR from 'constants/abi/BASE_V1_MAIN_PAIR.json'
+
+import OxDAO_HOLDER_ABI from 'constants/abi/OxDAO_HOLDER.json'
+import SOLIDEX_HOLDER_ABI from 'constants/abi/SOLIDEX_HOLDER.json'
 import GENERAL_LENDER_V1_ABI from 'constants/abi/GENERAL_LENDER_V1.json'
 import GENERAL_LENDER_V2_ABI from 'constants/abi/GENERAL_LENDER_V2.json'
 import GENERAL_LENDER_V3_ABI from 'constants/abi/GENERAL_LENDER_V3.json'
@@ -12,9 +14,9 @@ export enum MintHelper {
   TEST = '0x08cA01cE05E90854Be793B65e7E3BFf5b4c2529D',
 }
 
-export const CollateralABI = {
-  [CollateralType.SOLIDEX]: BASE_V1_MAIN_PAIR,
-  [CollateralType.OXDAO]: BASE_V1_MAIN_PAIR, //TODO:change it to 0xdao token ABI
+export const HolderABI = {
+  [CollateralType.SOLIDEX]: SOLIDEX_HOLDER_ABI,
+  [CollateralType.OXDAO]: OxDAO_HOLDER_ABI,
 }
 
 export const LenderABI = {

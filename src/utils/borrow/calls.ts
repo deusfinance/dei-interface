@@ -33,8 +33,8 @@ export function getGlobalPoolDataCalls(pool: BorrowPool): any {
     const callInputs = [pool.id]
     return [
       {
-        methodName: 'maxCaps',
-        callInputs,
+        methodName: 'maxCap',
+        callInputs: [],
       },
       {
         methodName: 'totalCollaterals',

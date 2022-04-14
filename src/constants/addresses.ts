@@ -27,7 +27,7 @@ export const BaseV1Minter: AddressMap = {
 }
 
 export const HolderManager: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xE9A4e8d9b2C4F0cc9E26D3e9753Bb795B03BED33',
+  [SupportedChainId.FANTOM]: '0x994B147A9569fE2f37db795ad4D2a46060c98d1a',
 }
 
 export const SolidAddress: AddressMap = {

@@ -59,7 +59,7 @@ export function useUserPoolData(pool: BorrowPool): {
         : [
             {
               methodName: isV2 ? 'userHolder' : 'getHolder',
-              callInputs: isV2 ? [account] : [pool.contract.address, account],
+              callInputs: isV2 ? [account] : [pool?.id, account],
             },
           ],
     [account, isV2, pool]

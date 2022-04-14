@@ -11,7 +11,7 @@ import GENERAL_LENDER_V3_ABI from 'constants/abi/GENERAL_LENDER_V3.json'
 
 export enum MintHelper {
   MAIN = '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
-  TEST = '0x08cA01cE05E90854Be793B65e7E3BFf5b4c2529D',
+  TEST = '0xaF3bA0dcCDf338c4dBC43bF2bE4FdffF309217df',
 }
 
 export const HolderABI = {
@@ -97,7 +97,7 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     version: LenderVersion.V3,
     composition: 'DEI/DEUS',
     oracle: '0x9f3C610a731809b6F7630B187777c66194EDf27b',
-    generalLender: '0x39Bc42a405B29789FdFB5Fcc2CbdC0bDc93403F6',
+    generalLender: '0x0780163aa2fA9c4c7eA7Bdd652E13a361f0c79F4',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
     mintHelper: MintHelper.TEST,
     type: CollateralType.SOLIDEX,

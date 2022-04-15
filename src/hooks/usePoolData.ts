@@ -122,14 +122,27 @@ export function useGlobalPoolData(pool: BorrowPool): {
   )
 }
 
-//TODO:reject v3 pool borrow amounts
-export function useGlobalDEIBorrowed(ipools: BorrowPool[]): {
+export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
   borrowedBase: string
   borrowedElastic: string
 } {
-  const pools = ipools.filter((pool) => pool.version !== LenderVersion.V3)
-  const contracts = useMemo(() => pools.map((pool) => pool.generalLender), [pools])
+  const v3Pools = pools.filter((pool) => pool.version === LenderVersion.V3)
+  const v2Pools = pools.filter((pool) => pool.version !== LenderVersion.V3)
+
+  // we know that first index is v3 pool, its ok for now but probably we should change it later
+  const generalLenderContract = useGeneralLenderContract(v3Pools[0])
+  const contracts = useMemo(() => v2Pools.map((pool) => pool.generalLender), [v2Pools])
+  const v3TotalBorrowCalls = useMemo(
+    () =>
+      v3Pools.map((pool) => ({
+        methodName: 'totalBorrows',
+        callInputs: [pool?.id],
+      })),
+    [v3Pools]
+  )
   const results = useMultipleContractSingleData(contracts, new Interface(GENERAL_LENDER_ABI), 'totalBorrow', [])
+  const v3Result = useSingleContractMultipleMethods(generalLenderContract, v3TotalBorrowCalls)
+  results.push(...v3Result) //merging two results
 
   const elasticSum = useMemo(() => {
     return results.reduce((acc, value, index) => {
@@ -158,7 +171,7 @@ export function useGlobalDEIBorrowed(ipools: BorrowPool[]): {
   )
 }
 
-//TODO: needs to get data from api(al least muon oracle api)
+//TODO: needs to get data from api(at least muon oracle api)
 export function useCollateralPrice(pool: BorrowPool): string {
   const oracleContract = useOracleContract(pool)
   const methodName = pool.version == LenderVersion.V1 ? 'getPrice' : 'getOnChainPrice'

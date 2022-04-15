@@ -67,7 +67,7 @@ export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossi
 }
 
 export function useGeneralLenderContract(pool: BorrowPool) {
-  return useContract(pool.generalLender, LenderABI[pool.version])
+  return useContract(pool?.generalLender, LenderABI[pool?.version])
 }
 
 export function useBaseV1FactoryContract() {

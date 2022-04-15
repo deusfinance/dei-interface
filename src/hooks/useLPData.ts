@@ -16,7 +16,7 @@ export function useLPData(pool: BorrowPool, userHolder: string) {
         : [
             {
               methodName: 'pendingRewards',
-              callInputs: [userHolder, [pool.lpPool]], //TODO: needs to be array of user pool to get all claimable amounts
+              callInputs: [userHolder, [pool.lpPool]],
             },
           ],
     [account, pool, userHolder]

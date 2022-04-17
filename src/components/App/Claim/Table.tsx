@@ -3,17 +3,16 @@ import { Contract } from '@ethersproject/contracts'
 import styled from 'styled-components'
 
 import { BorrowPool } from 'state/borrow/reducer'
-
 import { useLPData } from 'hooks/useLPData'
 import { useUserPoolData } from 'hooks/usePoolData'
 import { useGeneralLenderContract, useReimburseContract } from 'hooks/useContract'
 import useWeb3React from 'hooks/useWeb3'
 import { useReimburse } from 'hooks/useReimburse'
+import { formatAmount } from 'utils/numbers'
+import { ReimbursePool } from 'constants/legacyAddresses'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-import { formatAmount } from 'utils/numbers'
-import { ReimbursePool } from 'constants/borrow'
 
 const Wrapper = styled.div`
   display: flex;

@@ -23,7 +23,6 @@ import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useBorrowCallback from 'hooks/useBorrowCallback'
 import { useUserPoolData } from 'hooks/usePoolData'
-
 import { SupportedChainId } from 'constants/chains'
 
 import { Card } from 'components/Card'

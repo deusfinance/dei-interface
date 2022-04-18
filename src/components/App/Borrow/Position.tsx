@@ -174,9 +174,10 @@ export default function Position({ pool }: { pool: BorrowPool }) {
             value=""
             explanation="SEX + SOLID your position has earned so far"
           />
-          {parseFloat(balance0) > 0 && getClaimButton()}
+          {/* {parseFloat(balance0) > 0 && getClaimButton()} */}
         </>
       )}
+      {getClaimButton()}
     </Wrapper>
   )
 }

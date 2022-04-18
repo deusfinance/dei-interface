@@ -38,7 +38,12 @@ export default function useClaimLenderRewardCallback(
       }
 
       //because we just have two CollateralType types , i used [account] for else
-      const args = CollateralType.SOLIDEX ? [[pool.lpPool], account] : [account]
+      const args =
+        pool.type == CollateralType.SOLIDEX
+          ? [[pool.lpPool], account]
+          : pool.type == CollateralType.OXDAO
+          ? [account]
+          : [account]
       const methodName = !(pool.version == LenderVersion.V3) ? 'claimAndWithdraw' : 'claimAndWithdrawRewards'
 
       console.log(methodName, args)

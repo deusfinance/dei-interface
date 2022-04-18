@@ -84,8 +84,10 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
     mintHelper: MintHelper.TEST,
     type: CollateralType.SOLIDEX,
-    liquidationFee: 5, // 5%
+    liquidationFee: 5,
   },
+  //*********V3 TEST LENDER************** //
+  //******Remove it in production************** //
   {
     id: 1,
     contract: new Token(
@@ -103,7 +105,7 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     generalLender: '0x8cf16324543C242798c0c5F230bB72EeAA7F9417',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
     mintHelper: MintHelper.TEST,
-    type: CollateralType.SOLIDEX,
-    liquidationFee: 5, // 5%
+    type: CollateralType.OXDAO,
+    liquidationFee: 5,
   },
 ]

@@ -12,8 +12,8 @@ import { useMultipleContractSingleData, useSingleContractMultipleMethods } from 
 import { useGeneralLenderContract, useHolderManager, useOracleContract } from 'hooks/useContract'
 import useWeb3React from 'hooks/useWeb3'
 
-import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER_V1.json'
 import { DEI_TOKEN } from 'constants/borrow'
+import { LenderABI } from 'constants/abi'
 import { constructPercentage, ONE_HUNDRED_PERCENT } from 'utils/prices'
 import { BN_ZERO, BN_ONE_HUNDRED } from 'utils/numbers'
 import { getGlobalPoolDataCalls, getUserPoolDataCalls } from 'utils/borrow/calls'
@@ -140,7 +140,12 @@ export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
       })),
     [v3Pools]
   )
-  const results = useMultipleContractSingleData(contracts, new Interface(GENERAL_LENDER_ABI), 'totalBorrow', [])
+  const results = useMultipleContractSingleData(
+    contracts,
+    new Interface(LenderABI[LenderVersion.V2]),
+    'totalBorrow',
+    []
+  )
   const v3Result = useSingleContractMultipleMethods(generalLenderContract, v3TotalBorrowCalls)
   results.push(...v3Result) //merging two results
 
@@ -171,7 +176,7 @@ export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
   )
 }
 
-//TODO: needs to get data from api(at least muon oracle api)
+//TODO: needs to get data from api or subgraph(at least muon oracle api)
 export function useCollateralPrice(pool: BorrowPool): string {
   const oracleContract = useOracleContract(pool)
   const methodName = pool.version == LenderVersion.V1 ? 'getPrice' : 'getOnChainPrice'
@@ -223,7 +228,7 @@ export function useAvailableToBorrow(pool: BorrowPool): string {
       .times(liquidationRatio.toSignificant())
       .div(100)
       .times(borrowFeeMultiplier)
-      .times(1 - 0.005) //1 - health ratio
+      .times(1 - 0.005) //(1 - safeRatio) it helps user to dont liquidate immediately
       .toPrecision(pool.contract.decimals)
   }, [userCollateral, liquidationRatio, availableForWithdrawal, collateralPrice, pool, borrowFeeMultiplier])
 }
@@ -260,27 +265,17 @@ export function useHealthRatio(pool: BorrowPool): [string, any, string] {
     return healthRatioBN
   }, [liquidationPrice, collateralPrice, userCollateral])
 
-  const healthLevel = useMemo(() => {
+  const [healthLevel, color] = useMemo(() => {
     return parseFloat(userCollateral) == 0
-      ? HealthType.DEFAULT
+      ? [HealthType.DEFAULT, theme.text1]
       : healthRatio.gte(70)
-      ? HealthType.SAFE
+      ? [HealthType.SAFE, theme.green1]
       : healthRatio.gte(40)
-      ? HealthType.MEDIUM
+      ? [HealthType.MEDIUM, theme.yellow2]
       : healthRatio.gte(25)
-      ? HealthType.RISKY
-      : HealthType.HIGH_RISK
-  }, [healthRatio, userCollateral])
-
-  const color = useMemo(() => {
-    return healthLevel == HealthType.SAFE
-      ? theme.green1
-      : healthLevel == HealthType.MEDIUM
-      ? theme.yellow2
-      : healthLevel == HealthType.RISKY || healthLevel == HealthType.HIGH_RISK
-      ? theme.red1
-      : theme.text1
-  }, [healthLevel, theme])
+      ? [HealthType.RISKY, theme.red1]
+      : [HealthType.HIGH_RISK, theme.red1]
+  }, [healthRatio, userCollateral, theme])
 
   return [healthRatio.toFixed(0) + '%', color, healthLevel.toString()]
 }

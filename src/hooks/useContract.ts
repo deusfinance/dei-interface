@@ -33,7 +33,7 @@ import {
   ZERO_ADDRESS,
   BaseV1Minter,
 } from 'constants/addresses'
-import { HolderABI, LenderABI } from 'constants/abi/ABIS'
+import { HolderABI, LenderABI } from 'constants/abi'
 import { BorrowPool } from 'state/borrow/reducer'
 
 export function useContract<T extends Contract = Contract>(

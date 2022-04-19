@@ -4,7 +4,7 @@ import { CollateralType, LenderVersion, UnserializedBorrowPool } from 'state/bor
 import { SupportedChainId } from 'constants/chains'
 
 // TODO SWITCH THIS TOKEN WITH THE BELOW COMMENTED OUT TOKEN FOR PRODUCTION RELEASE
-export const DEI_TOKEN = new Token(
+export const DEI_TOKEN_TEST = new Token(
   SupportedChainId.FANTOM,
   '0x4A4573B03B0800e24dEcD8fE497BFeD98ee344B8',
   18,
@@ -12,13 +12,13 @@ export const DEI_TOKEN = new Token(
   'TestDEI'
 )
 
-// export const DEI_TOKEN = new Token(
-//   SupportedChainId.FANTOM,
-//   '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
-//   18,
-//   'DEI',
-//   'DEI'
-// )
+export const DEI_TOKEN = new Token(
+  SupportedChainId.FANTOM,
+  '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
+  18,
+  'DEI',
+  'DEI'
+)
 
 export enum MintHelper {
   MAIN = '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
@@ -34,6 +34,7 @@ export const BorrowPools: UnserializedBorrowPool[] = [
       'Solidex vAMM-DEI/DEUS',
       'sex-vAMM-DEI/DEUS'
     ),
+    dei: DEI_TOKEN,
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44', 18, 'DEUS', 'DEUS'),
     version: LenderVersion.V2,
@@ -53,6 +54,7 @@ export const BorrowPools: UnserializedBorrowPool[] = [
       'Solidex sAMM-USDC/DEI',
       'sex-sAMM-USDC/DEI'
     ),
+    dei: DEI_TOKEN,
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
     version: LenderVersion.V2,
@@ -75,10 +77,11 @@ export const BorrowPools: UnserializedBorrowPool[] = [
       'Solidex vAMM-DEI/DEUS',
       'sex-vAMM-DEI/DEUS'
     ),
+    dei: DEI_TOKEN_TEST,
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44', 18, 'DEUS', 'DEUS'),
     version: LenderVersion.V3,
-    composition: 'DEI/DEUS',
+    composition: 'DEI/DEUS *',
     oracle: '0x9f3C610a731809b6F7630B187777c66194EDf27b',
     generalLender: '0x8cf16324543C242798c0c5F230bB72EeAA7F9417',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
@@ -97,10 +100,11 @@ export const BorrowPools: UnserializedBorrowPool[] = [
       'vAMM-DEI/DEUS',
       'vAMM-DEI/DEUS'
     ),
+    dei: DEI_TOKEN_TEST,
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44', 18, 'DEUS', 'DEUS'),
     version: LenderVersion.V3,
-    composition: 'DEI/DEUS',
+    composition: 'DEI/DEUS *',
     oracle: '0x9f3C610a731809b6F7630B187777c66194EDf27b',
     generalLender: '0x8cf16324543C242798c0c5F230bB72EeAA7F9417',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',

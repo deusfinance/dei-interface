@@ -3,7 +3,7 @@ import { Contract } from '@ethersproject/contracts'
 import styled from 'styled-components'
 
 import { BorrowPool } from 'state/borrow/reducer'
-import { useLPData } from 'hooks/useLPData'
+import { usePendingLenderRewards } from 'hooks/usePendingLenderRewards'
 import { useUserPoolData } from 'hooks/usePoolData'
 import { useGeneralLenderContract, useReimburseContract } from 'hooks/useContract'
 import useWeb3React from 'hooks/useWeb3'
@@ -91,7 +91,7 @@ function TableRowWrap({ pool }: { pool: BorrowPool }) {
 
 function TableRow({ pool, userHolder, contract }: { pool: BorrowPool; userHolder: string; contract: Contract | null }) {
   const { account } = useWeb3React()
-  const { balance0, balance1 } = useLPData(pool, userHolder)
+  const { balance0, balance1 } = usePendingLenderRewards(pool, userHolder)
 
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState(false)
 

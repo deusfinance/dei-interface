@@ -33,6 +33,7 @@ export enum CollateralType {
 export interface UnserializedBorrowPool {
   id?: number
   contract: Token
+  dei: Token
   token0: Token
   token1: Token
   version: LenderVersion

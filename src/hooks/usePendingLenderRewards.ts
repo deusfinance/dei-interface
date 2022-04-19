@@ -1,12 +1,12 @@
 import { formatUnits } from '@ethersproject/units'
 import { useMemo } from 'react'
 
-import { BorrowPool } from 'state/borrow/reducer'
+import { BorrowPool, CollateralType } from 'state/borrow/reducer'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { useSolidexLpDepositor } from './useContract'
 import useWeb3React from './useWeb3'
 
-export function useLPData(pool: BorrowPool, userHolder: string) {
+export function usePendingLenderRewards(pool: BorrowPool, userHolder: string) {
   const { account } = useWeb3React()
   const contract = useSolidexLpDepositor()
   const balanceCalls = useMemo(
@@ -32,7 +32,9 @@ export function useLPData(pool: BorrowPool, userHolder: string) {
         balanceCalls.length && balances && balances?.result?.pending
           ? formatUnits(balances.result.pending[0].sex, 18)
           : '0',
+      token0: 'SOLID',
+      token1: pool.type == CollateralType.SOLIDEX ? ['SEX'] : ['OXD'],
     }),
-    [balanceCalls, balances]
+    [balanceCalls, balances, pool]
   )
 }

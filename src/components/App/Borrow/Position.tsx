@@ -13,7 +13,7 @@ import {
   useLiquidationPrice,
   useUserPoolData,
 } from 'hooks/usePoolData'
-import { useLPData } from 'hooks/useLPData'
+import { usePendingLenderRewards } from 'hooks/usePendingLenderRewards'
 import useClaimLenderRewardCallback from 'hooks/useClaimLenderRewardCallback'
 import { formatAmount, formatDollarAmount } from 'utils/numbers'
 
@@ -80,7 +80,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
   const liquidationPrice = useLiquidationPrice(pool)
   const [healthRatio, healthColor, healthText] = useHealthRatio(pool)
   const healthTitle = parseFloat(healthRatio) != 0 ? `| ${healthText.toUpperCase()}` : ''
-  const { balance0, balance1 } = useLPData(pool, userHolder)
+  const { balance0, balance1 } = usePendingLenderRewards(pool, userHolder)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
 
   const borrowSymbol = useMemo(() => {

@@ -8,7 +8,6 @@ import { AppState, useAppSelector } from 'state'
 import { BorrowPool, BorrowState } from './reducer'
 import { useCurrency } from 'hooks/useCurrency'
 import { constructPercentage } from 'utils/prices'
-import { DEI_TOKEN } from 'constants/borrow'
 
 export function useBorrowState(): BorrowState {
   return useAppSelector((state: AppState) => state.borrow)
@@ -60,7 +59,7 @@ export function useCurrenciesFromPool(pool: BorrowPool | undefined): {
   borrowCurrency: Currency | undefined
 } {
   const collateralCurrency = useCurrency(pool?.contract.address) || undefined
-  const borrowCurrency = useCurrency(DEI_TOKEN.address) || undefined
+  const borrowCurrency = useCurrency(pool?.dei.address) || undefined
   return { collateralCurrency, borrowCurrency }
 }
 

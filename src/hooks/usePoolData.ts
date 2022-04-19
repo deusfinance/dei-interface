@@ -12,7 +12,6 @@ import { useMultipleContractSingleData, useSingleContractMultipleMethods } from 
 import { useGeneralLenderContract, useHolderManager, useOracleContract } from 'hooks/useContract'
 import useWeb3React from 'hooks/useWeb3'
 
-import { DEI_TOKEN } from 'constants/borrow'
 import { LenderABI } from 'constants/abi'
 import { constructPercentage, ONE_HUNDRED_PERCENT } from 'utils/prices'
 import { BN_ZERO, BN_ONE_HUNDRED } from 'utils/numbers'
@@ -29,7 +28,6 @@ export function useUserPoolData(pool: BorrowPool): {
   const generalLenderContract = useGeneralLenderContract(pool)
   const holderManagerContract = useHolderManager()
   const collateralBorrowCalls = getUserPoolDataCalls(pool, account)
-
   const [userCollateral, userBorrow, userDebt] = useSingleContractMultipleMethods(
     generalLenderContract,
     collateralBorrowCalls
@@ -42,11 +40,9 @@ export function useUserPoolData(pool: BorrowPool): {
           ? formatUnits(userCollateral.result[0], pool.contract.decimals)
           : '0',
       userBorrowValue:
-        collateralBorrowCalls.length && userBorrow?.result
-          ? formatUnits(userBorrow.result[0], DEI_TOKEN.decimals)
-          : '0',
+        collateralBorrowCalls.length && userBorrow?.result ? formatUnits(userBorrow.result[0], pool.dei.decimals) : '0',
       userDebtValue:
-        collateralBorrowCalls.length && userDebt?.result ? formatUnits(userDebt.result[0], DEI_TOKEN.decimals) : '0',
+        collateralBorrowCalls.length && userDebt?.result ? formatUnits(userDebt.result[0], pool.dei.decimals) : '0',
     }),
     [collateralBorrowCalls, userCollateral, userBorrow, userDebt, pool]
   )

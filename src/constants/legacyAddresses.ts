@@ -2,7 +2,7 @@ import { Token } from '@sushiswap/core-sdk'
 
 import { CollateralType, LenderVersion, UnserializedBorrowPool } from 'state/borrow/reducer'
 import { SupportedChainId } from 'constants/chains'
-import { MintHelper } from 'constants/borrow'
+import { MintHelper, DEI_TOKEN } from 'constants/borrow'
 
 export const DeprecatedBorrowPools: UnserializedBorrowPool[] = [
   {
@@ -13,6 +13,7 @@ export const DeprecatedBorrowPools: UnserializedBorrowPool[] = [
       'Solidex vAMM-DEI/DEUS',
       'sex-vAMM-DEI/DEUS'
     ),
+    dei: DEI_TOKEN,
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44', 18, 'DEUS', 'DEUS'),
     version: LenderVersion.V2,
@@ -32,6 +33,7 @@ export const DeprecatedBorrowPools: UnserializedBorrowPool[] = [
       'Solidex sAMM-USDC/DEI',
       'sex-sAMM-USDC/DEI'
     ),
+    dei: DEI_TOKEN,
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
     version: LenderVersion.V2,
@@ -51,6 +53,7 @@ export const DeprecatedBorrowPools: UnserializedBorrowPool[] = [
       'Solidex sAMM-USDC/DEI',
       'sex-sAMM-USDC/DEI'
     ),
+    dei: DEI_TOKEN,
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
     version: LenderVersion.V1,
@@ -70,6 +73,7 @@ export const DeprecatedBorrowPools: UnserializedBorrowPool[] = [
       'Solidex sAMM-USDC/DEI',
       'sex-sAMM-USDC/DEI'
     ),
+    dei: DEI_TOKEN,
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
     version: LenderVersion.V1,
@@ -89,6 +93,7 @@ export const DeprecatedBorrowPools: UnserializedBorrowPool[] = [
       'Solidex sAMM-USDC/DEI',
       'sex-sAMM-USDC/DEI'
     ),
+    dei: DEI_TOKEN,
     token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
     token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
     version: LenderVersion.V1,
@@ -110,6 +115,7 @@ export const ReimbursePool: UnserializedBorrowPool = {
     'Solidex sAMM-USDC/DEI',
     'sex-sAMM-USDC/DEI'
   ),
+  dei: DEI_TOKEN,
   token0: new Token(SupportedChainId.FANTOM, '0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3', 18, 'DEI', 'DEI'),
   token1: new Token(SupportedChainId.FANTOM, '0x04068da6c83afcfa0e13ba15a6696662335d5b75', 6, 'USDC', 'USDC'),
   version: LenderVersion.V1,

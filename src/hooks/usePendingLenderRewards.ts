@@ -1,40 +1,57 @@
-import { formatUnits } from '@ethersproject/units'
 import { useMemo } from 'react'
+import { formatUnits } from '@ethersproject/units'
 
 import { BorrowPool, CollateralType } from 'state/borrow/reducer'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { useSolidexLpDepositor } from './useContract'
-import useWeb3React from './useWeb3'
+import { useOxDaoHolderFactory, useSolidexLpDepositor } from 'hooks/useContract'
+import useWeb3React from 'hooks/useWeb3'
 
 export function usePendingLenderRewards(pool: BorrowPool, userHolder: string) {
   const { account } = useWeb3React()
-  const contract = useSolidexLpDepositor()
-  const balanceCalls = useMemo(
-    () =>
-      !account || !userHolder
-        ? []
-        : [
-            {
-              methodName: 'pendingRewards',
-              callInputs: [userHolder, [pool.lpPool]],
-            },
-          ],
-    [account, pool, userHolder]
-  )
+  const SolidexLPDepositorContract = useSolidexLpDepositor()
+  const OxDaoFactoryContract = useOxDaoHolderFactory()
+
+  const [contract, balanceCalls] = useMemo(() => {
+    if (!account || !userHolder) return [null, []]
+    if (pool.type == CollateralType.SOLIDEX) {
+      return [
+        SolidexLPDepositorContract,
+        [
+          {
+            methodName: 'pendingRewards',
+            callInputs: [userHolder, [pool.lpPool]],
+          },
+        ],
+      ]
+    }
+    if (pool.type == CollateralType.OXDAO) {
+      return [
+        OxDaoFactoryContract,
+        [
+          {
+            methodName: 'earned',
+            callInputs: [userHolder, pool.contract.address],
+          },
+        ],
+      ]
+    }
+    return [null, []]
+  }, [account, userHolder, pool, SolidexLPDepositorContract, OxDaoFactoryContract])
 
   const [balances] = useSingleContractMultipleMethods(contract, balanceCalls)
 
+  const earned = balanceCalls.length
+    ? pool.type == CollateralType.SOLIDEX
+      ? balances?.result?.pending[0]
+      : balances?.result && balances?.result[0]
+    : null
+
+  //TODO: it should be dynamic for all type Collaterals
   return useMemo(
     () => ({
-      balance0:
-        balanceCalls.length && balances?.result?.pending ? formatUnits(balances.result.pending[0].solid, 18) : '0',
-      balance1:
-        balanceCalls.length && balances && balances?.result?.pending
-          ? formatUnits(balances.result.pending[0].sex, 18)
-          : '0',
-      token0: 'SOLID',
-      token1: pool.type == CollateralType.SOLIDEX ? ['SEX'] : ['OXD'],
+      balances: [earned ? formatUnits(earned[0], 18) : '0', earned ? formatUnits(earned[1], 18) : '0'],
+      symbols: ['SOLID', pool.type == CollateralType.SOLIDEX ? 'SEX' : 'OXD'],
     }),
-    [balanceCalls, balances, pool]
+    [earned, pool]
   )
 }

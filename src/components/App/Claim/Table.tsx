@@ -91,7 +91,7 @@ function TableRowWrap({ pool }: { pool: BorrowPool }) {
 
 function TableRow({ pool, userHolder, contract }: { pool: BorrowPool; userHolder: string; contract: Contract | null }) {
   const { account } = useWeb3React()
-  const { balance0, balance1 } = usePendingLenderRewards(pool, userHolder)
+  const { balances } = usePendingLenderRewards(pool, userHolder)
 
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState(false)
 
@@ -118,13 +118,13 @@ function TableRow({ pool, userHolder, contract }: { pool: BorrowPool; userHolder
     return <PrimaryButton onClick={onClaim}>Claim</PrimaryButton>
   }
 
-  if (parseFloat(balance0) == 0 && parseFloat(balance1) == 0) return <></>
+  if (parseFloat(balances[0]) == 0 && parseFloat(balances[1]) == 0) return <></>
 
   return (
     <Row>
       <Cel>
-        {formatAmount(parseFloat(balance0))} SOLID <br />
-        {formatAmount(parseFloat(balance1))} SEX
+        {formatAmount(parseFloat(balances[0]))} SOLID <br />
+        {formatAmount(parseFloat(balances[1]))} SEX
       </Cel>
       <Cel style={{ padding: '15px 30px' }}>{getClaimButton()}</Cel>
     </Row>

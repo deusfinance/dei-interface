@@ -134,7 +134,7 @@ function TableRow({
   const logoOne = useCurrencyLogo(pool.token0.address)
   const logoTwo = useCurrencyLogo(pool.token1.address)
   const { userHolder } = useUserPoolData(pool)
-  const { balance0, balance1, token0, token1 } = usePendingLenderRewards(pool, userHolder)
+  const { balances, symbols } = usePendingLenderRewards(pool, userHolder)
   const { borrowedElastic } = useGlobalPoolData(pool)
 
   return (
@@ -152,8 +152,9 @@ function TableRow({
         {formatAmount(parseFloat(borrowedElastic))} {borrowCurrency?.symbol}
       </Cel>
       <Cel>
-        {formatAmount(parseFloat(balance0))} {token0} <br />
-        {formatAmount(parseFloat(balance1))} {token1}
+        {symbols.map((symbol, index) => {
+          return <div key={index}>{`${formatAmount(parseFloat(balances[index]))} ${symbol}`}</div>
+        })}
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
         <PrimaryButton onClick={() => onMintClick(pool.generalLender, pool?.id)}>Borrow</PrimaryButton>

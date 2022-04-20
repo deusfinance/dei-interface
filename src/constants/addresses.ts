@@ -46,3 +46,7 @@ export const SolidexLpDepositor: AddressMap = {
 export const Reimburse: AddressMap = {
   [SupportedChainId.FANTOM]: '0x85B6996ab768600C14dA1464205bd6b3a864417D',
 }
+
+export const OxDaoHolderFactory: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x2D3b4Eb51BA30CAf8EE5f1FC3D793297b5c635d7',
+}

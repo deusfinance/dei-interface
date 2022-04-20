@@ -80,7 +80,8 @@ export default function Position({ pool }: { pool: BorrowPool }) {
   const liquidationPrice = useLiquidationPrice(pool)
   const [healthRatio, healthColor, healthText] = useHealthRatio(pool)
   const healthTitle = parseFloat(healthRatio) != 0 ? `| ${healthText.toUpperCase()}` : ''
-  const { balance0, balance1 } = usePendingLenderRewards(pool, userHolder)
+  const { balances, symbols } = usePendingLenderRewards(pool, userHolder)
+  const hasReward = parseFloat(balances[0]) > 0 || parseFloat(balances[1]) > 0
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
 
   const borrowSymbol = useMemo(() => {
@@ -166,18 +167,20 @@ export default function Position({ pool }: { pool: BorrowPool }) {
         value={`${formatAmount(parseFloat(borrowable), 0)} DEI`}
         explanation={`${borrowSymbol} Borrowable based on the Collateral Deposited`}
       />
-      {parseFloat(balance0) > 0 && (
+      {hasReward && (
         <>
           <PositionRow
             label="Underlying LP Rewards"
-            subLabel={`${formatAmount(parseFloat(balance0), 2)} SOLID + ${formatAmount(parseFloat(balance1), 2)} SEX`}
+            subLabel={`${formatAmount(parseFloat(balances[0]), 2)} ${symbols[0]} + ${formatAmount(
+              parseFloat(balances[1]),
+              2
+            )} ${symbols[1]}`}
             value=""
-            explanation="SEX + SOLID your position has earned so far"
+            explanation={`${symbols[0]} + ${symbols[1]} your position has earned so far`}
           />
-          {/* {parseFloat(balance0) > 0 && getClaimButton()} */}
+          {hasReward && getClaimButton()}
         </>
       )}
-      {getClaimButton()}
     </Wrapper>
   )
 }

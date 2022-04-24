@@ -38,7 +38,7 @@ export default function useBorrowCallback(
   const { userBorrow } = useUserPoolData(pool)
 
   const getOracleData = useCallback(async () => {
-    const result = await BorrowClient.getCollateralPrice(pool.lpPool)
+    const result = await BorrowClient.getCollateralPrice(pool)
     if (result.success === false) {
       throw new Error(`Unable to fetch Muon collateral price: ${result.error}`)
     }

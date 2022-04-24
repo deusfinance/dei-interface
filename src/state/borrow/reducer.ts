@@ -26,6 +26,8 @@ export interface UnserializedBorrowPool {
   oracle: string
   generalLender: string
   lpPool: string
+  pair0?: string[]
+  pair1?: string[]
   type: string
   liquidationFee: number
   mintHelper: string

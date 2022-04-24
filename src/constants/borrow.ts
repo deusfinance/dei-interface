@@ -39,6 +39,8 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     generalLender: '0x118FF56bb12E5E0EfC14454B8D7Fa6009487D64E',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
     mintHelper: '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
+    pair0: ['0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
+    pair1: ['0xF42dBcf004a93ae6D5922282B304E2aEFDd50058', '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
     type: 'Solidex LP Token',
     liquidationFee: 5, // 5%
   },
@@ -59,6 +61,8 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     generalLender: '0x8D643d954798392403eeA19dB8108f595bB8B730',
     lpPool: '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
     mintHelper: '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
+    pair0: [],
+    pair1: ['0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
     type: 'Solidex LP Token',
     liquidationFee: 5, // 5%
   },

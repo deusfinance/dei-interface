@@ -2,10 +2,13 @@ import { MuonResponse, IError } from '../types'
 import { Type, isError, getErrorMessage } from '../error'
 import { MuonClient } from './base'
 import { MUON_BASE_URL } from '../config'
+import { BorrowPool } from 'state/borrow/reducer'
 
 interface RequestParams {
   token: string
   hashTimestamp: boolean
+  pairs0: string
+  pairs1: string
 }
 
 interface CollateralPriceData {
@@ -30,12 +33,12 @@ export class BorrowClient extends MuonClient {
     super({
       baseURL: baseURL ?? MUON_BASE_URL,
       nSign: 4,
-      APP_ID: 'dei_oracles_vwap',
+      APP_ID: 'solidly_permissionless_oracles_vwap',
       APP_METHOD: 'lp_price',
     })
   }
 
-  private _getRequestParams(contract: string): Type<RequestParams> {
+  private _getRequestParams(contract: string, pairs0: string[], pairs1: string[]): Type<RequestParams> {
     if (!contract) return new Error('Param `contract` is missing.')
 
     const address = this._getChecksumAddress(contract)
@@ -44,12 +47,14 @@ export class BorrowClient extends MuonClient {
     return {
       token: address,
       hashTimestamp: true,
+      pairs0: pairs0.join(','),
+      pairs1: pairs1.join(','),
     }
   }
 
-  public async getCollateralPrice(contract: string): Promise<CollateralPriceData | IError> {
+  public async getCollateralPrice(pool: BorrowPool): Promise<CollateralPriceData | IError> {
     try {
-      const requestParams = this._getRequestParams(contract)
+      const requestParams = this._getRequestParams(pool.lpPool, pool?.pair0 ?? [], pool?.pair1 ?? [])
       if (isError(requestParams)) throw new Error(requestParams.message)
       console.info('Requesting data from Muon: ', requestParams)
 

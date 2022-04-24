@@ -7,7 +7,6 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 
 import { Borrow, Balances, Info, Position } from 'components/App/Borrow'
 import Hero, { HeroSubtext } from 'components/Hero'
-import { Card } from 'components/Card'
 import Disclaimer from 'components/Disclaimer'
 import { PrimaryButton } from 'components/Button'
 import { ArrowBubble } from 'components/Icons'
@@ -92,10 +91,6 @@ const CardWrapper = styled.div`
     flex-flow: column nowrap;
   `}
 `
-const Maintenance = styled(Card)`
-  border: 1px solid ${({ theme }) => theme.warning};
-  margin-bottom: 30px;
-`
 
 export default function BorrowDEI() {
   const { chainId, account } = useWeb3React()
@@ -177,9 +172,6 @@ export default function BorrowDEI() {
         </HeroSubtext>
       </Hero>
       <Wrapper>
-        <Maintenance>
-          The lending contracts are currently under maintenance. Apologies for the inconvenience, we’ll be back soon.
-        </Maintenance>
         <ReturnWrapper onClick={onReturnClick}>
           <ArrowBubble size={20} />
           Pool Overview

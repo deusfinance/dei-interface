@@ -5,7 +5,7 @@ import { useCurrenciesFromPool } from 'state/borrow/hooks'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useGlobalPoolData, useUserPoolData } from 'hooks/usePoolData'
-import { useLPData } from 'hooks/useLPData'
+import { usePendingLenderRewards } from 'hooks/usePendingLenderRewards'
 
 import Pagination from 'components/Pagination'
 import { PrimaryButton } from 'components/Button'
@@ -76,7 +76,7 @@ export default function Table({
   onMintClick,
 }: {
   options: BorrowPool[]
-  onMintClick: (contract: string, version: LenderVersion) => void
+  onMintClick: (contract: string, id: number | undefined) => void
 }) {
   const [offset, setOffset] = useState(0)
 
@@ -128,13 +128,13 @@ function TableRow({
   onMintClick,
 }: {
   pool: BorrowPool
-  onMintClick: (contract: string, version: LenderVersion) => void
+  onMintClick: (contract: string, id: number | undefined) => void
 }) {
   const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const logoOne = useCurrencyLogo(pool.token0.address)
   const logoTwo = useCurrencyLogo(pool.token1.address)
   const { userHolder } = useUserPoolData(pool)
-  const { balance0, balance1 } = useLPData(pool, userHolder)
+  const { balances, symbols } = usePendingLenderRewards(pool, userHolder)
   const { borrowedElastic } = useGlobalPoolData(pool)
 
   return (
@@ -152,11 +152,12 @@ function TableRow({
         {formatAmount(parseFloat(borrowedElastic))} {borrowCurrency?.symbol}
       </Cel>
       <Cel>
-        {formatAmount(parseFloat(balance0))} SOLID <br />
-        {formatAmount(parseFloat(balance1))} SEX
+        {symbols.map((symbol, index) => {
+          return <div key={index}>{`${formatAmount(parseFloat(balances[index]))} ${symbol}`}</div>
+        })}
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => onMintClick(pool.contract.address, pool.version)}>Borrow</PrimaryButton>
+        <PrimaryButton onClick={() => onMintClick(pool.generalLender, pool?.id)}>Borrow</PrimaryButton>
       </Cel>
     </Row>
   )

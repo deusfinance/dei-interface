@@ -4,16 +4,15 @@ import { Contract } from '@ethersproject/contracts'
 import { AddressZero } from '@ethersproject/constants'
 import { Web3Provider } from '@ethersproject/providers'
 
-import useWeb3React from './useWeb3'
+import useWeb3React from 'hooks/useWeb3'
 
 import ERC20_ABI from 'constants/abi/ERC20.json'
 import ERC20_BYTES32_ABI from 'constants/abi/ERC20'
 import MULTICALL2_ABI from 'constants/abi/MULTICALL2.json'
-import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
-import GENERAL_LENDER_V2_ABI from 'constants/abi/GENERAL_LENDER_V2.json'
-import LENDER_MANAGER_ABI from 'constants/abi/LENDER_MANAGER.json'
+import HOLDER_MANAGER from 'constants/abi/HOLDER_MANAGER.json'
 import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
 import SOLIDEX_LP_DEPOSITOR_ABI from 'constants/abi/SOLIDEX_LP_DEPOSITOR.json'
+import OXDAO_HOLDER_FACTORY_ABI from 'constants/abi/OXDAO_HOLDER_FACTORY.json'
 import VEDEUS_ABI from 'constants/abi/VEDEUS.json'
 import REIMBURSE_ABI from 'constants/abi/REIMBURSE.json'
 import BASE_V1_FACTORY_ABI from 'constants/abi/BASE_V1_FACTORY.json'
@@ -25,7 +24,7 @@ import BASE_V1_MINTER_ABI from 'constants/abi/BASE_V1_MINTER.json'
 
 import { Providers } from 'constants/providers'
 import {
-  LenderManager,
+  HolderManager,
   Multicall2,
   SolidexLpDepositor,
   Reimburse,
@@ -34,8 +33,10 @@ import {
   BaseV1Voter,
   ZERO_ADDRESS,
   BaseV1Minter,
+  OxDaoHolderFactory,
 } from 'constants/addresses'
-import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
+import { HolderABI, LenderABI } from 'constants/abi'
+import { BorrowPool } from 'state/borrow/reducer'
 
 export function useContract<T extends Contract = Contract>(
   addressOrAddressMap: string | null | undefined,
@@ -68,8 +69,7 @@ export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossi
 }
 
 export function useGeneralLenderContract(pool: BorrowPool) {
-  const ABI = pool.version == LenderVersion.V1 ? GENERAL_LENDER_ABI : GENERAL_LENDER_V2_ABI
-  return useContract(pool.generalLender, ABI)
+  return useContract(pool?.generalLender, LenderABI[pool?.version])
 }
 
 export function useBaseV1FactoryContract() {
@@ -124,10 +124,20 @@ export function useSolidexLpDepositor() {
   return useContract(address, SOLIDEX_LP_DEPOSITOR_ABI)
 }
 
-export function useLenderManagerContract() {
+export function useOxDaoHolderFactory() {
   const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? LenderManager[chainId] : undefined), [chainId])
-  return useContract(address, LENDER_MANAGER_ABI)
+  const address = useMemo(() => (chainId ? OxDaoHolderFactory[chainId] : undefined), [chainId])
+  return useContract(address, OXDAO_HOLDER_FACTORY_ABI)
+}
+
+export function useHolderManager() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? HolderManager[chainId] : undefined), [chainId])
+  return useContract(address, HOLDER_MANAGER)
+}
+
+export function useHolderContract(pool: BorrowPool, holder: string) {
+  return useContract(holder, HolderABI[pool.type])
 }
 
 export function useMulticall2Contract() {

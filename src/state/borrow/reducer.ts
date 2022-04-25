@@ -14,21 +14,36 @@ export enum BorrowAction {
 export enum LenderVersion {
   V1 = 'v1',
   V2 = 'v2',
+  V3 = 'v3', //real general lender
+}
+
+export enum HealthType {
+  DEFAULT = '',
+  SAFE = 'safe',
+  MEDIUM = 'medium',
+  RISKY = 'risky',
+  HIGH_RISK = 'high risk',
+}
+
+export enum CollateralType {
+  SOLIDEX = 'Solidex LP Token',
+  OXDAO = '0xDAO LP Token',
 }
 
 export interface UnserializedBorrowPool {
+  id?: number
   contract: Token
+  dei: Token
   token0: Token
   token1: Token
-  abi: any
   version: LenderVersion
   composition: string
-  oracle: string
+  oracle?: string
   generalLender: string
   lpPool: string
   pair0?: string[]
   pair1?: string[]
-  type: string
+  type: CollateralType
   liquidationFee: number
   mintHelper: string
 }

@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js'
 import { BorrowPool } from 'state/borrow/reducer'
 import { useCurrenciesFromPool } from 'state/borrow/hooks'
 
-import useWeb3React from 'hooks/useWeb3'
 import {
   useAvailableToBorrow,
   useCollateralPrice,
@@ -14,8 +13,8 @@ import {
   useLiquidationPrice,
   useUserPoolData,
 } from 'hooks/usePoolData'
-import { useLPData } from 'hooks/useLPData'
-import { useGeneralLenderContract } from 'hooks/useContract'
+import { usePendingLenderRewards } from 'hooks/usePendingLenderRewards'
+import useClaimLenderRewardCallback from 'hooks/useClaimLenderRewardCallback'
 import { formatAmount, formatDollarAmount } from 'utils/numbers'
 
 import { Card } from 'components/Card'
@@ -61,14 +60,6 @@ const Row = styled.div`
     }
   }
 `
-//TODO: it hurt my brain to make it just with {color && theme[color]}, but i didn't find a good way without TS type warning!
-const RowValue = styled.div<{
-  color?: string
-}>`
-  color: ${({ theme, color }) =>
-    color &&
-    ((color == 'green1' && theme.green1) || (color == 'red1' && theme.red1) || (color == 'yellow2' && theme.yellow2))};
-`
 
 const SubLabel = styled.div`
   font-size: 0.5rem;
@@ -89,10 +80,9 @@ export default function Position({ pool }: { pool: BorrowPool }) {
   const liquidationPrice = useLiquidationPrice(pool)
   const [healthRatio, healthColor, healthText] = useHealthRatio(pool)
   const healthTitle = parseFloat(healthRatio) != 0 ? `| ${healthText.toUpperCase()}` : ''
-  const generalLender = useGeneralLenderContract(pool)
-  const { balance0, balance1 } = useLPData(pool, userHolder)
+  const { balances, symbols } = usePendingLenderRewards(pool, userHolder)
+  const hasReward = parseFloat(balances[0]) > 0 || parseFloat(balances[1]) > 0
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
-  const { account } = useWeb3React()
 
   const borrowSymbol = useMemo(() => {
     return borrowCurrency?.symbol ?? ''
@@ -102,17 +92,19 @@ export default function Position({ pool }: { pool: BorrowPool }) {
     return new BigNumber(userCollateral).times(collateralPrice).toNumber()
   }, [userCollateral, collateralPrice])
 
-  const onClaim = useCallback(async () => {
+  const { callback: onClaimCallback } = useClaimLenderRewardCallback(pool, userHolder)
+
+  const handleClaim = useCallback(async () => {
+    if (!onClaimCallback) return
     try {
-      if (!generalLender || !account) return
       setAwaitingClaimConfirmation(true)
-      await generalLender.claimAndWithdraw([pool.lpPool], account)
+      await onClaimCallback()
       setAwaitingClaimConfirmation(false)
-    } catch (err) {
-      console.error(err)
+    } catch (error) {
+      console.log(error)
       setAwaitingClaimConfirmation(false)
     }
-  }, [generalLender, pool, account])
+  }, [onClaimCallback])
 
   function getClaimButton() {
     if (awaitingClaimConfirmation) {
@@ -122,7 +114,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
         </StyledPrimaryButton>
       )
     }
-    return <StyledPrimaryButton onClick={onClaim}>Claim Rewards</StyledPrimaryButton>
+    return <StyledPrimaryButton onClick={handleClaim}>Claim Rewards</StyledPrimaryButton>
   }
   const numerator = (100 - parseFloat(borrowFee.toSignificant())) / 100
 
@@ -175,15 +167,18 @@ export default function Position({ pool }: { pool: BorrowPool }) {
         value={`${formatAmount(parseFloat(borrowable), 0)} DEI`}
         explanation={`${borrowSymbol} Borrowable based on the Collateral Deposited`}
       />
-      {parseFloat(balance0) > 0 && (
+      {hasReward && (
         <>
           <PositionRow
             label="Underlying LP Rewards"
-            subLabel={`${formatAmount(parseFloat(balance0), 2)} SOLID + ${formatAmount(parseFloat(balance1), 2)} SEX`}
+            subLabel={`${formatAmount(parseFloat(balances[0]), 2)} ${symbols[0]} + ${formatAmount(
+              parseFloat(balances[1]),
+              2
+            )} ${symbols[1]}`}
             value=""
-            explanation="SEX + SOLID your position has earned so far"
+            explanation={`${symbols[0]} + ${symbols[1]} your position has earned so far`}
           />
-          {parseFloat(balance0) > 0 && getClaimButton()}
+          {hasReward && getClaimButton()}
         </>
       )}
     </Wrapper>
@@ -209,7 +204,7 @@ function PositionRow({
         <ToolTip id="id" />
         <Info data-for="id" data-tip={explanation} size={15} />
         <div>{label}</div>
-        <RowValue color={color}>{value}</RowValue>
+        <div style={{ color }}>{value}</div>
       </Row>
       {subLabel && <SubLabel>{subLabel}</SubLabel>}
     </Column>

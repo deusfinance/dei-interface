@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
-import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
+import { BorrowPool } from 'state/borrow/reducer'
 import { useBorrowPools } from 'state/borrow/hooks'
 import { useGlobalDEIBorrowed } from 'hooks/usePoolData'
 
@@ -49,8 +49,8 @@ export default function Borrow() {
   const pools = useBorrowPools()
   const { borrowedElastic } = useGlobalDEIBorrowed(pools)
   const onMintClick = useCallback(
-    (contract: string, version: LenderVersion) => {
-      const param = version == LenderVersion.V1 ? `?version=${version}` : ''
+    (contract: string, id: number | undefined) => {
+      const param = id != undefined ? `/${id}` : ''
       router.push(`/borrow/${contract}${param}`)
     },
     [router]

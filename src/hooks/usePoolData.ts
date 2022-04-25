@@ -1,126 +1,85 @@
 import { useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Percent } from '@sushiswap/core-sdk'
-import BigNumber from 'bignumber.js'
+import { Contract } from '@ethersproject/contracts'
 import { Interface } from '@ethersproject/abi'
 import { AddressZero } from '@ethersproject/constants'
+import { useTheme } from 'styled-components'
+import BigNumber from 'bignumber.js'
 
-import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
+import { BorrowPool, HealthType, LenderVersion } from 'state/borrow/reducer'
 import { useMultipleContractSingleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { useGeneralLenderContract, useLenderManagerContract, useOracleContract } from './useContract'
-import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
+import { useGeneralLenderContract, useHolderManager, useOracleContract } from 'hooks/useContract'
+import useWeb3React from 'hooks/useWeb3'
 
-import { DEI_TOKEN } from 'constants/borrow'
+import { LenderABI } from 'constants/abi'
 import { constructPercentage, ONE_HUNDRED_PERCENT } from 'utils/prices'
-import useWeb3React from './useWeb3'
+import { BN_ZERO, BN_ONE_HUNDRED } from 'utils/numbers'
+import { getGlobalPoolDataCalls, getUserPoolDataCalls } from 'utils/borrow/calls'
 
 export function useUserPoolData(pool: BorrowPool): {
   userCollateral: string
   userBorrow: string
-  userCap: string
   userDebt: string
   userHolder: string
 } {
   const { account } = useWeb3React()
+  const isV2 = pool.version == LenderVersion.V2
   const generalLenderContract = useGeneralLenderContract(pool)
-  const lenderManagerContract = useLenderManagerContract()
-
-  const collateralBorrowCalls = useMemo(
-    () =>
-      !account
-        ? []
-        : [
-            {
-              methodName: 'userCollateral',
-              callInputs: [account],
-            },
-            {
-              methodName: 'userBorrow',
-              callInputs: [account],
-            },
-          ],
-    [account]
+  const holderManagerContract = useHolderManager()
+  const collateralBorrowCalls = getUserPoolDataCalls(pool, account)
+  const [userCollateral, userBorrow, userDebt] = useSingleContractMultipleMethods(
+    generalLenderContract,
+    collateralBorrowCalls
   )
 
-  const userHolderCalls = useMemo(
-    () =>
-      !account
-        ? []
-        : [
-            {
-              methodName: 'userHolder',
-              callInputs: [account],
-            },
-          ],
-    [account]
-  )
-
-  const userCapCalls = useMemo(
-    () =>
-      !account
-        ? []
-        : [
-            {
-              methodName: 'getCap',
-              callInputs: [account],
-            },
-          ],
-    [account]
-  )
-
-  const [userCollateral, userBorrow] = useSingleContractMultipleMethods(generalLenderContract, collateralBorrowCalls)
-  const [userHolder] = useSingleContractMultipleMethods(generalLenderContract, userHolderCalls)
-  const [userCap] = useSingleContractMultipleMethods(lenderManagerContract, userCapCalls)
-
-  const { userCollateralValue, userBorrowValue, userCapValue } = useMemo(
+  const { userCollateralValue, userBorrowValue, userDebtValue } = useMemo(
     () => ({
       userCollateralValue:
         collateralBorrowCalls.length && userCollateral?.result
           ? formatUnits(userCollateral.result[0], pool.contract.decimals)
           : '0',
       userBorrowValue:
-        collateralBorrowCalls.length && userBorrow?.result
-          ? formatUnits(userBorrow.result[0], DEI_TOKEN.decimals)
-          : '0',
-      userCapValue: userCapCalls.length && userCap?.result ? formatUnits(userCap.result[0], DEI_TOKEN.decimals) : '0',
+        collateralBorrowCalls.length && userBorrow?.result ? formatUnits(userBorrow.result[0], pool.dei.decimals) : '0',
+      userDebtValue:
+        collateralBorrowCalls.length && userDebt?.result ? formatUnits(userDebt.result[0], pool.dei.decimals) : '0',
     }),
-    [collateralBorrowCalls, userCapCalls, userCollateral, userBorrow, userCap, pool]
+    [collateralBorrowCalls, userCollateral, userBorrow, userDebt, pool]
   )
 
-  const debtCalls = useMemo(
+  const holderContract = isV2 ? generalLenderContract : holderManagerContract
+  const userHolderCalls = useMemo(
     () =>
-      !account || !parseFloat(userBorrowValue)
+      !account
         ? []
         : [
             {
-              methodName: 'getDebt',
-              callInputs: [account],
+              methodName: isV2 ? 'userHolder' : 'getHolder',
+              callInputs: isV2 ? [account] : [pool?.id, account],
             },
           ],
-    [account, userBorrowValue]
+    [account, isV2, pool]
   )
-
-  const [userDebt] = useSingleContractMultipleMethods(generalLenderContract, debtCalls)
-  const userDebtValue = useMemo(
-    () => (debtCalls.length && userDebt?.result ? formatUnits(userDebt.result[0], DEI_TOKEN.decimals) : '0'),
-    [debtCalls, userDebt]
-  )
-
-  const userHolderAddress = useMemo(
-    () => (userHolderCalls.length && userHolder?.result ? userHolder?.result[0].toString() : AddressZero),
-    [userHolderCalls, userHolder]
-  )
+  const userHolderAddress = useGetHolder(holderContract, userHolderCalls)
 
   return useMemo(
     () => ({
       userCollateral: userCollateralValue,
       userBorrow: userBorrowValue,
-      userCap: userCapValue,
       userDebt: userDebtValue,
       userHolder: userHolderAddress,
     }),
-    [userCollateralValue, userBorrowValue, userCapValue, userDebtValue, userHolderAddress]
+    [userCollateralValue, userBorrowValue, userDebtValue, userHolderAddress]
   )
+}
+
+export function useGetHolder(contract: Contract | null, calls: any): string {
+  const [userHolder] = useSingleContractMultipleMethods(contract, calls)
+  const userHolderAddress = useMemo(
+    () => (calls.length && userHolder?.result ? userHolder?.result[0].toString() : AddressZero),
+    [calls, userHolder]
+  )
+  return userHolderAddress
 }
 
 export function useGlobalPoolData(pool: BorrowPool): {
@@ -134,33 +93,7 @@ export function useGlobalPoolData(pool: BorrowPool): {
   interestPerSecond: number
 } {
   const generalLenderContract = useGeneralLenderContract(pool)
-
-  const calls = [
-    {
-      methodName: 'maxCap',
-      callInputs: [],
-    },
-    {
-      methodName: 'totalCollateral',
-      callInputs: [],
-    },
-    {
-      methodName: 'totalBorrow',
-      callInputs: [],
-    },
-    {
-      methodName: 'LIQUIDATION_RATIO',
-      callInputs: [],
-    },
-    {
-      methodName: 'BORROW_OPENING_FEE',
-      callInputs: [],
-    },
-    {
-      methodName: 'accrueInfo',
-      callInputs: [],
-    },
-  ]
+  const calls = getGlobalPoolDataCalls(pool)
 
   const [maxCap, totalCollateral, totalBorrow, liquidationRatio, borrowFee, accrueInfo] =
     useSingleContractMultipleMethods(generalLenderContract, calls)
@@ -177,8 +110,9 @@ export function useGlobalPoolData(pool: BorrowPool): {
       borrowFee: borrowFee?.result
         ? constructPercentage(parseFloat(formatUnits(borrowFee.result[0], 18))) // BORROW_OPENING_FEE_PRECISION
         : constructPercentage(0.005),
-      feesEarned: accrueInfo?.result ? formatUnits(accrueInfo.result[1], 18) : '0',
-      interestPerSecond: accrueInfo?.result ? parseFloat(formatUnits(accrueInfo.result[2], 18)) : 0,
+      feesEarned:
+        accrueInfo?.result && accrueInfo?.result?.feesEarned ? formatUnits(accrueInfo.result.feesEarned, 18) : '0',
+      interestPerSecond: accrueInfo?.result ? parseFloat(formatUnits(accrueInfo.result.interestPerSecond, 18)) : 0,
     }),
     [pool, maxCap, totalCollateral, totalBorrow, liquidationRatio, borrowFee, accrueInfo]
   )
@@ -188,8 +122,28 @@ export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
   borrowedBase: string
   borrowedElastic: string
 } {
-  const contracts = useMemo(() => pools.map((pool) => pool.generalLender), [pools])
-  const results = useMultipleContractSingleData(contracts, new Interface(GENERAL_LENDER_ABI), 'totalBorrow', [])
+  const v3Pools = pools.filter((pool) => pool.version === LenderVersion.V3)
+  const v2Pools = pools.filter((pool) => pool.version !== LenderVersion.V3)
+
+  // we know that first index is v3 pool, its ok for now but probably we should change it later
+  const generalLenderContract = useGeneralLenderContract(v3Pools[0])
+  const contracts = useMemo(() => v2Pools.map((pool) => pool.generalLender), [v2Pools])
+  const v3TotalBorrowCalls = useMemo(
+    () =>
+      v3Pools.map((pool) => ({
+        methodName: 'totalBorrows',
+        callInputs: [pool?.id],
+      })),
+    [v3Pools]
+  )
+  const results = useMultipleContractSingleData(
+    contracts,
+    new Interface(LenderABI[LenderVersion.V2]),
+    'totalBorrow',
+    []
+  )
+  const v3Result = useSingleContractMultipleMethods(generalLenderContract, v3TotalBorrowCalls)
+  results.push(...v3Result) //merging two results
 
   const elasticSum = useMemo(() => {
     return results.reduce((acc, value, index) => {
@@ -218,7 +172,7 @@ export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
   )
 }
 
-//TODO: needs to get data from api(al least muon oracle api)
+//TODO: needs to get data from api or subgraph(at least muon oracle api)
 export function useCollateralPrice(pool: BorrowPool): string {
   const oracleContract = useOracleContract(pool)
   const methodName = pool.version == LenderVersion.V1 ? 'getPrice' : 'getOnChainPrice'
@@ -270,7 +224,7 @@ export function useAvailableToBorrow(pool: BorrowPool): string {
       .times(liquidationRatio.toSignificant())
       .div(100)
       .times(borrowFeeMultiplier)
-      .times(1 - 0.005) //1 - health ratio
+      .times(1 - 0.005) //(1 - safeRatio) it helps user to dont liquidate immediately
       .toPrecision(pool.contract.decimals)
   }, [userCollateral, liquidationRatio, availableForWithdrawal, collateralPrice, pool, borrowFeeMultiplier])
 }
@@ -291,37 +245,33 @@ export function useLiquidationPrice(pool: BorrowPool): string {
   }, [userCollateral, userDebt, liquidationRatio, pool])
 }
 
-export function useHealthRatio(pool: BorrowPool): [string, string, string] {
+export function useHealthRatio(pool: BorrowPool): [string, any, string] {
+  const theme = useTheme()
   const liquidationPrice = useLiquidationPrice(pool)
   const collateralPrice = useCollateralPrice(pool)
   const { userCollateral } = useUserPoolData(pool)
 
-  return useMemo(() => {
-    if (userCollateral && parseFloat(userCollateral) && parseFloat(liquidationPrice) == 0)
-      return ['100%', 'green1', 'safe']
+  const healthRatio = useMemo(() => {
+    if (userCollateral && parseFloat(userCollateral) && parseFloat(liquidationPrice) == 0) return BN_ONE_HUNDRED
     if (!liquidationPrice || !collateralPrice || !parseFloat(liquidationPrice) || !parseFloat(collateralPrice)) {
-      return ['0', '', '']
+      return BN_ZERO
     }
-
     const deathRatio = new BigNumber(liquidationPrice).div(collateralPrice)
-    const healthRatio = new BigNumber(1).minus(deathRatio).times(100)
-
-    let color = ''
-    let text = ''
-    if (healthRatio.gte(70)) {
-      color = 'green1'
-      text = 'safe'
-    } else if (healthRatio.gte(40)) {
-      color = 'yellow2'
-      text = 'medium'
-    } else if (healthRatio.gte(25)) {
-      color = 'yellow2'
-      text = 'risky'
-    } else {
-      color = 'red1'
-      text = 'very risky'
-    }
-
-    return [healthRatio.toFixed(0) + '%', color, text]
+    const healthRatioBN = new BigNumber(1).minus(deathRatio).times(100)
+    return healthRatioBN
   }, [liquidationPrice, collateralPrice, userCollateral])
+
+  const [healthLevel, color] = useMemo(() => {
+    return parseFloat(userCollateral) == 0
+      ? [HealthType.DEFAULT, theme.text1]
+      : healthRatio.gte(70)
+      ? [HealthType.SAFE, theme.green1]
+      : healthRatio.gte(40)
+      ? [HealthType.MEDIUM, theme.yellow2]
+      : healthRatio.gte(25)
+      ? [HealthType.RISKY, theme.red1]
+      : [HealthType.HIGH_RISK, theme.red1]
+  }, [healthRatio, userCollateral, theme])
+
+  return [healthRatio.toFixed(0) + '%', color, healthLevel.toString()]
 }

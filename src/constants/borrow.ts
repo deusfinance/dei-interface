@@ -22,7 +22,7 @@ export const DEI_TOKEN = new Token(
 
 export enum MintHelper {
   MAIN = '0x1B7879F4dB7980E464d6B92FDbf9DaA8F1E55073',
-  TEST = '0x5B2C870C670B20e3f04b4198eE7984a9Cf30C977',
+  TEST = '0xb0F1266119E14913e0f2F26E65351B972Bee843d',
 }
 
 export const BorrowPools: UnserializedBorrowPool[] = [
@@ -87,8 +87,10 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     version: LenderVersion.V3,
     composition: 'DEI/DEUS *',
     oracle: '0x9f3C610a731809b6F7630B187777c66194EDf27b',
-    generalLender: '0x8cf16324543C242798c0c5F230bB72EeAA7F9417',
+    generalLender: '0x06A329026e44E91Ea2d28A0e2C06E192df009e7F',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
+    pair0: ['0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
+    pair1: ['0xF42dBcf004a93ae6D5922282B304E2aEFDd50058', '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
     mintHelper: MintHelper.TEST,
     type: CollateralType.SOLIDEX,
     liquidationFee: 5,
@@ -110,8 +112,10 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     version: LenderVersion.V3,
     composition: 'DEI/DEUS *',
     oracle: '0x9f3C610a731809b6F7630B187777c66194EDf27b',
-    generalLender: '0x8cf16324543C242798c0c5F230bB72EeAA7F9417',
+    generalLender: '0x06A329026e44E91Ea2d28A0e2C06E192df009e7F',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
+    pair0: ['0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
+    pair1: ['0xF42dBcf004a93ae6D5922282B304E2aEFDd50058', '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
     mintHelper: MintHelper.TEST,
     type: CollateralType.OXDAO,
     liquidationFee: 5,

@@ -27,7 +27,7 @@ export const BaseV1Minter: AddressMap = {
 }
 
 export const HolderManager: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x04909BC067dD68EC1865f5437F89f6101Ef795Da',
+  [SupportedChainId.FANTOM]: '0xd7Ea68F1FcF197897906990C0CadA53cf016af99',
 }
 
 export const SolidAddress: AddressMap = {
@@ -48,5 +48,5 @@ export const Reimburse: AddressMap = {
 }
 
 export const OxDaoHolderFactory: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x2D3b4Eb51BA30CAf8EE5f1FC3D793297b5c635d7',
+  [SupportedChainId.FANTOM]: '0xD427b027c3FE976128364f08e5C51364bAAe1b69',
 }

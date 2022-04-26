@@ -3,7 +3,7 @@ import React from 'react'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { SearchField, useSearch } from 'components/App/Borrow'
-import { Container, Table, Wrapper } from 'components/App/Venft'
+import { Container, TableBuy, Wrapper } from 'components/App/Venft'
 
 export default function Buy() {
   const { searchProps } = useSearch()
@@ -18,7 +18,7 @@ export default function Buy() {
         <div>
           <SearchField searchProps={searchProps} />
         </div>
-        <Table />
+        <TableBuy />
       </Wrapper>
       <Disclaimer />
     </Container>

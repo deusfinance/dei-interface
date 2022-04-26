@@ -20,7 +20,7 @@ const VeNFTCel = styled(Cel)`
 `
 
 const itemsPerPage = 10
-export default function Table() {
+export default function TableSell() {
   const [options, setOptions] = useState([{}, {}])
   const [offset, setOffset] = useState(0)
 
@@ -42,7 +42,7 @@ export default function Table() {
         <Head>
           <tr>
             <Cel>Token ID</Cel>
-            <Cel>Needs Amount</Cel>
+            <Cel>You Will Get</Cel>
             <Cel>Time</Cel>
             <Cel>Action</Cel>
           </tr>
@@ -71,7 +71,7 @@ function TableRow() {
       <VeNFTCel>25 fSolid</VeNFTCel>
       <VeNFTCel>1 year</VeNFTCel>
       <VeNFTCel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => {}}>Buy</PrimaryButton>
+        <PrimaryButton>Sell</PrimaryButton>
       </VeNFTCel>
     </Row>
   )

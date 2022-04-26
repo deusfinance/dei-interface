@@ -12,51 +12,15 @@ import { PrimaryButton } from 'components/Button'
 import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { formatAmount } from 'utils/numbers'
+import { Cel, Head, Row, TableWrapper, Wrapper } from 'components/Table'
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: space-between;
-`
-
-const TableWrapper = styled.table`
-  width: 100%;
-  overflow: hidden;
-  table-layout: fixed;
-  border-collapse: collapse;
-`
-
-const Head = styled.thead`
-  & > tr {
-    height: 56px;
-    font-size: 0.9rem;
-    color: ${({ theme }) => theme.text1};
-    background: ${({ theme }) => theme.bg0};
-  }
-`
-
-const Row = styled.tr`
-  align-items: center;
-  height: 21px;
-  font-size: 0.8rem;
-  line-height: 0.8rem;
-  color: ${({ theme }) => theme.text1};
-`
-
-const Deprecated = styled.div`
+export const Deprecated = styled.div`
   color: ${({ theme }) => theme.text3};
   margin: auto;
   margin-top: 10px;
 `
 
-const Cel = styled.td<{
-  justify?: boolean
-}>`
-  text-align: center;
-  padding: 5px;
-  border: 1px solid ${({ theme }) => theme.border1};
-  height: 90px;
-
+const BorrowCel = styled(Cel)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     :nth-child(3),
     :nth-child(4) {
@@ -97,11 +61,11 @@ export default function Table({
       <TableWrapper>
         <Head>
           <tr>
-            <Cel>Composition</Cel>
-            <Cel>Type</Cel>
-            <Cel>Total Borrowed</Cel>
-            <Cel>Your Rewards</Cel>
-            <Cel>Action</Cel>
+            <BorrowCel>Composition</BorrowCel>
+            <BorrowCel>Type</BorrowCel>
+            <BorrowCel>Total Borrowed</BorrowCel>
+            <BorrowCel>Your Rewards</BorrowCel>
+            <BorrowCel>Action</BorrowCel>
           </tr>
         </Head>
         <tbody>

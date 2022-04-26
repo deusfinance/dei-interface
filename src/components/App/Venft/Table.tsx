@@ -1,54 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
 import Pagination from 'components/Pagination'
 import { PrimaryButton } from 'components/Button'
+import { Cel, Head, Row, TableWrapper, Wrapper } from 'components/Table'
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: space-between;
-`
-
-const TableWrapper = styled.table`
-  width: 100%;
-  overflow: hidden;
-  table-layout: fixed;
-  border-collapse: collapse;
-`
-
-const Head = styled.thead`
-  & > tr {
-    height: 56px;
-    font-size: 0.9rem;
-    color: ${({ theme }) => theme.text1};
-    background: ${({ theme }) => theme.bg0};
-  }
-`
-
-const Row = styled.tr`
-  align-items: center;
-  height: 21px;
-  font-size: 0.8rem;
-  line-height: 0.8rem;
-  color: ${({ theme }) => theme.text1};
-`
-
-const Deprecated = styled.div`
-  color: ${({ theme }) => theme.text3};
-  margin: auto;
-  margin-top: 10px;
-`
-
-const Cel = styled.td<{
-  justify?: boolean
-}>`
-  text-align: center;
-  padding: 5px;
-  border: 1px solid ${({ theme }) => theme.border1};
-  height: 90px;
-
+const VeNFTCel = styled(Cel)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     :nth-child(3),
     :nth-child(4) {
@@ -63,13 +20,8 @@ const Cel = styled.td<{
 `
 
 const itemsPerPage = 10
-export default function Table({
-  options,
-  onMintClick,
-}: {
-  options: BorrowPool[]
-  onMintClick: (contract: string, version: LenderVersion) => void
-}) {
+export default function Table() {
+  const [options, setOptions] = useState([{}, {}])
   const [offset, setOffset] = useState(0)
 
   const paginatedOptions = useMemo(() => {
@@ -91,14 +43,13 @@ export default function Table({
           <tr>
             <Cel>Token ID</Cel>
             <Cel>Needs Amount</Cel>
+            <Cel>Time</Cel>
             <Cel>Action</Cel>
           </tr>
         </Head>
         <tbody>
           {paginatedOptions.length ? (
-            paginatedOptions.map((pool: BorrowPool, index) => (
-              <TableRow key={index} pool={pool} onMintClick={onMintClick} />
-            ))
+            paginatedOptions.map((item: any, index) => <TableRow key={index} />)
           ) : (
             <tr>
               <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}>
@@ -113,20 +64,15 @@ export default function Table({
   )
 }
 
-function TableRow({
-  pool,
-  onMintClick,
-}: {
-  pool: BorrowPool
-  onMintClick: (contract: string, version: LenderVersion) => void
-}) {
+function TableRow() {
   return (
     <Row>
-      <Cel>veNFT #5</Cel>
-      <Cel>25 fSolid</Cel>
-      <Cel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => onMintClick(pool.contract.address, pool.version)}>Buy</PrimaryButton>
-      </Cel>
+      <VeNFTCel>veNFT #5</VeNFTCel>
+      <VeNFTCel>25 fSolid</VeNFTCel>
+      <VeNFTCel>1 year</VeNFTCel>
+      <VeNFTCel style={{ padding: '5px 10px' }}>
+        <PrimaryButton onClick={() => {}}>Buy</PrimaryButton>
+      </VeNFTCel>
     </Row>
   )
 }

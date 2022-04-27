@@ -1,28 +1,22 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { darken } from 'polished'
 import BigNumber from 'bignumber.js'
 import { areEqual } from 'react-window'
+import { findIndex } from 'lodash'
 
 import Pagination from 'components/Pagination'
 import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
+import Slider from 'components/Slider'
 import Copy from 'components/Copy'
-import { PrimaryButton } from 'components/Button'
-import { ExternalLink } from 'components/Link'
 
 import { SolidlyPair } from 'apollo/queries'
 import { ZERO_ADDRESS } from 'constants/addresses'
 import { formatAmount } from 'utils/numbers'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
-import {
-  useSolidlyGaugeData,
-  useSolidlyGaugeReserves,
-  useSolidlyPairData,
-  useSolidlyPoolAPR,
-} from 'hooks/useSolidlyData'
-import Slider from 'components/Slider'
+import { useSolidlyGaugeData, useSolidlyGaugeReserves, useSolidlyPairData } from 'hooks/useSolidlyData'
 
 const Wrapper = styled.div`
   display: flex;
@@ -112,8 +106,16 @@ const Cell = styled.td`
   `}
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    :nth-child(7) {
+    :nth-child(6) {
       display: none;
+    }
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    
+    // Your Slider 
+    :nth-child(7) {
+      width: 150px;
     }
   `}
 `
@@ -168,7 +170,15 @@ const NameWrapper = styled.div`
 `
 
 const itemsPerPage = 5
-export default function Table({ options }: { options: SolidlyPair[] }) {
+export default function Table({
+  options,
+  votes,
+  setVotes,
+}: {
+  options: SolidlyPair[]
+  votes: { address: string; percent: number }[]
+  setVotes: (votes: { address: string; percent: number }[]) => void
+}) {
   const [offset, setOffset] = useState(0)
 
   const paginatedOptions = useMemo(() => {
@@ -183,6 +193,25 @@ export default function Table({ options }: { options: SolidlyPair[] }) {
     setOffset(Math.ceil(selected * itemsPerPage))
   }
 
+  const onSliderChange = (values: number[], pair: SolidlyPair) => {
+    let currentVoteIndex = findIndex(votes, { address: pair.id })
+
+    if (currentVoteIndex > -1) {
+      votes[currentVoteIndex].percent = values[0]
+    } else {
+      let newVote = { address: pair.id, percent: values[0] }
+      votes.push(newVote)
+    }
+
+    setVotes([...votes])
+  }
+
+  const pairPercent = (pair: SolidlyPair) => {
+    let voteIndex = findIndex(votes, { address: pair.id })
+    if (voteIndex > -1) return votes[voteIndex].percent
+    else return 0
+  }
+
   return (
     <Wrapper>
       <TableWrapper>
@@ -195,12 +224,13 @@ export default function Table({ options }: { options: SolidlyPair[] }) {
             <Cell>Bribes</Cell>
             <Cell>My Votes</Cell>
             <Cell>My Vote %</Cell>
-            {/* <Cell>Actions</Cell> */}
           </tr>
         </Head>
         <tbody>
           {paginatedOptions.length > 0 &&
-            paginatedOptions.map((pair: SolidlyPair, index) => <MemoTableRow key={index} pair={pair} />)}
+            paginatedOptions.map((pair: SolidlyPair, index) => (
+              <MemoTableRow key={index} pair={pair} percent={pairPercent(pair)} onPairSliderChange={onSliderChange} />
+            ))}
         </tbody>
       </TableWrapper>
       {paginatedOptions.length == 0 && <NoResults>No Results Found</NoResults>}
@@ -211,9 +241,15 @@ export default function Table({ options }: { options: SolidlyPair[] }) {
 
 const MemoTableRow = React.memo(TableRow, areEqual)
 
-function TableRow({ pair }: { pair: SolidlyPair }) {
-  const [sliderValue, setSliderValue] = useState(50)
-
+function TableRow({
+  pair,
+  percent,
+  onPairSliderChange,
+}: {
+  pair: SolidlyPair
+  percent: number
+  onPairSliderChange: (values: number[], pair: SolidlyPair) => void
+}) {
   const logoOne = useCurrencyLogo(pair.token0.symbol)
   const logoTwo = useCurrencyLogo(pair.token1.symbol)
 
@@ -234,8 +270,6 @@ function TableRow({ pair }: { pair: SolidlyPair }) {
     poolReserve0,
     poolReserve1
   )
-
-  const APR = useSolidlyPoolAPR(pair)
 
   const userPoolAmount0: BigNumber = useMemo(() => {
     if (!parseFloat(userPoolBalance) || !parseFloat(poolTotalSupply) || !parseFloat(poolReserve0)) {
@@ -272,16 +306,14 @@ function TableRow({ pair }: { pair: SolidlyPair }) {
     [gaugeUserBalance, gaugeTotalSupply, gaugeReserve0, gaugeReserve1]
   )
 
-  const APRLabel = useMemo(
-    () =>
-      parseFloat(APR) ? (new BigNumber(APR).isLessThanOrEqualTo(1) ? '< 1%' : `${new BigNumber(APR).toFixed(0)}%`) : '',
-    [APR]
-  )
-
   const [token0Symbol, token1Symbol] = useMemo(
     () => [pair.token0.symbol.substring(0, 6), pair.token1.symbol.substring(0, 6)],
     [pair]
   )
+
+  const onSliderChange = (values: number[]) => {
+    onPairSliderChange(values, pair)
+  }
 
   return (
     <Row>
@@ -364,8 +396,7 @@ function TableRow({ pair }: { pair: SolidlyPair }) {
         )}
       </Cell>
       <Cell>
-        <span>{APRLabel}</span>
-        <Slider></Slider>
+        <Slider percent={percent} onSliderChange={onSliderChange} />
       </Cell>
     </Row>
   )

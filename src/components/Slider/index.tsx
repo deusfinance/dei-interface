@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRanger } from 'react-ranger'
 import styled from 'styled-components'
 
@@ -7,8 +7,14 @@ const Amount = styled.div`
   font-size: 0.8rem;
 `
 
-export default function Slider() {
-  const [values, setValues] = useState([0])
+export default function Slider({
+  percent,
+  onSliderChange,
+}: {
+  percent: number
+  onSliderChange: (values: number[]) => void
+}) {
+  const [values, setValues] = useState([percent])
 
   const { getTrackProps, handles } = useRanger({
     min: -100,
@@ -16,6 +22,7 @@ export default function Slider() {
     stepSize: 1,
     values,
     onDrag: setValues,
+    onChange: () => onSliderChange(values),
   })
 
   return (
@@ -32,7 +39,7 @@ export default function Slider() {
           },
         })}
       >
-        {handles.map(({ getHandleProps }) => (
+        {handles.map(({ getHandleProps }, index) => (
           <button
             {...getHandleProps({
               style: {
@@ -44,6 +51,7 @@ export default function Slider() {
                 border: 'solid 1px #545454',
               },
             })}
+            key={index}
           />
         ))}
       </div>

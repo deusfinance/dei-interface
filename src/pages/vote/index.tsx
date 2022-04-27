@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import { SolidlyPair } from 'apollo/queries'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import { Table } from 'components/App/Vote'
+import { Table, VotingPower } from 'components/App/Vote'
 import { useSearch } from 'components/App/Liquidity'
 
 const Container = styled.div`
@@ -25,8 +25,10 @@ const Wrapper = styled(Container)`
   `}
 `
 
-export default function Liquidity() {
+export default function Vote() {
   const { snapshot } = useSearch()
+  // TODO: add hooks for get user veNft and votes
+  const [votes, setVotes] = useState<{ address: string; percent: number }[]>([])
 
   return (
     <Container>
@@ -35,8 +37,9 @@ export default function Liquidity() {
         <HeroSubtext>Vote with your veNFT.</HeroSubtext>
       </Hero>
       <Wrapper>
-        <Table options={snapshot.options as unknown as SolidlyPair[]} />
+        <Table options={snapshot.options as unknown as SolidlyPair[]} votes={votes} setVotes={setVotes} />
       </Wrapper>
+      <VotingPower votes={votes} />
       <Disclaimer />
     </Container>
   )

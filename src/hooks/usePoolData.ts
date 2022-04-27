@@ -7,9 +7,18 @@ import { AddressZero } from '@ethersproject/constants'
 import { useTheme } from 'styled-components'
 import BigNumber from 'bignumber.js'
 
-import { BorrowPool, HealthType, LenderVersion } from 'state/borrow/reducer'
-import { useMultipleContractSingleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { useGeneralLenderContract, useHolderManager, useOracleContract } from 'hooks/useContract'
+import { BorrowPool, CollateralType, HealthType, LenderVersion, OraclePairs } from 'state/borrow/reducer'
+import {
+  useMultipleContractSingleData,
+  useSingleCallResult,
+  useSingleContractMultipleMethods,
+} from 'state/multicall/hooks'
+import {
+  useGeneralLenderContract,
+  useGeneralLenderOracleContract,
+  useHolderManager,
+  useOracleContract,
+} from 'hooks/useContract'
 import useWeb3React from 'hooks/useWeb3'
 
 import { LenderABI } from 'constants/abi'
@@ -80,6 +89,19 @@ export function useGetHolder(contract: Contract | null, calls: any): string {
     [calls, userHolder]
   )
   return userHolderAddress
+}
+
+export function useGetPairs(pool: BorrowPool): OraclePairs | null {
+  const oracleContract = useGeneralLenderOracleContract()
+  const collateralAddress = pool.type == CollateralType.SOLIDEX ? pool.lpPool : pool.contract.address
+  const pairs = useSingleCallResult(oracleContract, 'getPairs', [collateralAddress])
+  return useMemo(() => {
+    if (!pairs.result) return null
+    return {
+      pairs0: pairs.result[0],
+      pairs1: pairs.result[1],
+    } as OraclePairs
+  }, [pairs])
 }
 
 export function useGlobalPoolData(pool: BorrowPool): {

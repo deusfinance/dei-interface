@@ -30,6 +30,11 @@ export enum CollateralType {
   OXDAO = '0xDAO LP Token',
 }
 
+export type OraclePairs = {
+  pairs0: string[] | null
+  pairs1: string[] | null
+}
+
 export interface UnserializedBorrowPool {
   id?: number
   contract: Token
@@ -41,8 +46,6 @@ export interface UnserializedBorrowPool {
   oracle?: string
   generalLender: string
   lpPool: string
-  pair0?: string[]
-  pair1?: string[]
   type: CollateralType
   liquidationFee: number
   mintHelper: string

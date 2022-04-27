@@ -44,8 +44,6 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     oracle: '0x9f3C610a731809b6F7630B187777c66194EDf27b',
     generalLender: '0x118FF56bb12E5E0EfC14454B8D7Fa6009487D64E',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
-    pair0: ['0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
-    pair1: ['0xF42dBcf004a93ae6D5922282B304E2aEFDd50058', '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
     liquidationFee: 5, // 5%
   },
   {
@@ -64,8 +62,6 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     oracle: '0x7D907cF11a3F23d42c5C58426C3b8021F654964C',
     generalLender: '0x8D643d954798392403eeA19dB8108f595bB8B730',
     lpPool: '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0',
-    pair0: [],
-    pair1: ['0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
     mintHelper: MintHelper.MAIN,
     type: CollateralType.SOLIDEX,
     liquidationFee: 5, // 5%
@@ -89,8 +85,6 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     oracle: '0x9f3C610a731809b6F7630B187777c66194EDf27b',
     generalLender: '0x06A329026e44E91Ea2d28A0e2C06E192df009e7F',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
-    pair0: ['0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
-    pair1: ['0xF42dBcf004a93ae6D5922282B304E2aEFDd50058', '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
     mintHelper: MintHelper.TEST,
     type: CollateralType.SOLIDEX,
     liquidationFee: 5,
@@ -114,8 +108,6 @@ export const BorrowPools: UnserializedBorrowPool[] = [
     oracle: '0x9f3C610a731809b6F7630B187777c66194EDf27b',
     generalLender: '0x06A329026e44E91Ea2d28A0e2C06E192df009e7F',
     lpPool: '0xF42dBcf004a93ae6D5922282B304E2aEFDd50058',
-    pair0: ['0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
-    pair1: ['0xF42dBcf004a93ae6D5922282B304E2aEFDd50058', '0x5821573d8F04947952e76d94f3ABC6d7b43bF8d0'],
     mintHelper: MintHelper.TEST,
     type: CollateralType.OXDAO,
     liquidationFee: 5,

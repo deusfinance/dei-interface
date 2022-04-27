@@ -30,6 +30,10 @@ export const HolderManager: AddressMap = {
   [SupportedChainId.FANTOM]: '0xd7Ea68F1FcF197897906990C0CadA53cf016af99',
 }
 
+export const GeneralLenderOracle: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x034e7a61BcB90D95c67f6C386877F4297c463Aa1',
+}
+
 export const SolidAddress: AddressMap = {
   [SupportedChainId.FANTOM]: '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
 }

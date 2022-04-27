@@ -11,6 +11,7 @@ import ERC20_BYTES32_ABI from 'constants/abi/ERC20'
 import MULTICALL2_ABI from 'constants/abi/MULTICALL2.json'
 import HOLDER_MANAGER from 'constants/abi/HOLDER_MANAGER.json'
 import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
+import GENERAL_LENDER__ORACLE_ABI from 'constants/abi/GENERAL_LENDER__ORACLE.json'
 import SOLIDEX_LP_DEPOSITOR_ABI from 'constants/abi/SOLIDEX_LP_DEPOSITOR.json'
 import OXDAO_HOLDER_FACTORY_ABI from 'constants/abi/OXDAO_HOLDER_FACTORY.json'
 import VEDEUS_ABI from 'constants/abi/VEDEUS.json'
@@ -34,6 +35,7 @@ import {
   ZERO_ADDRESS,
   BaseV1Minter,
   OxDaoHolderFactory,
+  GeneralLenderOracle,
 } from 'constants/addresses'
 import { HolderABI, LenderABI } from 'constants/abi'
 import { BorrowPool } from 'state/borrow/reducer'
@@ -116,6 +118,12 @@ export function useVeDeusContract() {
 
 export function useOracleContract(pool: BorrowPool) {
   return useContract(pool.oracle, LENDER_ORACLE_ABI)
+}
+
+export function useGeneralLenderOracleContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? GeneralLenderOracle[chainId] : undefined), [chainId])
+  return useContract(address, GENERAL_LENDER__ORACLE_ABI)
 }
 
 export function useSolidexLpDepositor() {

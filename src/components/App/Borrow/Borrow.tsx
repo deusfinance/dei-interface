@@ -21,7 +21,7 @@ import useWeb3React from 'hooks/useWeb3'
 import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useBorrowCallback from 'hooks/useBorrowCallback'
-import { useUserPoolData } from 'hooks/usePoolData'
+import { useUserPoolData, useGetPairs } from 'hooks/usePoolData'
 import { SupportedChainId } from 'constants/chains'
 
 import { Card } from 'components/Card'
@@ -89,13 +89,14 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   }, [pool, action])
 
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency, spender)
-
+  const pairs = useGetPairs(pool)
   const { callback: mainCallback } = useBorrowCallback(
     collateralCurrency,
     borrowCurrency,
     parsedAmounts[0],
     parsedAmounts[1],
     pool,
+    pairs,
     action,
     typedField,
     payOff

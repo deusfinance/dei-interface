@@ -2,7 +2,7 @@ import { MuonResponse, IError } from '../types'
 import { Type, isError, getErrorMessage } from '../error'
 import { MuonClient } from './base'
 import { MUON_BASE_URL } from '../config'
-import { BorrowPool } from 'state/borrow/reducer'
+import { BorrowPool, OraclePairs } from 'state/borrow/reducer'
 
 interface RequestParams {
   token: string
@@ -52,9 +52,9 @@ export class BorrowClient extends MuonClient {
     }
   }
 
-  public async getCollateralPrice(pool: BorrowPool): Promise<CollateralPriceData | IError> {
+  public async getCollateralPrice(pool: BorrowPool, pairs: OraclePairs): Promise<CollateralPriceData | IError> {
     try {
-      const requestParams = this._getRequestParams(pool.lpPool, pool?.pair0 ?? [], pool?.pair1 ?? [])
+      const requestParams = this._getRequestParams(pool.lpPool, pairs.pairs0 ?? [], pairs.pairs1 ?? [])
       if (isError(requestParams)) throw new Error(requestParams.message)
       console.info('Requesting data from Muon: ', requestParams)
 

@@ -75,7 +75,7 @@ export default function Borrow() {
               { value: CollateralType.OXDAO, label: '0xDAO' },
               { value: CollateralType.SOLIDEX, label: 'Solidex' },
             ]}
-            placeholder="Select LP Type"
+            placeholder="Select Collateral Type"
             defaultValue={collateralType}
             onSelect={setCollateralType}
             width="200px"

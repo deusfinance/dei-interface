@@ -8,7 +8,7 @@ export interface UserState {
   matchesDarkMode: boolean // whether the dark mode media query matches
   userDarkMode: boolean | null // the user's choice for dark mode or light mode
 
-  // user defined slippage tolerance in percentages (userSlipperageTolerance of 80 means 80%)
+  // user defined slippage tolerance in percentages (userSlippageTolerance of 80 means 80%)
   // TODO upgrade to a strongly typed version of this, similar to (but not exactly) like Uniswap's Percent type
   userSlippageTolerance: number | 'auto'
 

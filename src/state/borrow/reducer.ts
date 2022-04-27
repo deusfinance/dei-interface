@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Percent, Token } from '@sushiswap/core-sdk'
+import { makeHttpRequest } from 'utils/http'
 
 export enum TypedField {
   COLLATERAL,
@@ -35,6 +36,18 @@ export type OraclePairs = {
   pairs1: string[] | null
 }
 
+export interface PendingBorrowPool {
+  contract: Token
+  dei: Token
+  token0: Token
+  token1: Token
+  version: LenderVersion
+  composition: string
+  oracle?: string
+  generalLender?: string
+  lpPool?: string
+  type: CollateralType
+}
 export interface UnserializedBorrowPool {
   id?: number
   contract: Token
@@ -62,6 +75,7 @@ export interface BorrowState {
   showReview: boolean
   error?: string
   pools: UnserializedBorrowPool[]
+  pendingPools: any
 }
 
 const initialState: BorrowState = {
@@ -71,7 +85,14 @@ const initialState: BorrowState = {
   showReview: false,
   error: undefined,
   pools: [],
+  pendingPools: [],
 }
+
+export const fetch0xDaoPools = createAsyncThunk('borrow/fetch0xDao', async () => {
+  const { href: url } = new URL('https://api.oxdao.fi/pools')
+  const currentBlocks = await makeHttpRequest(url)
+  return currentBlocks
+})
 
 export const borrowSlice = createSlice({
   name: 'borrow',
@@ -96,6 +117,18 @@ export const borrowSlice = createSlice({
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetch0xDaoPools.pending, () => {
+        console.log('Unable to fetch current blocks')
+      })
+      .addCase(fetch0xDaoPools.fulfilled, (state, { payload }) => {
+        state.pendingPools = payload
+      })
+      .addCase(fetch0xDaoPools.rejected, () => {
+        console.log('Unable to fetch pools')
+      })
   },
 })
 

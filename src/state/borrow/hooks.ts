@@ -5,9 +5,12 @@ import { Currency, Token } from '@sushiswap/core-sdk'
 import find from 'lodash/find'
 import { AppState, useAppSelector } from 'state'
 
-import { BorrowPool, BorrowState } from './reducer'
+import { PendingBorrowPool, BorrowPool, BorrowState } from './reducer'
 import { useCurrency } from 'hooks/useCurrency'
 import { constructPercentage } from 'utils/prices'
+import { SupportedChainId } from 'constants/chains'
+import { CollateralType } from 'state/borrow/reducer'
+import { DEI_TOKEN } from 'constants/borrow'
 
 export function useBorrowState(): BorrowState {
   return useAppSelector((state: AppState) => state.borrow)
@@ -21,6 +24,26 @@ export function useBorrowPools(): BorrowPool[] {
       liquidationFee: constructPercentage(o.liquidationFee),
     }))
   }, [pools])
+}
+
+export function use0xDaoPools(): PendingBorrowPool[] {
+  const { pendingPools } = useBorrowState()
+  return useMemo(() => {
+    if (!pendingPools) return []
+    // console.log(pendingPools)
+
+    return pendingPools.map(
+      ({ poolData }: { poolData: any }) =>
+        ({
+          contract: new Token(SupportedChainId.FANTOM, poolData.id, 18, poolData.symbol),
+          dei: DEI_TOKEN,
+          token0: new Token(SupportedChainId.FANTOM, poolData.token0Address, Number(poolData.token0Decimals)),
+          token1: new Token(SupportedChainId.FANTOM, poolData.token1Address, Number(poolData.token1Decimals)),
+          composition: poolData.symbol,
+          type: CollateralType.OXDAO,
+        } as PendingBorrowPool)
+    )
+  }, [pendingPools])
 }
 
 export function useBorrowPoolFromURL(): BorrowPool | null {

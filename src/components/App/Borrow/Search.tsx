@@ -27,16 +27,24 @@ function fuzzySearch(options: SelectSearchOption[]): any {
 
 export function useSearch(collateralType: string) {
   const borrowList = useBorrowPools()
+  const borrowContracts = borrowList.map((pool) => pool.contract.address)
   const pools = use0xDaoPools()
-  if (pools.length > 0) {
-    borrowList.push(...(pools as unknown as BorrowPool[]))
+  const pendingPools = pools.filter((pool) => !borrowContracts.includes(pool.contract.address))
+  if (pendingPools.length > 0) {
+    console.log(pendingPools)
+    borrowList.push(...(pendingPools as unknown as BorrowPool[]))
   }
+
   const filerList = useMemo(() => {
     return collateralType ? borrowList.filter((o) => o.type == collateralType) : borrowList
   }, [borrowList, collateralType])
+
   const list: SelectSearchOption[] = useMemo(() => {
+    console.log(filerList)
     return filerList.map((o) => ({ ...o, name: o.composition, value: o.contract?.address }))
   }, [filerList])
+
+  console.log(list)
 
   const [snapshot, searchProps, optionProps] = useSelect({
     options: list,

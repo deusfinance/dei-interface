@@ -47,6 +47,7 @@ export interface PendingBorrowPool {
   generalLender?: string
   lpPool?: string
   type: CollateralType
+  pending: boolean
 }
 export interface UnserializedBorrowPool {
   id?: number
@@ -62,6 +63,7 @@ export interface UnserializedBorrowPool {
   type: CollateralType
   liquidationFee: number
   mintHelper: string
+  pending?: boolean
 }
 
 export interface BorrowPool extends Omit<UnserializedBorrowPool, 'liquidationFee'> {
@@ -121,13 +123,14 @@ export const borrowSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetch0xDaoPools.pending, () => {
-        console.log('Unable to fetch current blocks')
+        console.log('fetching 0xDao pools')
       })
       .addCase(fetch0xDaoPools.fulfilled, (state, { payload }) => {
         state.pendingPools = payload
+        console.log('fetched 0xDao pools')
       })
       .addCase(fetch0xDaoPools.rejected, () => {
-        console.log('Unable to fetch pools')
+        console.log('unable to fetch 0xDao pools')
       })
   },
 })

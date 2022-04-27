@@ -12,6 +12,8 @@ import { PrimaryButton } from 'components/Button'
 import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { formatAmount } from 'utils/numbers'
+import { ToolTip } from 'components/ToolTip'
+import { Info as InfoIcon } from 'components/Icons'
 
 const Wrapper = styled.div`
   display: flex;
@@ -47,6 +49,10 @@ const Deprecated = styled.div`
   color: ${({ theme }) => theme.text3};
   margin: auto;
   margin-top: 10px;
+`
+
+const IconWrap = styled.div`
+  margin-left: 5px;
 `
 
 const Cel = styled.td<{
@@ -157,7 +163,19 @@ function TableRow({
         })}
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => onMintClick(pool.generalLender, pool?.id)}>Borrow</PrimaryButton>
+        {!pool.pending ? (
+          <PrimaryButton onClick={() => onMintClick(pool.generalLender, pool?.id)}>Borrow</PrimaryButton>
+        ) : (
+          <>
+            <ToolTip id="id" />
+            <PrimaryButton disabled={true} onClick={() => onMintClick(pool.generalLender, pool?.id)}>
+              <div>Borrow</div>
+              <IconWrap data-for="id" data-tip={'max cap is still zero'}>
+                <InfoIcon size={15} />
+              </IconWrap>
+            </PrimaryButton>
+          </>
+        )}
       </Cel>
     </Row>
   )

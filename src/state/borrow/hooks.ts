@@ -30,8 +30,6 @@ export function use0xDaoPools(): PendingBorrowPool[] {
   const { pendingPools } = useBorrowState()
   return useMemo(() => {
     if (!pendingPools) return []
-    // console.log(pendingPools)
-
     return pendingPools.map(
       ({ poolData }: { poolData: any }) =>
         ({
@@ -41,6 +39,7 @@ export function use0xDaoPools(): PendingBorrowPool[] {
           token1: new Token(SupportedChainId.FANTOM, poolData.token1Address, Number(poolData.token1Decimals)),
           composition: poolData.symbol,
           type: CollateralType.OXDAO,
+          pending: true,
         } as PendingBorrowPool)
     )
   }, [pendingPools])

@@ -321,9 +321,10 @@ export const ThemedGlobalStyle = createGlobalStyle`
   }
 
   * {
-    -ms-overflow-style: none; /* for Internet Explorer, Edge */
+    // TODO: I commented this lines , i think we don't need these lines
+    // -ms-overflow-style: none; /* for Internet Explorer, Edge */
     scrollbar-width: none; /* for Firefox */
-    overflow-y: hidden;
+    // overflow-y: hidden;
   }
   *::-webkit-scrollbar {
     display: none; /* for Chrome, Safari, and Opera */

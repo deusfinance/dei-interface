@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 import Image from 'next/image'
 
-import { Main as MainComponent } from 'components/App/Vote'
 import DeusLogo from '/public/static/images/tokens/deus.svg'
 import { ExternalLink } from 'components/Link'
 
@@ -35,7 +34,6 @@ const DeusBanner = styled.div`
 export default function Vote() {
   return (
     <Container>
-      <MainComponent />
       <DeusBanner>
         <Image src={DeusLogo} alt="DEUS Logo" width="15px" height="15px" />
         <ExternalLink href="https://deus.finance">Powered by DEUS Finance</ExternalLink>

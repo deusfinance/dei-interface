@@ -100,6 +100,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          <Link href="/vote" passHref>
+            <Row active={router.route === '/vote'}>
+              <div>Vote</div>
+              <IconWrapper>
+                <DropletIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <Link href="/claim" passHref>
             <Row active={router.route === '/claim'}>
               <div>Claim</div>

@@ -10,7 +10,7 @@ export type AccountVenftToken = {
   endTime: BigNumber
 }
 
-export function useVenftTokens() {
+export function useVeNFTTokens() {
   const veNFTContract = useVeNFTContract()
   const { account } = useActiveWeb3React()
   const [veNFTBalance, setVeNFTBalance] = useState<BigNumber | null>(null)

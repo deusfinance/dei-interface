@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import Pagination from 'components/Pagination'
 import { PrimaryButton } from 'components/Button'
 import { Cel, Head, Row, TableWrapper, Wrapper } from 'components/Table'
-import { AccountVenftToken } from 'hooks/useVenft'
+import { AccountVenftToken } from 'hooks/useVeNFT'
 import { fromWei } from 'utils/numbers'
 import dayjs from 'dayjs'
 

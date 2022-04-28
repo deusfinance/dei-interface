@@ -4,11 +4,11 @@ import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { SearchField, useSearch } from 'components/App/Borrow'
 import { Container, TableSell, Wrapper } from 'components/App/Venft'
-import { useVenftTokens } from 'hooks/useVenft'
+import { useVeNFTTokens } from 'hooks/useVeNFT'
 
 export default function Sell() {
   const { searchProps } = useSearch()
-  const { veNFTTokens } = useVenftTokens()
+  const { veNFTTokens } = useVeNFTTokens()
   return (
     <Container>
       <Hero>

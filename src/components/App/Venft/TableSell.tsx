@@ -4,6 +4,9 @@ import styled from 'styled-components'
 import Pagination from 'components/Pagination'
 import { PrimaryButton } from 'components/Button'
 import { Cel, Head, Row, TableWrapper, Wrapper } from 'components/Table'
+import { AccountVenftToken } from 'hooks/useVenft'
+import { fromWei } from 'utils/numbers'
+import dayjs from 'dayjs'
 
 const VeNFTCel = styled(Cel)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -20,17 +23,16 @@ const VeNFTCel = styled(Cel)`
 `
 
 const itemsPerPage = 10
-export default function TableSell() {
-  const [options, setOptions] = useState([{}, {}])
+export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftToken[] }) {
   const [offset, setOffset] = useState(0)
 
   const paginatedOptions = useMemo(() => {
-    return options.slice(offset, offset + itemsPerPage)
-  }, [options, offset])
+    return veNFTTokens.slice(offset, offset + itemsPerPage)
+  }, [veNFTTokens, offset])
 
   const pageCount = useMemo(() => {
-    return Math.ceil(options.length / itemsPerPage)
-  }, [options])
+    return Math.ceil(veNFTTokens.length / itemsPerPage)
+  }, [veNFTTokens])
 
   const onPageChange = ({ selected }: { selected: number }) => {
     setOffset(Math.ceil(selected * itemsPerPage))
@@ -49,7 +51,7 @@ export default function TableSell() {
         </Head>
         <tbody>
           {paginatedOptions.length ? (
-            paginatedOptions.map((item: any, index) => <TableRow key={index} />)
+            paginatedOptions.map((item: AccountVenftToken, index) => <TableRow veNFTToken={item} key={index} />)
           ) : (
             <tr>
               <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}>
@@ -64,14 +66,14 @@ export default function TableSell() {
   )
 }
 
-function TableRow() {
+function TableRow({ veNFTToken }: { veNFTToken: AccountVenftToken }) {
   return (
     <Row>
-      <VeNFTCel>veNFT #5</VeNFTCel>
-      <VeNFTCel>25 fSolid</VeNFTCel>
-      <VeNFTCel>1 year</VeNFTCel>
+      <VeNFTCel>veNFT #{veNFTToken.tokenId.toNumber()}</VeNFTCel>
+      <VeNFTCel>{parseFloat(fromWei(veNFTToken.needsAmount.toNumber()))} fSolid</VeNFTCel>
+      <VeNFTCel>{dayjs.utc(new Date(veNFTToken.endTime.toNumber() * 1000)).fromNow(true)}</VeNFTCel>
       <VeNFTCel style={{ padding: '5px 10px' }}>
-        <PrimaryButton>Sell</PrimaryButton>
+        <PrimaryButton>Buy</PrimaryButton>
       </VeNFTCel>
     </Row>
   )

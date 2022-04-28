@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { SearchField, useSearch } from 'components/App/Borrow'
 import { Container, Slider, TableBuy, Wrapper } from 'components/App/Venft'
 import styled from 'styled-components'
+import { getVenftItems } from '../../api/venft'
+import { VenftItem } from '../../api/types'
 
 const FiltersWrapper = styled.div`
   display: flex;
@@ -44,7 +46,20 @@ export default function Buy() {
 
   const [timeRange, setTimeRange] = useState([0, 100])
   const [minTime, maxTime] = timeRange
-
+  const [venftItems, setVenftItems] = useState<VenftItem[]>([])
+  useEffect(() => {
+    let mounted = true
+    const fn = async () => {
+      const items = await getVenftItems()
+      if (mounted) {
+        setVenftItems(items)
+      }
+    }
+    fn()
+    return () => {
+      mounted = false
+    }
+  }, [])
   return (
     <Container>
       <Hero>
@@ -71,7 +86,7 @@ export default function Buy() {
             <RangeLabelWrapper>{maxTime}</RangeLabelWrapper>
           </RangeWrapper>
         </FiltersWrapper>
-        <TableBuy />
+        <TableBuy venftItems={venftItems} />
       </Wrapper>
       <Disclaimer />
     </Container>

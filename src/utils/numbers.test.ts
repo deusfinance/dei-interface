@@ -1,4 +1,4 @@
-import { formatBalance } from './numbers'
+import { formatBalance, fromWei } from './numbers'
 
 describe('Number Utils', () => {
   it('rounds to significant digits', () => {
@@ -12,5 +12,9 @@ describe('Number Utils', () => {
     expect(formatBalance('0.00000051511515', 6)).toBe('0.000000515115')
     expect(formatBalance('6416465651684.00000051511515', 6)).toBe('6416465651684')
     expect(formatBalance('64164656.5168400000051511515', 6)).toBe('64164656')
+  })
+  it('fromWei', () => {
+    expect(fromWei(58000000000000000000)).toBe('58.000000000000000000')
+    expect(fromWei(58000000000000000000, 6)).toBe('58000000000000.000000')
   })
 })

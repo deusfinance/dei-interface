@@ -14,6 +14,14 @@ export const veDEUS: AddressMap = {
   [SupportedChainId.FANTOM]: '0x8b42c6cb07c8dd5fe5db3ac03693867afd11353d',
 }
 
+export const veNFT: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xcbd8fea77c2452255f59743f55a3ea9d83b3c72b',
+}
+
+export const Vault: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xD3C361D8DCdCbB459C4e826E67Ef48962cF6bE3a',
+}
+
 export const BaseV1Factory: AddressMap = {
   [SupportedChainId.FANTOM]: '0x3faab499b519fdc5819e3d7ed0c26111904cbc28',
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useRanger } from 'react-ranger'
 import styled from 'styled-components'
 
@@ -9,15 +9,19 @@ const Amount = styled.div`
 
 export default function Slider({
   percent,
+  min,
   onSliderChange,
 }: {
   percent: number
+  min: number
   onSliderChange: (values: number[]) => void
 }) {
   const [values, setValues] = useState([percent])
+  console.log(min)
+  console.log('this is percent: ', percent)
 
   const { getTrackProps, handles } = useRanger({
-    min: -100,
+    min: min,
     max: 100,
     stepSize: 1,
     values,

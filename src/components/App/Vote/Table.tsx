@@ -173,13 +173,17 @@ const itemsPerPage = 5
 export default function Table({
   options,
   votes,
+  ourPairs,
   setVotes,
 }: {
   options: SolidlyPair[]
-  votes: { address: string; percent: number }[]
-  setVotes: (votes: { address: string; percent: number }[]) => void
+  votes: { address: string; amount: number }[]
+  ourPairs: { address: string; amount: number }[]
+  setVotes: (votes: { address: string; amount: number }[]) => void
 }) {
   const [offset, setOffset] = useState(0)
+
+  // console.log(ourPairs)
 
   const paginatedOptions = useMemo(() => {
     return options.slice(offset, offset + itemsPerPage)
@@ -193,13 +197,16 @@ export default function Table({
     setOffset(Math.ceil(selected * itemsPerPage))
   }
 
+  console.log(paginatedOptions)
+  console.log('votes:', votes)
+
   const onSliderChange = (values: number[], pair: SolidlyPair) => {
     let currentVoteIndex = findIndex(votes, { address: pair.id })
 
     if (currentVoteIndex > -1) {
-      votes[currentVoteIndex].percent = values[0]
+      votes[currentVoteIndex].amount = values[0]
     } else {
-      let newVote = { address: pair.id, percent: values[0] }
+      let newVote = { address: pair.id, amount: values[0] }
       votes.push(newVote)
     }
 
@@ -208,8 +215,17 @@ export default function Table({
 
   const pairPercent = (pair: SolidlyPair) => {
     let voteIndex = findIndex(votes, { address: pair.id })
-    if (voteIndex > -1) return votes[voteIndex].percent
+    if (voteIndex > -1) return votes[voteIndex].amount
     else return 0
+  }
+
+  const findAmount = (pair: SolidlyPair) => {
+    let ourPairIndex = findIndex(ourPairs, { address: pair.id })
+
+    if (ourPairIndex > -1) {
+      return ourPairs[ourPairIndex].amount
+    }
+    return -100
   }
 
   return (
@@ -229,7 +245,13 @@ export default function Table({
         <tbody>
           {paginatedOptions.length > 0 &&
             paginatedOptions.map((pair: SolidlyPair, index) => (
-              <MemoTableRow key={index} pair={pair} percent={pairPercent(pair)} onPairSliderChange={onSliderChange} />
+              <MemoTableRow
+                key={index}
+                pair={pair}
+                percent={pairPercent(pair)}
+                onPairSliderChange={onSliderChange}
+                amount={findAmount(pair)}
+              />
             ))}
         </tbody>
       </TableWrapper>
@@ -244,14 +266,19 @@ const MemoTableRow = React.memo(TableRow, areEqual)
 function TableRow({
   pair,
   percent,
+  amount,
   onPairSliderChange,
 }: {
   pair: SolidlyPair
   percent: number
+  amount: number
   onPairSliderChange: (values: number[], pair: SolidlyPair) => void
 }) {
   const logoOne = useCurrencyLogo(pair.token0.symbol)
   const logoTwo = useCurrencyLogo(pair.token1.symbol)
+
+  // console.log(pair)
+  // console.log(amount)
 
   const {
     userPoolBalance,
@@ -396,7 +423,7 @@ function TableRow({
         )}
       </Cell>
       <Cell>
-        <Slider percent={percent} onSliderChange={onSliderChange} />
+        <Slider percent={percent} onSliderChange={onSliderChange} min={amount} />
       </Cell>
     </Row>
   )

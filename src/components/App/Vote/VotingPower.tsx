@@ -78,14 +78,14 @@ const VotingPowerPercent = styled.div<{ voteState: VoteState }>`
   width: 40px;
 `
 
-export default function VotingPower({ votes }: { votes: { address: string; percent: number }[] }) {
+export default function VotingPower({ votes }: { votes: { address: string; amount: number }[] }) {
   const [votingPower, setVotingPower] = useState(10)
   const voteState = useMemo(() => (votingPower > 100 ? VoteState.NOT_VALID : VoteState.VALID), [votingPower])
 
   useEffect(() => {
     let power = 0
     votes.forEach((vote) => {
-      power += Math.abs(vote.percent)
+      power += Math.abs(vote.amount)
     })
     setVotingPower(power)
   }, [votes])

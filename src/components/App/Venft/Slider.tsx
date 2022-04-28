@@ -42,7 +42,7 @@ export default function Slider({
           },
         })}
       >
-        {handles.map(({ getHandleProps }) => (
+        {handles.map(({ getHandleProps }, index) => (
           <button
             {...getHandleProps({
               style: {
@@ -54,6 +54,7 @@ export default function Slider({
                 border: 'solid 1px #545454',
               },
             })}
+            key={index}
           />
         ))}
       </div>

@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { darken } from 'polished'
 import BigNumber from 'bignumber.js'
 import { areEqual } from 'react-window'
-import { findIndex } from 'lodash'
 
 import Pagination from 'components/Pagination'
 import { DualImageWrapper } from 'components/DualImage'
@@ -173,17 +172,15 @@ const itemsPerPage = 5
 export default function Table({
   options,
   votes,
-  ourPairs,
+  preVotedPairs,
   setVotes,
 }: {
   options: SolidlyPair[]
   votes: { address: string; amount: number }[]
-  ourPairs: { address: string; amount: number }[]
+  preVotedPairs: { address: string; amount: number }[]
   setVotes: (votes: { address: string; amount: number }[]) => void
 }) {
   const [offset, setOffset] = useState(0)
-
-  // console.log(ourPairs)
 
   const paginatedOptions = useMemo(() => {
     return options.slice(offset, offset + itemsPerPage)
@@ -197,16 +194,13 @@ export default function Table({
     setOffset(Math.ceil(selected * itemsPerPage))
   }
 
-  console.log(paginatedOptions)
-  console.log('votes:', votes)
-
-  const onSliderChange = (values: number[], pair: SolidlyPair) => {
-    let currentVoteIndex = findIndex(votes, { address: pair.id })
+  const onSliderChange = (values: number, pair: SolidlyPair) => {
+    const currentVoteIndex = votes.findIndex((v) => v.address === pair.id)
 
     if (currentVoteIndex > -1) {
-      votes[currentVoteIndex].amount = values[0]
+      votes[currentVoteIndex].amount = values
     } else {
-      let newVote = { address: pair.id, amount: values[0] }
+      const newVote = { address: pair.id, amount: values }
       votes.push(newVote)
     }
 
@@ -214,16 +208,16 @@ export default function Table({
   }
 
   const pairPercent = (pair: SolidlyPair) => {
-    let voteIndex = findIndex(votes, { address: pair.id })
+    const voteIndex = votes.findIndex((v) => v.address === pair.id)
     if (voteIndex > -1) return votes[voteIndex].amount
     else return 0
   }
 
   const findAmount = (pair: SolidlyPair) => {
-    let ourPairIndex = findIndex(ourPairs, { address: pair.id })
+    const ourPairIndex = preVotedPairs.findIndex((v) => v.address === pair.id)
 
     if (ourPairIndex > -1) {
-      return ourPairs[ourPairIndex].amount
+      return preVotedPairs[ourPairIndex].amount
     }
     return -100
   }
@@ -272,13 +266,10 @@ function TableRow({
   pair: SolidlyPair
   percent: number
   amount: number
-  onPairSliderChange: (values: number[], pair: SolidlyPair) => void
+  onPairSliderChange: (values: number, pair: SolidlyPair) => void
 }) {
   const logoOne = useCurrencyLogo(pair.token0.symbol)
   const logoTwo = useCurrencyLogo(pair.token1.symbol)
-
-  // console.log(pair)
-  // console.log(amount)
 
   const {
     userPoolBalance,
@@ -338,7 +329,7 @@ function TableRow({
     [pair]
   )
 
-  const onSliderChange = (values: number[]) => {
+  const onSliderChange = (values: number) => {
     onPairSliderChange(values, pair)
   }
 

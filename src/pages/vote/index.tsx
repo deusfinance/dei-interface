@@ -30,12 +30,14 @@ export default function Vote() {
   // TODO: add hooks for get client veNft and votes
   // TODO: add search bar and shows client veNft
 
-  const ourPairs = [
+  const preVotedPairs = [
     { address: '0x8a20082c9ba0928248a4912e7d8e18da96f3a612', amount: 20 },
     { address: '0x01da9b46ca6a5f7696c8684c4dd71e2da1ea4b87', amount: 40 },
     { address: '0xd1163e3b2182779af46090da404beed19f1d83e2', amount: 20 },
   ]
-  const [votes, setVotes] = useState<{ address: string; amount: number }[]>(ourPairs)
+
+  // TODO: remove preVotedPairs in the useState
+  const [votes, setVotes] = useState<{ address: string; amount: number }[]>(preVotedPairs)
 
   return (
     <Container>
@@ -48,7 +50,7 @@ export default function Vote() {
           options={snapshot.options as unknown as SolidlyPair[]}
           votes={votes}
           setVotes={setVotes}
-          ourPairs={ourPairs}
+          preVotedPairs={preVotedPairs}
         />
       </Wrapper>
       <VotingPower votes={votes} />

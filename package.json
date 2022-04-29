@@ -77,6 +77,8 @@
     ]
   },
   "devDependencies": {
+    "@ethersproject/experimental": "^5.6.0",
+    "@ethersproject/wallet": "^5.6.0",
     "@testing-library/dom": "^8.12.0",
     "@testing-library/jest-dom": "^5.16.3",
     "@testing-library/react": "^13.0.0",
@@ -93,6 +95,7 @@
     "@types/styled-react-modal": "^1.2.2",
     "@typescript-eslint/eslint-plugin": "^5.9.0",
     "@typescript-eslint/parser": "^5.9.0",
+    "abi-decoder": "^2.4.0",
     "babel-jest": "^27.5.1",
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-styled-components": "^2.0.2",
@@ -108,6 +111,8 @@
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-unused-imports": "^2.0.0",
+    "ethereum-input-data-decoder": "^0.4.1",
+    "ethers": "^5.6.4",
     "jest": "^27.5.1",
     "prettier": "^2.5.1",
     "typescript": "^4.5.4"

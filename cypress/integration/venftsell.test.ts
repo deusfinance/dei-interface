@@ -1,16 +1,17 @@
 import {
-  HasVenftToSellBridge,
+  HasVeNFTToSellBridge,
   provider,
+  SellVeNFTBridge,
   signer,
   TEST_ADDRESS_NEVER_USE_SHORTENED,
-  ZeroBalanceVenftBridge,
+  ZeroBalanceVeNFTBridge,
 } from '../support/commands'
 
 describe('Landing Page', () => {
   const setupEthBridge = () => {
     cy.on('window:before:load', (win) => {
       // @ts-ignore
-      win.ethereum = new ZeroBalanceVenftBridge(signer, provider)
+      win.ethereum = new ZeroBalanceVeNFTBridge(signer, provider)
     })
   }
 
@@ -21,7 +22,7 @@ describe('Landing Page', () => {
   })
 
   it('gets VeNFT balance', () => {
-    const ethBridge = new ZeroBalanceVenftBridge(signer, provider)
+    const ethBridge = new ZeroBalanceVeNFTBridge(signer, provider)
     cy.on('window:before:load', (win) => {
       // @ts-ignore
       win.ethereum = ethBridge
@@ -38,7 +39,7 @@ describe('Landing Page', () => {
   })
 
   it('loads VeNFT list', () => {
-    const ethBridge = new HasVenftToSellBridge(signer, provider)
+    const ethBridge = new HasVeNFTToSellBridge(signer, provider)
     cy.on('window:before:load', (win) => {
       // @ts-ignore
       win.ethereum = ethBridge
@@ -54,6 +55,23 @@ describe('Landing Page', () => {
       expect(ethBridge.VeNFTBalanceOf).to.have.callCount(1)
       expect(ethBridge.tokenOfOwnerByIndex).to.have.callCount(2)
       expect(ethBridge.veNFTLockedData).to.have.callCount(2)
+    })
+  })
+
+  it('sells VeNFT', () => {
+    const ethBridge = new SellVeNFTBridge(signer, provider)
+    cy.on('window:before:load', (win) => {
+      // @ts-ignore
+      win.ethereum = ethBridge
+      cy.spy(ethBridge, 'sellVeNFTSpy')
+    })
+
+    cy.visit('/venft/sell/')
+    const expectTokenId = ethBridge.tokens.sort((a: any, b: any) => a.tokenId - b.tokenId)[1].tokenId
+    cy.get(`[data-testid=venft-sell-row-1-action]`, { timeout: 2000 }).click()
+    cy.wait(500)
+    cy.window().then((win) => {
+      expect(ethBridge.sellVeNFTSpy).to.have.calledWith(expectTokenId)
     })
   })
 })

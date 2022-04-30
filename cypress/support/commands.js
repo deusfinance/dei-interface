@@ -110,56 +110,9 @@ export class CustomizedBridge extends Eip1193Bridge {
 }
 
 export class ZeroBalanceVenftBridge extends CustomizedBridge {
-  VeNFTBalanceOfSpy(address) {}
-
-  async send(...args) {
-    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
-
-    if (method === 'eth_call') {
-      if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
-        const decoded = decodeEthCall(VENFT_ABI, params[0].data)
-        if (decoded.method === 'balanceOf') {
-          this.VeNFTBalanceOfSpy(`0x${decoded.inputs[0]}`)
-          const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])
-          if (isCallbackForm) {
-            callback(null, { result })
-          } else {
-            return result
-          }
-        }
-      }
-    }
-    return super.send(...args)
-  }
-}
-
-export class HasVenftToSellBridge extends CustomizedBridge {
-  tokens = [
-    {
-      tokenId: 32824,
-      needsAmount: 1000000000000,
-      endTime: 1776902400,
-    },
-    {
-      tokenId: 14278,
-      needsAmount: 2000000000000,
-      endTime: 1776902400,
-    },
-  ]
-
-  VeNFTBalanceOfSpy(address) {}
-
-  tokenOfOwnerByIndex(input, setResult) {
-    const [_owner, index] = input
-    const returnData = [this.tokens[index.toNumber()].tokenId]
-    const result = encodeEthResult(VENFT_ABI, 'tokenOfOwnerByIndex', returnData)
-    setResult(result)
-  }
-
-  veNFTLockedData(input, setResult) {
-    console.log(input)
-    const returnData = [1000000000000, 1776902400]
-    const result = encodeEthResult(VENFT_ABI, 'locked', returnData)
+  VeNFTBalanceOf(decodedInput, setResult) {
+    const [_owner] = decodedInput
+    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])
     setResult(result)
   }
 
@@ -178,29 +131,99 @@ export class HasVenftToSellBridge extends CustomizedBridge {
       if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
         const decoded = decodeEthCall(VENFT_ABI, params[0].data)
         if (decoded.method === 'balanceOf') {
-          this.VeNFTBalanceOfSpy(`0x${decoded.inputs[0]}`)
-          setResult(encodeEthResult(VENFT_ABI, 'balanceOf', [2]))
+          this.VeNFTBalanceOf(decoded.inputs, setResult)
+        }
+      }
+    }
+
+    if (resultIsSet) {
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return result
+      }
+    }
+    return super.send(...args)
+  }
+}
+
+export class HasVenftToSellBridge extends CustomizedBridge {
+  tokens = [
+    {
+      tokenId: 32824,
+      needsAmount: 1000000000000,
+      endTime: 1776902400,
+    },
+    {
+      tokenId: 14278,
+      needsAmount: 2000000000000,
+      endTime: 1776900400,
+    },
+  ]
+
+  VeNFTBalanceOf(decodedInput, setResult) {
+    const [_owner] = decodedInput
+    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [2])
+    setResult(result)
+  }
+
+  tokenOfOwnerByIndex(decodedInput, setResult) {
+    const [_owner, index] = decodedInput
+    const token = this.tokens[index.toNumber()]
+    const returnData = [token.tokenId]
+    const result = encodeEthResult(VENFT_ABI, 'tokenOfOwnerByIndex', returnData)
+    setResult(result)
+  }
+
+  veNFTLockedData(decodedInput, setResult) {
+    const [tokenId] = decodedInput
+    const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
+    const returnData = [token.needsAmount, token.endTime]
+    const result = encodeEthResult(VENFT_ABI, 'locked', returnData)
+    setResult(result)
+  }
+
+  handleMulticall(decodedInput, setResult) {
+    const [_requireSuccess, calls] = decodedInput
+    const results = []
+    calls.forEach((call) => {
+      const callAddress = call[0]
+      if (isTheSameAddress(callAddress, veNFT[this.chainId])) {
+        const decodedCall = decodeEthCall(VENFT_ABI, call[1])
+        const setResultLocal = (callResult) => results.push([true, callResult])
+        if (decodedCall.method === 'tokenOfOwnerByIndex') {
+          this.tokenOfOwnerByIndex(decodedCall.inputs, setResultLocal)
+        }
+        if (decodedCall.method === 'locked') {
+          this.veNFTLockedData(decodedCall.inputs, setResultLocal)
+        }
+      }
+    })
+    setResult(encodeEthResult(MULTICALL2_ABI, 'tryBlockAndAggregate', [0, FAKE_BLOCK_HASH, results]))
+  }
+
+  async send(...args) {
+    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
+
+    let result = null
+    let resultIsSet = false
+
+    function setResult(r) {
+      result = r
+      resultIsSet = true
+    }
+
+    if (method === 'eth_call') {
+      if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
+        const decoded = decodeEthCall(VENFT_ABI, params[0].data)
+        if (decoded.method === 'balanceOf') {
+          this.VeNFTBalanceOf(decoded.inputs, setResult)
         }
       }
       if (isTheSameAddress(params[0].to, Multicall2[this.chainId])) {
         const decoded = decodeEthCall(MULTICALL2_ABI, params[0].data)
         if (decoded.method === 'tryBlockAndAggregate') {
-          const calls = decoded.inputs[1]
-          const results = []
-          calls.forEach((call) => {
-            const callAddress = call[0]
-            if (isTheSameAddress(callAddress, veNFT[this.chainId])) {
-              const decodedCall = decodeEthCall(VENFT_ABI, call[1])
-              const setResultLocal = (callResult) => results.push([true, callResult])
-              if (decodedCall.method === 'tokenOfOwnerByIndex') {
-                this.tokenOfOwnerByIndex(decodedCall.inputs, setResultLocal)
-              }
-              if (decodedCall.method === 'locked') {
-                this.veNFTLockedData(decodedCall.inputs, setResultLocal)
-              }
-            }
-          })
-          setResult(encodeEthResult(MULTICALL2_ABI, 'tryBlockAndAggregate', [0, FAKE_BLOCK_HASH, results]))
+          this.handleMulticall(decoded.inputs, setResult)
         }
       }
     }

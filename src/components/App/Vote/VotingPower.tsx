@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import styled from 'styled-components'
 
+import { VoteType } from 'hooks/useVoteCallback'
+
 const enum VoteState {
   VALID = 'valid',
   NOT_VALID = 'not_valid',
@@ -78,7 +80,8 @@ const VotingPowerPercent = styled.div<{ voteState: VoteState }>`
   width: 40px;
 `
 
-export default function VotingPower({ votes }: { votes: { address: string; amount: number }[] }) {
+export default function VotingPower({ votes, onCastVote }: { votes: VoteType[]; onCastVote: () => void }) {
+  // TODO: add loading for cast vote button
   const [votingPower, setVotingPower] = useState(10)
   const voteState = useMemo(() => (votingPower > 100 ? VoteState.NOT_VALID : VoteState.VALID), [votingPower])
 
@@ -97,7 +100,7 @@ export default function VotingPower({ votes }: { votes: { address: string; amoun
           <p>Voting Power Used:</p>
           <VotingPowerPercent voteState={voteState}>{votingPower}%</VotingPowerPercent>
         </ItemsWrapper>
-        <CastVote voteState={voteState}>
+        <CastVote voteState={voteState} onClick={onCastVote}>
           <CastVoteText voteState={voteState}>Cast Votes</CastVoteText>
         </CastVote>
       </Wrapper>

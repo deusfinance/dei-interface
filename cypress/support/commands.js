@@ -9,8 +9,10 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { formatChainId, truncateAddress } from '../../src/utils/account'
 import { SupportedChainId } from '../../src/constants/chains'
-import { veNFT } from '../../src/constants/addresses'
+import { Multicall2, veNFT } from '../../src/constants/addresses'
 import VENFT_ABI from '../../src/constants/abi/veNFT.json'
+import MULTICALL2_ABI from '../../src/constants/abi/MULTICALL2.json'
+
 import { ethers } from 'ethers'
 
 const InputDataDecoder = require('ethereum-input-data-decoder')
@@ -34,6 +36,12 @@ function decodeEthCall(abi, input) {
 function encodeEthResult(abi, funcName, result) {
   const iface = new ethers.utils.Interface(abi)
   return iface.encodeFunctionResult(funcName, result)
+}
+
+const FAKE_BLOCK_HASH = '0xeed54f1dd0adad878c624694038ac3c70631ec800b150b9caf9eedd4aea3df95'
+
+function isTheSameAddress(address1, address2) {
+  return address1.toLowerCase() === address2.toLowerCase()
 }
 
 export class CustomizedBridge extends Eip1193Bridge {
@@ -108,7 +116,7 @@ export class ZeroBalanceVenftBridge extends CustomizedBridge {
     const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
 
     if (method === 'eth_call') {
-      if (params[0].to === veNFT[this.chainId]) {
+      if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
         const decoded = decodeEthCall(VENFT_ABI, params[0].data)
         if (decoded.method === 'balanceOf') {
           this.VeNFTBalanceOfSpy(`0x${decoded.inputs[0]}`)
@@ -119,6 +127,89 @@ export class ZeroBalanceVenftBridge extends CustomizedBridge {
             return result
           }
         }
+      }
+    }
+    return super.send(...args)
+  }
+}
+
+export class HasVenftToSellBridge extends CustomizedBridge {
+  tokens = [
+    {
+      tokenId: 32824,
+      needsAmount: 1000000000000,
+      endTime: 1776902400,
+    },
+    {
+      tokenId: 14278,
+      needsAmount: 2000000000000,
+      endTime: 1776902400,
+    },
+  ]
+
+  VeNFTBalanceOfSpy(address) {}
+
+  tokenOfOwnerByIndex(input, setResult) {
+    const [_owner, index] = input
+    const returnData = [this.tokens[index.toNumber()].tokenId]
+    const result = encodeEthResult(VENFT_ABI, 'tokenOfOwnerByIndex', returnData)
+    setResult(result)
+  }
+
+  veNFTLockedData(input, setResult) {
+    console.log(input)
+    const returnData = [1000000000000, 1776902400]
+    const result = encodeEthResult(VENFT_ABI, 'locked', returnData)
+    setResult(result)
+  }
+
+  async send(...args) {
+    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
+
+    let result = null
+    let resultIsSet = false
+
+    function setResult(r) {
+      result = r
+      resultIsSet = true
+    }
+
+    if (method === 'eth_call') {
+      if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
+        const decoded = decodeEthCall(VENFT_ABI, params[0].data)
+        if (decoded.method === 'balanceOf') {
+          this.VeNFTBalanceOfSpy(`0x${decoded.inputs[0]}`)
+          setResult(encodeEthResult(VENFT_ABI, 'balanceOf', [2]))
+        }
+      }
+      if (isTheSameAddress(params[0].to, Multicall2[this.chainId])) {
+        const decoded = decodeEthCall(MULTICALL2_ABI, params[0].data)
+        if (decoded.method === 'tryBlockAndAggregate') {
+          const calls = decoded.inputs[1]
+          const results = []
+          calls.forEach((call) => {
+            const callAddress = call[0]
+            if (isTheSameAddress(callAddress, veNFT[this.chainId])) {
+              const decodedCall = decodeEthCall(VENFT_ABI, call[1])
+              const setResultLocal = (callResult) => results.push([true, callResult])
+              if (decodedCall.method === 'tokenOfOwnerByIndex') {
+                this.tokenOfOwnerByIndex(decodedCall.inputs, setResultLocal)
+              }
+              if (decodedCall.method === 'locked') {
+                this.veNFTLockedData(decodedCall.inputs, setResultLocal)
+              }
+            }
+          })
+          setResult(encodeEthResult(MULTICALL2_ABI, 'tryBlockAndAggregate', [0, FAKE_BLOCK_HASH, results]))
+        }
+      }
+    }
+
+    if (resultIsSet) {
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return result
       }
     }
     return super.send(...args)

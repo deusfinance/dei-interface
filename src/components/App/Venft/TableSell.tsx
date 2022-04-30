@@ -51,7 +51,9 @@ export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftTo
         </Head>
         <tbody>
           {paginatedOptions.length ? (
-            paginatedOptions.map((item: AccountVenftToken, index) => <TableRow veNFTToken={item} key={index} />)
+            paginatedOptions.map((item: AccountVenftToken, index) => (
+              <TableRow veNFTToken={item} index={index} key={index} />
+            ))
           ) : (
             <tr>
               <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }} data-testid="venft-sell-no-results">
@@ -66,10 +68,10 @@ export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftTo
   )
 }
 
-function TableRow({ veNFTToken }: { veNFTToken: AccountVenftToken }) {
+function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index: number }) {
   return (
     <Row>
-      <VeNFTCel>veNFT #{veNFTToken.tokenId.toNumber()}</VeNFTCel>
+      <VeNFTCel data-testid={`venft-sell-row-${index}-token-id`}>veNFT #{veNFTToken.tokenId.toNumber()}</VeNFTCel>
       <VeNFTCel>{parseFloat(fromWei(veNFTToken.needsAmount.toNumber()))} fSolid</VeNFTCel>
       <VeNFTCel>{dayjs.utc(new Date(veNFTToken.endTime.toNumber() * 1000)).fromNow(true)}</VeNFTCel>
       <VeNFTCel style={{ padding: '5px 10px' }}>

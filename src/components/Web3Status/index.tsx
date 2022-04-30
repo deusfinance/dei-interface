@@ -63,7 +63,7 @@ function Web3StatusInner() {
     return (
       <ConnectedButton onClick={toggleWalletModal}>
         <ConnectedIcon />
-        <Text data-cy="wallet-connect">{truncateAddress(account)}</Text>
+        <Text data-testid="wallet-connect">{truncateAddress(account)}</Text>
       </ConnectedButton>
     )
   } else if (error) {

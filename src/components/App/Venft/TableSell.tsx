@@ -54,7 +54,7 @@ export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftTo
             paginatedOptions.map((item: AccountVenftToken, index) => <TableRow veNFTToken={item} key={index} />)
           ) : (
             <tr>
-              <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}>
+              <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }} data-testid="venft-sell-no-results">
                 No Results Found
               </td>
             </tr>

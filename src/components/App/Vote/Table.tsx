@@ -15,6 +15,7 @@ import { ZERO_ADDRESS } from 'constants/addresses'
 import { formatAmount } from 'utils/numbers'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
+import { VoteType } from 'hooks/useVoteCallback'
 import { useSolidlyGaugeData, useSolidlyGaugeReserves, useSolidlyPairData } from 'hooks/useSolidlyData'
 
 const Wrapper = styled.div`
@@ -176,9 +177,9 @@ export default function Table({
   setVotes,
 }: {
   options: SolidlyPair[]
-  votes: { address: string; amount: number }[]
-  preVotedPairs: { address: string; amount: number }[]
-  setVotes: (votes: { address: string; amount: number }[]) => void
+  votes: VoteType[]
+  preVotedPairs: VoteType[]
+  setVotes: (votes: VoteType[]) => void
 }) {
   const [offset, setOffset] = useState(0)
 

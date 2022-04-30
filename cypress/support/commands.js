@@ -39,8 +39,6 @@ function encodeEthResult(abi, funcName, result) {
 export class CustomizedBridge extends Eip1193Bridge {
   chainId = SupportedChainId.FANTOM
 
-  VeNFTBalanceOfSpy(address) {}
-
   async sendAsync(...args) {
     console.debug('sendAsync called', ...args)
     return this.send(...args)
@@ -84,21 +82,6 @@ export class CustomizedBridge extends Eip1193Bridge {
         return Promise.resolve(formatChainId(String(this.chainId)))
       }
     }
-
-    if (method === 'eth_call') {
-      if (params[0].to === veNFT[this.chainId]) {
-        const decoded = decodeEthCall(VENFT_ABI, params[0].data)
-        if (decoded.method === 'balanceOf') {
-          this.VeNFTBalanceOfSpy(`0x${decoded.inputs[0]}`)
-          const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])
-          if (isCallbackForm) {
-            callback(null, { result })
-          } else {
-            return result
-          }
-        }
-      }
-    }
     try {
       const result = await super.send(method, params)
       if (isCallbackForm) {
@@ -115,6 +98,30 @@ export class CustomizedBridge extends Eip1193Bridge {
         throw error
       }
     }
+  }
+}
+
+export class ZeroBalanceVenftBridge extends CustomizedBridge {
+  VeNFTBalanceOfSpy(address) {}
+
+  async send(...args) {
+    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
+
+    if (method === 'eth_call') {
+      if (params[0].to === veNFT[this.chainId]) {
+        const decoded = decodeEthCall(VENFT_ABI, params[0].data)
+        if (decoded.method === 'balanceOf') {
+          this.VeNFTBalanceOfSpy(`0x${decoded.inputs[0]}`)
+          const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])
+          if (isCallbackForm) {
+            callback(null, { result })
+          } else {
+            return result
+          }
+        }
+      }
+    }
+    return super.send(...args)
   }
 }
 

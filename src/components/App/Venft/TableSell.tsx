@@ -7,6 +7,7 @@ import { Cel, Head, Row, TableWrapper, Wrapper } from 'components/Table'
 import { AccountVenftToken } from 'hooks/useVeNFT'
 import { fromWei } from 'utils/numbers'
 import dayjs from 'dayjs'
+import { useVault } from 'hooks/useVault'
 
 const VeNFTCel = styled(Cel)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -69,13 +70,19 @@ export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftTo
 }
 
 function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index: number }) {
+  const { sellVeNFT } = useVault()
+  const handleSellVeNFT = () => {
+    sellVeNFT(veNFTToken.tokenId.toNumber())
+  }
   return (
     <Row>
       <VeNFTCel data-testid={`venft-sell-row-${index}-token-id`}>veNFT #{veNFTToken.tokenId.toNumber()}</VeNFTCel>
       <VeNFTCel>{parseFloat(fromWei(veNFTToken.needsAmount.toNumber()))} fSolid</VeNFTCel>
       <VeNFTCel>{dayjs.utc(new Date(veNFTToken.endTime.toNumber() * 1000)).fromNow(true)}</VeNFTCel>
       <VeNFTCel style={{ padding: '5px 10px' }}>
-        <PrimaryButton>Buy</PrimaryButton>
+        <PrimaryButton data-testid={`venft-sell-row-${index}-action`} onClick={handleSellVeNFT}>
+          Sell
+        </PrimaryButton>
       </VeNFTCel>
     </Row>
   )

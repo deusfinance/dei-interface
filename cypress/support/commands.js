@@ -26,14 +26,14 @@ export const TEST_ADDRESS_NEVER_USE = new Wallet(TEST_PRIVATE_KEY).address
 
 export const TEST_ADDRESS_NEVER_USE_SHORTENED = truncateAddress(TEST_ADDRESS_NEVER_USE)
 
-function decodeEthCall(data, abi) {
+function decodeEthCall(abi, input) {
   const decoder = new InputDataDecoder(abi)
-  return decoder.decodeData(data)
+  return decoder.decodeData(input)
 }
 
-function encodeEthResult(abi, funcName, params) {
+function encodeEthResult(abi, funcName, result) {
   const iface = new ethers.utils.Interface(abi)
-  return iface.encodeFunctionResult(funcName, params)
+  return iface.encodeFunctionResult(funcName, result)
 }
 
 export class CustomizedBridge extends Eip1193Bridge {
@@ -87,7 +87,7 @@ export class CustomizedBridge extends Eip1193Bridge {
 
     if (method === 'eth_call') {
       if (params[0].to === veNFT[this.chainId]) {
-        const decoded = decodeEthCall(params[0].data, VENFT_ABI)
+        const decoded = decodeEthCall(VENFT_ABI, params[0].data)
         if (decoded.method === 'balanceOf') {
           this.VeNFTBalanceOfSpy(`0x${decoded.inputs[0]}`)
           const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])

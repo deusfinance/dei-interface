@@ -9,8 +9,9 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { formatChainId, truncateAddress } from '../../src/utils/account'
 import { SupportedChainId } from '../../src/constants/chains'
-import { Multicall2, veNFT } from '../../src/constants/addresses'
+import { Multicall2, Vault, veNFT } from '../../src/constants/addresses'
 import VENFT_ABI from '../../src/constants/abi/veNFT.json'
+import VAULT_ABI from '../../src/constants/abi/Vault.json'
 import MULTICALL2_ABI from '../../src/constants/abi/MULTICALL2.json'
 
 import { ethers } from 'ethers'
@@ -109,11 +110,9 @@ export class CustomizedBridge extends Eip1193Bridge {
   }
 }
 
-export class ZeroBalanceVenftBridge extends CustomizedBridge {
+export class AbstractGetBalanceVeNFTBridge extends CustomizedBridge {
   VeNFTBalanceOf(decodedInput, setResult) {
-    const [_owner] = decodedInput
-    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])
-    setResult(result)
+    throw 'Not implemented'
   }
 
   async send(...args) {
@@ -147,7 +146,15 @@ export class ZeroBalanceVenftBridge extends CustomizedBridge {
   }
 }
 
-export class HasVenftToSellBridge extends CustomizedBridge {
+export class ZeroBalanceVeNFTBridge extends AbstractGetBalanceVeNFTBridge {
+  VeNFTBalanceOf(decodedInput, setResult) {
+    const [_owner] = decodedInput
+    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])
+    setResult(result)
+  }
+}
+
+export class HasVeNFTToSellBridge extends AbstractGetBalanceVeNFTBridge {
   tokens = [
     {
       tokenId: 32824,
@@ -187,9 +194,9 @@ export class HasVenftToSellBridge extends CustomizedBridge {
     const [_requireSuccess, calls] = decodedInput
     const results = []
     calls.forEach((call) => {
-      const callAddress = call[0]
+      const [callAddress, callInput] = call
       if (isTheSameAddress(callAddress, veNFT[this.chainId])) {
-        const decodedCall = decodeEthCall(VENFT_ABI, call[1])
+        const decodedCall = decodeEthCall(VENFT_ABI, callInput)
         const setResultLocal = (callResult) => results.push([true, callResult])
         if (decodedCall.method === 'tokenOfOwnerByIndex') {
           this.tokenOfOwnerByIndex(decodedCall.inputs, setResultLocal)
@@ -214,16 +221,52 @@ export class HasVenftToSellBridge extends CustomizedBridge {
     }
 
     if (method === 'eth_call') {
-      if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
-        const decoded = decodeEthCall(VENFT_ABI, params[0].data)
-        if (decoded.method === 'balanceOf') {
-          this.VeNFTBalanceOf(decoded.inputs, setResult)
-        }
-      }
       if (isTheSameAddress(params[0].to, Multicall2[this.chainId])) {
         const decoded = decodeEthCall(MULTICALL2_ABI, params[0].data)
         if (decoded.method === 'tryBlockAndAggregate') {
           this.handleMulticall(decoded.inputs, setResult)
+        }
+      }
+    }
+
+    if (resultIsSet) {
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return result
+      }
+    }
+    return super.send(...args)
+  }
+}
+
+export class SellVeNFTBridge extends AbstractGetBalanceVeNFTBridge {
+  sellVeNFTSpy(tokenId) {}
+
+  sellVeNFT(decodedInput, setResult) {
+    const [tokenId] = decodedInput
+    sellVeNFTSpy(tokenId.toNumber())
+    const returnData = []
+    const result = encodeEthResult(VENFT_ABI, 'sell', returnData)
+    setResult(result)
+  }
+
+  async send(...args) {
+    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
+
+    let result = null
+    let resultIsSet = false
+
+    function setResult(r) {
+      result = r
+      resultIsSet = true
+    }
+
+    if (method === 'eth_call') {
+      if (isTheSameAddress(params[0].to, Vault[this.chainId])) {
+        const decoded = decodeEthCall(VAULT_ABI, params[0].data)
+        if (decoded.method === 'sell') {
+          this.sellVeNFT(decoded.inputs, setResult)
         }
       }
     }

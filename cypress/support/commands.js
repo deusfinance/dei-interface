@@ -7,7 +7,7 @@
 import { Eip1193Bridge } from '@ethersproject/experimental/lib/eip1193-bridge'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
-import { formatChainId, truncateAddress } from '../../src/utils/account'
+import { formatChainId } from '../../src/utils/account'
 import { SupportedChainId } from '../../src/constants/chains'
 import { Multicall2, Vault, veNFT } from '../../src/constants/addresses'
 import VENFT_ABI from '../../src/constants/abi/veNFT.json'
@@ -15,19 +15,9 @@ import VAULT_ABI from '../../src/constants/abi/Vault.json'
 import MULTICALL2_ABI from '../../src/constants/abi/MULTICALL2.json'
 
 import { ethers } from 'ethers'
+import { TEST_ADDRESS_NEVER_USE, TEST_PRIVATE_KEY, veNFTTokens } from '../utils/data'
 
 const InputDataDecoder = require('ethereum-input-data-decoder')
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-// import abiDecoder from 'abi-decoder'
-// todo: figure out how env vars actually work in CI
-// const TEST_PRIVATE_KEY = Cypress.env('INTEGRATION_TEST_PRIVATE_KEY')
-const TEST_PRIVATE_KEY = '0xe580410d7c37d26c6ad1a837bbae46bc27f9066a466fb3a66e770523b4666d19'
-
-// address of the above key
-export const TEST_ADDRESS_NEVER_USE = new Wallet(TEST_PRIVATE_KEY).address
-
-export const TEST_ADDRESS_NEVER_USE_SHORTENED = truncateAddress(TEST_ADDRESS_NEVER_USE)
 
 function decodeEthCall(abi, input) {
   const decoder = new InputDataDecoder(abi)
@@ -110,8 +100,16 @@ export class CustomizedBridge extends Eip1193Bridge {
   }
 }
 
-export class AbstractGetBalanceVeNFTBridge extends CustomizedBridge {
+export class AbstractVeNFTBridge extends CustomizedBridge {
   VeNFTBalanceOf(decodedInput, setResult) {
+    throw 'Not implemented'
+  }
+
+  getApproved(decodedInput, setResult) {
+    throw 'Not implemented'
+  }
+
+  isApprovedForAll(decodedInput, setResult) {
     throw 'Not implemented'
   }
 
@@ -132,6 +130,12 @@ export class AbstractGetBalanceVeNFTBridge extends CustomizedBridge {
         if (decoded.method === 'balanceOf') {
           this.VeNFTBalanceOf(decoded.inputs, setResult)
         }
+        if (decoded.method === 'getApproved') {
+          this.getApproved(decoded.inputs, setResult)
+        }
+        if (decoded.method === 'isApprovedForAll') {
+          this.isApprovedForAll(decoded.inputs, setResult)
+        }
       }
     }
 
@@ -146,7 +150,7 @@ export class AbstractGetBalanceVeNFTBridge extends CustomizedBridge {
   }
 }
 
-export class ZeroBalanceVeNFTBridge extends AbstractGetBalanceVeNFTBridge {
+export class ZeroBalanceVeNFTBridge extends AbstractVeNFTBridge {
   VeNFTBalanceOf(decodedInput, setResult) {
     const [_owner] = decodedInput
     const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])
@@ -154,23 +158,27 @@ export class ZeroBalanceVeNFTBridge extends AbstractGetBalanceVeNFTBridge {
   }
 }
 
-export class HasVeNFTToSellBridge extends AbstractGetBalanceVeNFTBridge {
-  tokens = [
-    {
-      tokenId: 32824,
-      needsAmount: 1000000000000,
-      endTime: 1776902400,
-    },
-    {
-      tokenId: 14278,
-      needsAmount: 2000000000000,
-      endTime: 1776900400,
-    },
-  ]
+export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
+  tokens = veNFTTokens
+
+  getApproved(decodedInput, setResult) {
+    const [tokenId] = decodedInput
+    const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
+    const returnData = [token.approved]
+    const result = encodeEthResult(VENFT_ABI, 'getApproved', returnData)
+    setResult(result)
+  }
+
+  isApprovedForAll(decodedInput, setResult) {
+    const [_owner, _operator] = decodedInput
+    const returnData = [false]
+    const result = encodeEthResult(VENFT_ABI, 'isApprovedForAll', returnData)
+    setResult(result)
+  }
 
   VeNFTBalanceOf(decodedInput, setResult) {
     const [_owner] = decodedInput
-    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [2])
+    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [this.tokens.length])
     setResult(result)
   }
 
@@ -240,12 +248,21 @@ export class HasVeNFTToSellBridge extends AbstractGetBalanceVeNFTBridge {
   }
 }
 
+export class HasVeNFTToSellApprovedAllBridge extends HasVeNFTToSellBridge {
+  isApprovedForAll(decodedInput, setResult) {
+    const [_owner, _operator] = decodedInput
+    const returnData = [true]
+    const result = encodeEthResult(VENFT_ABI, 'isApprovedForAll', returnData)
+    setResult(result)
+  }
+}
+
 export class SellVeNFTBridge extends HasVeNFTToSellBridge {
   sellVeNFTSpy(tokenId) {}
 
   sellVeNFT(decodedInput, setResult) {
     const [tokenId] = decodedInput
-    sellVeNFTSpy(tokenId.toNumber())
+    this.sellVeNFTSpy(tokenId.toNumber())
     const returnData = []
     const result = encodeEthResult(VENFT_ABI, 'sell', returnData)
     setResult(result)
@@ -263,9 +280,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellBridge {
     }
 
     if (method === 'eth_call') {
-      console.log('ethhhhhh')
       if (isTheSameAddress(params[0].to, Vault[this.chainId])) {
-        console.log('vaulttttttt')
         const decoded = decodeEthCall(VAULT_ABI, params[0].data)
         if (decoded.method === 'sell') {
           this.sellVeNFT(decoded.inputs, setResult)

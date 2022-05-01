@@ -7,6 +7,10 @@ import { Cel, Head, Row, TableWrapper, Wrapper } from 'components/Table'
 import { AccountVenftToken } from 'hooks/useVeNFT'
 import { fromWei } from 'utils/numbers'
 import dayjs from 'dayjs'
+import useActiveWeb3React from 'hooks/useWeb3'
+import useApproveNftCallback, { ApprovalState } from 'hooks/useApproveNftCallback'
+import { veNFT } from 'constants/addresses'
+import { useVeNFTContract } from 'hooks/useContract'
 import { useVault } from 'hooks/useVault'
 
 const VeNFTCel = styled(Cel)`
@@ -47,7 +51,7 @@ export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftTo
             <Cel>Token ID</Cel>
             <Cel>You Will Get</Cel>
             <Cel>Time</Cel>
-            <Cel>Action</Cel>
+            <Cel>Sell</Cel>
           </tr>
         </Head>
         <tbody>
@@ -70,9 +74,19 @@ export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftTo
 }
 
 function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index: number }) {
+  const { chainId, account } = useActiveWeb3React()
+  const [approvalState] = useApproveNftCallback(
+    veNFTToken.tokenId,
+    chainId ? veNFT[chainId] : undefined,
+    useVeNFTContract(),
+    account
+  )
   const { sellVeNFT } = useVault()
   const handleSellVeNFT = () => {
-    sellVeNFT(veNFTToken.tokenId.toNumber())
+    if (approvalState === ApprovalState.APPROVED) {
+    } else {
+      sellVeNFT(veNFTToken.tokenId.toNumber())
+    }
   }
   return (
     <Row>
@@ -81,7 +95,7 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
       <VeNFTCel>{dayjs.utc(new Date(veNFTToken.endTime.toNumber() * 1000)).fromNow(true)}</VeNFTCel>
       <VeNFTCel style={{ padding: '5px 10px' }}>
         <PrimaryButton data-testid={`venft-sell-row-${index}-action`} onClick={handleSellVeNFT}>
-          Sell
+          {approvalState === ApprovalState.APPROVED ? 'Sell' : 'Approve'}
         </PrimaryButton>
       </VeNFTCel>
     </Row>

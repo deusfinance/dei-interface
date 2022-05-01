@@ -15,7 +15,6 @@ import useWeb3React from 'hooks/useWeb3'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
 import { SupportedChainId } from 'constants/chains'
-import { Maintenance } from 'components/Warning'
 
 const Container = styled.div`
   display: flex;
@@ -174,7 +173,6 @@ export default function BorrowDEI() {
         </HeroSubtext>
       </Hero>
       <Wrapper>
-        <Maintenance>The lending contracts are currently under maintenance.we’ll be back soon.</Maintenance>
         <ReturnWrapper onClick={onReturnClick}>
           <ArrowBubble size={20} />
           Pool Overview

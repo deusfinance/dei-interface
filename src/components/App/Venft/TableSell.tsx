@@ -84,8 +84,8 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
   const { sellVeNFT } = useVault()
   const handleSellVeNFT = () => {
     if (approvalState === ApprovalState.APPROVED) {
-    } else {
       sellVeNFT(veNFTToken.tokenId.toNumber())
+    } else {
     }
   }
   return (

@@ -81,6 +81,14 @@ export class CustomizedBridge extends Eip1193Bridge {
         return Promise.resolve(formatChainId(String(this.chainId)))
       }
     }
+    if (method === 'eth_estimateGas') {
+      const result = '0x5208'
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return Promise.resolve(result)
+      }
+    }
     try {
       const result = await super.send(method, params)
       if (isCallbackForm) {
@@ -113,6 +121,10 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
     throw 'Not implemented'
   }
 
+  approve(decodedInput, setResult) {
+    throw 'Not implemented'
+  }
+
   async send(...args) {
     const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
 
@@ -135,6 +147,9 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
         }
         if (decoded.method === 'isApprovedForAll') {
           this.isApprovedForAll(decoded.inputs, setResult)
+        }
+        if (decoded.method === 'approve') {
+          this.approve(decoded.inputs, setResult)
         }
       }
     }
@@ -160,6 +175,13 @@ export class ZeroBalanceVeNFTBridge extends AbstractVeNFTBridge {
 
 export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
   tokens = veNFTTokens
+
+  approve(decodedInput, setResult) {
+    const [_approved, _tokenId] = decodedInput
+    const returnData = []
+    const result = encodeEthResult(VENFT_ABI, 'approve', returnData)
+    setResult(result)
+  }
 
   getApproved(decodedInput, setResult) {
     const [tokenId] = decodedInput

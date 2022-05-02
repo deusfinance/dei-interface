@@ -5,6 +5,7 @@ import useWeb3React from './useWeb3'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { Contract } from '@ethersproject/contracts'
 import { BigNumber } from '@ethersproject/bignumber'
+import { AddressZero } from '@ethersproject/constants/src.ts/addresses'
 
 export enum ApprovalState {
   UNKNOWN = 'UNKNOWN',
@@ -22,6 +23,8 @@ export default function useApproveNftCallback(
   const { chainId, account } = useWeb3React()
   const addTransaction = useTransactionAdder()
   const [approvalState, setApprovalState] = useState<ApprovalState>(ApprovalState.UNKNOWN)
+  const [approvedAll, setApprovedAll] = useState(false)
+
   const currentAllowance = BigNumber.from(0)
   const pendingApproval = useHasPendingApproval(tokenAddress, spender)
 
@@ -29,15 +32,28 @@ export default function useApproveNftCallback(
     let mounted = true
     const fn = async () => {
       if (!spender || !TokenContract) return
+      const approvedAll = await TokenContract.isApprovedForAll(account, spender)
+      if (mounted) {
+        setApprovedAll(approvedAll)
+      }
+    }
+    fn()
+    return () => {
+      mounted = false
+    }
+  }, [spender, currentAllowance, pendingApproval, TokenContract, tokenId, account])
+
+  useEffect(() => {
+    let mounted = true
+    const fn = async () => {
+      if (!spender || !TokenContract) return
       const approvedAddress = await TokenContract.getApproved(tokenId)
       if (mounted) {
-        setApprovalState(
-          approvedAddress === spender
-            ? ApprovalState.APPROVED
-            : pendingApproval
-            ? ApprovalState.PENDING
-            : ApprovalState.NOT_APPROVED
-        )
+        if (approvedAddress === spender || (approvedAddress === AddressZero && approvedAll)) {
+          setApprovalState(ApprovalState.APPROVED)
+        } else {
+          setApprovalState(pendingApproval ? ApprovalState.PENDING : ApprovalState.NOT_APPROVED)
+        }
       }
     }
     fn()

@@ -6,6 +6,8 @@ import {
   ZeroBalanceVeNFTBridge,
 } from '../support/commands'
 import { TEST_ADDRESS_NEVER_USE_SHORTENED, tokenListSorted } from '../utils/data'
+import { Vault } from '../../src/constants/addresses'
+import { SupportedChainId } from '../../src/constants/chains'
 
 describe('Landing Page', () => {
   const setupEthBridge = () => {
@@ -15,13 +17,13 @@ describe('Landing Page', () => {
     })
   }
 
-  it('is connected', () => {
+  it.skip('is connected', () => {
     setupEthBridge()
     cy.visit('/venft/sell/')
     cy.get('[data-testid=wallet-connect]', { timeout: 1000 }).contains(TEST_ADDRESS_NEVER_USE_SHORTENED)
   })
 
-  it('gets VeNFT balance', () => {
+  it.skip('gets VeNFT balance', () => {
     const ethBridge = new ZeroBalanceVeNFTBridge(signer, provider)
     cy.on('window:before:load', (win) => {
       // @ts-ignore
@@ -37,7 +39,7 @@ describe('Landing Page', () => {
     })
     cy.get(`[data-testid=venft-sell-no-results]`)
   })
-  it('loads VeNFT list', () => {
+  it.skip('loads VeNFT list', () => {
     const ethBridge = new HasVeNFTToSellBridge(signer, provider)
     cy.on('window:before:load', (win) => {
       // @ts-ignore
@@ -57,7 +59,7 @@ describe('Landing Page', () => {
     })
   })
 
-  it('checks approval for single tokens', () => {
+  it.skip('checks approval for single tokens', () => {
     const ethBridge = new HasVeNFTToSellBridge(signer, provider)
     cy.on('window:before:load', (win) => {
       // @ts-ignore
@@ -69,7 +71,7 @@ describe('Landing Page', () => {
     cy.get(`[data-testid=venft-sell-row-2-action]`).contains('Approve')
   })
 
-  it('checks approve all', () => {
+  it.skip('checks approve all', () => {
     const ethBridge = new HasVeNFTToSellApprovedAllBridge(signer, provider)
     cy.on('window:before:load', (win) => {
       // @ts-ignore
@@ -81,6 +83,20 @@ describe('Landing Page', () => {
     cy.get(`[data-testid=venft-sell-row-2-action]`).contains('Approve')
   })
 
+  it('approves', () => {
+    const ethBridge = new HasVeNFTToSellApprovedAllBridge(signer, provider)
+    cy.on('window:before:load', (win) => {
+      // @ts-ignore
+      win.ethereum = ethBridge
+      cy.spy(ethBridge, 'approve')
+    })
+    cy.visit('/venft/sell/')
+    cy.get(`[data-testid=venft-sell-row-2-action]`).contains('Approve').click()
+    cy.wait(1000)
+    cy.window().then((win) => {
+      expect(ethBridge.approve).to.have.calledWith([Vault[SupportedChainId.FANTOM], tokenListSorted[2].tokenId])
+    })
+  })
   // it('sells VeNFT', () => {
   //   const ethBridge = new SellVeNFTBridge(signer, provider)
   //   cy.on('window:before:load', (win) => {

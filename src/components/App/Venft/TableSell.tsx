@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import Pagination from 'components/Pagination'
@@ -9,7 +9,7 @@ import { fromWei } from 'utils/numbers'
 import dayjs from 'dayjs'
 import useActiveWeb3React from 'hooks/useWeb3'
 import useApproveNftCallback, { ApprovalState } from 'hooks/useApproveNftCallback'
-import { veNFT } from 'constants/addresses'
+import { Vault, veNFT } from 'constants/addresses'
 import { useVeNFTContract } from 'hooks/useContract'
 import { useVault } from 'hooks/useVault'
 
@@ -75,17 +75,45 @@ export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftTo
 
 function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index: number }) {
   const { chainId, account } = useActiveWeb3React()
-  const [approvalState] = useApproveNftCallback(
+  const [approvalState, approve] = useApproveNftCallback(
     veNFTToken.tokenId,
     chainId ? veNFT[chainId] : undefined,
     useVeNFTContract(),
-    account
+    chainId ? Vault[chainId] : undefined
   )
   const { sellVeNFT } = useVault()
-  const handleSellVeNFT = () => {
+
+  const [loading, setLoading] = useState(false)
+
+  const mounted = useRef(false)
+
+  useEffect(() => {
+    mounted.current = true // Will set it to true on mount ...
+    return () => {
+      mounted.current = false
+    } // ... and to false on unmount
+  }, [])
+
+  const handleSellVeNFT = async () => {
+    if (loading) return
+    setLoading(true)
     if (approvalState === ApprovalState.APPROVED) {
-      sellVeNFT(veNFTToken.tokenId.toNumber())
+      try {
+        await sellVeNFT(veNFTToken.tokenId.toNumber())
+      } catch (e) {
+        console.log('sell failed')
+        console.log(e)
+      }
     } else {
+      try {
+        await approve()
+      } catch (e) {
+        console.log('approve failed')
+        console.log(e)
+      }
+    }
+    if (mounted.current) {
+      setLoading(false)
     }
   }
   return (

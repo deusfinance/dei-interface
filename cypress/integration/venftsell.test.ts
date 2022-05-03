@@ -10,7 +10,7 @@ import { TEST_ADDRESS_NEVER_USE_SHORTENED, tokenListSorted } from '../utils/data
 import { Vault } from '../../src/constants/addresses'
 import { SupportedChainId } from '../../src/constants/chains'
 
-describe('Landing Page', () => {
+describe('VeNFT Sell', () => {
   const setupEthBridge = () => {
     cy.on('window:before:load', (win) => {
       // @ts-ignore

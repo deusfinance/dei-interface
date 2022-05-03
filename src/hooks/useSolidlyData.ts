@@ -1,11 +1,11 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import BigNumber from 'bignumber.js'
 import { Interface } from '@ethersproject/abi'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 
-import { SolidlyPair, SOLIDLY_PAIRS } from 'apollo/queries'
+import { LiquiditySnapshot, SolidlyPair, SOLIDLY_LIQUIDITY_SNAPSHOTS, SOLIDLY_PAIRS } from 'apollo/queries'
 import { getApolloClient } from 'apollo/client/solidly'
 import { lastThursday } from 'utils/vest'
 
@@ -53,6 +53,44 @@ export function useFetchSolidlyPairsCallback() {
       return []
     }
   }, [chainId])
+}
+
+export function useSolidlyLiquiditySnapshots(pairAddress: string): LiquiditySnapshot[] {
+  const [liquiditySnapshots, setLiquiditySnapshots] = useState<LiquiditySnapshot[]>([])
+  const { chainId } = useWeb3React()
+
+  const getLiquiditySnapshots = useCallback(async () => {
+    const DEFAULT_RETURN: LiquiditySnapshot[] = []
+    try {
+      if (!chainId) return DEFAULT_RETURN
+      const client = getApolloClient(chainId)
+      if (!client) return DEFAULT_RETURN
+
+      const { data } = await client.query({
+        query: SOLIDLY_LIQUIDITY_SNAPSHOTS,
+        variables: {
+          pair: pairAddress,
+        },
+        fetchPolicy: 'no-cache',
+      })
+
+      return data.liquidityPositionSnapshots as LiquiditySnapshot[]
+    } catch (error) {
+      console.log('Unable to fetch Solidly LiquiditySnapshots from The Graph Network')
+      console.error(error)
+      return []
+    }
+  }, [chainId, pairAddress])
+
+  useEffect(() => {
+    const fetcher = async () => {
+      const result = await getLiquiditySnapshots()
+      setLiquiditySnapshots(result)
+    }
+    fetcher()
+  }, [getLiquiditySnapshots])
+
+  return liquiditySnapshots
 }
 
 export function useSolidlyPairData(pair: SolidlyPair): {

@@ -13,6 +13,7 @@ import GENERAL_LENDER_ABI from 'constants/abi/GENERAL_LENDER.json'
 import { DEI_TOKEN } from 'constants/borrow'
 import { constructPercentage, ONE_HUNDRED_PERCENT } from 'utils/prices'
 import useWeb3React from './useWeb3'
+import { useSolidlyLiquiditySnapshots } from './useSolidlyData'
 
 export function useUserPoolData(pool: BorrowPool): {
   userCollateral: string
@@ -218,12 +219,15 @@ export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
   )
 }
 
-//TODO: needs to get data from api(al least muon oracle api)
 export function useCollateralPrice(pool: BorrowPool): string {
-  const oracleContract = useOracleContract(pool)
-  const methodName = pool.version == LenderVersion.V1 ? 'getPrice' : 'getOnChainPrice'
-  const [price] = useSingleContractMultipleMethods(oracleContract, [{ methodName, callInputs: [] }])
-  return useMemo(() => (price?.result ? formatUnits(price.result[0], 18) : '0'), [price])
+  const liquiditySnapshots = useSolidlyLiquiditySnapshots(pool.contract.address) // TODO this won't work for Solidex pools... so this affects the borrow page
+  return useMemo(() => {
+    if (!liquiditySnapshots.length) return '0'
+    const latest = liquiditySnapshots[0]
+    const token0 = new BigNumber(latest.reserve0).times(latest.token0PriceUSD)
+    const token1 = new BigNumber(latest.reserve1).times(latest.token1PriceUSD)
+    return new BigNumber(token0.plus(token1)).div(latest.liquidityTokenTotalSupply).toFixed(0) // TODO how many decimals do we round it to?
+  }, [liquiditySnapshots])
 }
 
 export function useAvailableForWithdrawal(pool: BorrowPool): {

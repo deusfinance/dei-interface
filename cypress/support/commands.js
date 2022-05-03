@@ -30,6 +30,7 @@ function encodeEthResult(abi, funcName, result) {
 }
 
 const FAKE_BLOCK_HASH = '0xeed54f1dd0adad878c624694038ac3c70631ec800b150b9caf9eedd4aea3df95'
+const FAKE_TRANSACTION_HASH = '0xb5c8bd9430b6cc87a0e2fe110ece6bf527fa4f170a4bc8cd032f768fc5219838'
 
 function isTheSameAddress(address1, address2) {
   return address1.toLowerCase() === address2.toLowerCase()
@@ -82,7 +83,7 @@ export class CustomizedBridge extends Eip1193Bridge {
       }
     }
     if (method === 'eth_estimateGas') {
-      const result = '0x5208'
+      const result = '0xba7f'
       if (isCallbackForm) {
         callback(null, { result })
       } else {
@@ -136,7 +137,7 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
       resultIsSet = true
     }
 
-    if (method === 'eth_call') {
+    if (method === 'eth_call' || method === 'eth_sendTransaction') {
       if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
         const decoded = decodeEthCall(VENFT_ABI, params[0].data)
         if (decoded.method === 'balanceOf') {
@@ -176,10 +177,12 @@ export class ZeroBalanceVeNFTBridge extends AbstractVeNFTBridge {
 export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
   tokens = veNFTTokens
 
+  approveSpy(approvedAddress, tokenId) {}
+
   approve(decodedInput, setResult) {
     const [_approved, _tokenId] = decodedInput
-    const returnData = []
-    const result = encodeEthResult(VENFT_ABI, 'approve', returnData)
+    this.approveSpy(`0x${_approved}`, _tokenId.toNumber())
+    const result = FAKE_TRANSACTION_HASH
     setResult(result)
   }
 

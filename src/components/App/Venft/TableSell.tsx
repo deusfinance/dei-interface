@@ -11,7 +11,7 @@ import useActiveWeb3React from 'hooks/useWeb3'
 import useApproveNftCallback, { ApprovalState } from 'hooks/useApproveNftCallback'
 import { Vault, veNFT } from 'constants/addresses'
 import { useVeNFTContract } from 'hooks/useContract'
-import { useVault } from 'hooks/useVault'
+import { useVaultCallback, VaultAction } from 'hooks/useVaultCallback'
 
 const VeNFTCel = styled(Cel)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -81,7 +81,7 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
     useVeNFTContract(),
     chainId ? Vault[chainId] : undefined
   )
-  const { sellVeNFT } = useVault()
+  const { callback: sellVeNFTCallback } = useVaultCallback(veNFTToken.tokenId, VaultAction.SELL)
 
   const [loading, setLoading] = useState(false)
 
@@ -99,7 +99,7 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
     setLoading(true)
     if (approvalState === ApprovalState.APPROVED) {
       try {
-        await sellVeNFT(veNFTToken.tokenId.toNumber())
+        await sellVeNFTCallback(veNFTToken.tokenId)
       } catch (e) {
         console.log('sell failed')
         console.log(e)

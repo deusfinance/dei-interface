@@ -2,6 +2,7 @@ import {
   HasVeNFTToSellApprovedAllBridge,
   HasVeNFTToSellBridge,
   provider,
+  SellVeNFTBridge,
   signer,
   ZeroBalanceVeNFTBridge,
 } from '../support/commands'
@@ -97,21 +98,21 @@ describe('Landing Page', () => {
       expect(ethBridge.approveSpy).to.have.calledWith(Vault[SupportedChainId.FANTOM], tokenListSorted[2].tokenId)
     })
   })
-  // it('sells VeNFT', () => {
-  //   const ethBridge = new SellVeNFTBridge(signer, provider)
-  //   cy.on('window:before:load', (win) => {
-  //     // @ts-ignore
-  //     win.ethereum = ethBridge
-  //     cy.spy(ethBridge, 'sellVeNFTSpy')
-  //   })
-  //
-  //   cy.visit('/venft/sell/')
-  //   const expectTokenId = tokenListSorted[1].tokenId
-  //   cy.get(`[data-testid=venft-sell-row-1-action]`).contains('Sell')
-  //   cy.get(`[data-testid=venft-sell-row-1-action]`).click()
-  //   cy.wait(500)
-  //   cy.window().then((win) => {
-  //     expect(ethBridge.sellVeNFTSpy).to.have.calledWith(expectTokenId)
-  //   })
-  // })
+  it('sells VeNFT', () => {
+    const ethBridge = new SellVeNFTBridge(signer, provider)
+    cy.on('window:before:load', (win) => {
+      // @ts-ignore
+      win.ethereum = ethBridge
+      cy.spy(ethBridge, 'sellVeNFTSpy')
+    })
+
+    cy.visit('/venft/sell/')
+    const expectTokenId = tokenListSorted[1].tokenId
+    cy.get(`[data-testid=venft-sell-row-1-action]`).contains('Sell')
+    cy.get(`[data-testid=venft-sell-row-1-action]`).click()
+    cy.wait(500)
+    cy.window().then((win) => {
+      expect(ethBridge.sellVeNFTSpy).to.have.calledWith(expectTokenId)
+    })
+  })
 })

@@ -282,7 +282,7 @@ export class HasVeNFTToSellApprovedAllBridge extends HasVeNFTToSellBridge {
   }
 }
 
-export class SellVeNFTBridge extends HasVeNFTToSellBridge {
+export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   sellVeNFTSpy(tokenId) {}
 
   sellVeNFT(decodedInput, setResult) {
@@ -304,7 +304,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellBridge {
       resultIsSet = true
     }
 
-    if (method === 'eth_call') {
+    if (method === 'eth_call' || method === 'eth_sendTransaction') {
       if (isTheSameAddress(params[0].to, Vault[this.chainId])) {
         const decoded = decodeEthCall(VAULT_ABI, params[0].data)
         if (decoded.method === 'sell') {

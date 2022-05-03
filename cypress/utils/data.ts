@@ -2,6 +2,8 @@
 // const TEST_PRIVATE_KEY = Cypress.env('INTEGRATION_TEST_PRIVATE_KEY')
 import { Wallet } from '@ethersproject/wallet'
 import { truncateAddress } from '../../src/utils/account'
+import { Vault } from '../../src/constants/addresses'
+import { SupportedChainId } from '../../src/constants/chains'
 
 export const TEST_PRIVATE_KEY = '0xe580410d7c37d26c6ad1a837bbae46bc27f9066a466fb3a66e770523b4666d19'
 export const TEST_PRIVATE_KEY_2 = '0x79a326abd4d35c206ed5365ff067ae2ab3bebc64865a7eb0b1c1ceedf037647b'
@@ -25,13 +27,13 @@ export const veNFTTokens = [
     tokenId: 14278,
     needsAmount: 2000000000000,
     endTime: 1776900400,
-    approved: TEST_ADDRESS_NEVER_USE,
+    approved: Vault[SupportedChainId.FANTOM],
   },
   {
     tokenId: 54278,
     needsAmount: 2000000000000,
     endTime: 1776900400,
-    approved: TEST_ADDRESS_NEVER_USE_2,
+    approved: TEST_ADDRESS_NEVER_USE,
   },
 ]
 

@@ -30,7 +30,9 @@ function encodeEthResult(abi, funcName, result) {
 }
 
 const FAKE_BLOCK_HASH = '0xeed54f1dd0adad878c624694038ac3c70631ec800b150b9caf9eedd4aea3df95'
-const FAKE_TRANSACTION_HASH = '0xb5c8bd9430b6cc87a0e2fe110ece6bf527fa4f170a4bc8cd032f768fc5219838'
+const FAKE_TRANSACTION_HASH = {
+  [SupportedChainId.FANTOM]: '0x8c417b4770b68fed1dd27c6aa3c5a399910f6d8f20630b3a588ab8141d5bff43',
+}
 
 function isTheSameAddress(address1, address2) {
   return address1.toLowerCase() === address2.toLowerCase()
@@ -182,7 +184,7 @@ export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
   approve(decodedInput, setResult) {
     const [_approved, _tokenId] = decodedInput
     this.approveSpy(`0x${_approved}`, _tokenId.toNumber())
-    const result = FAKE_TRANSACTION_HASH
+    const result = FAKE_TRANSACTION_HASH[this.chainId]
     setResult(result)
   }
 
@@ -288,7 +290,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   sellVeNFT(decodedInput, setResult) {
     const [tokenId] = decodedInput
     this.sellVeNFTSpy(tokenId.toNumber())
-    const result = FAKE_TRANSACTION_HASH
+    const result = FAKE_TRANSACTION_HASH[this.chainId]
     setResult(result)
   }
 

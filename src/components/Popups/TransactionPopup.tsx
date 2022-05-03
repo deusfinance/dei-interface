@@ -5,7 +5,7 @@ import useWeb3React from 'hooks/useWeb3'
 import { ExplorerDataType } from 'utils/explorers'
 import { FALLBACK_CHAIN_ID } from 'constants/chains'
 import { ExplorerLink } from 'components/Link'
-import { CheckMark, Copy as CopyIcon, Close } from 'components/Icons'
+import { CheckMark, Close, Copy as CopyIcon } from 'components/Icons'
 
 const Wrapper = styled.div`
   display: flex;
@@ -43,6 +43,7 @@ const SuccessBox = styled.div`
     &:first-child {
       margin-right: 0.5rem;
     }
+
     &:last-child {
       margin-left: auto;
     }
@@ -74,8 +75,13 @@ export default function TransactionPopup({
 
   const getBox = () => {
     return (
-      <ExplorerLink chainId={chainId ?? FALLBACK_CHAIN_ID} type={ExplorerDataType.TRANSACTION} value={hash}>
-        <SuccessBox color={success ? theme.success : theme.error}>
+      <ExplorerLink
+        data-testid="explorer-link"
+        chainId={chainId ?? FALLBACK_CHAIN_ID}
+        type={ExplorerDataType.TRANSACTION}
+        value={hash}
+      >
+        <SuccessBox color={success ? theme.success : theme.error} data-testid="explorer-link-success-box">
           <CheckMark color={success ? theme.success : theme.error} />
           Transaction {success ? 'successful' : 'failed'}
           <CopyIcon size={12} color={theme.text1} />

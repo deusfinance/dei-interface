@@ -97,7 +97,9 @@ describe('Landing Page', () => {
     cy.window().then((win) => {
       expect(ethBridge.approveSpy).to.have.calledWith(Vault[SupportedChainId.FANTOM], tokenListSorted[2].tokenId)
     })
+    cy.get('[data-testid=explorer-link-success-box]')
   })
+
   it('sells VeNFT', () => {
     const ethBridge = new SellVeNFTBridge(signer, provider)
     cy.on('window:before:load', (win) => {
@@ -114,5 +116,6 @@ describe('Landing Page', () => {
     cy.window().then((win) => {
       expect(ethBridge.sellVeNFTSpy).to.have.calledWith(expectTokenId)
     })
+    cy.get('[data-testid=explorer-link-success-box]')
   })
 })

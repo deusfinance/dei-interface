@@ -74,7 +74,7 @@ export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftTo
 }
 
 function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index: number }) {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const [approvalState, approve] = useApproveNftCallback(
     veNFTToken.tokenId,
     chainId ? veNFT[chainId] : undefined,
@@ -99,7 +99,7 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
     setLoading(true)
     if (approvalState === ApprovalState.APPROVED) {
       try {
-        await sellVeNFTCallback(veNFTToken.tokenId)
+        await sellVeNFTCallback?.()
       } catch (e) {
         console.log('sell failed')
         console.log(e)

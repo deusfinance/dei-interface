@@ -82,7 +82,7 @@ export function useVaultCallback(tokenId: BigNumber, action: VaultAction) {
           ? { from: account, to: address, data: calldata }
           : { from: account, to: address, data: calldata, value }
 
-        console.log('BORROW TRANSACTION', { tx, value })
+        console.log('VAULT TRANSACTION', { tx, value })
 
         const estimatedGas = await library.estimateGas(tx).catch((gasError) => {
           console.debug('Gas estimate failed, trying eth_call to extract error', call)
@@ -115,6 +115,7 @@ export function useVaultCallback(tokenId: BigNumber, action: VaultAction) {
             // gasPrice /// TODO add gasPrice based on EIP 1559
           })
           .then((response: TransactionResponse) => {
+            console.log('response')
             console.log(response)
 
             const summary = action === VaultAction.SELL ? `Sell #${tokenId.toNumber()}` : 'Unknown Transaction'
@@ -124,6 +125,7 @@ export function useVaultCallback(tokenId: BigNumber, action: VaultAction) {
             return response.hash
           })
           .catch((error) => {
+            console.log('tx error')
             // if the user rejected the tx, pass this along
             if (error?.code === 4001) {
               throw new Error('Transaction rejected.')

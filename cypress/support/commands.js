@@ -288,8 +288,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   sellVeNFT(decodedInput, setResult) {
     const [tokenId] = decodedInput
     this.sellVeNFTSpy(tokenId.toNumber())
-    const returnData = []
-    const result = encodeEthResult(VENFT_ABI, 'sell', returnData)
+    const result = FAKE_TRANSACTION_HASH
     setResult(result)
   }
 

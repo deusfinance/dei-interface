@@ -88,10 +88,10 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
   const mounted = useRef(false)
 
   useEffect(() => {
-    mounted.current = true // Will set it to true on mount ...
+    mounted.current = true
     return () => {
       mounted.current = false
-    } // ... and to false on unmount
+    }
   }, [])
 
   const handleSellVeNFT = async () => {

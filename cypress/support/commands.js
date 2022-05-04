@@ -309,8 +309,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   }
 
   withdrawFSolid(_decodedInput, setResult) {
-    const returnData = []
-    const result = encodeEthResult(VAULT_ABI, 'withdraw', returnData)
+    const result = FAKE_TRANSACTION_HASH[this.chainId]
     setResult(result)
   }
 

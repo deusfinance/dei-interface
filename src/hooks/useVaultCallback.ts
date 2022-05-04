@@ -13,9 +13,10 @@ export enum VaultCallbackState {
 
 export enum VaultAction {
   SELL = 'sell',
+  WITHDRAW = 'withdraw',
 }
 
-export function useVaultCallback(tokenId: BigNumber, action: VaultAction) {
+export function useVaultCallback(tokenId: BigNumber | null, action: VaultAction) {
   const { chainId, account, library } = useWeb3React()
   const addTransaction = useTransactionAdder()
   const VaultContract = useVaultContract()
@@ -32,6 +33,9 @@ export function useVaultCallback(tokenId: BigNumber, action: VaultAction) {
         if (!tokenId) throw new Error('Missing tokenId.')
         args = [tokenId]
         methodName = 'sell'
+      } else if (action === VaultAction.WITHDRAW) {
+        args = []
+        methodName = 'withdraw'
       }
 
       return {
@@ -54,7 +58,7 @@ export function useVaultCallback(tokenId: BigNumber, action: VaultAction) {
         error: 'Missing dependencies',
       }
     }
-    if (!tokenId) {
+    if (action === VaultAction.SELL && !tokenId) {
       return {
         state: VaultCallbackState.INVALID,
         callback: null,
@@ -118,7 +122,12 @@ export function useVaultCallback(tokenId: BigNumber, action: VaultAction) {
             console.log('response')
             console.log(response)
 
-            const summary = action === VaultAction.SELL ? `Sell #${tokenId.toNumber()}` : 'Unknown Transaction'
+            let summary = 'Unknown Transaction'
+            if (action === VaultAction.SELL) {
+              summary = `Sell #${tokenId.toNumber()}`
+            } else if (action === VaultAction.WITHDRAW) {
+              summary = 'Withdraw FSolid'
+            }
 
             addTransaction(response, { summary })
 

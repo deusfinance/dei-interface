@@ -1,4 +1,4 @@
-import { useVeNFTContract } from 'hooks/useContract'
+import { useVaultContract, useVeNFTContract } from 'hooks/useContract'
 import useActiveWeb3React from 'hooks/useWeb3'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useEffect, useMemo, useState } from 'react'
@@ -60,4 +60,32 @@ export function useVeNFTTokens() {
     }, [])
   }, [veNFTTokenIds, result])
   return { veNFTBalance, veNFTTokens, veNFTTokenIds }
+}
+
+export function useFSolidWithdrawData() {
+  const vaultContract = useVaultContract()
+  const { account } = useActiveWeb3React()
+  const [tokenIdToWithdraw, setTokenIdToWithdraw] = useState<BigNumber | null>(null)
+  const [withdrawCollateralAmount, setWithdrawCollateralAmount] = useState<BigNumber | null>(null)
+  useEffect(() => {
+    let mounted = true
+    const fun = async () => {
+      if (!vaultContract || !account) return
+      const tokenId: BigNumber = await vaultContract.withdrawPendingId(account)
+      if (mounted) {
+        setTokenIdToWithdraw(tokenId)
+      }
+      if (tokenId && !tokenId.isZero()) {
+        const amount: BigNumber = await vaultContract.getCollateralAmount(tokenId)
+        if (mounted) {
+          setWithdrawCollateralAmount(amount)
+        }
+      }
+    }
+    fun()
+    return () => {
+      mounted = false
+    }
+  }, [account, vaultContract])
+  return { tokenId: tokenIdToWithdraw, collateralAmount: withdrawCollateralAmount }
 }

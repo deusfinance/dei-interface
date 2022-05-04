@@ -27,7 +27,7 @@ describe('VeNFT Sell', () => {
     })
   })
 
-  it.only('withdraws fsolid after selling VeNFT', () => {
+  it('withdraws fsolid after selling VeNFT', () => {
     const ethBridge = new WithdrawVeNFTBridge(signer, provider)
     cy.on('window:before:load', (win) => {
       // @ts-ignore

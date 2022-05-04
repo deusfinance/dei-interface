@@ -3,6 +3,7 @@ export const ZeroBalanceVeNFTBridge: any
 export const HasVeNFTToSellBridge: any
 export const SellVeNFTBridge: any
 export const HasVeNFTToSellApprovedAllBridge: any
+export const WithdrawVeNFTBridge: any
 
 export const provider: any
 export const signer: any

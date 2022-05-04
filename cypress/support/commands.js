@@ -15,7 +15,7 @@ import VAULT_ABI from '../../src/constants/abi/Vault.json'
 import MULTICALL2_ABI from '../../src/constants/abi/MULTICALL2.json'
 
 import { ethers } from 'ethers'
-import { TEST_ADDRESS_NEVER_USE, TEST_PRIVATE_KEY, veNFTTokens } from '../utils/data'
+import { TEST_ADDRESS_NEVER_USE, TEST_PRIVATE_KEY, tokenListSorted, veNFTTokens } from '../utils/data'
 
 const InputDataDecoder = require('ethereum-input-data-decoder')
 
@@ -294,6 +294,26 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
     setResult(result)
   }
 
+  withdrawPendingId(_decodedInput, setResult) {
+    const returnData = [0]
+    const result = encodeEthResult(VAULT_ABI, 'withdrawPendingId', returnData)
+    setResult(result)
+  }
+
+  getCollateralAmount(decodedInput, setResult) {
+    const [tokenId] = decodedInput
+    const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
+    const returnData = [token.approved]
+    const result = encodeEthResult(VAULT_ABI, 'getCollateralAmount', returnData)
+    setResult(result)
+  }
+
+  withdrawFSolid(_decodedInput, setResult) {
+    const returnData = []
+    const result = encodeEthResult(VAULT_ABI, 'withdraw', returnData)
+    setResult(result)
+  }
+
   async send(...args) {
     const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
 
@@ -311,6 +331,15 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
         if (decoded.method === 'sell') {
           this.sellVeNFT(decoded.inputs, setResult)
         }
+        if (decoded.method === 'withdrawPendingId') {
+          this.withdrawPendingId(decoded.inputs, setResult)
+        }
+        if (decoded.method === 'getCollateralAmount') {
+          this.getCollateralAmount(decoded.inputs, setResult)
+        }
+        if (decoded.method === 'withdraw') {
+          this.withdrawFSolid(decoded.inputs, setResult)
+        }
       }
     }
 
@@ -322,6 +351,14 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
       }
     }
     return super.send(...args)
+  }
+}
+
+export class WithdrawVeNFTBridge extends SellVeNFTBridge {
+  withdrawPendingId(_decodedInput, setResult) {
+    const returnData = [tokenListSorted[1].tokenId]
+    const result = encodeEthResult(VAULT_ABI, 'withdrawPendingId', returnData)
+    setResult(result)
   }
 }
 

@@ -303,7 +303,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   getCollateralAmount(decodedInput, setResult) {
     const [tokenId] = decodedInput
     const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
-    const returnData = [token.approved]
+    const returnData = [token.needsAmount]
     const result = encodeEthResult(VAULT_ABI, 'getCollateralAmount', returnData)
     setResult(result)
   }

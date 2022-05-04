@@ -27,7 +27,7 @@ export function useVeNFTTokens() {
     return () => {
       mounted = false
     }
-  }, [account])
+  }, [account, veNFTContract])
 
   const balances: number[] = veNFTBalance ? Array.from(Array(veNFTBalance.toNumber()).keys()) : []
   const getTokenIdsCallInputs = account ? balances.map((id) => [account, id]) : []

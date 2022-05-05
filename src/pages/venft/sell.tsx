@@ -51,7 +51,7 @@ export default function Sell() {
               Withdraw{' '}
               {collateralAmount && !collateralAmount.isZero() && (
                 <span data-testid="venft-fsolid-withdraw-amount">
-                  `${parseFloat(fromWei(collateralAmount.toNumber()))} fSolid`
+                  `${fromWei(collateralAmount.toString()).toString()} fSolid`
                 </span>
               )}
             </button>

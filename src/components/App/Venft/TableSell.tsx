@@ -5,7 +5,6 @@ import Pagination from 'components/Pagination'
 import { PrimaryButton } from 'components/Button'
 import { Cel, Head, Row, TableWrapper, Wrapper } from 'components/Table'
 import { AccountVenftToken } from 'hooks/useVeNFT'
-import { fromWei } from 'utils/numbers'
 import dayjs from 'dayjs'
 import useActiveWeb3React from 'hooks/useWeb3'
 import useApproveNftCallback, { ApprovalState } from 'hooks/useApproveNftCallback'
@@ -116,10 +115,11 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
       setLoading(false)
     }
   }
+
   return (
     <Row>
       <VeNFTCel data-testid={`venft-sell-row-${index}-token-id`}>veNFT #{veNFTToken.tokenId.toNumber()}</VeNFTCel>
-      <VeNFTCel>{parseFloat(fromWei(veNFTToken.needsAmount.toNumber()))} fSolid</VeNFTCel>
+      <VeNFTCel>{veNFTToken.needsAmount.toString()} fSolid</VeNFTCel>
       <VeNFTCel>{dayjs.utc(new Date(veNFTToken.endTime.toNumber() * 1000)).fromNow(true)}</VeNFTCel>
       <VeNFTCel style={{ padding: '5px 10px' }}>
         <PrimaryButton data-testid={`venft-sell-row-${index}-action`} onClick={handleSellVeNFT}>

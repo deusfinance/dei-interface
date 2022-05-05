@@ -92,8 +92,8 @@ export const formatBalance = (balance: BigNumber.Value, fixed = 6): string => {
   return bnBalance.sd(fixed, BigNumber.ROUND_DOWN).toFixed()
 }
 
-export const fromWei = (amount: number, decimals = 18): string => {
-  if (amount === 0) return '0'
-  const displayBalance = new BigNumber(amount).dividedBy(new BigNumber(10).pow(decimals))
-  return displayBalance.toFixed(decimals, BigNumber.ROUND_DOWN)
+export const fromWei = (amount: BigNumber.Value, decimals = 18): BigNumber => {
+  const bnAmount = toBN(amount)
+  if (bnAmount.isZero()) return BN_ZERO
+  return bnAmount.dividedBy(toBN(10).pow(decimals))
 }

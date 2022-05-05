@@ -5,7 +5,6 @@ import Pagination from 'components/Pagination'
 import { PrimaryButton } from 'components/Button'
 import { Cel, Head, Row, TableWrapper, Wrapper } from 'components/Table'
 import { VenftItem } from '../../../api/types'
-import { fromWei } from 'utils/numbers'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -77,7 +76,10 @@ function TableRow({ venftItem }: { venftItem: VenftItem }) {
   return (
     <Row>
       <VeNFTCel>veNFT #{venftItem.tokenId}</VeNFTCel>
-      <VeNFTCel>{parseFloat(fromWei(venftItem.needsAmount))} fSolid</VeNFTCel>
+      <VeNFTCel>
+        {/*{parseFloat(fromWei(venftItem.needsAmount))} */}
+        fSolid
+      </VeNFTCel>
       <VeNFTCel>{dayjs.utc(new Date(venftItem.endTime * 1000)).fromNow(true)}</VeNFTCel>
       <VeNFTCel style={{ padding: '5px 10px' }}>
         <PrimaryButton>Buy</PrimaryButton>

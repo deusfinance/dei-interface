@@ -15,7 +15,7 @@ import VAULT_ABI from '../../src/constants/abi/Vault.json'
 import MULTICALL2_ABI from '../../src/constants/abi/MULTICALL2.json'
 
 import { ethers } from 'ethers'
-import { TEST_ADDRESS_NEVER_USE, TEST_PRIVATE_KEY, tokenListSorted, veNFTTokens } from '../utils/data'
+import { TEST_ADDRESS_NEVER_USE, TEST_PRIVATE_KEY, veNFTTokens } from '../utils/data'
 
 const InputDataDecoder = require('ethereum-input-data-decoder')
 
@@ -390,14 +390,6 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
       }
     }
     return super.send(...args)
-  }
-}
-
-export class WithdrawVeNFTBridge extends SellVeNFTBridge {
-  withdrawPendingId(_decodedInput, setResult) {
-    const returnData = [tokenListSorted[1].tokenId]
-    const result = encodeEthResult(VAULT_ABI, 'withdrawPendingId', returnData)
-    setResult(result)
   }
 }
 

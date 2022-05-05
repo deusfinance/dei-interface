@@ -13,15 +13,15 @@ import {
   setShowReview,
   setBorrowState,
   TypedField,
-  LenderVersion,
 } from 'state/borrow/reducer'
+import { useCurrencyBalance } from 'state/wallet/hooks'
 import useBorrowPage, { UserError } from 'hooks/useBorrowPage'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useWeb3React from 'hooks/useWeb3'
 import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useBorrowCallback from 'hooks/useBorrowCallback'
-
+import { useUserPoolData, useGetPairs } from 'hooks/usePoolData'
 import { SupportedChainId } from 'constants/chains'
 
 import { Card } from 'components/Card'
@@ -30,8 +30,6 @@ import InputBox from './InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import { CardTitle } from 'components/Title'
-import { useCurrencyBalance } from 'state/wallet/hooks'
-import { useUserPoolData } from 'hooks/usePoolData'
 
 const Wrapper = styled(Card)`
   gap: 15px;
@@ -91,13 +89,14 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
   }, [pool, action])
 
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency, spender)
-
+  const pairs = useGetPairs(pool)
   const { callback: mainCallback } = useBorrowCallback(
     collateralCurrency,
     borrowCurrency,
     parsedAmounts[0],
     parsedAmounts[1],
     pool,
+    pairs,
     action,
     typedField,
     payOff
@@ -180,17 +179,15 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     if (!!getApproveButton()) {
       return null
     }
+
     if (userError === UserError.ACCOUNT) {
       return <PrimaryButton onClick={toggleWalletModal}>Connect Wallet</PrimaryButton>
     }
+
     if (!isSupportedChainId) {
       return <PrimaryButton onClick={() => rpcChangerCallback(SupportedChainId.FANTOM)}>Switch to Fantom</PrimaryButton>
     }
-    /** *******REMOVE IT IN PRODUCTION******** */
-    if (pool.version == LenderVersion.V1 && typedField === TypedField.BORROW && action === BorrowAction.BORROW) {
-      return <PrimaryButton disabled>Only add Collateral</PrimaryButton>
-    }
-    /************************/
+
     if (userError === UserError.BALANCE) {
       return <PrimaryButton disabled>Insufficient {inputCurrency?.symbol} Balance</PrimaryButton>
     }

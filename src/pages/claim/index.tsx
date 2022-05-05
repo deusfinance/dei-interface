@@ -7,7 +7,7 @@ import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { Table } from 'components/App/Claim'
 
-import { DeprecatedBorrowPools } from 'constants/borrow'
+import { DeprecatedBorrowPools } from 'constants/legacyAddresses'
 import { ContextError, InvalidContext, useInvalidContext } from 'components/InvalidContext'
 
 const Container = styled.div`

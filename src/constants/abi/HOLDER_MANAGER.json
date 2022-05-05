@@ -1,0 +1,12 @@
+[
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "lpIndex", "type": "uint256" },
+      { "internalType": "address", "name": "user", "type": "address" }
+    ],
+    "name": "getHolder",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

@@ -5,7 +5,7 @@ import { useCurrenciesFromPool } from 'state/borrow/hooks'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useGlobalPoolData, useUserPoolData } from 'hooks/usePoolData'
-import { useLPData } from 'hooks/useLPData'
+import { usePendingLenderRewards } from 'hooks/usePendingLenderRewards'
 
 import Pagination from 'components/Pagination'
 import { PrimaryButton } from 'components/Button'
@@ -13,6 +13,8 @@ import { DualImageWrapper } from 'components/DualImage'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { formatAmount } from 'utils/numbers'
 import { Cel, Head, Row, TableWrapper, Wrapper } from 'components/Table'
+import { ToolTip } from 'components/ToolTip'
+import { Info as InfoIcon } from 'components/Icons'
 
 export const Deprecated = styled.div`
   color: ${({ theme }) => theme.text3};
@@ -34,13 +36,17 @@ const BorrowCel = styled(Cel)`
   `}
 `
 
+const IconWrap = styled.div`
+  margin-left: 5px;
+`
+
 const itemsPerPage = 10
 export default function Table({
   options,
   onMintClick,
 }: {
   options: BorrowPool[]
-  onMintClick: (contract: string, version: LenderVersion) => void
+  onMintClick: (contract: string, id: number | undefined) => void
 }) {
   const [offset, setOffset] = useState(0)
 
@@ -92,13 +98,13 @@ function TableRow({
   onMintClick,
 }: {
   pool: BorrowPool
-  onMintClick: (contract: string, version: LenderVersion) => void
+  onMintClick: (contract: string, id: number | undefined) => void
 }) {
   const { borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
   const logoOne = useCurrencyLogo(pool.token0.address)
   const logoTwo = useCurrencyLogo(pool.token1.address)
   const { userHolder } = useUserPoolData(pool)
-  const { balance0, balance1 } = useLPData(pool, userHolder)
+  const { balances, symbols } = usePendingLenderRewards(pool, userHolder)
   const { borrowedElastic } = useGlobalPoolData(pool)
 
   return (
@@ -116,11 +122,24 @@ function TableRow({
         {formatAmount(parseFloat(borrowedElastic))} {borrowCurrency?.symbol}
       </Cel>
       <Cel>
-        {formatAmount(parseFloat(balance0))} SOLID <br />
-        {formatAmount(parseFloat(balance1))} SEX
+        {symbols.map((symbol, index) => {
+          return <div key={index}>{`${formatAmount(parseFloat(balances[index]))} ${symbol}`}</div>
+        })}
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => onMintClick(pool.contract.address, pool.version)}>Borrow</PrimaryButton>
+        {!pool.pending ? (
+          <PrimaryButton onClick={() => onMintClick(pool.generalLender, pool?.id)}>Borrow</PrimaryButton>
+        ) : (
+          <>
+            <ToolTip id="id" />
+            <PrimaryButton disabled={true} onClick={() => onMintClick(pool.generalLender, pool?.id)}>
+              <div>Borrow</div>
+              <IconWrap data-for="id" data-tip={'max cap is still zero'}>
+                <InfoIcon size={15} />
+              </IconWrap>
+            </PrimaryButton>
+          </>
+        )}
       </Cel>
     </Row>
   )

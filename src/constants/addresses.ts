@@ -34,12 +34,14 @@ export const BaseV1Minter: AddressMap = {
   [SupportedChainId.FANTOM]: '0xC4209c19b183e72A037b2D1Fb11fbe522054A90D',
 }
 
-// NEEDS CHANGING
-export const LenderManager: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xc02f204bab0248c694516dbaf985d40718ed4f86',
+export const HolderManager: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xd7Ea68F1FcF197897906990C0CadA53cf016af99',
 }
 
-// NEEDS CHANGING
+export const GeneralLenderOracle: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x034e7a61BcB90D95c67f6C386877F4297c463Aa1',
+}
+
 export const SolidAddress: AddressMap = {
   [SupportedChainId.FANTOM]: '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
 }
@@ -49,11 +51,14 @@ export const Locker: AddressMap = {
   [SupportedChainId.FANTOM]: '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
 }
 
-// NEEDS CHANGING
 export const SolidexLpDepositor: AddressMap = {
   [SupportedChainId.FANTOM]: '0x26E1A0d851CF28E697870e1b7F053B605C8b060F',
 }
 
 export const Reimburse: AddressMap = {
   [SupportedChainId.FANTOM]: '0x85B6996ab768600C14dA1464205bd6b3a864417D',
+}
+
+export const OxDaoHolderFactory: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xD427b027c3FE976128364f08e5C51364bAAe1b69',
 }

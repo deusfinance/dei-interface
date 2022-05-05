@@ -1,12 +1,13 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
-import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
+import { BorrowPool, CollateralType } from 'state/borrow/reducer'
 import { useBorrowPools } from 'state/borrow/hooks'
 import { useGlobalDEIBorrowed } from 'hooks/usePoolData'
 
 import Hero, { HeroSubtext } from 'components/Hero'
+import Dropdown from 'components/Dropdown'
 import Disclaimer from 'components/Disclaimer'
 import { useSearch, SearchField, Table } from 'components/App/Borrow'
 import { formatAmount } from 'utils/numbers'
@@ -45,12 +46,14 @@ const Wrapper = styled(Container)`
 
 export default function Borrow() {
   const router = useRouter()
-  const { snapshot, searchProps } = useSearch()
+  const [collateralType, setCollateralType] = useState('')
+  const { snapshot, searchProps } = useSearch(collateralType)
   const pools = useBorrowPools()
   const { borrowedElastic } = useGlobalDEIBorrowed(pools)
+
   const onMintClick = useCallback(
-    (contract: string, version: LenderVersion) => {
-      const param = version == LenderVersion.V1 ? `?version=${version}` : ''
+    (contract: string, id: number | undefined) => {
+      const param = id != undefined ? `/${id}` : ''
       router.push(`/borrow/${contract}${param}`)
     },
     [router]
@@ -66,7 +69,17 @@ export default function Borrow() {
         <div style={{ marginBottom: '15px' }}>Global DEI Borrowed: {formatAmount(parseFloat(borrowedElastic))}</div>
         <div>
           <SearchField searchProps={searchProps} />
-          {/* <PrimaryButton>Claim All</PrimaryButton> */}
+          <Dropdown
+            options={[
+              { value: '', label: 'All' },
+              { value: CollateralType.OXDAO, label: '0xDAO' },
+              { value: CollateralType.SOLIDEX, label: 'Solidex' },
+            ]}
+            placeholder="Select Collateral Type"
+            defaultValue={collateralType}
+            onSelect={setCollateralType}
+            width="200px"
+          />
         </div>
         <Table options={snapshot.options as unknown as BorrowPool[]} onMintClick={onMintClick} />
       </Wrapper>

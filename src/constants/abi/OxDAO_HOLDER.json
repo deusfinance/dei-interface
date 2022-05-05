@@ -1,0 +1,9 @@
+[
+  {
+    "inputs": [{ "internalType": "address", "name": "to", "type": "address" }],
+    "name": "claimAndWithdrawRewards",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

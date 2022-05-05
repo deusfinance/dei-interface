@@ -178,7 +178,7 @@ export default function Table({
 }: {
   options: SolidlyPair[]
   votes: VoteType[]
-  preVotedPairs: VoteType[]
+  preVotedPairs: VoteType[] | null
   setVotes: (votes: VoteType[]) => void
 }) {
   const [offset, setOffset] = useState(0)
@@ -215,8 +215,9 @@ export default function Table({
   }
 
   const findAmount = (pair: SolidlyPair) => {
-    const ourPairIndex = preVotedPairs.findIndex((v) => v.address === pair.id)
+    if (preVotedPairs === null) return -100
 
+    const ourPairIndex = preVotedPairs.findIndex((v) => v.address === pair.id)
     if (ourPairIndex > -1) {
       return preVotedPairs[ourPairIndex].amount
     }
@@ -245,7 +246,7 @@ export default function Table({
                 pair={pair}
                 percent={pairPercent(pair)}
                 onPairSliderChange={onSliderChange}
-                amount={findAmount(pair)}
+                minSliderAmount={findAmount(pair)}
               />
             ))}
         </tbody>
@@ -261,12 +262,12 @@ const MemoTableRow = React.memo(TableRow, areEqual)
 function TableRow({
   pair,
   percent,
-  amount,
+  minSliderAmount,
   onPairSliderChange,
 }: {
   pair: SolidlyPair
   percent: number
-  amount: number
+  minSliderAmount: number
   onPairSliderChange: (values: number, pair: SolidlyPair) => void
 }) {
   const logoOne = useCurrencyLogo(pair.token0.symbol)
@@ -415,7 +416,7 @@ function TableRow({
         )}
       </Cell>
       <Cell>
-        <Slider percent={percent} onSliderChange={onSliderChange} min={amount} />
+        <Slider percent={percent} onSliderChange={onSliderChange} min={minSliderAmount} />
       </Cell>
     </Row>
   )

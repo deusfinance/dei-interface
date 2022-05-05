@@ -17,7 +17,7 @@ export enum VoteCallBackState {
 
 export default function useVoteCallback(
   votes: VoteType[],
-  tokenID: BigNumber
+  tokenID: BigNumber | null
 ): { state: VoteCallBackState; callback: null | (() => Promise<string>); error: string | null } {
   const { chainId, account, library } = useWeb3React()
   const addTransaction = useTransactionAdder()

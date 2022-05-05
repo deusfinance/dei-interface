@@ -12,7 +12,7 @@ export interface SolidlyPair {
   name: string
   symbol: string
   decimals: string
-  createdAt: string
+  createdAt?: string
   stable: boolean
   token0: SolidlyToken
   token1: SolidlyToken
@@ -20,12 +20,11 @@ export interface SolidlyPair {
 
 export const SOLIDLY_PAIRS = gql`
   query getSolidlyPairs {
-    pairs(first: 1000, orderBy: createdAt, orderDirection: desc) {
+    pairs(first: 1000, orderDirection: desc) {
       id
       name
       symbol
       decimals
-      createdAt
       stable
       token0 {
         id

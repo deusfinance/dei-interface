@@ -1,14 +1,16 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import { BigNumber } from '@ethersproject/bignumber'
 
 import { SolidlyPair } from 'apollo/queries'
 import Hero, { HeroSubtext } from 'components/Hero'
-import { useSearch } from 'components/App/Liquidity'
+import { useSearch, SearchField } from 'components/App/Liquidity'
 import Disclaimer from 'components/Disclaimer'
 import { Table, VotingPower } from 'components/App/Vote'
 import { useVeNFTTokens } from 'hooks/useVeNFT'
+import { RowEnd } from 'components/Row'
 import useVoteCallback, { VoteType } from 'hooks/useVoteCallback'
+import { useVotes } from 'hooks/useVotes'
 
 const Container = styled.div`
   display: flex;
@@ -27,24 +29,44 @@ const Wrapper = styled(Container)`
   `}
 `
 
+const UpperRow = styled(RowEnd)`
+  gap: 10px;
+  margin-bottom: 10px;
+  height: 50px;
+  & > * {
+    height: 100%;
+    max-width: fit-content;
+    &:first-child {
+      max-width: 400px;
+      margin-right: auto;
+    }
+
+    ${({ theme }) => theme.mediaWidth.upToMedium`
+      &:nth-child(2) {
+        display: none;
+      }
+    `}
+  }
+`
+
 export default function Vote() {
-  const { snapshot } = useSearch()
+  // TODO: add hooks for get client veNft
+  // TODO: add shows client veNfts
+  // TODO: add drop down for choose nft
+
+  const { snapshot, searchProps } = useSearch()
   const { veNFTBalance, veNFTTokens, veNFTTokenIds } = useVeNFTTokens()
-  const [selectedTokenID, setSelectedTokenId] = useState<BigNumber>(BigNumber.from('0xce57'))
+  const [selectedTokenID, setSelectedTokenId] = useState<BigNumber | null>(null)
+  const userVotes = useVotes(snapshot.options as unknown as SolidlyPair[], selectedTokenID)
 
-  // TODO: add hooks for get client veNft and votes
-  // TODO: add search bar and shows client veNfts
+  // this pre voted pairs can't be less than the specified amount
+  // const preVotedPairs = [{ address: '0x5821573d8f04947952e76d94f3abc6d7b43bf8d0', amount: 20 }]
+  // const [preVotedPairs, setPreVotedPairs] = useState<VoteType[]>()
 
-  const preVotedPairs = [
-    { address: '0x8a20082c9ba0928248a4912e7d8e18da96f3a612', amount: 20 },
-    { address: '0x01da9b46ca6a5f7696c8684c4dd71e2da1ea4b87', amount: 40 },
-    { address: '0xd1163e3b2182779af46090da404beed19f1d83e2', amount: 20 },
-  ]
-  const [votes, setVotes] = useState<VoteType[]>(preVotedPairs)
+  const [votes, setVotes] = useState<VoteType[]>([])
+  const [loading, setLoading] = useState(false)
 
-  // TODO: remove preVotedPairs in the useState
-
-  const { callback } = useVoteCallback(votes, selectedTokenID)
+  const { callback } = useVoteCallback([], selectedTokenID)
 
   const onCastVote = useCallback(async () => {
     if (!callback) return
@@ -61,7 +83,12 @@ export default function Vote() {
         error = 'An unknown error occurred.'
       }
     }
+    setLoading(false)
   }, [callback])
+
+  useEffect(() => {
+    setVotes(userVotes)
+  }, [JSON.stringify(userVotes)])
 
   return (
     <Container>
@@ -70,14 +97,17 @@ export default function Vote() {
         <HeroSubtext>Vote with your veNFT.</HeroSubtext>
       </Hero>
       <Wrapper>
+        <UpperRow>
+          <SearchField searchProps={searchProps} />
+        </UpperRow>
         <Table
           options={snapshot.options as unknown as SolidlyPair[]}
           votes={votes}
           setVotes={setVotes}
-          preVotedPairs={preVotedPairs}
+          preVotedPairs={null}
         />
       </Wrapper>
-      <VotingPower votes={votes} onCastVote={onCastVote} />
+      <VotingPower votes={votes} onCastVote={onCastVote} loading={loading} setLoading={setLoading} />
       <Disclaimer />
     </Container>
   )

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 import { BigNumber } from '@ethersproject/bignumber'
 
@@ -7,8 +7,9 @@ import Hero, { HeroSubtext } from 'components/Hero'
 import { useSearch, SearchField } from 'components/App/Liquidity'
 import Disclaimer from 'components/Disclaimer'
 import { Table, VotingPower } from 'components/App/Vote'
+import Dropdown from 'components/Dropdown'
 import { useVeNFTTokens } from 'hooks/useVeNFT'
-import { RowEnd } from 'components/Row'
+import { RowBetween } from 'components/Row'
 import useVoteCallback, { VoteType } from 'hooks/useVoteCallback'
 import { useVotes } from 'hooks/useVotes'
 
@@ -29,13 +30,15 @@ const Wrapper = styled(Container)`
   `}
 `
 
-const UpperRow = styled(RowEnd)`
+const UpperRow = styled(RowBetween)`
   gap: 10px;
   margin-bottom: 10px;
   height: 50px;
+
   & > * {
     height: 100%;
     max-width: fit-content;
+
     &:first-child {
       max-width: 400px;
       margin-right: auto;
@@ -56,7 +59,11 @@ export default function Vote() {
 
   const { snapshot, searchProps } = useSearch()
   const { veNFTBalance, veNFTTokens, veNFTTokenIds } = useVeNFTTokens()
-  const [selectedTokenID, setSelectedTokenId] = useState<BigNumber | null>(null)
+  // console.log('veNFTTokenIds:', veNFTTokenIds)
+  // console.log('ve nft tokens:', veNFTTokens)
+
+  const [selectedTokenID, setSelectedTokenID] = useState<BigNumber | null>(null)
+  // const useMemo
   const userVotes = useVotes(snapshot.options as unknown as SolidlyPair[], selectedTokenID)
 
   // this pre voted pairs can't be less than the specified amount
@@ -66,7 +73,7 @@ export default function Vote() {
   const [votes, setVotes] = useState<VoteType[]>([])
   const [loading, setLoading] = useState(false)
 
-  const { callback } = useVoteCallback([], selectedTokenID)
+  const { callback } = useVoteCallback(votes, selectedTokenID)
 
   const onCastVote = useCallback(async () => {
     if (!callback) return
@@ -88,7 +95,22 @@ export default function Vote() {
 
   useEffect(() => {
     setVotes(userVotes)
-  }, [JSON.stringify(userVotes)])
+  }, [JSON.stringify(userVotes), selectedTokenID])
+
+  const dropdownOptions = useMemo(() => {
+    if (!veNFTTokenIds.length) return []
+
+    const tokenIDs = veNFTTokenIds.map((token, index) => {
+      return { value: index.toString(), label: `NFT #${token.toString()}` }
+    })
+
+    return tokenIDs
+  }, [JSON.stringify(veNFTTokenIds)])
+
+  const dropdownOnSelect = (val: string) => {
+    const index = parseInt(val, 10)
+    setSelectedTokenID(veNFTTokenIds[index])
+  }
 
   return (
     <Container>
@@ -99,6 +121,12 @@ export default function Vote() {
       <Wrapper>
         <UpperRow>
           <SearchField searchProps={searchProps} />
+          <Dropdown
+            options={dropdownOptions}
+            placeholder="Select Token ID"
+            onSelect={(v) => dropdownOnSelect(v)}
+            width="200px"
+          />
         </UpperRow>
         <Table
           options={snapshot.options as unknown as SolidlyPair[]}

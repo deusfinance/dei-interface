@@ -58,8 +58,7 @@ export default function useVoteCallback(
       error: null,
       callback: async function onVote(): Promise<string> {
         console.log('onVote callback')
-        const call = await constructCall()
-
+        const call = constructCall()
         const { address, calldata, value } = call
 
         if ('error' in call) {

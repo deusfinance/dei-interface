@@ -100,7 +100,6 @@ export default function VotingPower({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  // TODO: add loading for cast vote button
   const [votingPower, setVotingPower] = useState(10)
   const voteState = useMemo(() => (votingPower > 100 ? VoteState.NOT_VALID : VoteState.VALID), [votingPower])
 

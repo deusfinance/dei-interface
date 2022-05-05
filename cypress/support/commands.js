@@ -38,6 +38,30 @@ function isTheSameAddress(address1, address2) {
   return address1.toLowerCase() === address2.toLowerCase()
 }
 
+const latestBlock = {
+  hash: '0x0000000c000001832042174315212d389e57129df4d9cfef47b5de83e73b7ddb',
+  parentHash: '0x0000000c00000177f0a985c5f59a474b87ba510f05f243310444a69248652a95',
+  number: 1280,
+  timestamp: 1577607303,
+  nonce: '0x0000000000000000',
+  difficulty: 0,
+  gasLimit: {
+    type: 'BigNumber',
+    hex: '0xffffffffffff',
+  },
+  gasUsed: {
+    type: 'BigNumber',
+    hex: '0x5af7',
+  },
+  miner: '0x0000000000000000000000000000000000000000',
+  extraData: '0x',
+  transactions: ['0x18f6f7a00dbb0e3560e3f3955c4521248513ecfeb49b3a4bbee8a15135467ed7'],
+  _difficulty: {
+    type: 'BigNumber',
+    hex: '0x00',
+  },
+}
+
 export class CustomizedBridge extends Eip1193Bridge {
   chainId = SupportedChainId.FANTOM
 
@@ -90,6 +114,16 @@ export class CustomizedBridge extends Eip1193Bridge {
         callback(null, { result })
       } else {
         return Promise.resolve(result)
+      }
+    }
+    if (method === 'eth_getBlockByNumber') {
+      if (params[0] === 'latest') {
+        const result = latestBlock
+        if (isCallbackForm) {
+          callback(null, { result })
+        } else {
+          return result
+        }
       }
     }
     try {
@@ -285,6 +319,8 @@ export class HasVeNFTToSellApprovedAllBridge extends HasVeNFTToSellBridge {
 }
 
 export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
+  withdrawFsolidTokenId = 0
+
   sellVeNFTSpy(tokenId) {}
 
   sellVeNFT(decodedInput, setResult) {
@@ -294,8 +330,12 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
     setResult(result)
   }
 
+  setWithdrawFsolidTokenId(tokenId) {
+    this.withdrawFsolidTokenId = tokenId
+  }
+
   withdrawPendingId(_decodedInput, setResult) {
-    const returnData = [0]
+    const returnData = [this.withdrawFsolidTokenId]
     const result = encodeEthResult(VAULT_ABI, 'withdrawPendingId', returnData)
     setResult(result)
   }

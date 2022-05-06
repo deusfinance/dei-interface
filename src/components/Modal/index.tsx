@@ -2,10 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 import StyledModal from 'styled-react-modal'
 
-import { Close as CloseIcon } from 'components/Icons'
-import { ChevronLeft as ChevronLeftIcon } from 'components/Icons'
-import { ThemedText } from 'theme'
-import { Z_INDEX } from 'theme'
+import { ChevronLeft as ChevronLeftIcon, Close as CloseIcon } from 'components/Icons'
+import { ThemedText, Z_INDEX } from 'theme'
 
 const BaseModal = StyledModal.styled`
   display: flex;
@@ -68,18 +66,20 @@ export const ModalHeader = ({
   onClose,
   onBack,
   hideClose,
+  testid,
 }: {
   title?: string
   border?: boolean
-  onClose: () => void
+  onClose?: () => void
   onBack?: () => void
   hideClose?: boolean
+  testid?: string
 }) => {
   return (
     <HeaderWrapper border={border}>
       {onBack && <ChevronLeftIcon onClick={onBack} />}
-      {title && <ThemedText.MediumHeader>{title}</ThemedText.MediumHeader>}
-      {!hideClose && <CloseIcon size={'1.4rem'} onClick={onClose} />}
+      {title && <ThemedText.MediumHeader data-testid={testid}>{title}</ThemedText.MediumHeader>}
+      {onClose && !hideClose && <CloseIcon size={'1.4rem'} onClick={onClose} />}
     </HeaderWrapper>
   )
 }

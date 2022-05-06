@@ -25,7 +25,6 @@ describe('VeNFT Sell', () => {
   function withdrawFSolid() {
     cy.get(`[data-testid=venft-fsolid-withdraw]`).should('exist')
     cy.get(`[data-testid=venft-fsolid-withdraw-token-id]`).contains(expectTokenId)
-    cy.get(`[data-testid=venft-fsolid-withdraw-amount]`).should('exist')
     cy.window().then((win) => {
       // @ts-ignore
       win.ethereum.setWithdrawFsolidTokenId(0)

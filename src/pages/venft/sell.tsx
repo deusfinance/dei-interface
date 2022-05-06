@@ -7,7 +7,37 @@ import { Container, TableSell, Wrapper } from 'components/App/Venft'
 import { useFSolidWithdrawData, useVeNFTTokens } from 'hooks/useVeNFT'
 import { fromWei } from 'utils/numbers'
 import { useVaultCallback, VaultAction } from 'hooks/useVaultCallback'
+import { Modal, ModalHeader } from 'components/Modal'
+import { PrimaryButton } from 'components/Button'
+import styled from 'styled-components'
 
+const ModalWrapper = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+`
+
+const MainWrapper = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 1.5rem 1.25rem;
+  overflow: visible;
+`
+
+const BottomWrapper = styled(MainWrapper)`
+  gap: 0.5rem;
+`
+
+const ModalMessage = styled.div`
+  display: block;
+  align-text: center;
+  text-align: center;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  padding: 0.7rem;
+`
 export default function Sell() {
   const { searchProps } = useSearch()
   const { veNFTTokens } = useVeNFTTokens()
@@ -45,17 +75,22 @@ export default function Sell() {
       </Hero>
       <Wrapper>
         {tokenId && !tokenId.isZero() ? (
-          <div data-testid="venft-fsolid-withdraw">
-            <div data-testid="venft-fsolid-withdraw-token-id">{tokenId.toNumber()}</div>
-            <button data-testid="venft-fsolid-withdraw-action" onClick={handleWithdrawFSolid}>
-              Withdraw{' '}
-              {collateralAmount && !collateralAmount.isZero() && (
-                <span data-testid="venft-fsolid-withdraw-amount">
-                  `${fromWei(collateralAmount.toString()).toString()} fSolid`
-                </span>
-              )}
-            </button>
-          </div>
+          <Modal isOpen={true}>
+            <ModalWrapper data-testid="venft-fsolid-withdraw">
+              <ModalHeader testid="venft-fsolid-withdraw-token-id" title={`Sell #${tokenId.toNumber()}`} />
+              <BottomWrapper>
+                <ModalMessage>
+                  Your token was successfully sold. You can now withdraw fSolid to your wallet
+                </ModalMessage>
+                <PrimaryButton data-testid="venft-fsolid-withdraw-action" onClick={handleWithdrawFSolid}>
+                  Withdraw{' '}
+                  {collateralAmount &&
+                    !collateralAmount.isZero() &&
+                    `${fromWei(collateralAmount.toNumber()).toString()} fSolid`}
+                </PrimaryButton>
+              </BottomWrapper>
+            </ModalWrapper>
+          </Modal>
         ) : (
           <>
             <div>

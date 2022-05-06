@@ -340,10 +340,22 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
     setResult(result)
   }
 
+  ownerToId(_decodedInput, setResult) {
+    const returnData = [0]
+    const result = encodeEthResult(VAULT_ABI, 'ownerToId', returnData)
+    setResult(result)
+  }
+
+  lockPendingId(_decodedInput, setResult) {
+    const returnData = [0]
+    const result = encodeEthResult(VAULT_ABI, 'lockPendingId', returnData)
+    setResult(result)
+  }
+
   getCollateralAmount(decodedInput, setResult) {
     const [tokenId] = decodedInput
     const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
-    const returnData = [token.needsAmount]
+    const returnData = [token ? token.needsAmount : 0]
     const result = encodeEthResult(VAULT_ABI, 'getCollateralAmount', returnData)
     setResult(result)
   }
@@ -351,6 +363,53 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   withdrawFSolid(_decodedInput, setResult) {
     const result = FAKE_TRANSACTION_HASH[this.chainId]
     setResult(result)
+  }
+
+  handleMulticall(decodedInput, setResult) {
+    const [_requireSuccess, calls] = decodedInput
+    const results = []
+    calls.forEach((call) => {
+      const [callAddress, callInput] = call
+      if (isTheSameAddress(callAddress, veNFT[this.chainId])) {
+        const decodedCall = decodeEthCall(VENFT_ABI, callInput)
+        const setResultLocal = (callResult) => results.push([true, callResult])
+        if (decodedCall.method === 'tokenOfOwnerByIndex') {
+          this.tokenOfOwnerByIndex(decodedCall.inputs, setResultLocal)
+        }
+        if (decodedCall.method === 'locked') {
+          this.veNFTLockedData(decodedCall.inputs, setResultLocal)
+        }
+        if (decodedCall.method === 'balanceOf') {
+          this.VeNFTBalanceOf(decodedCall.inputs, setResultLocal)
+        }
+        if (decodedCall.method === 'getApproved') {
+          this.getApproved(decodedCall.inputs, setResultLocal)
+        }
+        if (decodedCall.method === 'isApprovedForAll') {
+          this.isApprovedForAll(decodedCall.inputs, setResultLocal)
+        }
+        if (decodedCall.method === 'approve') {
+          this.approve(decodedCall.inputs, setResultLocal)
+        }
+      }
+      if (isTheSameAddress(callAddress, Vault[this.chainId])) {
+        const decodedCall = decodeEthCall(VAULT_ABI, callInput)
+        const setResultLocal = (callResult) => results.push([true, callResult])
+        if (decodedCall.method === 'withdrawPendingId') {
+          this.withdrawPendingId(decodedCall.inputs, setResultLocal)
+        }
+        if (decodedCall.method === 'ownerToId') {
+          this.ownerToId(decodedCall.inputs, setResultLocal)
+        }
+        if (decodedCall.method === 'lockPendingId') {
+          this.lockPendingId(decodedCall.inputs, setResultLocal)
+        }
+        if (decodedCall.method === 'getCollateralAmount') {
+          this.getCollateralAmount(decodedCall.inputs, setResultLocal)
+        }
+      }
+    })
+    setResult(encodeEthResult(MULTICALL2_ABI, 'tryBlockAndAggregate', [0, FAKE_BLOCK_HASH, results]))
   }
 
   async send(...args) {
@@ -365,6 +424,12 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
     }
 
     if (method === 'eth_call' || method === 'eth_sendTransaction') {
+      if (isTheSameAddress(params[0].to, Multicall2[this.chainId])) {
+        const decoded = decodeEthCall(MULTICALL2_ABI, params[0].data)
+        if (decoded.method === 'tryBlockAndAggregate') {
+          this.handleMulticall(decoded.inputs, setResult)
+        }
+      }
       if (isTheSameAddress(params[0].to, Vault[this.chainId])) {
         const decoded = decodeEthCall(VAULT_ABI, params[0].data)
         if (decoded.method === 'sell') {
@@ -372,6 +437,12 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
         }
         if (decoded.method === 'withdrawPendingId') {
           this.withdrawPendingId(decoded.inputs, setResult)
+        }
+        if (decoded.method === 'ownerToId') {
+          this.ownerToId(decoded.inputs, setResult)
+        }
+        if (decoded.method === 'lockPendingId') {
+          this.lockPendingId(decoded.inputs, setResult)
         }
         if (decoded.method === 'getCollateralAmount') {
           this.getCollateralAmount(decoded.inputs, setResult)

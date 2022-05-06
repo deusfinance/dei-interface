@@ -53,8 +53,6 @@ export function useVeNFTTokens() {
     return result.reduce((acc: AccountVenftToken[], value, index) => {
       const result = value.result
       if (!result) return acc
-      console.log('result')
-      console.log(result)
       acc.push({
         tokenId: veNFTTokenIds[index],
         needsAmount: fromWei(result.amount.toString()),

@@ -6,12 +6,16 @@ describe('VeNFT Sell', () => {
   const expectTokenId = tokenListSorted[tokenIndex].tokenId
 
   function sellVeNFT() {
+    const veNFTTokensAfterSell = [...tokenListSorted].splice(1, 1)
     cy.wait(500)
     cy.get(`[data-testid=venft-fsolid-withdraw]`).should('not.exist')
+    cy.get(`[data-testid=venft-sell-row-${tokenIndex}-token-id]`).contains(expectTokenId)
     cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`).contains('Sell')
     cy.window().then((win) => {
       // @ts-ignore
       win.ethereum.setWithdrawFsolidTokenId(expectTokenId)
+      // @ts-ignore
+      win.ethereum.setBridgeTokens(veNFTTokensAfterSell)
     })
     cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`).click()
     cy.get('[data-testid=explorer-link-success-box]')
@@ -77,5 +81,7 @@ describe('VeNFT Sell', () => {
     cy.visit('/venft/sell/')
     sellVeNFT()
     withdrawFSolid()
+    // one token is sold and removed, so
+    cy.get(`[data-testid=venft-sell-row-${tokenListSorted.length - 1}-token-id]`).should('not.exist')
   })
 })

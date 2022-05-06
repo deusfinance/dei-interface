@@ -15,7 +15,7 @@ import VAULT_ABI from '../../src/constants/abi/Vault.json'
 import MULTICALL2_ABI from '../../src/constants/abi/MULTICALL2.json'
 
 import { ethers } from 'ethers'
-import { TEST_ADDRESS_NEVER_USE, TEST_PRIVATE_KEY, veNFTTokens } from '../utils/data'
+import { TEST_ADDRESS_NEVER_USE, TEST_PRIVATE_KEY, veNFTTokens, ZERO_ADDRESS } from '../utils/data'
 import BigNumber from 'bignumber.js'
 import {
   FAKE_BLOCK_HASH,
@@ -251,6 +251,10 @@ export class ZeroBalanceVeNFTBridge extends AbstractVeNFTBridge {
 export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
   tokens = veNFTTokens
 
+  setBridgeTokens(tkns) {
+    this.tokens = tkns
+  }
+
   approveSpy(approvedAddress, tokenId) {}
 
   approve(decodedInput, setResult) {
@@ -263,7 +267,7 @@ export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
   getApproved(decodedInput, setResult) {
     const [tokenId] = decodedInput
     const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
-    const returnData = [token.approved]
+    const returnData = [token?.approved || ZERO_ADDRESS]
     const result = encodeEthResult(VENFT_ABI, 'getApproved', returnData)
     setResult(result)
   }
@@ -284,7 +288,7 @@ export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
   tokenOfOwnerByIndex(decodedInput, setResult) {
     const [_owner, index] = decodedInput
     const token = this.tokens[index.toNumber()]
-    const returnData = [token.tokenId]
+    const returnData = [token?.tokenId || 0]
     const result = encodeEthResult(VENFT_ABI, 'tokenOfOwnerByIndex', returnData)
     setResult(result)
   }
@@ -292,7 +296,7 @@ export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
   veNFTLockedData(decodedInput, setResult) {
     const [tokenId] = decodedInput
     const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
-    const returnData = [token.needsAmount, token.endTime]
+    const returnData = [token?.needsAmount || 0, token?.endTime || 0]
     const result = encodeEthResult(VENFT_ABI, 'locked', returnData)
     setResult(result)
   }
@@ -393,7 +397,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   getCollateralAmount(decodedInput, setResult) {
     const [tokenId] = decodedInput
     const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
-    const returnData = [token ? token.needsAmount : 0]
+    const returnData = [token?.needsAmount || 0]
     const result = encodeEthResult(VAULT_ABI, 'getCollateralAmount', returnData)
     setResult(result)
   }

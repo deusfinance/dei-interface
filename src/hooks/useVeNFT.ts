@@ -3,11 +3,12 @@ import useActiveWeb3React from 'hooks/useWeb3'
 import { useMemo } from 'react'
 import { useSingleContractMultipleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { fromWei } from 'utils/numbers'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from '@ethersproject/bignumber'
+import { BigNumber as BigNumberJs } from 'bignumber.js'
 
 export type AccountVenftToken = {
   tokenId: BigNumber
-  needsAmount: BigNumber
+  needsAmount: BigNumberJs
   endTime: BigNumber
 }
 

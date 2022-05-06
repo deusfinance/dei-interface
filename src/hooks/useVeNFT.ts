@@ -2,7 +2,6 @@ import { useVaultContract, useVeNFTContract } from 'hooks/useContract'
 import useActiveWeb3React from 'hooks/useWeb3'
 import { useEffect, useMemo, useState } from 'react'
 import { useSingleContractMultipleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { useBlockNumber } from 'state/application/hooks'
 import { fromWei } from 'utils/numbers'
 import BigNumber from 'bignumber.js'
 
@@ -62,38 +61,6 @@ export function useVeNFTTokens() {
     }, [])
   }, [veNFTTokenIds, result])
   return { veNFTBalance, veNFTTokens, veNFTTokenIds }
-}
-
-export function useFSolidWithdrawDataDepricated() {
-  const vaultContract = useVaultContract()
-  const { account } = useActiveWeb3React()
-  const [tokenIdToWithdraw, setTokenIdToWithdraw] = useState<BigNumber | null>(null)
-  const [withdrawCollateralAmount, setWithdrawCollateralAmount] = useState<BigNumber | null>(null)
-  const latestBlockNumber = useBlockNumber()
-
-  useEffect(() => {
-    let mounted = true
-    const fun = async () => {
-      if (!vaultContract || !account) return
-      const tokenId: BigNumber = await vaultContract.withdrawPendingId(account)
-      console.log('tokenId')
-      console.log(tokenId)
-      if (mounted) {
-        setTokenIdToWithdraw(tokenId)
-      }
-      if (tokenId && !tokenId.isZero()) {
-        const amount: BigNumber = await vaultContract.getCollateralAmount(tokenId)
-        if (mounted) {
-          setWithdrawCollateralAmount(amount)
-        }
-      }
-    }
-    fun()
-    return () => {
-      mounted = false
-    }
-  }, [account, vaultContract, latestBlockNumber])
-  return { tokenId: tokenIdToWithdraw, collateralAmount: withdrawCollateralAmount }
 }
 
 export function useFSolidWithdrawData() {

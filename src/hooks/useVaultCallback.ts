@@ -119,12 +119,9 @@ export function useVaultCallback(tokenId: BigNumber | null, action: VaultAction)
             // gasPrice /// TODO add gasPrice based on EIP 1559
           })
           .then((response: TransactionResponse) => {
-            console.log('response')
-            console.log(response)
-
             let summary = 'Unknown Transaction'
             if (action === VaultAction.SELL) {
-              summary = `Sell #${tokenId.toNumber()}`
+              summary = `Sell #${tokenId!.toNumber()}`
             } else if (action === VaultAction.WITHDRAW) {
               summary = 'Withdraw FSolid'
             }

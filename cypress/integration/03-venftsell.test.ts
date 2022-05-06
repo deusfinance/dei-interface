@@ -63,7 +63,7 @@ describe('VeNFT Sell', () => {
     withdrawFSolid()
   })
 
-  it('sells veNFT and withdraws fsolid', () => {
+  it.only('sells veNFT and withdraws fsolid', () => {
     const ethBridge = new SellVeNFTBridge(signer, provider)
     cy.on('window:before:load', (win) => {
       ethBridge.setWithdrawFsolidTokenId(0)

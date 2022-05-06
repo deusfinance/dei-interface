@@ -44,11 +44,11 @@ function isTheSameAddress(address1, address2) {
 export class CustomizedBridge extends Eip1193Bridge {
   chainId = SupportedChainId.FANTOM
 
-  latestBlockNumber = latestBlock.number
+  latestBlockNumber = 1
   fakeTransactionIndex = 0
 
   getLatestBlock() {
-    this.latestBlockNumber += 1000
+    this.latestBlockNumber++
     return Object.assign(latestBlock, {
       number: this.latestBlockNumber,
     })
@@ -132,8 +132,12 @@ export class CustomizedBridge extends Eip1193Bridge {
     }
     if (method === 'eth_getTransactionReceipt') {
       const [transactionHash] = params
+      const latestBlock = this.getLatestBlock()
       const result = Object.assign(fakeTransactionReceipt, {
         transactionHash,
+        blockHash: latestBlock.hash,
+        blockNumber: latestBlock.number,
+        logs: fakeTransactionReceipt.logs.map((log) => Object.assign(log, transactionHash)),
       })
       if (isCallbackForm) {
         callback(null, { result })
@@ -370,7 +374,6 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
 
   withdrawPendingId(_decodedInput, setResult) {
     const returnData = [this.withdrawFsolidTokenId]
-    console.log(returnData)
     const result = encodeEthResult(VAULT_ABI, 'withdrawPendingId', returnData)
     setResult(result)
   }

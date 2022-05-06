@@ -15,6 +15,7 @@ describe('VeNFT Sell', () => {
     })
     cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`).click()
     cy.get('[data-testid=explorer-link-success-box]')
+    cy.get('[data-testid=explorer-link-success-box-close]').click()
   }
 
   function withdrawFSolid() {
@@ -27,6 +28,7 @@ describe('VeNFT Sell', () => {
     })
     cy.get(`[data-testid=venft-fsolid-withdraw-action]`).click()
     cy.get('[data-testid=explorer-link-success-box]')
+    cy.get('[data-testid=explorer-link-success-box-close]').click()
     cy.window().then((win) => {
       // @ts-ignore
       expect(win.ethereum.withdrawFSolid).to.have.callCount(1)
@@ -63,7 +65,7 @@ describe('VeNFT Sell', () => {
     withdrawFSolid()
   })
 
-  it.only('sells veNFT and withdraws fsolid', () => {
+  it('sells veNFT and withdraws fsolid', () => {
     const ethBridge = new SellVeNFTBridge(signer, provider)
     cy.on('window:before:load', (win) => {
       ethBridge.setWithdrawFsolidTokenId(0)

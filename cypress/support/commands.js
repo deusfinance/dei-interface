@@ -370,6 +370,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
 
   withdrawPendingId(_decodedInput, setResult) {
     const returnData = [this.withdrawFsolidTokenId]
+    console.log(returnData)
     const result = encodeEthResult(VAULT_ABI, 'withdrawPendingId', returnData)
     setResult(result)
   }

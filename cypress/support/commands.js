@@ -16,6 +16,14 @@ import MULTICALL2_ABI from '../../src/constants/abi/MULTICALL2.json'
 
 import { ethers } from 'ethers'
 import { TEST_ADDRESS_NEVER_USE, TEST_PRIVATE_KEY, veNFTTokens } from '../utils/data'
+import BigNumber from 'bignumber.js'
+import {
+  FAKE_BLOCK_HASH,
+  fakeBlockByNumberResponse,
+  fakeTransactionByHashResponse,
+  fakeTransactionReceipt,
+  latestBlock,
+} from '../utils/fake_tx_data'
 
 const InputDataDecoder = require('ethereum-input-data-decoder')
 
@@ -29,41 +37,26 @@ function encodeEthResult(abi, funcName, result) {
   return iface.encodeFunctionResult(funcName, result)
 }
 
-const FAKE_BLOCK_HASH = '0xeed54f1dd0adad878c624694038ac3c70631ec800b150b9caf9eedd4aea3df95'
-const FAKE_TRANSACTION_HASH = {
-  [SupportedChainId.FANTOM]: '0x8c417b4770b68fed1dd27c6aa3c5a399910f6d8f20630b3a588ab8141d5bff43',
-}
-
 function isTheSameAddress(address1, address2) {
   return address1.toLowerCase() === address2.toLowerCase()
 }
 
-const latestBlock = {
-  hash: '0x0000000c000001832042174315212d389e57129df4d9cfef47b5de83e73b7ddb',
-  parentHash: '0x0000000c00000177f0a985c5f59a474b87ba510f05f243310444a69248652a95',
-  number: 1280,
-  timestamp: 1577607303,
-  nonce: '0x0000000000000000',
-  difficulty: 0,
-  gasLimit: {
-    type: 'BigNumber',
-    hex: '0xffffffffffff',
-  },
-  gasUsed: {
-    type: 'BigNumber',
-    hex: '0x5af7',
-  },
-  miner: '0x0000000000000000000000000000000000000000',
-  extraData: '0x',
-  transactions: ['0x18f6f7a00dbb0e3560e3f3955c4521248513ecfeb49b3a4bbee8a15135467ed7'],
-  _difficulty: {
-    type: 'BigNumber',
-    hex: '0x00',
-  },
-}
-
 export class CustomizedBridge extends Eip1193Bridge {
   chainId = SupportedChainId.FANTOM
+
+  latestBlockNumber = latestBlock.number
+  fakeTransactionIndex = 0
+
+  getLatestBlock() {
+    this.latestBlockNumber += 1000
+    return Object.assign(latestBlock, {
+      number: this.latestBlockNumber,
+    })
+  }
+
+  getFakeTransactionHash() {
+    return ethers.utils.keccak256([this.fakeTransactionIndex++])
+  }
 
   async sendAsync(...args) {
     console.debug('sendAsync called', ...args)
@@ -118,12 +111,53 @@ export class CustomizedBridge extends Eip1193Bridge {
     }
     if (method === 'eth_getBlockByNumber') {
       if (params[0] === 'latest') {
-        const result = latestBlock
+        const result = this.getLatestBlock()
         if (isCallbackForm) {
           callback(null, { result })
         } else {
           return result
         }
+      }
+    }
+    if (method === 'eth_getTransactionByHash') {
+      const [transactionHash] = params
+      const result = Object.assign(fakeTransactionByHashResponse, {
+        hash: transactionHash,
+      })
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return result
+      }
+    }
+    if (method === 'eth_getTransactionReceipt') {
+      const [transactionHash] = params
+      const result = Object.assign(fakeTransactionReceipt, {
+        transactionHash,
+      })
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return result
+      }
+    }
+    if (method === 'eth_getBlockByNumber') {
+      const [blockNumber, returnFullHashes] = params
+      const result = Object.assign(fakeBlockByNumberResponse, {
+        number: new BigNumber(blockNumber).toNumber(),
+      })
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return result
+      }
+    }
+    if (method === 'eth_blockNumber') {
+      const result = this.getLatestBlock().number
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return result
       }
     }
     try {
@@ -218,7 +252,7 @@ export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
   approve(decodedInput, setResult) {
     const [_approved, _tokenId] = decodedInput
     this.approveSpy(`0x${_approved}`, _tokenId.toNumber())
-    const result = FAKE_TRANSACTION_HASH[this.chainId]
+    const result = this.getFakeTransactionHash()
     setResult(result)
   }
 
@@ -326,7 +360,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   sellVeNFT(decodedInput, setResult) {
     const [tokenId] = decodedInput
     this.sellVeNFTSpy(tokenId.toNumber())
-    const result = FAKE_TRANSACTION_HASH[this.chainId]
+    const result = this.getFakeTransactionHash()
     setResult(result)
   }
 
@@ -361,7 +395,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   }
 
   withdrawFSolid(_decodedInput, setResult) {
-    const result = FAKE_TRANSACTION_HASH[this.chainId]
+    const result = this.getFakeTransactionHash()
     setResult(result)
   }
 

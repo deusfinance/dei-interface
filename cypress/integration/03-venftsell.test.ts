@@ -10,7 +10,7 @@ describe('VeNFT Sell', () => {
     cy.get('[data-testid=explorer-link-success-box]')
   }
 
-  it.only('sells veNFT', () => {
+  it('sells veNFT', () => {
     const tokenIndex = 1
     const ethBridge = new SellVeNFTBridge(signer, provider)
     cy.on('window:before:load', (win) => {
@@ -67,13 +67,15 @@ describe('VeNFT Sell', () => {
     cy.visit('/venft/sell/')
     cy.wait(500)
     cy.get(`[data-testid=venft-fsolid-withdraw]`).should('not.exist')
-    cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`).contains('Sell')
-    cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`).click()
     cy.window().then((win) => {
-      expect(ethBridge.sellVeNFTSpy).to.have.calledWith(expectTokenId)
       ethBridge.setWithdrawFsolidTokenId(expectTokenId)
     })
+    cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`).contains('Sell')
+    cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`).click()
     cy.get('[data-testid=explorer-link-success-box]')
+    cy.window().then((win) => {
+      expect(ethBridge.sellVeNFTSpy).to.have.calledWith(expectTokenId)
+    })
     cy.get(`[data-testid=venft-fsolid-withdraw]`).should('exist')
     cy.get(`[data-testid=venft-fsolid-withdraw-token-id]`).contains(expectTokenId)
     cy.get(`[data-testid=venft-fsolid-withdraw-amount]`).should('exist')

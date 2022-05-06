@@ -68,7 +68,7 @@ export default function TransactionPopup({
     return (
       <Header>
         {summary}
-        <Close onClick={removeThisPopup} />
+        <Close data-testid="explorer-link-success-box-close" onClick={removeThisPopup} />
       </Header>
     )
   }

@@ -184,192 +184,22 @@ export class CustomizedBridge extends Eip1193Bridge {
 }
 
 export class AbstractVeNFTBridge extends CustomizedBridge {
-  VeNFTBalanceOf(decodedInput, setResult) {
-    throw 'Not implemented'
-  }
-
-  getApproved(decodedInput, setResult) {
-    throw 'Not implemented'
-  }
-
-  isApprovedForAll(decodedInput, setResult) {
-    throw 'Not implemented'
-  }
-
-  approve(decodedInput, setResult) {
-    throw 'Not implemented'
-  }
-
-  async send(...args) {
-    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
-
-    let result = null
-    let resultIsSet = false
-
-    function setResult(r) {
-      result = r
-      resultIsSet = true
-    }
-
-    if (method === 'eth_call' || method === 'eth_sendTransaction') {
-      if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
-        const decoded = decodeEthCall(VENFT_ABI, params[0].data)
-        if (decoded.method === 'balanceOf') {
-          this.VeNFTBalanceOf(decoded.inputs, setResult)
-        }
-        if (decoded.method === 'getApproved') {
-          this.getApproved(decoded.inputs, setResult)
-        }
-        if (decoded.method === 'isApprovedForAll') {
-          this.isApprovedForAll(decoded.inputs, setResult)
-        }
-        if (decoded.method === 'approve') {
-          this.approve(decoded.inputs, setResult)
-        }
-      }
-    }
-
-    if (resultIsSet) {
-      if (isCallbackForm) {
-        callback(null, { result })
-      } else {
-        return result
-      }
-    }
-    return super.send(...args)
-  }
-}
-
-export class ZeroBalanceVeNFTBridge extends AbstractVeNFTBridge {
-  VeNFTBalanceOf(decodedInput, setResult) {
-    const [_owner] = decodedInput
-    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])
-    setResult(result)
-  }
-}
-
-export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
-  tokens = veNFTTokens
-
-  setBridgeTokens(tkns) {
-    this.tokens = tkns
-  }
-
-  approveSpy(approvedAddress, tokenId) {}
-
-  approve(decodedInput, setResult) {
-    const [_approved, _tokenId] = decodedInput
-    this.approveSpy(`0x${_approved}`, _tokenId.toNumber())
-    const result = this.getFakeTransactionHash()
-    setResult(result)
-  }
-
-  getApproved(decodedInput, setResult) {
-    const [tokenId] = decodedInput
-    const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
-    const returnData = [token?.approved || ZERO_ADDRESS]
-    const result = encodeEthResult(VENFT_ABI, 'getApproved', returnData)
-    setResult(result)
-  }
-
-  isApprovedForAll(decodedInput, setResult) {
-    const [_owner, _operator] = decodedInput
-    const returnData = [false]
-    const result = encodeEthResult(VENFT_ABI, 'isApprovedForAll', returnData)
-    setResult(result)
-  }
-
-  VeNFTBalanceOf(decodedInput, setResult) {
-    const [_owner] = decodedInput
-    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [this.tokens.length])
-    setResult(result)
-  }
-
-  tokenOfOwnerByIndex(decodedInput, setResult) {
-    const [_owner, index] = decodedInput
-    const token = this.tokens[index.toNumber()]
-    const returnData = [token?.tokenId || 0]
-    const result = encodeEthResult(VENFT_ABI, 'tokenOfOwnerByIndex', returnData)
-    setResult(result)
-  }
-
-  veNFTLockedData(decodedInput, setResult) {
-    const [tokenId] = decodedInput
-    const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
-    const returnData = [token?.needsAmount || 0, token?.endTime || 0]
-    const result = encodeEthResult(VENFT_ABI, 'locked', returnData)
-    setResult(result)
-  }
-
-  handleMulticall(decodedInput, setResult) {
-    const [_requireSuccess, calls] = decodedInput
-    const results = []
-    calls.forEach((call) => {
-      const [callAddress, callInput] = call
-      if (isTheSameAddress(callAddress, veNFT[this.chainId])) {
-        const decodedCall = decodeEthCall(VENFT_ABI, callInput)
-        const setResultLocal = (callResult) => results.push([true, callResult])
-        if (decodedCall.method === 'tokenOfOwnerByIndex') {
-          this.tokenOfOwnerByIndex(decodedCall.inputs, setResultLocal)
-        }
-        if (decodedCall.method === 'locked') {
-          this.veNFTLockedData(decodedCall.inputs, setResultLocal)
-        }
-      }
-    })
-    setResult(encodeEthResult(MULTICALL2_ABI, 'tryBlockAndAggregate', [0, FAKE_BLOCK_HASH, results]))
-  }
-
-  async send(...args) {
-    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
-
-    let result = null
-    let resultIsSet = false
-
-    function setResult(r) {
-      result = r
-      resultIsSet = true
-    }
-
-    if (method === 'eth_call') {
-      if (isTheSameAddress(params[0].to, Multicall2[this.chainId])) {
-        const decoded = decodeEthCall(MULTICALL2_ABI, params[0].data)
-        if (decoded.method === 'tryBlockAndAggregate') {
-          this.handleMulticall(decoded.inputs, setResult)
-        }
-      }
-    }
-
-    if (resultIsSet) {
-      if (isCallbackForm) {
-        callback(null, { result })
-      } else {
-        return result
-      }
-    }
-    return super.send(...args)
-  }
-}
-
-export class HasVeNFTToSellApprovedAllBridge extends HasVeNFTToSellBridge {
-  isApprovedForAll(decodedInput, setResult) {
-    const [_owner, _operator] = decodedInput
-    const returnData = [true]
-    const result = encodeEthResult(VENFT_ABI, 'isApprovedForAll', returnData)
-    setResult(result)
-  }
-}
-
-export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   withdrawFsolidTokenId = 0
 
-  sellVeNFTSpy(tokenId) {}
+  VeNFTBalanceOf(decodedInput, setResult) {
+    throw 'Not implemented'
+  }
 
-  sellVeNFT(decodedInput, setResult) {
-    const [tokenId] = decodedInput
-    this.sellVeNFTSpy(tokenId.toNumber())
-    const result = this.getFakeTransactionHash()
-    setResult(result)
+  getApproved(decodedInput, setResult) {
+    throw 'Not implemented'
+  }
+
+  isApprovedForAll(decodedInput, setResult) {
+    throw 'Not implemented'
+  }
+
+  approve(decodedInput, setResult) {
+    throw 'Not implemented'
   }
 
   setWithdrawFsolidTokenId(tokenId) {
@@ -472,6 +302,148 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
           this.handleMulticall(decoded.inputs, setResult)
         }
       }
+      if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
+        const decoded = decodeEthCall(VENFT_ABI, params[0].data)
+        if (decoded.method === 'balanceOf') {
+          this.VeNFTBalanceOf(decoded.inputs, setResult)
+        }
+        if (decoded.method === 'getApproved') {
+          this.getApproved(decoded.inputs, setResult)
+        }
+        if (decoded.method === 'isApprovedForAll') {
+          this.isApprovedForAll(decoded.inputs, setResult)
+        }
+        if (decoded.method === 'approve') {
+          this.approve(decoded.inputs, setResult)
+        }
+      }
+    }
+
+    if (resultIsSet) {
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return result
+      }
+    }
+    return super.send(...args)
+  }
+}
+
+export class ZeroBalanceVeNFTBridge extends AbstractVeNFTBridge {
+  VeNFTBalanceOf(decodedInput, setResult) {
+    const [_owner] = decodedInput
+    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])
+    setResult(result)
+  }
+}
+
+export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
+  tokens = veNFTTokens
+
+  setBridgeTokens(newTokens) {
+    this.tokens = newTokens
+  }
+
+  approveSpy(approvedAddress, tokenId) {}
+
+  approve(decodedInput, setResult) {
+    const [_approved, _tokenId] = decodedInput
+    this.approveSpy(`0x${_approved}`, _tokenId.toNumber())
+    const result = this.getFakeTransactionHash()
+    setResult(result)
+  }
+
+  getApproved(decodedInput, setResult) {
+    const [tokenId] = decodedInput
+    const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
+    const returnData = [token?.approved || ZERO_ADDRESS]
+    const result = encodeEthResult(VENFT_ABI, 'getApproved', returnData)
+    setResult(result)
+  }
+
+  isApprovedForAll(decodedInput, setResult) {
+    const [_owner, _operator] = decodedInput
+    const returnData = [false]
+    const result = encodeEthResult(VENFT_ABI, 'isApprovedForAll', returnData)
+    setResult(result)
+  }
+
+  VeNFTBalanceOf(decodedInput, setResult) {
+    const [_owner] = decodedInput
+    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [this.tokens.length])
+    setResult(result)
+  }
+
+  tokenOfOwnerByIndex(decodedInput, setResult) {
+    const [_owner, index] = decodedInput
+    const token = this.tokens[index.toNumber()]
+    const returnData = [token?.tokenId || 0]
+    const result = encodeEthResult(VENFT_ABI, 'tokenOfOwnerByIndex', returnData)
+    setResult(result)
+  }
+
+  veNFTLockedData(decodedInput, setResult) {
+    const [tokenId] = decodedInput
+    const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
+    const returnData = [token?.needsAmount || 0, token?.endTime || 0]
+    const result = encodeEthResult(VENFT_ABI, 'locked', returnData)
+    setResult(result)
+  }
+
+  async send(...args) {
+    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
+
+    let result = null
+    let resultIsSet = false
+
+    function setResult(r) {
+      result = r
+      resultIsSet = true
+    }
+
+    if (resultIsSet) {
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return result
+      }
+    }
+    return super.send(...args)
+  }
+}
+
+export class HasVeNFTToSellApprovedAllBridge extends HasVeNFTToSellBridge {
+  isApprovedForAll(decodedInput, setResult) {
+    const [_owner, _operator] = decodedInput
+    const returnData = [true]
+    const result = encodeEthResult(VENFT_ABI, 'isApprovedForAll', returnData)
+    setResult(result)
+  }
+}
+
+export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
+  sellVeNFTSpy(tokenId) {}
+
+  sellVeNFT(decodedInput, setResult) {
+    const [tokenId] = decodedInput
+    this.sellVeNFTSpy(tokenId.toNumber())
+    const result = this.getFakeTransactionHash()
+    setResult(result)
+  }
+
+  async send(...args) {
+    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
+
+    let result = null
+    let resultIsSet = false
+
+    function setResult(r) {
+      result = r
+      resultIsSet = true
+    }
+
+    if (method === 'eth_call' || method === 'eth_sendTransaction') {
       if (isTheSameAddress(params[0].to, Vault[this.chainId])) {
         const decoded = decodeEthCall(VAULT_ABI, params[0].data)
         if (decoded.method === 'sell') {

@@ -4,9 +4,9 @@ import { tokenListSorted } from '../utils/data'
 describe('VeNFT Sell', () => {
   const tokenIndex = 1
   const expectTokenId = tokenListSorted[tokenIndex].tokenId
+  const veNFTTokensAfterSell = [...tokenListSorted].splice(1)
 
   function sellVeNFT() {
-    const veNFTTokensAfterSell = [...tokenListSorted].splice(1, 1)
     cy.wait(500)
     cy.get(`[data-testid=venft-fsolid-withdraw]`).should('not.exist')
     cy.get(`[data-testid=venft-sell-row-${tokenIndex}-token-id]`).contains(expectTokenId)

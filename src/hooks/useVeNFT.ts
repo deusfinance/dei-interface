@@ -1,6 +1,6 @@
 import { useVaultContract, useVeNFTContract } from 'hooks/useContract'
 import useActiveWeb3React from 'hooks/useWeb3'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useSingleContractMultipleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { fromWei } from 'utils/numbers'
 import BigNumber from 'bignumber.js'
@@ -14,21 +14,14 @@ export type AccountVenftToken = {
 export function useVeNFTTokens() {
   const veNFTContract = useVeNFTContract()
   const { account } = useActiveWeb3React()
-  const [veNFTBalance, setVeNFTBalance] = useState<BigNumber | null>(null)
-  useEffect(() => {
-    let mounted = true
-    const fun = async () => {
-      if (!veNFTContract || !account) return
-      const balance: BigNumber = await veNFTContract.balanceOf(account)
-      if (mounted) {
-        setVeNFTBalance(balance)
-      }
-    }
-    fun()
-    return () => {
-      mounted = false
-    }
-  }, [account, veNFTContract])
+
+  const balanceCall = useMemo(() => {
+    if (!account) return []
+    return [{ methodName: 'balanceOf', callInputs: [account] }]
+  }, [account])
+
+  const [veNFTBalanceResult] = useSingleContractMultipleMethods(veNFTContract, balanceCall)
+  const veNFTBalance = veNFTBalanceResult?.result?.[0]
 
   const balances: number[] = veNFTBalance ? Array.from(Array(veNFTBalance.toNumber()).keys()) : []
   const getTokenIdsCallInputs = account ? balances.map((id) => [account, id]) : []

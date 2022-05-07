@@ -1,7 +1,7 @@
 import { provider, signer, ZeroBalanceVeNFTBridge } from '../support/commands'
 import { TEST_ADDRESS_NEVER_USE_SHORTENED } from '../utils/data'
 
-describe('Approve VeNFT', () => {
+describe('Wallet', () => {
   const setupEthBridge = () => {
     cy.on('window:before:load', (win) => {
       // @ts-ignore

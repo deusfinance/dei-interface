@@ -6,6 +6,11 @@ describe('VeNFT Sell', () => {
   const expectTokenId = tokenListSorted[tokenIndex].tokenId
   const veNFTTokensAfterSell = [...tokenListSorted].splice(1)
 
+  it('renders page when wallet is not connected', () => {
+    cy.visit('/venft/sell/')
+    cy.get('[data-testid=venft-sell-page]')
+  })
+
   function sellVeNFT() {
     cy.wait(500)
     cy.get(`[data-testid=venft-fsolid-withdraw]`).should('not.exist')

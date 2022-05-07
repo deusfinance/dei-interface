@@ -14,6 +14,7 @@ export enum VaultCallbackState {
 export enum VaultAction {
   SELL = 'sell',
   WITHDRAW = 'withdraw',
+  BUY = 'buy',
 }
 
 export function useVaultCallback(tokenId: BigNumber | null, action: VaultAction) {
@@ -33,6 +34,10 @@ export function useVaultCallback(tokenId: BigNumber | null, action: VaultAction)
         if (!tokenId) throw new Error('Missing tokenId.')
         args = [tokenId]
         methodName = 'sell'
+      } else if (action === VaultAction.BUY) {
+        if (!tokenId) throw new Error('Missing tokenId.')
+        args = [tokenId]
+        methodName = 'buy'
       } else if (action === VaultAction.WITHDRAW) {
         args = []
         methodName = 'withdraw'
@@ -58,7 +63,7 @@ export function useVaultCallback(tokenId: BigNumber | null, action: VaultAction)
         error: 'Missing dependencies',
       }
     }
-    if (action === VaultAction.SELL && !tokenId) {
+    if ((action === VaultAction.SELL || action === VaultAction.BUY) && !tokenId) {
       return {
         state: VaultCallbackState.INVALID,
         callback: null,
@@ -122,6 +127,8 @@ export function useVaultCallback(tokenId: BigNumber | null, action: VaultAction)
             let summary = 'Unknown Transaction'
             if (action === VaultAction.SELL) {
               summary = `Sell #${tokenId!.toNumber()}`
+            } else if (action === VaultAction.BUY) {
+              summary = `Buy #${tokenId!.toNumber()}`
             } else if (action === VaultAction.WITHDRAW) {
               summary = 'Withdraw FSolid'
             }

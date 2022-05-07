@@ -2,6 +2,7 @@ export const CustomizedBridge: any
 export const ZeroBalanceVeNFTBridge: any
 export const HasVeNFTToSellBridge: any
 export const SellVeNFTBridge: any
+export const BuyVeNFTBridge: any
 export const HasVeNFTToSellApprovedAllBridge: any
 
 export const provider: any

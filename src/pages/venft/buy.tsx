@@ -61,7 +61,7 @@ export default function Buy() {
     }
   }, [])
   return (
-    <Container>
+    <Container data-testid="venft-buy-page">
       <Hero>
         <div>BUY veNFT</div>
         <HeroSubtext>Buy veNFT</HeroSubtext>

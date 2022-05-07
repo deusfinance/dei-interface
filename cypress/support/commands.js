@@ -478,5 +478,46 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   }
 }
 
+export class BuyVeNFTBridge extends SellVeNFTBridge {
+  buyVeNFTSpy(tokenId) {}
+
+  buyVeNFT(decodedInput, setResult) {
+    const [tokenId] = decodedInput
+    this.buyVeNFTSpy(tokenId.toNumber())
+    const result = this.getFakeTransactionHash()
+    setResult(result)
+  }
+
+  async send(...args) {
+    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
+
+    let result = null
+    let resultIsSet = false
+
+    function setResult(r) {
+      result = r
+      resultIsSet = true
+    }
+
+    if (method === 'eth_call' || method === 'eth_sendTransaction') {
+      if (isTheSameAddress(params[0].to, Vault[this.chainId])) {
+        const decoded = decodeEthCall(VAULT_ABI, params[0].data)
+        if (decoded.method === 'buy') {
+          this.buyVeNFT(decoded.inputs, setResult)
+        }
+      }
+    }
+
+    if (resultIsSet) {
+      if (isCallbackForm) {
+        callback(null, { result })
+      } else {
+        return result
+      }
+    }
+    return super.send(...args)
+  }
+}
+
 export const provider = new JsonRpcProvider('https://rpc.ftm.tools/', 250)
 export const signer = new Wallet(TEST_PRIVATE_KEY, provider)

@@ -18,7 +18,7 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export const veNFTTokens = [
   {
-    tokenId: 32824,
+    tokenId: 52823,
     needsAmount: 1000000000000,
     endTime: 1776902400,
     approved: ZERO_ADDRESS,

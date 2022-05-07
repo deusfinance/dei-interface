@@ -75,7 +75,7 @@ export function useFSolidWithdrawData() {
   )
 
   const getCollateralAmountCall = useMemo(() => {
-    if (!userWithdrawPendingTokenId.result || !vaultCalls.length) return []
+    if (!vaultCalls.length || !userWithdrawPendingTokenId?.result) return []
     return [{ methodName: 'getCollateralAmount', callInputs: [userWithdrawPendingTokenId.result[0]] }]
   }, [userWithdrawPendingTokenId, vaultCalls])
   const [withdrawCollateralAmount] = useSingleContractMultipleMethods(vaultContract, getCollateralAmountCall)

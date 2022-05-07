@@ -68,7 +68,7 @@ export default function Sell() {
     }
   }
   return (
-    <Container>
+    <Container data-testid="venft-sell-page">
       <Hero>
         <div>SELL veNFT</div>
         <HeroSubtext>Sell veNFT</HeroSubtext>

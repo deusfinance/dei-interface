@@ -8,10 +8,10 @@ import { useSearch, SearchField } from 'components/App/Liquidity'
 import Disclaimer from 'components/Disclaimer'
 import { Table, VotingPower } from 'components/App/Vote'
 import Dropdown from 'components/Dropdown'
-import { useVeNFTTokens } from 'hooks/useVeNFT'
 import { RowBetween } from 'components/Row'
 import useVoteCallback, { VoteType } from 'hooks/useVoteCallback'
 import { useUserVotes } from 'hooks/useUserVotes'
+import { useVeNFTTokens } from 'hooks/useVeNFT'
 
 const Container = styled.div`
   display: flex;

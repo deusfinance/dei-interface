@@ -75,7 +75,7 @@ export default function Sell() {
         <HeroSubtext>Sell veNFT</HeroSubtext>
       </Hero>
       <Wrapper>
-        {tokenId && !tokenId.isZero() ? (
+        {tokenId && !tokenId.isZero() && (
           <Modal isOpen={true}>
             <ModalWrapper data-testid="venft-fsolid-withdraw">
               <ModalHeader testid="venft-fsolid-withdraw-token-id" title={`Sell #${tokenId.toNumber()}`} />
@@ -93,14 +93,11 @@ export default function Sell() {
               </BottomWrapper>
             </ModalWrapper>
           </Modal>
-        ) : (
-          <>
-            <div>
-              <SearchField searchProps={searchProps} />
-            </div>
-            <TableSell veNFTTokens={veNFTTokens} />
-          </>
         )}
+        <div>
+          <SearchField searchProps={searchProps} />
+        </div>
+        <TableSell veNFTTokens={veNFTTokens} />
       </Wrapper>
       <Disclaimer />
     </Container>

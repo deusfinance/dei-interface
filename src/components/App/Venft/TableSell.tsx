@@ -11,6 +11,7 @@ import useApproveNftCallback, { ApprovalState } from 'hooks/useApproveNftCallbac
 import { Vault, veNFT } from 'constants/addresses'
 import { useVeNFTContract } from 'hooks/useContract'
 import { useVaultCallback, VaultAction } from 'hooks/useVaultCallback'
+import { DotFlashing } from 'components/Icons'
 
 const VeNFTCel = styled(Cel)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -116,6 +117,8 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
     }
   }
 
+  const buttonText = useMemo(() => (approvalState === ApprovalState.APPROVED ? 'Sell' : 'Approve'), [approvalState])
+
   return (
     <Row>
       <VeNFTCel data-testid={`venft-sell-row-${index}-token-id`}>veNFT #{veNFTToken.tokenId.toNumber()}</VeNFTCel>
@@ -123,7 +126,8 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
       <VeNFTCel>{dayjs.utc(new Date(veNFTToken.endTime.toNumber() * 1000)).fromNow(true)}</VeNFTCel>
       <VeNFTCel style={{ padding: '5px 10px' }}>
         <PrimaryButton data-testid={`venft-sell-row-${index}-action`} onClick={handleSellVeNFT}>
-          {approvalState === ApprovalState.APPROVED ? 'Sell' : 'Approve'}
+          {buttonText}{' '}
+          {(approvalState === ApprovalState.PENDING || loading) && <DotFlashing data-testid="venft-sell-loading" />}
         </PrimaryButton>
       </VeNFTCel>
     </Row>

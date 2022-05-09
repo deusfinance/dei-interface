@@ -22,7 +22,9 @@ describe('VeNFT Sell', () => {
       // @ts-ignore
       win.ethereum.setBridgeTokens(veNFTTokensAfterSell)
     })
+    cy.get('[data-testid=venft-sell-loading]').should('not.exist')
     cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`).click()
+    cy.get('[data-testid=venft-sell-loading]').should('exist')
     cy.get('[data-testid=explorer-link-success-box]')
     cy.get('[data-testid=explorer-link-success-box-close]').click()
   }
@@ -34,7 +36,9 @@ describe('VeNFT Sell', () => {
       // @ts-ignore
       win.ethereum.setWithdrawFsolidTokenId(0)
     })
+    cy.get('[data-testid=venft-fsolid-withdraw-loading]').should('not.exist')
     cy.get(`[data-testid=venft-fsolid-withdraw-action]`).click()
+    cy.get('[data-testid=venft-fsolid-withdraw-loading]').should('exist')
     cy.get('[data-testid=explorer-link-success-box]')
     cy.get('[data-testid=explorer-link-success-box-close]').click()
     cy.window().then((win) => {

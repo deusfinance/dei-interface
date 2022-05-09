@@ -10,6 +10,7 @@ import { useVaultCallback, VaultAction } from 'hooks/useVaultCallback'
 import { Modal, ModalHeader } from 'components/Modal'
 import { PrimaryButton } from 'components/Button'
 import styled from 'styled-components'
+import { DotFlashing } from 'components/Icons'
 
 const ModalWrapper = styled.div`
   display: flex;
@@ -86,7 +87,8 @@ export default function Sell() {
                   Withdraw{' '}
                   {collateralAmount &&
                     !collateralAmount.isZero() &&
-                    `${fromWei(collateralAmount.toNumber()).toString()} fSolid`}
+                    `${fromWei(collateralAmount.toNumber()).toString()} fSolid`}{' '}
+                  {loading && <DotFlashing data-testid="venft-fsolid-withdraw-loading" />}
                 </PrimaryButton>
               </BottomWrapper>
             </ModalWrapper>

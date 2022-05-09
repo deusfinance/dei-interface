@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
-import { BigNumber } from '@ethersproject/bignumber'
+import BigNumber from 'bignumber.js'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 
@@ -25,11 +25,11 @@ export default function useVoteCallback(
 
   const constructCall = useCallback(() => {
     try {
-      let tokens = votes.map((vote) => vote.address)
-      let amounts = votes.map((vote) => BigNumber.from(vote.amount * 10 ** 5))
+      const tokens = votes.map((vote) => vote.address)
+      const amounts = votes.map((vote) => new BigNumber(vote.amount * 10 ** 5).toString())
 
-      let args = [tokenID, tokens, amounts]
-      let methodName = 'vote'
+      const args = [tokenID?.toString(), tokens, amounts]
+      const methodName = 'vote'
 
       if (!account || !chainId || !library || !baseVoter) {
         throw new Error('Missing dependencies.')

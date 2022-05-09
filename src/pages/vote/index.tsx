@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
-import { BigNumber } from '@ethersproject/bignumber'
+import BigNumber from 'bignumber.js'
 
 import { SolidlyPair } from 'apollo/queries'
 import Hero, { HeroSubtext } from 'components/Hero'
@@ -11,7 +11,7 @@ import Dropdown from 'components/Dropdown'
 import { useVeNFTTokens } from 'hooks/useVeNFT'
 import { RowBetween } from 'components/Row'
 import useVoteCallback, { VoteType } from 'hooks/useVoteCallback'
-import { useVotes } from 'hooks/useVotes'
+import { useUserVotes } from 'hooks/useUserVotes'
 
 const Container = styled.div`
   display: flex;
@@ -53,27 +53,19 @@ const UpperRow = styled(RowBetween)`
 `
 
 export default function Vote() {
-  // TODO: add hooks for get client veNft
-  // TODO: add shows client veNfts
-  // TODO: add drop down for choose nft
+  const [selectedTokenID, setSelectedTokenID] = useState<BigNumber | null>(null)
+  const [votes, setVotes] = useState<VoteType[]>([])
+  const [loading, setLoading] = useState(false)
 
   const { snapshot, searchProps } = useSearch()
-  const { veNFTBalance, veNFTTokens, veNFTTokenIds } = useVeNFTTokens()
-  // console.log('veNFTTokenIds:', veNFTTokenIds)
-  // console.log('ve nft tokens:', veNFTTokens)
+  const { veNFTTokenIds } = useVeNFTTokens()
+  const { callback } = useVoteCallback(votes, selectedTokenID)
 
-  const [selectedTokenID, setSelectedTokenID] = useState<BigNumber | null>(null)
-  // const useMemo
-  const userVotes = useVotes(snapshot.options as unknown as SolidlyPair[], selectedTokenID)
+  const userVotes = useUserVotes(selectedTokenID)
 
   // this pre voted pairs can't be less than the specified amount
   // const preVotedPairs = [{ address: '0x5821573d8f04947952e76d94f3abc6d7b43bf8d0', amount: 20 }]
   // const [preVotedPairs, setPreVotedPairs] = useState<VoteType[]>()
-
-  const [votes, setVotes] = useState<VoteType[]>([])
-  const [loading, setLoading] = useState(false)
-
-  const { callback } = useVoteCallback(votes, selectedTokenID)
 
   const onCastVote = useCallback(async () => {
     if (!callback) return
@@ -109,7 +101,7 @@ export default function Vote() {
 
   const dropdownOnSelect = (val: string) => {
     const index = parseInt(val, 10)
-    setSelectedTokenID(veNFTTokenIds[index])
+    setSelectedTokenID(new BigNumber(veNFTTokenIds[index].toString()))
   }
 
   return (

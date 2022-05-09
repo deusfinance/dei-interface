@@ -37,17 +37,12 @@ export default function Slider({
   })
 
   const onInputChange = (v: any) => {
-    const inputValue = v.target.value
-    setValue(inputValue)
-  }
-
-  const onFocusOut = (v: any) => {
-    const inputValue = v.target.value
+    const inputValue = Number(v.target.value)
     const max = 100
 
-    if (inputValue > max) return setValue(max)
-    else if (inputValue < min) return setValue(min)
-    else return setValue(inputValue)
+    if (inputValue > max) return onSliderChange(max)
+    if (inputValue < min) return onSliderChange(min)
+    else return onSliderChange(inputValue)
   }
 
   useEffect(() => {
@@ -64,7 +59,6 @@ export default function Slider({
         min={min}
         max={100}
         onChange={(val) => onInputChange(val)}
-        onBlur={(val) => onFocusOut(val)}
       />
 
       <div

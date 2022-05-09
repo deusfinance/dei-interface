@@ -41,6 +41,10 @@ function isTheSameAddress(address1, address2) {
   return address1.toLowerCase() === address2.toLowerCase()
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export class CustomizedBridge extends Eip1193Bridge {
   chainId = SupportedChainId.FANTOM
 
@@ -198,7 +202,7 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
     throw 'Not implemented'
   }
 
-  approve(decodedInput, setResult) {
+  async approve(decodedInput, setResult) {
     throw 'Not implemented'
   }
 
@@ -232,15 +236,16 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
     setResult(result)
   }
 
-  withdrawFSolid(_decodedInput, setResult) {
+  async withdrawFSolid(_decodedInput, setResult) {
     const result = this.getFakeTransactionHash()
+    await sleep(500)
     setResult(result)
   }
 
-  handleMulticall(decodedInput, setResult) {
+  async handleMulticall(decodedInput, setResult) {
     const [_requireSuccess, calls] = decodedInput
     const results = []
-    calls.forEach((call) => {
+    for (const call of calls) {
       const [callAddress, callInput] = call
       if (isTheSameAddress(callAddress, veNFT[this.chainId])) {
         const decodedCall = decodeEthCall(VENFT_ABI, callInput)
@@ -261,7 +266,7 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
           this.isApprovedForAll(decodedCall.inputs, setResultLocal)
         }
         if (decodedCall.method === 'approve') {
-          this.approve(decodedCall.inputs, setResultLocal)
+          await this.approve(decodedCall.inputs, setResultLocal)
         }
       }
       if (isTheSameAddress(callAddress, Vault[this.chainId])) {
@@ -280,7 +285,7 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
           this.getCollateralAmount(decodedCall.inputs, setResultLocal)
         }
       }
-    })
+    }
     setResult(encodeEthResult(MULTICALL2_ABI, 'tryBlockAndAggregate', [0, FAKE_BLOCK_HASH, results]))
   }
 
@@ -299,7 +304,7 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
       if (isTheSameAddress(params[0].to, Multicall2[this.chainId])) {
         const decoded = decodeEthCall(MULTICALL2_ABI, params[0].data)
         if (decoded.method === 'tryBlockAndAggregate') {
-          this.handleMulticall(decoded.inputs, setResult)
+          await this.handleMulticall(decoded.inputs, setResult)
         }
       }
       if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
@@ -314,7 +319,7 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
           this.isApprovedForAll(decoded.inputs, setResult)
         }
         if (decoded.method === 'approve') {
-          this.approve(decoded.inputs, setResult)
+          await this.approve(decoded.inputs, setResult)
         }
       }
     }
@@ -347,10 +352,11 @@ export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
 
   approveSpy(approvedAddress, tokenId) {}
 
-  approve(decodedInput, setResult) {
+  async approve(decodedInput, setResult) {
     const [_approved, _tokenId] = decodedInput
     this.approveSpy(`0x${_approved}`, _tokenId.toNumber())
     const result = this.getFakeTransactionHash()
+    await sleep(500)
     setResult(result)
   }
 
@@ -425,10 +431,11 @@ export class HasVeNFTToSellApprovedAllBridge extends HasVeNFTToSellBridge {
 export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   sellVeNFTSpy(tokenId) {}
 
-  sellVeNFT(decodedInput, setResult) {
+  async sellVeNFT(decodedInput, setResult) {
     const [tokenId] = decodedInput
     this.sellVeNFTSpy(tokenId.toNumber())
     const result = this.getFakeTransactionHash()
+    await sleep(500)
     setResult(result)
   }
 
@@ -447,7 +454,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
       if (isTheSameAddress(params[0].to, Vault[this.chainId])) {
         const decoded = decodeEthCall(VAULT_ABI, params[0].data)
         if (decoded.method === 'sell') {
-          this.sellVeNFT(decoded.inputs, setResult)
+          await this.sellVeNFT(decoded.inputs, setResult)
         }
         if (decoded.method === 'withdrawPendingId') {
           this.withdrawPendingId(decoded.inputs, setResult)
@@ -462,7 +469,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
           this.getCollateralAmount(decoded.inputs, setResult)
         }
         if (decoded.method === 'withdraw') {
-          this.withdrawFSolid(decoded.inputs, setResult)
+          await this.withdrawFSolid(decoded.inputs, setResult)
         }
       }
     }

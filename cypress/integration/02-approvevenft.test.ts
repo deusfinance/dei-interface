@@ -20,7 +20,7 @@ describe('Approve VeNFT', () => {
 
     cy.visit('/venft/sell/')
 
-    cy.wait(1000)
+    cy.wait(1500)
     cy.window().then((win) => {
       expect(ethBridge.VeNFTBalanceOf).to.have.callCount(1)
     })
@@ -78,7 +78,9 @@ describe('Approve VeNFT', () => {
       cy.spy(ethBridge, 'approveSpy')
     })
     cy.visit('/venft/sell/')
+    cy.get('[data-testid=venft-sell-loading]').should('not.exist')
     cy.get(`[data-testid=venft-sell-row-2-action]`).contains('Approve').click()
+    cy.get('[data-testid=venft-sell-loading]').should('exist')
     cy.wait(1000)
     cy.window().then((win) => {
       expect(ethBridge.approveSpy).to.have.calledWith(Vault[SupportedChainId.FANTOM], tokenListSorted[2].tokenId)

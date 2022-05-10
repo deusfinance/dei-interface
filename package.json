@@ -2,7 +2,7 @@
   "name": "dei-interface",
   "description": "DEI Money Markets",
   "version": "1.0.0",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@apollo/client": "^3.5.10",
     "@ethersproject/abi": "^5.5.0",

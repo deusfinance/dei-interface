@@ -17,6 +17,8 @@ describe('VeNFT Deposit', () => {
     cy.get(`[data-testid=venft-deposit-row-${tokenIndex}-action]`).contains('Deposit')
     cy.window().then((win) => {
       // @ts-ignore
+      win.ethereum.setLockPendingTokenId(expectTokenId)
+      // @ts-ignore
       win.ethereum.setBridgeTokens(veNFTTokensAfterDeposit)
     })
     cy.get('[data-testid=venft-deposit-loading]').should('not.exist')
@@ -33,7 +35,8 @@ describe('VeNFT Deposit', () => {
       // @ts-ignore
       win.ethereum.setLockPendingTokenId(0)
     })
-    cy.get(`[data-testid=venft-fsolid-withdraw-action]`).should('exist')
+    cy.get(`[data-testid=venft-deposit-lock-action]`).click()
+    cy.url().should('include', expectTokenId)
   }
 
   it('deposits veNFT', () => {
@@ -61,6 +64,19 @@ describe('VeNFT Deposit', () => {
       cy.spy(ethBridge, 'withdrawFSolid')
     })
     cy.visit('/venft/deposit/')
+    showLockModal()
+  })
+
+  it('deposits and goes for vote page', () => {
+    const ethBridge = new DepositVeNFTBridge(signer, provider)
+    cy.on('window:before:load', (win) => {
+      // @ts-ignore
+      win.ethereum = ethBridge
+      cy.spy(ethBridge, 'depositVeNFTSpy')
+    })
+
+    cy.visit('/venft/deposit/')
+    depositVeNFT()
     showLockModal()
   })
 })

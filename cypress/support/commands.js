@@ -189,6 +189,7 @@ export class CustomizedBridge extends Eip1193Bridge {
 
 export class AbstractVeNFTBridge extends CustomizedBridge {
   withdrawFsolidTokenId = 0
+  lockPendingTokenId = 0
 
   VeNFTBalanceOf(decodedInput, setResult) {
     throw 'Not implemented'
@@ -210,6 +211,10 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
     this.withdrawFsolidTokenId = tokenId
   }
 
+  setLockPendingTokenId(tokenId) {
+    this.lockPendingTokenId = tokenId
+  }
+
   withdrawPendingId(_decodedInput, setResult) {
     const returnData = [this.withdrawFsolidTokenId]
     const result = encodeEthResult(VAULT_ABI, 'withdrawPendingId', returnData)
@@ -223,7 +228,7 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
   }
 
   lockPendingId(_decodedInput, setResult) {
-    const returnData = [0]
+    const returnData = [this.lockPendingTokenId]
     const result = encodeEthResult(VAULT_ABI, 'lockPendingId', returnData)
     setResult(result)
   }

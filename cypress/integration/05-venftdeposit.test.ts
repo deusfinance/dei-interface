@@ -1,4 +1,4 @@
-import { DepositVeNFTBridge, provider, signer } from '../support/commands'
+import { DepositVeNFTBridge, provider, SellVeNFTBridge, signer } from '../support/commands'
 import { tokenListSorted } from '../utils/data'
 
 describe('VeNFT Deposit', () => {
@@ -26,6 +26,16 @@ describe('VeNFT Deposit', () => {
     cy.get('[data-testid=explorer-link-success-box-close]').click()
   }
 
+  function showLockModal() {
+    cy.get(`[data-testid=venft-deposit-lock]`).should('exist')
+    cy.get(`[data-testid=venft-deposit-lock-token-id]`).contains(expectTokenId)
+    cy.window().then((win) => {
+      // @ts-ignore
+      win.ethereum.setLockPendingTokenId(0)
+    })
+    cy.get(`[data-testid=venft-fsolid-withdraw-action]`).should('exist')
+  }
+
   it('deposits veNFT', () => {
     const ethBridge = new DepositVeNFTBridge(signer, provider)
     cy.on('window:before:load', (win) => {
@@ -40,5 +50,17 @@ describe('VeNFT Deposit', () => {
       const expectTokenId = tokenListSorted[tokenIndex].tokenId
       expect(ethBridge.depositVeNFTSpy).to.have.calledWith(expectTokenId)
     })
+  })
+
+  it('shows vote and lock venft modal', () => {
+    const ethBridge = new SellVeNFTBridge(signer, provider)
+    cy.on('window:before:load', (win) => {
+      ethBridge.setLockPendingTokenId(expectTokenId)
+      // @ts-ignore
+      win.ethereum = ethBridge
+      cy.spy(ethBridge, 'withdrawFSolid')
+    })
+    cy.visit('/venft/deposit/')
+    showLockModal()
   })
 })

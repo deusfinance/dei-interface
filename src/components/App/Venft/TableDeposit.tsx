@@ -11,6 +11,7 @@ import useApproveNftCallback, { ApprovalState } from 'hooks/useApproveNftCallbac
 import { Vault, veNFT } from 'constants/addresses'
 import { useVeNFTContract } from 'hooks/useContract'
 import { DotFlashing } from 'components/Icons'
+import { useVaultCallback, VaultAction } from 'hooks/useVaultCallback'
 
 const VeNFTCel = styled(Cel)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -80,7 +81,7 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
     useVeNFTContract(),
     chainId ? Vault[chainId] : undefined
   )
-  // const { callback: sellVeNFTCallback } = useVaultCallback(veNFTToken.tokenId, VaultAction.SELL)
+  const { callback: depositVeNFTCallback } = useVaultCallback(veNFTToken.tokenId, VaultAction.DEPOSIT)
 
   const [loading, setLoading] = useState(false)
 
@@ -98,9 +99,9 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
     setLoading(true)
     if (approvalState === ApprovalState.APPROVED) {
       try {
-        // await sellVeNFTCallback?.()
+        await depositVeNFTCallback?.()
       } catch (e) {
-        console.log('sell failed')
+        console.log('deposit failed')
         console.log(e)
       }
     } else {

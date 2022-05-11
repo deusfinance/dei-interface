@@ -70,7 +70,14 @@ describe('Approve VeNFT', () => {
     cy.get(`[data-testid=venft-sell-row-2-action]`).contains('Approve')
   })
 
-  it('approves', () => {
+  function approveVeNFT(pageName: string) {
+    cy.get(`[data-testid=venft-${pageName}-loading]`).should('not.exist')
+    cy.get(`[data-testid=venft-${pageName}-row-2-action]`).contains('Approve').click()
+    cy.get(`[data-testid=venft-${pageName}-loading]`).should('exist')
+    cy.get('[data-testid=explorer-link-success-box]')
+  }
+
+  it('approves from sell page', () => {
     const ethBridge = new HasVeNFTToSellApprovedAllBridge(signer, provider)
     cy.on('window:before:load', (win) => {
       // @ts-ignore
@@ -78,13 +85,23 @@ describe('Approve VeNFT', () => {
       cy.spy(ethBridge, 'approveSpy')
     })
     cy.visit('/venft/sell/')
-    cy.get('[data-testid=venft-sell-loading]').should('not.exist')
-    cy.get(`[data-testid=venft-sell-row-2-action]`).contains('Approve').click()
-    cy.get('[data-testid=venft-sell-loading]').should('exist')
-    cy.wait(1000)
+    approveVeNFT('sell')
     cy.window().then((win) => {
       expect(ethBridge.approveSpy).to.have.calledWith(Vault[SupportedChainId.FANTOM], tokenListSorted[2].tokenId)
     })
-    cy.get('[data-testid=explorer-link-success-box]')
+  })
+
+  it('approves from deposit page', () => {
+    const ethBridge = new HasVeNFTToSellApprovedAllBridge(signer, provider)
+    cy.on('window:before:load', (win) => {
+      // @ts-ignore
+      win.ethereum = ethBridge
+      cy.spy(ethBridge, 'approveSpy')
+    })
+    cy.visit('/venft/deposit/')
+    approveVeNFT('deposit')
+    cy.window().then((win) => {
+      expect(ethBridge.approveSpy).to.have.calledWith(Vault[SupportedChainId.FANTOM], tokenListSorted[2].tokenId)
+    })
   })
 })

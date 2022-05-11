@@ -453,6 +453,9 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
     if (method === 'eth_call' || method === 'eth_sendTransaction') {
       if (isTheSameAddress(params[0].to, Vault[this.chainId])) {
         const decoded = decodeEthCall(VAULT_ABI, params[0].data)
+        if (decoded.method === 'deposit') {
+          await this.depositVeNFT(decoded.inputs, setResult)
+        }
         if (decoded.method === 'sell') {
           await this.sellVeNFT(decoded.inputs, setResult)
         }
@@ -523,6 +526,18 @@ export class BuyVeNFTBridge extends SellVeNFTBridge {
       }
     }
     return super.send(...args)
+  }
+}
+
+export class DepositVeNFTBridge extends SellVeNFTBridge {
+  depositVeNFTSpy(tokenId) {}
+
+  async depositVeNFT(decodedInput, setResult) {
+    const [tokenId] = decodedInput
+    this.depositVeNFTSpy(tokenId.toNumber())
+    const result = this.getFakeTransactionHash()
+    await sleep(500)
+    setResult(result)
   }
 }
 

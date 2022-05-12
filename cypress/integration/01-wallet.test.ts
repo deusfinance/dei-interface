@@ -12,6 +12,6 @@ describe('Wallet', () => {
   it('is connected', () => {
     setupEthBridge()
     cy.visit('/')
-    cy.get('[data-testid=wallet-connect]', { timeout: 1000 }).contains(TEST_ADDRESS_NEVER_USE_SHORTENED)
+    cy.get('[data-testid=wallet-connect]').contains(TEST_ADDRESS_NEVER_USE_SHORTENED)
   })
 })

@@ -8,8 +8,7 @@ import { Eip1193Bridge } from '@ethersproject/experimental/lib/eip1193-bridge'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { formatChainId } from '../../src/utils/account'
-import { SupportedChainId } from '../../src/constants/chains'
-import { Multicall2, Vault, veNFT } from '../../src/constants/addresses'
+import { Vault, veNFT } from '../../src/constants/addresses'
 import VENFT_ABI from '../../src/constants/abi/veNFT.json'
 import VAULT_ABI from '../../src/constants/abi/Vault.json'
 import MULTICALL2_ABI from '../../src/constants/abi/MULTICALL2.json'
@@ -24,6 +23,7 @@ import {
   fakeTransactionReceipt,
   latestBlock,
 } from '../utils/fake_tx_data'
+import { SupportedChainId } from '../../src/constants/chains'
 
 const InputDataDecoder = require('ethereum-input-data-decoder')
 
@@ -45,11 +45,12 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export class CustomizedBridge extends Eip1193Bridge {
+class Context {
   chainId = SupportedChainId.FANTOM
 
   latestBlockNumber = 1
   fakeTransactionIndex = 0
+  handlers = {}
 
   getLatestBlock() {
     this.latestBlockNumber++
@@ -60,6 +61,18 @@ export class CustomizedBridge extends Eip1193Bridge {
 
   getFakeTransactionHash() {
     return ethers.utils.keccak256([this.fakeTransactionIndex++])
+  }
+
+  setHandler(address, { abi, handler }) {
+    this.handlers[address] = { abi, handler }
+  }
+}
+
+export class CustomizedBridge extends Eip1193Bridge {
+  context = new Context()
+
+  setHandler(address, { abi, handler }) {
+    this.context.setHandler(address, { abi, handler })
   }
 
   async sendAsync(...args) {
@@ -91,77 +104,84 @@ export class CustomizedBridge extends Eip1193Bridge {
 
   async send(...args) {
     const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
+    let result = null
+    let resultIsSet = false
+
+    function setResult(r) {
+      result = r
+      resultIsSet = true
+    }
+
     if (method === 'eth_requestAccounts' || method === 'eth_accounts') {
-      if (isCallbackForm) {
-        callback({ result: [TEST_ADDRESS_NEVER_USE] })
-      } else {
-        return Promise.resolve([TEST_ADDRESS_NEVER_USE])
-      }
+      setResult([TEST_ADDRESS_NEVER_USE])
     }
     if (method === 'eth_chainId') {
-      if (isCallbackForm) {
-        callback(null, { result: formatChainId(String(this.chainId)) })
-      } else {
-        return Promise.resolve(formatChainId(String(this.chainId)))
-      }
+      setResult(formatChainId(String(this.context.chainId)))
     }
     if (method === 'eth_estimateGas') {
-      const result = '0xba7f'
-      if (isCallbackForm) {
-        callback(null, { result })
-      } else {
-        return Promise.resolve(result)
-      }
+      setResult('0xba7f')
     }
     if (method === 'eth_getBlockByNumber') {
       if (params[0] === 'latest') {
-        const result = this.getLatestBlock()
-        if (isCallbackForm) {
-          callback(null, { result })
-        } else {
-          return result
-        }
+        setResult(this.context.getLatestBlock())
+      } else {
+        const [blockNumber, returnFullHashes] = params
+        setResult(
+          Object.assign(fakeBlockByNumberResponse, {
+            number: new BigNumber(blockNumber).toNumber(),
+          })
+        )
       }
     }
     if (method === 'eth_getTransactionByHash') {
       const [transactionHash] = params
-      const result = Object.assign(fakeTransactionByHashResponse, {
-        hash: transactionHash,
-      })
-      if (isCallbackForm) {
-        callback(null, { result })
-      } else {
-        return result
-      }
+      setResult(
+        Object.assign(fakeTransactionByHashResponse, {
+          hash: transactionHash,
+        })
+      )
     }
     if (method === 'eth_getTransactionReceipt') {
       const [transactionHash] = params
-      const latestBlock = this.getLatestBlock()
-      const result = Object.assign(fakeTransactionReceipt, {
+      const latestBlock = this.context.getLatestBlock()
+      const resultLocal = Object.assign(fakeTransactionReceipt, {
         transactionHash,
         blockHash: latestBlock.hash,
         blockNumber: latestBlock.number,
         logs: fakeTransactionReceipt.logs.map((log) => Object.assign(log, transactionHash)),
       })
-      if (isCallbackForm) {
-        callback(null, { result })
-      } else {
-        return result
-      }
-    }
-    if (method === 'eth_getBlockByNumber') {
-      const [blockNumber, returnFullHashes] = params
-      const result = Object.assign(fakeBlockByNumberResponse, {
-        number: new BigNumber(blockNumber).toNumber(),
-      })
-      if (isCallbackForm) {
-        callback(null, { result })
-      } else {
-        return result
-      }
+      setResult(resultLocal)
     }
     if (method === 'eth_blockNumber') {
-      const result = this.getLatestBlock().number
+      setResult(this.context.getLatestBlock().number)
+    }
+    if (method === 'eth_call') {
+      for (let contractAddress in this.context.handlers) {
+        if (isTheSameAddress(contractAddress, params[0].to)) {
+          const { abi, handler } = this.context.handlers[contractAddress]
+          const decoded = decodeEthCall(abi, params[0].data)
+          if (handler[decoded.method]) {
+            const res = await handler[decoded.method](this.context, decoded.inputs)
+            setResult(encodeEthResult(abi, decoded.method, res))
+          }
+        }
+      }
+    }
+
+    if (method === 'eth_sendTransaction') {
+      for (let contractAddress in this.context.handlers) {
+        if (isTheSameAddress(contractAddress, params[0].to)) {
+          const { abi, handler } = this.context.handlers[contractAddress]
+          const decoded = decodeEthCall(abi, params[0].data)
+          if (handler[decoded.method]) {
+            await handler[decoded.method](this.context, decoded.inputs)
+            setResult(this.context.getFakeTransactionHash())
+          }
+        }
+      }
+    }
+
+    if (resultIsSet) {
       if (isCallbackForm) {
         callback(null, { result })
       } else {
@@ -190,10 +210,6 @@ export class CustomizedBridge extends Eip1193Bridge {
 export class AbstractVeNFTBridge extends CustomizedBridge {
   withdrawFsolidTokenId = 0
   lockPendingTokenId = 0
-
-  VeNFTBalanceOf(decodedInput, setResult) {
-    throw 'Not implemented'
-  }
 
   getApproved(decodedInput, setResult) {
     throw 'Not implemented'
@@ -242,7 +258,7 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
   }
 
   async withdrawFSolid(_decodedInput, setResult) {
-    const result = this.getFakeTransactionHash()
+    const result = this.context.getFakeTransactionHash()
     await sleep(500)
     setResult(result)
   }
@@ -252,7 +268,7 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
     const results = []
     for (const call of calls) {
       const [callAddress, callInput] = call
-      if (isTheSameAddress(callAddress, veNFT[this.chainId])) {
+      if (isTheSameAddress(callAddress, veNFT[this.context.chainId])) {
         const decodedCall = decodeEthCall(VENFT_ABI, callInput)
         const setResultLocal = (callResult) => results.push([true, callResult])
         if (decodedCall.method === 'tokenOfOwnerByIndex') {
@@ -260,9 +276,6 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
         }
         if (decodedCall.method === 'locked') {
           this.veNFTLockedData(decodedCall.inputs, setResultLocal)
-        }
-        if (decodedCall.method === 'balanceOf') {
-          this.VeNFTBalanceOf(decodedCall.inputs, setResultLocal)
         }
         if (decodedCall.method === 'getApproved') {
           this.getApproved(decodedCall.inputs, setResultLocal)
@@ -274,7 +287,7 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
           await this.approve(decodedCall.inputs, setResultLocal)
         }
       }
-      if (isTheSameAddress(callAddress, Vault[this.chainId])) {
+      if (isTheSameAddress(callAddress, Vault[this.context.chainId])) {
         const decodedCall = decodeEthCall(VAULT_ABI, callInput)
         const setResultLocal = (callResult) => results.push([true, callResult])
         if (decodedCall.method === 'withdrawPendingId') {
@@ -306,25 +319,10 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
     }
 
     if (method === 'eth_call' || method === 'eth_sendTransaction') {
-      if (isTheSameAddress(params[0].to, Multicall2[this.chainId])) {
-        const decoded = decodeEthCall(MULTICALL2_ABI, params[0].data)
-        if (decoded.method === 'tryBlockAndAggregate') {
-          await this.handleMulticall(decoded.inputs, setResult)
-        }
-      }
-      if (isTheSameAddress(params[0].to, veNFT[this.chainId])) {
+      if (isTheSameAddress(params[0].to, veNFT[this.context.chainId])) {
         const decoded = decodeEthCall(VENFT_ABI, params[0].data)
-        if (decoded.method === 'balanceOf') {
-          this.VeNFTBalanceOf(decoded.inputs, setResult)
-        }
         if (decoded.method === 'getApproved') {
           this.getApproved(decoded.inputs, setResult)
-        }
-        if (decoded.method === 'isApprovedForAll') {
-          this.isApprovedForAll(decoded.inputs, setResult)
-        }
-        if (decoded.method === 'approve') {
-          await this.approve(decoded.inputs, setResult)
         }
       }
     }
@@ -340,29 +338,13 @@ export class AbstractVeNFTBridge extends CustomizedBridge {
   }
 }
 
-export class ZeroBalanceVeNFTBridge extends AbstractVeNFTBridge {
-  VeNFTBalanceOf(decodedInput, setResult) {
-    const [_owner] = decodedInput
-    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [0])
-    setResult(result)
-  }
-}
+export class ZeroBalanceVeNFTBridge extends AbstractVeNFTBridge {}
 
 export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
   tokens = veNFTTokens
 
   setBridgeTokens(newTokens) {
     this.tokens = newTokens
-  }
-
-  approveSpy(approvedAddress, tokenId) {}
-
-  async approve(decodedInput, setResult) {
-    const [_approved, _tokenId] = decodedInput
-    this.approveSpy(`0x${_approved}`, _tokenId.toNumber())
-    const result = this.getFakeTransactionHash()
-    await sleep(500)
-    setResult(result)
   }
 
   getApproved(decodedInput, setResult) {
@@ -377,12 +359,6 @@ export class HasVeNFTToSellBridge extends AbstractVeNFTBridge {
     const [_owner, _operator] = decodedInput
     const returnData = [false]
     const result = encodeEthResult(VENFT_ABI, 'isApprovedForAll', returnData)
-    setResult(result)
-  }
-
-  VeNFTBalanceOf(decodedInput, setResult) {
-    const [_owner] = decodedInput
-    const result = encodeEthResult(VENFT_ABI, 'balanceOf', [this.tokens.length])
     setResult(result)
   }
 
@@ -439,7 +415,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   async sellVeNFT(decodedInput, setResult) {
     const [tokenId] = decodedInput
     this.sellVeNFTSpy(tokenId.toNumber())
-    const result = this.getFakeTransactionHash()
+    const result = this.context.getFakeTransactionHash()
     await sleep(500)
     setResult(result)
   }
@@ -456,7 +432,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
     }
 
     if (method === 'eth_call' || method === 'eth_sendTransaction') {
-      if (isTheSameAddress(params[0].to, Vault[this.chainId])) {
+      if (isTheSameAddress(params[0].to, Vault[this.context.chainId])) {
         const decoded = decodeEthCall(VAULT_ABI, params[0].data)
         if (decoded.method === 'deposit') {
           await this.depositVeNFT(decoded.inputs, setResult)
@@ -493,46 +469,7 @@ export class SellVeNFTBridge extends HasVeNFTToSellApprovedAllBridge {
   }
 }
 
-export class BuyVeNFTBridge extends SellVeNFTBridge {
-  buyVeNFTSpy(tokenId) {}
-
-  buyVeNFT(decodedInput, setResult) {
-    const [tokenId] = decodedInput
-    this.buyVeNFTSpy(tokenId.toNumber())
-    const result = this.getFakeTransactionHash()
-    setResult(result)
-  }
-
-  async send(...args) {
-    const { isCallbackForm, callback, method, params } = this.getSendArgs(args)
-
-    let result = null
-    let resultIsSet = false
-
-    function setResult(r) {
-      result = r
-      resultIsSet = true
-    }
-
-    if (method === 'eth_call' || method === 'eth_sendTransaction') {
-      if (isTheSameAddress(params[0].to, Vault[this.chainId])) {
-        const decoded = decodeEthCall(VAULT_ABI, params[0].data)
-        if (decoded.method === 'buy') {
-          this.buyVeNFT(decoded.inputs, setResult)
-        }
-      }
-    }
-
-    if (resultIsSet) {
-      if (isCallbackForm) {
-        callback(null, { result })
-      } else {
-        return result
-      }
-    }
-    return super.send(...args)
-  }
-}
+export class BuyVeNFTBridge extends SellVeNFTBridge {}
 
 export class DepositVeNFTBridge extends SellVeNFTBridge {
   depositVeNFTSpy(tokenId) {}
@@ -540,7 +477,7 @@ export class DepositVeNFTBridge extends SellVeNFTBridge {
   async depositVeNFT(decodedInput, setResult) {
     const [tokenId] = decodedInput
     this.depositVeNFTSpy(tokenId.toNumber())
-    const result = this.getFakeTransactionHash()
+    const result = this.context.getFakeTransactionHash()
     await sleep(500)
     setResult(result)
   }

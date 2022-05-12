@@ -10,8 +10,8 @@ import useActiveWeb3React from 'hooks/useWeb3'
 import useApproveNftCallback, { ApprovalState } from 'hooks/useApproveNftCallback'
 import { Vault, veNFT } from 'constants/addresses'
 import { useVeNFTContract } from 'hooks/useContract'
-import { useVaultCallback, VaultAction } from 'hooks/useVaultCallback'
 import { DotFlashing } from 'components/Icons'
+import { useVaultCallback, VaultAction } from 'hooks/useVaultCallback'
 
 const VeNFTCel = styled(Cel)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -28,7 +28,7 @@ const VeNFTCel = styled(Cel)`
 `
 
 const itemsPerPage = 10
-export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftToken[] }) {
+export default function TableDeposit({ veNFTTokens }: { veNFTTokens: AccountVenftToken[] }) {
   const [offset, setOffset] = useState(0)
 
   const paginatedOptions = useMemo(() => {
@@ -51,7 +51,7 @@ export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftTo
             <Cel>Token ID</Cel>
             <Cel>You Will Get</Cel>
             <Cel>Time</Cel>
-            <Cel>Sell</Cel>
+            <Cel>Deposit</Cel>
           </tr>
         </Head>
         <tbody>
@@ -61,7 +61,7 @@ export default function TableSell({ veNFTTokens }: { veNFTTokens: AccountVenftTo
             ))
           ) : (
             <tr>
-              <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }} data-testid="venft-sell-no-results">
+              <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }} data-testid="venft-deposit-no-results">
                 No Results Found
               </td>
             </tr>
@@ -81,7 +81,7 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
     useVeNFTContract(),
     chainId ? Vault[chainId] : undefined
   )
-  const { callback: sellVeNFTCallback } = useVaultCallback(veNFTToken.tokenId, VaultAction.SELL)
+  const { callback: depositVeNFTCallback } = useVaultCallback(veNFTToken.tokenId, VaultAction.DEPOSIT)
 
   const [loading, setLoading] = useState(false)
 
@@ -94,14 +94,14 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
     }
   }, [])
 
-  const handleSellVeNFT = async () => {
+  const handleDepositVeNFT = async () => {
     if (loading) return
     setLoading(true)
     if (approvalState === ApprovalState.APPROVED) {
       try {
-        await sellVeNFTCallback?.()
+        await depositVeNFTCallback?.()
       } catch (e) {
-        console.log('sell failed')
+        console.log('deposit failed')
         console.log(e)
       }
     } else {
@@ -117,17 +117,17 @@ function TableRow({ veNFTToken, index }: { veNFTToken: AccountVenftToken; index:
     }
   }
 
-  const buttonText = useMemo(() => (approvalState === ApprovalState.APPROVED ? 'Sell' : 'Approve'), [approvalState])
+  const buttonText = useMemo(() => (approvalState === ApprovalState.APPROVED ? 'Deposit' : 'Approve'), [approvalState])
 
   return (
     <Row>
-      <VeNFTCel data-testid={`venft-sell-row-${index}-token-id`}>veNFT #{veNFTToken.tokenId.toNumber()}</VeNFTCel>
+      <VeNFTCel data-testid={`venft-deposit-row-${index}-token-id`}>veNFT #{veNFTToken.tokenId.toNumber()}</VeNFTCel>
       <VeNFTCel>{veNFTToken.needsAmount.toString()} fSolid</VeNFTCel>
       <VeNFTCel>{dayjs.utc(new Date(veNFTToken.endTime.toNumber() * 1000)).fromNow(true)}</VeNFTCel>
       <VeNFTCel style={{ padding: '5px 10px' }}>
-        <PrimaryButton data-testid={`venft-sell-row-${index}-action`} onClick={handleSellVeNFT}>
+        <PrimaryButton data-testid={`venft-deposit-row-${index}-action`} onClick={handleDepositVeNFT}>
           {buttonText}{' '}
-          {(approvalState === ApprovalState.PENDING || loading) && <DotFlashing data-testid="venft-sell-loading" />}
+          {(approvalState === ApprovalState.PENDING || loading) && <DotFlashing data-testid="venft-deposit-loading" />}
         </PrimaryButton>
       </VeNFTCel>
     </Row>

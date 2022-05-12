@@ -125,6 +125,7 @@ const TransactionsWrapper = styled.div`
       font-size: 0.8rem;
       margin-bottom: 5px;
     }
+
     &:not(:first-child) {
       max-height: 200px;
     }

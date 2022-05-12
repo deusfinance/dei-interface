@@ -1,33 +1,28 @@
-import { useVeNFTContract } from 'hooks/useContract'
+import { useVaultContract, useVeNFTContract } from 'hooks/useContract'
 import useActiveWeb3React from 'hooks/useWeb3'
+import { useMemo } from 'react'
+import { useSingleContractMultipleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
+import { fromWei } from 'utils/numbers'
 import { BigNumber } from '@ethersproject/bignumber'
-import { useEffect, useMemo, useState } from 'react'
-import { useSingleContractMultipleData } from 'state/multicall/hooks'
+import { BigNumber as BigNumberJs } from 'bignumber.js'
 
 export type AccountVenftToken = {
   tokenId: BigNumber
-  needsAmount: BigNumber
+  needsAmount: BigNumberJs
   endTime: BigNumber
 }
 
 export function useVeNFTTokens() {
   const veNFTContract = useVeNFTContract()
   const { account } = useActiveWeb3React()
-  const [veNFTBalance, setVeNFTBalance] = useState<BigNumber | null>(null)
-  useEffect(() => {
-    let mounted = true
-    const fun = async () => {
-      if (!veNFTContract || !account) return
-      const balance: BigNumber = await veNFTContract.balanceOf(account)
-      if (mounted) {
-        setVeNFTBalance(balance)
-      }
-    }
-    fun()
-    return () => {
-      mounted = false
-    }
+
+  const balanceCall = useMemo(() => {
+    if (!account) return []
+    return [{ methodName: 'balanceOf', callInputs: [account] }]
   }, [account])
+
+  const [veNFTBalanceResult] = useSingleContractMultipleMethods(veNFTContract, balanceCall)
+  const veNFTBalance = veNFTBalanceResult?.result?.[0]
 
   const balances: number[] = veNFTBalance ? Array.from(Array(veNFTBalance.toNumber()).keys()) : []
   const getTokenIdsCallInputs = account ? balances.map((id) => [account, id]) : []
@@ -53,11 +48,41 @@ export function useVeNFTTokens() {
       if (!result) return acc
       acc.push({
         tokenId: veNFTTokenIds[index],
-        needsAmount: result.amount,
+        needsAmount: fromWei(result.amount.toString()),
         endTime: result.end,
       })
       return acc
     }, [])
   }, [veNFTTokenIds, result])
   return { veNFTBalance, veNFTTokens, veNFTTokenIds }
+}
+
+export function useFSolidWithdrawData() {
+  const vaultContract = useVaultContract()
+  const { account, chainId } = useActiveWeb3React()
+  const vaultCalls = useMemo(() => {
+    if (!account) return []
+    return [
+      { methodName: 'withdrawPendingId', callInputs: [account] },
+      { methodName: 'ownerToId', callInputs: [account] },
+      { methodName: 'lockPendingId', callInputs: [account] },
+    ]
+  }, [account])
+
+  const [userWithdrawPendingTokenId, userTokenId, useLockPendingTokenId] = useSingleContractMultipleMethods(
+    vaultContract,
+    vaultCalls
+  )
+
+  const getCollateralAmountCall = useMemo(() => {
+    if (!vaultCalls.length || !userWithdrawPendingTokenId?.result) return []
+    return [{ methodName: 'getCollateralAmount', callInputs: [userWithdrawPendingTokenId.result[0]] }]
+  }, [userWithdrawPendingTokenId, vaultCalls])
+  const [withdrawCollateralAmount] = useSingleContractMultipleMethods(vaultContract, getCollateralAmountCall)
+  return {
+    tokenId: userWithdrawPendingTokenId?.result?.[0],
+    collateralAmount: withdrawCollateralAmount?.result?.[0],
+    userTokenId: userTokenId?.result?.[0],
+    useLockPendingTokenId: useLockPendingTokenId?.result?.[0],
+  }
 }

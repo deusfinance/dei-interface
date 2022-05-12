@@ -14,7 +14,7 @@ describe('Number Utils', () => {
     expect(formatBalance('64164656.5168400000051511515', 6)).toBe('64164656')
   })
   it('fromWei', () => {
-    expect(fromWei(58000000000000000000)).toBe('58.000000000000000000')
-    expect(fromWei(58000000000000000000, 6)).toBe('58000000000000.000000')
+    expect(fromWei(58000000000000000000).toString()).toBe('58')
+    expect(fromWei(58000, 6).toString()).toBe('0.058')
   })
 })

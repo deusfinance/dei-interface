@@ -19,7 +19,6 @@
     "unused-imports"
   ],
   "rules": {
-    "react-hooks/exhaustive-deps": "error",
     "unused-imports/no-unused-imports": "error",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-explicit-any": "off",

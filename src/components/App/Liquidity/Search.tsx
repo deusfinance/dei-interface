@@ -50,6 +50,7 @@ export function useSearch() {
     closeOnSelect: false,
   })
   return {
+    solidlyPairs,
     snapshot,
     searchProps,
     optionProps,

@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import styled from 'styled-components'
 
+import { VoteType } from 'hooks/useVoteCallback'
+import { DotFlashing } from 'components/Icons'
+
 const enum VoteState {
   VALID = 'valid',
   NOT_VALID = 'not_valid',
@@ -56,6 +59,14 @@ const CastVote = styled.button<{ voteState: VoteState }>`
   border-radius: 12px;
   text-align: center;
   border: 1px solid rgba(126, 153, 176, 0.2);
+  background-color: #789495;
+  display: flex;
+  justify-content: center;
+  & > * {
+    &:first-child {
+      margin: 10px 5px 0px 0px;
+    }
+  }
 
   // Change color when the voting power exceeds 100
   border-color: ${({ theme, voteState }) => (voteState == VoteState.VALID ? theme.primary3 : 'red')};
@@ -78,7 +89,17 @@ const VotingPowerPercent = styled.div<{ voteState: VoteState }>`
   width: 40px;
 `
 
-export default function VotingPower({ votes }: { votes: { address: string; amount: number }[] }) {
+export default function VotingPower({
+  votes,
+  onCastVote,
+  loading,
+  setLoading,
+}: {
+  votes: VoteType[]
+  onCastVote: () => void
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
   const [votingPower, setVotingPower] = useState(10)
   const voteState = useMemo(() => (votingPower > 100 ? VoteState.NOT_VALID : VoteState.VALID), [votingPower])
 
@@ -90,6 +111,12 @@ export default function VotingPower({ votes }: { votes: { address: string; amoun
     setVotingPower(power)
   }, [votes])
 
+  const castVoteHandler = () => {
+    if (votingPower > 100) return
+    setLoading(true)
+    onCastVote()
+  }
+
   return (
     <Container>
       <Wrapper>
@@ -97,8 +124,9 @@ export default function VotingPower({ votes }: { votes: { address: string; amoun
           <p>Voting Power Used:</p>
           <VotingPowerPercent voteState={voteState}>{votingPower}%</VotingPowerPercent>
         </ItemsWrapper>
-        <CastVote voteState={voteState}>
+        <CastVote voteState={voteState} onClick={castVoteHandler}>
           <CastVoteText voteState={voteState}>Cast Votes</CastVoteText>
+          {loading && <DotFlashing />}
         </CastVote>
       </Wrapper>
     </Container>

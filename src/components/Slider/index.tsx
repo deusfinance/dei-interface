@@ -2,9 +2,18 @@ import React, { useState, useEffect } from 'react'
 import { useRanger } from 'react-ranger'
 import styled from 'styled-components'
 
-const Amount = styled.div`
+const Amount = styled.input`
   margin-bottom: 15px;
-  font-size: 0.8rem;
+  background: transparent;
+  border: none;
+  text-align: center;
+  color: white;
+  outline: none;
+  ::-webkit-outer-spin-button,
+  ::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 `
 
 export default function Slider({
@@ -27,13 +36,31 @@ export default function Slider({
     onChange: () => onSliderChange(value),
   })
 
+  const onInputChange = (v: any) => {
+    const inputValue = Number(v.target.value)
+    const max = 100
+
+    if (inputValue > max) return onSliderChange(max)
+    if (inputValue < min) return onSliderChange(min)
+    else return onSliderChange(inputValue)
+  }
+
   useEffect(() => {
     setValue(percent)
   }, [percent])
 
   return (
     <>
-      <Amount>{value}</Amount>
+      <Amount
+        type="number"
+        value={value}
+        maxLength={5}
+        size={3}
+        min={min}
+        max={100}
+        onChange={(val) => onInputChange(val)}
+      />
+
       <div
         {...getTrackProps({
           style: {

@@ -1,14 +1,31 @@
-import { BuyVeNFTBridge, provider, signer } from '../support/commands'
+import { getCustomizedBridge } from '../utils/ethbridge/customizedbridge'
 import { tokenListSorted } from '../utils/data'
+// @ts-ignore
+import { getVaultHandler } from '../utils/ethbridge/abihandlers/Vault'
+import { SupportedChainId } from '../../src/constants/chains'
+import { Multicall2, Vault } from '../../src/constants/addresses'
+import { getMulticallHandler } from '../utils/ethbridge/abihandlers/Multicall'
 
-describe('VeNFT Buy', () => {
-  const tokenIndex = 1
-  const expectTokenId = tokenListSorted[tokenIndex].tokenId
-
+describe('render VeNFT Buy Page', () => {
   it('renders page when wallet is not connected', () => {
     cy.visit('/venft/buy/')
     cy.get('[data-testid=venft-buy-page]')
   })
+})
+
+describe('VeNFT Buy', () => {
+  const ethBridge = getCustomizedBridge()
+
+  beforeEach(() => {
+    cy.on('window:before:load', (win) => {
+      // @ts-ignore
+      win.ethereum = ethBridge
+    })
+    ethBridge.setHandler(Multicall2[SupportedChainId.FANTOM], getMulticallHandler())
+  })
+
+  const tokenIndex = 1
+  const expectTokenId = tokenListSorted[tokenIndex].tokenId
 
   function buyVeNFT() {
     cy.wait(500)
@@ -19,18 +36,14 @@ describe('VeNFT Buy', () => {
   }
 
   it('buys veNFT', () => {
-    const ethBridge = new BuyVeNFTBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      // @ts-ignore
-      win.ethereum = ethBridge
-      cy.spy(ethBridge, 'buyVeNFTSpy')
-    })
+    const vaultHandler = getVaultHandler()
+    ethBridge.setHandler(Vault[SupportedChainId.FANTOM], vaultHandler)
+    cy.spy(vaultHandler.handler, 'buyVeNFTSpy')
 
     cy.visit('/venft/buy/')
     buyVeNFT()
     cy.window().then((win) => {
-      const expectTokenId = tokenListSorted[tokenIndex].tokenId
-      expect(ethBridge.buyVeNFTSpy).to.have.calledWith(expectTokenId)
+      expect(vaultHandler.handler.buyVeNFTSpy).to.have.calledWith(expectTokenId)
     })
   })
 })

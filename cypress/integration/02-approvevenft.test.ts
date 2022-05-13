@@ -1,57 +1,60 @@
-import {
-  HasVeNFTToSellApprovedAllBridge,
-  HasVeNFTToSellBridge,
-  provider,
-  signer,
-  ZeroBalanceVeNFTBridge,
-} from '../support/commands'
+import { getCustomizedBridge } from '../utils/ethbridge/customizedbridge'
 import { tokenListSorted } from '../utils/data'
-import { Vault } from '../../src/constants/addresses'
+import { Multicall2, Vault, veNFT } from '../../src/constants/addresses'
 import { SupportedChainId } from '../../src/constants/chains'
+import {
+  getApprovedAllVeNFTHandler,
+  getVeNFTHandler,
+  getZeroBalanceVeNFTHandler,
+} from '../utils/ethbridge/abihandlers/veNFT'
+import { getMulticallHandler } from '../utils/ethbridge/abihandlers/Multicall'
+import { getVaultHandler } from '../utils/ethbridge/abihandlers/Vault'
 
 describe('Approve VeNFT', () => {
-  it('gets VeNFT balance', () => {
-    const ethBridge = new ZeroBalanceVeNFTBridge(signer, provider)
+  const ethBridge = getCustomizedBridge()
+
+  beforeEach(() => {
     cy.on('window:before:load', (win) => {
       // @ts-ignore
       win.ethereum = ethBridge
-      cy.spy(ethBridge, 'VeNFTBalanceOf')
     })
+    ethBridge.setHandler(Multicall2[SupportedChainId.FANTOM], getMulticallHandler())
+    ethBridge.setHandler(Vault[SupportedChainId.FANTOM], getVaultHandler())
+  })
+
+  const expectTokenId = tokenListSorted[1].tokenId
+
+  it('gets VeNFT balance', () => {
+    const zeroBalanceVeNFTHandler = getZeroBalanceVeNFTHandler()
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], zeroBalanceVeNFTHandler)
+    cy.spy(zeroBalanceVeNFTHandler.handler, 'balanceOf')
 
     cy.visit('/venft/sell/')
 
-    cy.wait(1500)
-    cy.window().then((win) => {
-      expect(ethBridge.VeNFTBalanceOf).to.have.callCount(1)
+    cy.wait(1500).then(() => {
+      expect(zeroBalanceVeNFTHandler.handler.balanceOf).to.have.callCount(1)
     })
     cy.get(`[data-testid=venft-sell-no-results]`)
   })
   it('loads VeNFT list', () => {
-    const ethBridge = new HasVeNFTToSellBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      // @ts-ignore
-      win.ethereum = ethBridge
-      cy.spy(ethBridge, 'VeNFTBalanceOf')
-      cy.spy(ethBridge, 'tokenOfOwnerByIndex')
-      cy.spy(ethBridge, 'veNFTLockedData')
-    })
+    const veNFTHandler = getVeNFTHandler()
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], veNFTHandler)
+    cy.spy(veNFTHandler.handler, 'balanceOf')
+    cy.spy(veNFTHandler.handler, 'tokenOfOwnerByIndex')
+    cy.spy(veNFTHandler.handler, 'locked')
 
     cy.visit('/venft/sell/')
-    const expectTokenId = tokenListSorted[1].tokenId
-    cy.get(`[data-testid=venft-sell-row-1-token-id]`).contains(expectTokenId)
-    cy.window().then((win) => {
-      expect(ethBridge.VeNFTBalanceOf).to.have.callCount(1)
-      expect(ethBridge.tokenOfOwnerByIndex).to.have.callCount(tokenListSorted.length)
-      expect(ethBridge.veNFTLockedData).to.have.callCount(tokenListSorted.length)
-    })
+    cy.get(`[data-testid=venft-sell-row-1-token-id]`)
+      .contains(expectTokenId)
+      .then(() => {
+        expect(veNFTHandler.handler.balanceOf).to.have.callCount(1)
+        expect(veNFTHandler.handler.tokenOfOwnerByIndex).to.have.callCount(tokenListSorted.length)
+        expect(veNFTHandler.handler.locked).to.have.callCount(tokenListSorted.length)
+      })
   })
 
   it('checks approval for single tokens', () => {
-    const ethBridge = new HasVeNFTToSellBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      // @ts-ignore
-      win.ethereum = ethBridge
-    })
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], getVeNFTHandler())
     cy.visit('/venft/sell/')
     cy.get(`[data-testid=venft-sell-row-0-action]`).contains('Sell')
     cy.get(`[data-testid=venft-sell-row-1-action]`).contains('Approve')
@@ -59,11 +62,7 @@ describe('Approve VeNFT', () => {
   })
 
   it('checks approve all', () => {
-    const ethBridge = new HasVeNFTToSellApprovedAllBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      // @ts-ignore
-      win.ethereum = ethBridge
-    })
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], getApprovedAllVeNFTHandler())
     cy.visit('/venft/sell/')
     cy.get(`[data-testid=venft-sell-row-0-action]`).contains('Sell')
     cy.get(`[data-testid=venft-sell-row-1-action]`).contains('Sell')
@@ -78,30 +77,30 @@ describe('Approve VeNFT', () => {
   }
 
   it('approves from sell page', () => {
-    const ethBridge = new HasVeNFTToSellApprovedAllBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      // @ts-ignore
-      win.ethereum = ethBridge
-      cy.spy(ethBridge, 'approveSpy')
-    })
+    const approvedAllVeNFTHandler = getApprovedAllVeNFTHandler()
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], approvedAllVeNFTHandler)
+    cy.spy(approvedAllVeNFTHandler.handler, 'approveSpy')
     cy.visit('/venft/sell/')
     approveVeNFT('sell')
     cy.window().then((win) => {
-      expect(ethBridge.approveSpy).to.have.calledWith(Vault[SupportedChainId.FANTOM], tokenListSorted[2].tokenId)
+      expect(approvedAllVeNFTHandler.handler.approveSpy).to.have.calledWith(
+        Vault[SupportedChainId.FANTOM],
+        tokenListSorted[2].tokenId
+      )
     })
   })
 
   it('approves from deposit page', () => {
-    const ethBridge = new HasVeNFTToSellApprovedAllBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      // @ts-ignore
-      win.ethereum = ethBridge
-      cy.spy(ethBridge, 'approveSpy')
-    })
+    const approvedAllVeNFTHandler = getApprovedAllVeNFTHandler()
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], approvedAllVeNFTHandler)
+    cy.spy(approvedAllVeNFTHandler.handler, 'approveSpy')
     cy.visit('/venft/deposit/')
     approveVeNFT('deposit')
     cy.window().then((win) => {
-      expect(ethBridge.approveSpy).to.have.calledWith(Vault[SupportedChainId.FANTOM], tokenListSorted[2].tokenId)
+      expect(approvedAllVeNFTHandler.handler.approveSpy).to.have.calledWith(
+        Vault[SupportedChainId.FANTOM],
+        tokenListSorted[2].tokenId
+      )
     })
   })
 })

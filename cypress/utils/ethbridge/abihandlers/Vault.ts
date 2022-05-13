@@ -1,6 +1,7 @@
-import { veNFTTokens } from '../data'
+import { veNFTTokens } from '../../data'
 import { BigNumber } from '@ethersproject/bignumber/lib.esm'
-import VAULT_ABI from '../../../src/constants/abi/Vault.json'
+import VAULT_ABI from '../../../../src/constants/abi/Vault.json'
+import { CustomizedBridgeContext } from '../customizedbridge'
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -19,13 +20,13 @@ export class BaseVaultHandler {
 
   sellVeNFTSpy(tokenId: number) {}
 
-  async sell(context: any, decodedInput: [BigNumber]) {
+  async sell(context: CustomizedBridgeContext, decodedInput: [BigNumber]) {
     const [tokenId] = decodedInput
     this.sellVeNFTSpy(tokenId.toNumber())
     await sleep(500)
   }
 
-  async buy(context: any, decodedInput: [BigNumber]) {
+  async buy(context: CustomizedBridgeContext, decodedInput: [BigNumber]) {
     const [tokenId] = decodedInput
     this.buyVeNFTSpy(tokenId.toNumber())
   }
@@ -38,31 +39,31 @@ export class BaseVaultHandler {
     this.lockPendingTokenId = tokenId
   }
 
-  async withdrawPendingId(context: any, decodedInput: any) {
+  async withdrawPendingId(context: CustomizedBridgeContext, decodedInput: any) {
     return [this.withdrawFsolidTokenId]
   }
 
-  async ownerToId(context: any, decodedInput: any) {
+  async ownerToId(context: CustomizedBridgeContext, decodedInput: any) {
     return [0]
   }
 
-  async lockPendingId(context: any, decodedInput: any) {
+  async lockPendingId(context: CustomizedBridgeContext, decodedInput: any) {
     return [this.lockPendingTokenId]
   }
 
-  async getCollateralAmount(context: any, decodedInput: [BigNumber]) {
+  async getCollateralAmount(context: CustomizedBridgeContext, decodedInput: [BigNumber]) {
     const [tokenId] = decodedInput
     const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
     return [token?.needsAmount || 0]
   }
 
-  async withdraw(context: any, _decodedInput: []) {
+  async withdraw(context: CustomizedBridgeContext, _decodedInput: []) {
     await sleep(500)
   }
 
   depositVeNFTSpy(tokenId: number) {}
 
-  async deposit(context: any, decodedInput: [BigNumber]) {
+  async deposit(context: CustomizedBridgeContext, decodedInput: [BigNumber]) {
     const [tokenId] = decodedInput
     this.depositVeNFTSpy(tokenId.toNumber())
     await sleep(500)

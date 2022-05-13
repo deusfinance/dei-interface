@@ -1,10 +1,10 @@
-import { getCustomizedBridge } from '../support/commands'
+import { getCustomizedBridge } from '../utils/ethbridge/customizedbridge'
 import { tokenListSorted } from '../utils/data'
 // @ts-ignore
-import { getVaultHandler } from '../utils/abihandlers/Vault'
+import { getVaultHandler } from '../utils/ethbridge/abihandlers/Vault'
 import { SupportedChainId } from '../../src/constants/chains'
 import { Multicall2, Vault } from '../../src/constants/addresses'
-import { getMulticallHandler } from '../utils/abihandlers/Multicall'
+import { getMulticallHandler } from '../utils/ethbridge/abihandlers/Multicall'
 
 describe('render VeNFT Buy Page', () => {
   it('renders page when wallet is not connected', () => {

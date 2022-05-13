@@ -1,13 +1,14 @@
-import { FAKE_BLOCK_HASH } from '../fake_tx_data'
+import { FAKE_BLOCK_HASH } from '../../fake_tx_data'
 import { decodeEthCall, encodeEthResult } from '../abiutils'
-import MULTICALL2_ABI from '../../../src/constants/abi/MULTICALL2.json'
+import MULTICALL2_ABI from '../../../../src/constants/abi/MULTICALL2.json'
+import { CustomizedBridgeContext } from '../customizedbridge'
 
 function isTheSameAddress(address1: string, address2: string) {
   return address1.toLowerCase() === address2.toLowerCase()
 }
 
 export class BaseMulticallHandler {
-  async tryBlockAndAggregate(context: any, decodedInput: any[]) {
+  async tryBlockAndAggregate(context: CustomizedBridgeContext, decodedInput: any[]) {
     const [_requireSuccess, calls] = decodedInput
     const results: any[] = []
     for (const call of calls) {

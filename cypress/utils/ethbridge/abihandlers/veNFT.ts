@@ -1,5 +1,7 @@
-import { veNFTTokens, ZERO_ADDRESS } from '../data'
-import VENFT_ABI from '../../../src/constants/abi/veNFT.json'
+import { veNFTTokens, ZERO_ADDRESS } from '../../data'
+import VENFT_ABI from '../../../../src/constants/abi/veNFT.json'
+import { CustomizedBridgeContext } from '../customizedbridge'
+import { BigNumber } from '@ethersproject/bignumber'
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -17,29 +19,29 @@ export class BaseVeNFTHandler {
     this.tokens = newTokens
   }
 
-  async balanceOf(context: any, decodedInput: any) {
+  async balanceOf(context: CustomizedBridgeContext, decodedInput: any) {
     const [_owner] = decodedInput
     return [this.tokens.length]
   }
 
-  async getApproved(context: any, decodedInput: any) {
+  async getApproved(context: CustomizedBridgeContext, decodedInput: any) {
     const [tokenId] = decodedInput
     const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
     return [token?.approved || ZERO_ADDRESS]
   }
 
-  async isApprovedForAll(context: any, decodedInput: any) {
+  async isApprovedForAll(context: CustomizedBridgeContext, decodedInput: any) {
     const [_owner, _operator] = decodedInput
     return [false]
   }
 
-  async tokenOfOwnerByIndex(context: any, decodedInput: any) {
+  async tokenOfOwnerByIndex(context: CustomizedBridgeContext, decodedInput: any) {
     const [_owner, index] = decodedInput
     const token = this.tokens[index.toNumber()]
     return [token?.tokenId || 0]
   }
 
-  async locked(context: any, decodedInput: any) {
+  async locked(context: CustomizedBridgeContext, decodedInput: [BigNumber]) {
     const [tokenId] = decodedInput
     const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
     return [token?.needsAmount || 0, token?.endTime || 0]
@@ -47,22 +49,22 @@ export class BaseVeNFTHandler {
 
   approveSpy(approvedAddress: string, tokenId: number) {}
 
-  async approve(context: any, decodedInput: any) {
-    const [_approved, _tokenId] = decodedInput
-    this.approveSpy(`0x${_approved}`, _tokenId.toNumber())
+  async approve(context: CustomizedBridgeContext, decodedInput: [BigNumber, BigNumber]) {
+    const [_approved, tokenId] = decodedInput
+    this.approveSpy(`0x${_approved}`, tokenId.toNumber())
     await sleep(500)
   }
 }
 
 export class ZeroBalanceVeNFTHandler extends BaseVeNFTHandler {
-  async balanceOf(context: any, decodedInput: any) {
+  async balanceOf(context: CustomizedBridgeContext, decodedInput: any) {
     const [_owner] = decodedInput
     return [0]
   }
 }
 
 export class ApprovedAllVeNFTHandler extends BaseVeNFTHandler {
-  async isApprovedForAll(context: any, decodedInput: any) {
+  async isApprovedForAll(context: CustomizedBridgeContext, decodedInput: [BigNumber, BigNumber]) {
     const [_owner, _operator] = decodedInput
     return [true]
   }

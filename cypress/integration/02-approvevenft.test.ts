@@ -1,10 +1,14 @@
-import { getCustomizedBridge } from '../support/commands'
+import { getCustomizedBridge } from '../utils/ethbridge/customizedbridge'
 import { tokenListSorted } from '../utils/data'
 import { Multicall2, Vault, veNFT } from '../../src/constants/addresses'
 import { SupportedChainId } from '../../src/constants/chains'
-import { getApprovedAllVeNFTHandler, getVeNFTHandler, getZeroBalanceVeNFTHandler } from '../utils/abihandlers/veNFT'
-import { getMulticallHandler } from '../utils/abihandlers/Multicall'
-import { getVaultHandler } from '../utils/abihandlers/Vault'
+import {
+  getApprovedAllVeNFTHandler,
+  getVeNFTHandler,
+  getZeroBalanceVeNFTHandler,
+} from '../utils/ethbridge/abihandlers/veNFT'
+import { getMulticallHandler } from '../utils/ethbridge/abihandlers/Multicall'
+import { getVaultHandler } from '../utils/ethbridge/abihandlers/Vault'
 
 describe('Approve VeNFT', () => {
   const ethBridge = getCustomizedBridge()

@@ -2,6 +2,10 @@ import { veNFTTokens } from '../data'
 import { BigNumber } from '@ethersproject/bignumber/lib.esm'
 import VAULT_ABI from '../../../src/constants/abi/Vault.json'
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export class BaseVaultHandler {
   tokens = veNFTTokens
   withdrawFsolidTokenId = 0
@@ -12,6 +16,14 @@ export class BaseVaultHandler {
   }
 
   buyVeNFTSpy(tokenId: number) {}
+
+  sellVeNFTSpy(tokenId: number) {}
+
+  async sell(context: any, decodedInput: [BigNumber]) {
+    const [tokenId] = decodedInput
+    this.sellVeNFTSpy(tokenId.toNumber())
+    await sleep(500)
+  }
 
   async buy(context: any, decodedInput: [BigNumber]) {
     const [tokenId] = decodedInput
@@ -42,6 +54,10 @@ export class BaseVaultHandler {
     const [tokenId] = decodedInput
     const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
     return [token?.needsAmount || 0]
+  }
+
+  async withdraw(context: any, _decodedInput: []) {
+    await sleep(500)
   }
 }
 

@@ -1,27 +1,44 @@
-import { provider, SellVeNFTBridge, signer } from '../support/commands'
+import { getCustomizedBridge } from '../support/commands'
 import { tokenListSorted } from '../utils/data'
+import { Multicall2, Vault, veNFT } from '../../src/constants/addresses'
+import { SupportedChainId } from '../../src/constants/chains'
+import { getMulticallHandler } from '../utils/abihandlers/Multicall'
+import { BaseVaultHandler, getVaultHandler } from '../utils/abihandlers/Vault'
+import { BaseVeNFTHandler, getApprovedAllVeNFTHandler } from '../utils/abihandlers/veNFT'
 
-describe('VeNFT Sell', () => {
-  const tokenIndex = 1
-  const expectTokenId = tokenListSorted[tokenIndex].tokenId
-  const veNFTTokensAfterSell = [...tokenListSorted].splice(1)
-
+describe('render VeNFT Sell Page', () => {
   it('renders page when wallet is not connected', () => {
     cy.visit('/venft/sell/')
     cy.get('[data-testid=venft-sell-page]')
   })
+})
 
-  function sellVeNFT() {
+describe('VeNFT Sell', () => {
+  const ethBridge = getCustomizedBridge()
+
+  beforeEach(() => {
+    cy.on('window:before:load', (win) => {
+      // @ts-ignore
+      win.ethereum = ethBridge
+    })
+    ethBridge.setHandler(Multicall2[SupportedChainId.FANTOM], getMulticallHandler())
+  })
+
+  const tokenIndex = 1
+  const expectTokenId = tokenListSorted[tokenIndex].tokenId
+  const veNFTTokensAfterSell = [...tokenListSorted].splice(1)
+
+  function sellVeNFT(vaultHandlerClass: BaseVaultHandler, veNFTHandlerClass: BaseVeNFTHandler) {
     cy.wait(500)
     cy.get(`[data-testid=venft-fsolid-withdraw]`).should('not.exist')
     cy.get(`[data-testid=venft-sell-row-${tokenIndex}-token-id]`).contains(expectTokenId)
-    cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`).contains('Sell')
-    cy.window().then((win) => {
-      // @ts-ignore
-      win.ethereum.setWithdrawFsolidTokenId(expectTokenId)
-      // @ts-ignore
-      win.ethereum.setBridgeTokens(veNFTTokensAfterSell)
-    })
+    cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`)
+      .contains('Sell')
+      .then(() => {
+        vaultHandlerClass.setWithdrawFsolidTokenId(expectTokenId)
+        vaultHandlerClass.setBridgeTokens(veNFTTokensAfterSell)
+        veNFTHandlerClass.setBridgeTokens(veNFTTokensAfterSell)
+      })
     cy.get('[data-testid=venft-sell-loading]').should('not.exist')
     cy.get(`[data-testid=venft-sell-row-${tokenIndex}-action]`).click()
     cy.get('[data-testid=venft-sell-loading]').should('exist')
@@ -29,66 +46,62 @@ describe('VeNFT Sell', () => {
     cy.get('[data-testid=explorer-link-success-box-close]').click()
   }
 
-  function withdrawFSolid() {
+  function withdrawFSolid(vaultHandlerClass: BaseVaultHandler) {
     cy.get(`[data-testid=venft-fsolid-withdraw]`).should('exist')
-    cy.get(`[data-testid=venft-fsolid-withdraw-token-id]`).contains(expectTokenId)
-    cy.window().then((win) => {
-      // @ts-ignore
-      win.ethereum.setWithdrawFsolidTokenId(0)
-    })
+    cy.get(`[data-testid=venft-fsolid-withdraw-token-id]`)
+      .contains(expectTokenId)
+      .then(() => {
+        vaultHandlerClass.setWithdrawFsolidTokenId(0)
+      })
     cy.get('[data-testid=venft-fsolid-withdraw-loading]').should('not.exist')
     cy.get(`[data-testid=venft-fsolid-withdraw-action]`).click()
     cy.get('[data-testid=venft-fsolid-withdraw-loading]').should('exist')
     cy.get('[data-testid=explorer-link-success-box]')
     cy.get('[data-testid=explorer-link-success-box-close]').click()
-    cy.window().then((win) => {
-      // @ts-ignore
-      expect(win.ethereum.withdrawFSolid).to.have.callCount(1)
-    })
     cy.get(`[data-testid=venft-fsolid-withdraw]`).should('not.exist')
   }
 
   it('sells veNFT', () => {
-    const ethBridge = new SellVeNFTBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      ethBridge.setWithdrawFsolidTokenId(0)
-      // @ts-ignore
-      win.ethereum = ethBridge
-      cy.spy(ethBridge, 'sellVeNFTSpy')
-    })
+    const vaultHandler = getVaultHandler()
+    const veNFTHandler = getApprovedAllVeNFTHandler()
+    ethBridge.setHandler(Vault[SupportedChainId.FANTOM], vaultHandler)
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], veNFTHandler)
+    cy.spy(vaultHandler.handler, 'sellVeNFTSpy')
 
     cy.visit('/venft/sell/')
-    sellVeNFT()
+    sellVeNFT(vaultHandler.handler, veNFTHandler.handler)
     cy.window().then((win) => {
-      const expectTokenId = tokenListSorted[tokenIndex].tokenId
-      expect(ethBridge.sellVeNFTSpy).to.have.calledWith(expectTokenId)
+      expect(vaultHandler.handler.sellVeNFTSpy).to.have.calledWith(expectTokenId)
     })
   })
 
   it('withdraws fsolid after selling veNFT', () => {
-    const ethBridge = new SellVeNFTBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      ethBridge.setWithdrawFsolidTokenId(expectTokenId)
-      // @ts-ignore
-      win.ethereum = ethBridge
-      cy.spy(ethBridge, 'withdrawFSolid')
-    })
+    const vaultHandler = getVaultHandler()
+    vaultHandler.handler.setWithdrawFsolidTokenId(expectTokenId)
+    const veNFTHandler = getApprovedAllVeNFTHandler()
+    ethBridge.setHandler(Vault[SupportedChainId.FANTOM], vaultHandler)
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], veNFTHandler)
+    cy.spy(vaultHandler.handler, 'withdraw')
     cy.visit('/venft/sell/')
-    withdrawFSolid()
+    withdrawFSolid(vaultHandler.handler)
+    cy.window().then((win) => {
+      expect(vaultHandler.handler.withdraw).to.have.callCount(1)
+    })
   })
 
   it('sells veNFT and withdraws fsolid', () => {
-    const ethBridge = new SellVeNFTBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      ethBridge.setWithdrawFsolidTokenId(0)
-      // @ts-ignore
-      win.ethereum = ethBridge
-      cy.spy(ethBridge, 'withdrawFSolid')
-      cy.spy(ethBridge, 'sellVeNFTSpy')
-    })
+    const vaultHandler = getVaultHandler()
+    const veNFTHandler = getApprovedAllVeNFTHandler()
+    ethBridge.setHandler(Vault[SupportedChainId.FANTOM], vaultHandler)
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], veNFTHandler)
+    cy.spy(vaultHandler.handler, 'withdraw')
+    cy.spy(vaultHandler.handler, 'sellVeNFTSpy')
     cy.visit('/venft/sell/')
-    sellVeNFT()
-    withdrawFSolid()
+    sellVeNFT(vaultHandler.handler, veNFTHandler.handler)
+    withdrawFSolid(vaultHandler.handler)
+    cy.window().then((win) => {
+      expect(vaultHandler.handler.withdraw).to.have.callCount(1)
+    })
     // one token is sold and removed, so
     cy.get(`[data-testid=venft-sell-row-${tokenListSorted.length - 1}-token-id]`).should('not.exist')
   })

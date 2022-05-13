@@ -1,11 +1,11 @@
-import { provider, signer, ZeroBalanceVeNFTBridge } from '../support/commands'
+import { CustomizedBridge, provider, signer } from '../support/commands'
 import { TEST_ADDRESS_NEVER_USE_SHORTENED } from '../utils/data'
 
 describe('Wallet', () => {
   const setupEthBridge = () => {
     cy.on('window:before:load', (win) => {
       // @ts-ignore
-      win.ethereum = new ZeroBalanceVeNFTBridge(signer, provider)
+      win.ethereum = new CustomizedBridge(signer, provider)
     })
   }
 

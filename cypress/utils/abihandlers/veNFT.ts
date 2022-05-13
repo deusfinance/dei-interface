@@ -68,17 +68,17 @@ export class ApprovedAllVeNFTHandler extends BaseVeNFTHandler {
   }
 }
 
-export const zeroBalanceVeNFTHandler = {
+export const getZeroBalanceVeNFTHandler = () => ({
   abi: VENFT_ABI,
   handler: new ZeroBalanceVeNFTHandler(),
-}
+})
 
-export const veNFTHandler = {
+export const getVeNFTHandler = () => ({
   abi: VENFT_ABI,
   handler: new BaseVeNFTHandler(),
-}
+})
 
-export const approvedAllVeNFTHandler = {
+export const getApprovedAllVeNFTHandler = () => ({
   abi: VENFT_ABI,
   handler: new ApprovedAllVeNFTHandler(),
-}
+})

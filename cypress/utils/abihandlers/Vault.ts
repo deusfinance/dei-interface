@@ -45,7 +45,7 @@ export class BaseVaultHandler {
   }
 }
 
-export const vaultHandler = {
+export const getVaultHandler = () => ({
   abi: VAULT_ABI,
   handler: new BaseVaultHandler(),
-}
+})

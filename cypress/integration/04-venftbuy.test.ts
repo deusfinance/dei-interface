@@ -1,10 +1,10 @@
 import { getCustomizedBridge } from '../support/commands'
 import { tokenListSorted } from '../utils/data'
 // @ts-ignore
-import { vaultHandler } from '../utils/abihandlers/Vault'
+import { getVaultHandler } from '../utils/abihandlers/Vault'
 import { SupportedChainId } from '../../src/constants/chains'
 import { Multicall2, Vault } from '../../src/constants/addresses'
-import { multicallHandler } from '../utils/abihandlers/Multicall'
+import { getMulticallHandler } from '../utils/abihandlers/Multicall'
 
 describe('render VeNFT Buy Page', () => {
   it('renders page when wallet is not connected', () => {
@@ -14,8 +14,6 @@ describe('render VeNFT Buy Page', () => {
 })
 
 describe('VeNFT Buy', () => {
-  const tokenIndex = 1
-  const expectTokenId = tokenListSorted[tokenIndex].tokenId
   const ethBridge = getCustomizedBridge()
 
   beforeEach(() => {
@@ -23,9 +21,11 @@ describe('VeNFT Buy', () => {
       // @ts-ignore
       win.ethereum = ethBridge
     })
-    ethBridge.setHandler(Multicall2[SupportedChainId.FANTOM], multicallHandler)
-    ethBridge.setHandler(Vault[SupportedChainId.FANTOM], vaultHandler)
+    ethBridge.setHandler(Multicall2[SupportedChainId.FANTOM], getMulticallHandler())
   })
+
+  const tokenIndex = 1
+  const expectTokenId = tokenListSorted[tokenIndex].tokenId
 
   function buyVeNFT() {
     cy.wait(500)
@@ -36,6 +36,8 @@ describe('VeNFT Buy', () => {
   }
 
   it('buys veNFT', () => {
+    const vaultHandler = getVaultHandler()
+    ethBridge.setHandler(Vault[SupportedChainId.FANTOM], vaultHandler)
     cy.spy(vaultHandler.handler, 'buyVeNFTSpy')
 
     cy.visit('/venft/buy/')

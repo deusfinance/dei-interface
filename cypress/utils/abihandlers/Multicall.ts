@@ -27,7 +27,7 @@ export class BaseMulticallHandler {
   }
 }
 
-export const multicallHandler = {
+export const getMulticallHandler = () => ({
   abi: MULTICALL2_ABI,
   handler: new BaseMulticallHandler(),
-}
+})

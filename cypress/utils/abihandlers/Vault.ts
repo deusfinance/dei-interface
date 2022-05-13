@@ -1,5 +1,6 @@
 import { veNFTTokens } from '../data'
 import { BigNumber } from '@ethersproject/bignumber/lib.esm'
+import VAULT_ABI from '../../../src/constants/abi/Vault.json'
 
 export class BaseVaultHandler {
   tokens = veNFTTokens
@@ -42,4 +43,9 @@ export class BaseVaultHandler {
     const token = this.tokens.find((t) => t.tokenId === tokenId.toNumber())
     return [token?.needsAmount || 0]
   }
+}
+
+export const vaultHandler = {
+  abi: VAULT_ABI,
+  handler: new BaseVaultHandler(),
 }

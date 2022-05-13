@@ -1,4 +1,5 @@
 import { veNFTTokens, ZERO_ADDRESS } from '../data'
+import VENFT_ABI from '../../../src/constants/abi/veNFT.json'
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -65,4 +66,19 @@ export class ApprovedAllVeNFTHandler extends BaseVeNFTHandler {
     const [_owner, _operator] = decodedInput
     return [true]
   }
+}
+
+export const zeroBalanceVeNFTHandler = {
+  abi: VENFT_ABI,
+  handler: new ZeroBalanceVeNFTHandler(),
+}
+
+export const veNFTHandler = {
+  abi: VENFT_ABI,
+  handler: new BaseVeNFTHandler(),
+}
+
+export const approvedAllVeNFTHandler = {
+  abi: VENFT_ABI,
+  handler: new ApprovedAllVeNFTHandler(),
 }

@@ -1,5 +1,6 @@
 import { FAKE_BLOCK_HASH } from '../fake_tx_data'
 import { decodeEthCall, encodeEthResult } from '../abiutils'
+import MULTICALL2_ABI from '../../../src/constants/abi/MULTICALL2.json'
 
 function isTheSameAddress(address1: string, address2: string) {
   return address1.toLowerCase() === address2.toLowerCase()
@@ -24,4 +25,9 @@ export class BaseMulticallHandler {
     }
     return [0, FAKE_BLOCK_HASH, results]
   }
+}
+
+export const multicallHandler = {
+  abi: MULTICALL2_ABI,
+  handler: new BaseMulticallHandler(),
 }

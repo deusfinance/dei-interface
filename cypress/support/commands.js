@@ -485,3 +485,7 @@ export class DepositVeNFTBridge extends SellVeNFTBridge {
 
 export const provider = new JsonRpcProvider('https://rpc.ftm.tools/', 250)
 export const signer = new Wallet(TEST_PRIVATE_KEY, provider)
+
+export function getCustomizedBridge() {
+  return new CustomizedBridge(signer, provider)
+}

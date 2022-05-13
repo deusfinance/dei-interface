@@ -1,26 +1,43 @@
-import { DepositVeNFTBridge, provider, SellVeNFTBridge, signer } from '../support/commands'
+import { getCustomizedBridge } from '../support/commands'
 import { tokenListSorted } from '../utils/data'
+import { Multicall2, Vault, veNFT } from '../../src/constants/addresses'
+import { SupportedChainId } from '../../src/constants/chains'
+import { getMulticallHandler } from '../utils/abihandlers/Multicall'
+import { BaseVeNFTHandler, getApprovedAllVeNFTHandler } from '../utils/abihandlers/veNFT'
+import { BaseVaultHandler, getVaultHandler } from '../utils/abihandlers/Vault'
 
-describe('VeNFT Deposit', () => {
-  const tokenIndex = 1
-  const expectTokenId = tokenListSorted[tokenIndex].tokenId
-  const veNFTTokensAfterDeposit = [...tokenListSorted].splice(1)
-
+describe('render VeNFT Deposit Page', () => {
   it('renders page when wallet is not connected', () => {
     cy.visit('/venft/deposit/')
     cy.get('[data-testid=venft-deposit-page]')
   })
+})
 
-  function depositVeNFT() {
+describe('VeNFT Deposit', () => {
+  const ethBridge = getCustomizedBridge()
+
+  beforeEach(() => {
+    cy.on('window:before:load', (win) => {
+      // @ts-ignore
+      win.ethereum = ethBridge
+    })
+    ethBridge.setHandler(Multicall2[SupportedChainId.FANTOM], getMulticallHandler())
+  })
+
+  const tokenIndex = 1
+  const expectTokenId = tokenListSorted[tokenIndex].tokenId
+  const veNFTTokensAfterDeposit = [...tokenListSorted].splice(1)
+
+  function depositVeNFT(vaultHandlerClass: BaseVaultHandler, veNFTHandlerClass: BaseVeNFTHandler) {
     cy.wait(500)
     cy.get(`[data-testid=venft-deposit-row-${tokenIndex}-token-id]`).contains(expectTokenId)
-    cy.get(`[data-testid=venft-deposit-row-${tokenIndex}-action]`).contains('Deposit')
-    cy.window().then((win) => {
-      // @ts-ignore
-      win.ethereum.setLockPendingTokenId(expectTokenId)
-      // @ts-ignore
-      win.ethereum.setBridgeTokens(veNFTTokensAfterDeposit)
-    })
+    cy.get(`[data-testid=venft-deposit-row-${tokenIndex}-action]`)
+      .contains('Deposit')
+      .then(() => {
+        vaultHandlerClass.setLockPendingTokenId(expectTokenId)
+        vaultHandlerClass.setBridgeTokens(veNFTTokensAfterDeposit)
+        veNFTHandlerClass.setBridgeTokens(veNFTTokensAfterDeposit)
+      })
     cy.get('[data-testid=venft-deposit-loading]').should('not.exist')
     cy.get(`[data-testid=venft-deposit-row-${tokenIndex}-action]`).click()
     cy.get('[data-testid=venft-deposit-loading]').should('exist')
@@ -28,55 +45,50 @@ describe('VeNFT Deposit', () => {
     cy.get('[data-testid=explorer-link-success-box-close]').click()
   }
 
-  function showLockModal() {
+  function showLockModal(vaultHandlerClass: BaseVaultHandler) {
     cy.get(`[data-testid=venft-deposit-lock]`).should('exist')
-    cy.get(`[data-testid=venft-deposit-lock-token-id]`).contains(expectTokenId)
-    cy.window().then((win) => {
-      // @ts-ignore
-      win.ethereum.setLockPendingTokenId(0)
-    })
+    cy.get(`[data-testid=venft-deposit-lock-token-id]`)
+      .contains(expectTokenId)
+      .then(() => {
+        vaultHandlerClass.setLockPendingTokenId(0)
+      })
     cy.get(`[data-testid=venft-deposit-lock-action]`).click()
     cy.url().should('include', expectTokenId)
   }
 
   it('deposits veNFT', () => {
-    const ethBridge = new DepositVeNFTBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      // @ts-ignore
-      win.ethereum = ethBridge
-      cy.spy(ethBridge, 'depositVeNFTSpy')
-    })
+    const vaultHandler = getVaultHandler()
+    const veNFTHandler = getApprovedAllVeNFTHandler()
+    ethBridge.setHandler(Vault[SupportedChainId.FANTOM], vaultHandler)
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], veNFTHandler)
+
+    cy.spy(vaultHandler.handler, 'depositVeNFTSpy')
 
     cy.visit('/venft/deposit/')
-    depositVeNFT()
+    depositVeNFT(vaultHandler.handler, veNFTHandler.handler)
     cy.window().then((win) => {
       const expectTokenId = tokenListSorted[tokenIndex].tokenId
-      expect(ethBridge.depositVeNFTSpy).to.have.calledWith(expectTokenId)
+      expect(vaultHandler.handler.depositVeNFTSpy).to.have.calledWith(expectTokenId)
     })
   })
 
   it('shows vote and lock venft modal', () => {
-    const ethBridge = new SellVeNFTBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      ethBridge.setLockPendingTokenId(expectTokenId)
-      // @ts-ignore
-      win.ethereum = ethBridge
-      cy.spy(ethBridge, 'withdrawFSolid')
-    })
+    const vaultHandler = getVaultHandler()
+    vaultHandler.handler.setLockPendingTokenId(expectTokenId)
+    const veNFTHandler = getApprovedAllVeNFTHandler()
+    ethBridge.setHandler(Vault[SupportedChainId.FANTOM], vaultHandler)
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], veNFTHandler)
     cy.visit('/venft/deposit/')
-    showLockModal()
+    showLockModal(vaultHandler.handler)
   })
 
   it('deposits and goes for vote page', () => {
-    const ethBridge = new DepositVeNFTBridge(signer, provider)
-    cy.on('window:before:load', (win) => {
-      // @ts-ignore
-      win.ethereum = ethBridge
-      cy.spy(ethBridge, 'depositVeNFTSpy')
-    })
-
+    const vaultHandler = getVaultHandler()
+    const veNFTHandler = getApprovedAllVeNFTHandler()
+    ethBridge.setHandler(Vault[SupportedChainId.FANTOM], vaultHandler)
+    ethBridge.setHandler(veNFT[SupportedChainId.FANTOM], veNFTHandler)
     cy.visit('/venft/deposit/')
-    depositVeNFT()
-    showLockModal()
+    depositVeNFT(vaultHandler.handler, veNFTHandler.handler)
+    showLockModal(vaultHandler.handler)
   })
 })

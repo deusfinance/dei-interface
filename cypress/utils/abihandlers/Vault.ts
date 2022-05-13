@@ -59,6 +59,14 @@ export class BaseVaultHandler {
   async withdraw(context: any, _decodedInput: []) {
     await sleep(500)
   }
+
+  depositVeNFTSpy(tokenId: number) {}
+
+  async deposit(context: any, decodedInput: [BigNumber]) {
+    const [tokenId] = decodedInput
+    this.depositVeNFTSpy(tokenId.toNumber())
+    await sleep(500)
+  }
 }
 
 export const getVaultHandler = () => ({

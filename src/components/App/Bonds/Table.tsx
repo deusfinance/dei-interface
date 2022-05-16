@@ -71,16 +71,7 @@ const NoResults = styled.div`
   padding: 20px;
 `
 
-const NFTWrap = styled(Column)`
-  margin-left: 10px;
-  align-items: flex-start;
-`
-
 const CellWrap = styled(Column)`
-  gap: 5px;
-`
-
-const CellRow = styled(RowCenter)`
   gap: 5px;
 `
 
@@ -128,7 +119,7 @@ export default function Table({ bondIds }: { bondIds: number[] }) {
               paginatedItems.map((bondId: number, index) => <TableRow key={index} bondId={bondId} />)}
           </tbody>
         </TableWrapper>
-        {paginatedItems.length == 0 && <NoResults>No Results Found</NoResults>}
+        {paginatedItems.length == 0 && <NoResults>No Bonds Found</NoResults>}
         {paginatedItems.length > 0 && <Pagination pageCount={pageCount} onPageChange={onPageChange} />}
       </Wrapper>
     </>
@@ -151,7 +142,10 @@ function TableRow({ bondId }: { bondId: number }) {
       if (!veDEUSContract || !lockHasEnded) return
       setAwaitingClaimAndWithdrawConfirmation(true)
       const response = await veDEUSContract.withdraw(bondId)
-      addTransaction(response, { summary: `Withdraw #${bondId} from Vesting`, vest: { hash: response.hash } })
+      addTransaction(response, {
+        summary: `Claim Reward And Withdraw #${bondId} from Bonds`,
+        vest: { hash: response.hash },
+      })
       setPendingTxHash(response.hash)
       setAwaitingClaimAndWithdrawConfirmation(false)
     } catch (err) {
@@ -164,14 +158,14 @@ function TableRow({ bondId }: { bondId: number }) {
   const onClaim = useCallback(async () => {
     try {
       if (!veDEUSContract || !lockHasEnded) return
-      setAwaitingClaimAndWithdrawConfirmation(true)
+      setAwaitingClaimConfirmation(true)
       const response = await veDEUSContract.withdraw(bondId)
-      addTransaction(response, { summary: `Withdraw #${bondId} from Vesting`, vest: { hash: response.hash } })
+      addTransaction(response, { summary: `Claim Bond #${bondId} Reward`, vest: { hash: response.hash } })
       setPendingTxHash(response.hash)
-      setAwaitingClaimAndWithdrawConfirmation(false)
+      setAwaitingClaimConfirmation(false)
     } catch (err) {
       console.error(err)
-      setAwaitingClaimAndWithdrawConfirmation(false)
+      setAwaitingClaimConfirmation(false)
       setPendingTxHash('')
     }
   }, [veDEUSContract, lockHasEnded, bondId, addTransaction])
@@ -215,12 +209,6 @@ function TableRow({ bondId }: { bondId: number }) {
         </CellWrap>
       </Cell>
       <Cell style={{ padding: '5px 10px' }}>150</Cell>
-      <Cell style={{ padding: '5px 10px' }}>
-        <CellWrap>
-          <CellAmount>{dayjs.utc(lockEnd).format('LLL')}</CellAmount>
-          <CellDescription>Expires in {dayjs.utc(lockEnd).fromNow(true)}</CellDescription>
-        </CellWrap>
-      </Cell>
       <Cell style={{ padding: '5px 10px' }}>{getActionButton()}</Cell>
     </Row>
   )

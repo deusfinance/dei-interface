@@ -19,9 +19,8 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import { USDC_TOKEN } from 'constants/bonds'
 import { SupportedChainId } from 'constants/chains'
 import { veDEUS } from 'constants/addresses'
-import { getDurationSeconds, RoundMode } from 'utils/time'
 
-import { InputBox, UserLockInformation } from 'components/App/Vest'
+import { InputBox, BondsInformation } from 'components/App/Bonds'
 import Hero, { HeroSubtext } from 'components/Hero'
 import { PrimaryButton } from 'components/Button'
 import { Card } from 'components/Card'
@@ -87,14 +86,13 @@ const ActionButton = styled(PrimaryButton)`
   margin-top: 15px;
 `
 
-export default function Create() {
+export default function Buy() {
   const { chainId, account } = useWeb3React()
   const router = useRouter()
   const isSupportedChainId = useSupportedChainId()
   const toggleWalletModal = useWalletModalToggle()
   const rpcChangerCallback = useRpcChangerCallback()
   const [typedValue, setTypedValue] = useState('')
-  const [selectedDate, setSelectedDate] = useState<Date>(dayjs.utc().toDate())
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false)
   const [pendingTxHash, setPendingTxHash] = useState('')
@@ -124,15 +122,12 @@ export default function Create() {
     return new BigNumber(typedValue).times(new BigNumber(10).pow(usdcCurrency.decimals))
   }, [typedValue, usdcCurrency])
 
-  const onLock = useCallback(async () => {
+  const onBuyBond = useCallback(async () => {
     try {
       if (amountBN.isEqualTo('0') || !veDEUSContract || INSUFFICIENT_BALANCE) return
       setAwaitingConfirmation(true)
-      const response = await veDEUSContract.create_lock(
-        amountBN.toFixed(),
-        getDurationSeconds(selectedDate, RoundMode.ROUND_UP)
-      )
-      addTransaction(response, { summary: `Lock up ${typedValue} DEUS`, vest: { hash: response.hash } })
+      const response = await veDEUSContract.buyBond(amountBN.toFixed())
+      addTransaction(response, { summary: `Buy Bond with ${typedValue} USDC`, vest: { hash: response.hash } })
       setPendingTxHash(response.hash)
       setAwaitingConfirmation(false)
     } catch (err) {
@@ -140,7 +135,7 @@ export default function Create() {
       setAwaitingConfirmation(false)
       setPendingTxHash('')
     }
-  }, [typedValue, amountBN, selectedDate, INSUFFICIENT_BALANCE, veDEUSContract, addTransaction])
+  }, [typedValue, amountBN, INSUFFICIENT_BALANCE, veDEUSContract, addTransaction])
 
   const onReturnClick = useCallback(() => {
     router.push('/bonds')
@@ -171,7 +166,6 @@ export default function Create() {
     if (showApprove) {
       return <ActionButton onClick={handleApprove}>Approve</ActionButton>
     }
-    // lock
     if (INSUFFICIENT_BALANCE) {
       return <ActionButton disabled>INSUFFICIENT BALANCE</ActionButton>
     }
@@ -190,7 +184,7 @@ export default function Create() {
       )
     }
 
-    return <ActionButton onClick={onLock}>Deposit</ActionButton>
+    return <ActionButton onClick={onBuyBond}>Deposit</ActionButton>
   }
 
   function getMainContent() {
@@ -223,7 +217,7 @@ export default function Create() {
       <CardWrapper>
         <InputBox currency={usdcCurrency} value={typedValue} onChange={(value: string) => setTypedValue(value)} />
         {getActionButton()}
-        <UserLockInformation amount={typedValue} selectedDate={selectedDate} />
+        <BondsInformation bondsAPY={'100'} />
       </CardWrapper>
     )
   }

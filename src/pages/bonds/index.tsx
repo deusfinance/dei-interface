@@ -1,20 +1,16 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import styled from 'styled-components'
 
 import useOwnedNfts from 'hooks/useOwnedNfts'
-import { useDeusPrice } from 'hooks/useCoingeckoPrice'
 import useWeb3React from 'hooks/useWeb3'
-import { useVestedAPY } from 'hooks/useVested'
-
 import { formatAmount } from 'utils/numbers'
-import { getMaximumDate } from 'utils/vest'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { Table } from 'components/App/Bonds'
 import { PrimaryButton } from 'components/Button'
-import { RowEnd } from 'components/Row'
+import { RowEnd, RowStart } from 'components/Row'
 import Box from 'components/Box'
 
 const Container = styled.div`
@@ -102,10 +98,7 @@ const BalanceText = styled.div`
 
 export default function Bonds() {
   const { chainId, account } = useWeb3React()
-  const [nftId, setNftId] = useState(0)
   const nftIds = useOwnedNfts()
-  const { lockedVeDEUS, globalAPY } = useVestedAPY(undefined, getMaximumDate())
-  const deusPrice = useDeusPrice()
   const info = [
     { symbol: 'Total DEI Supply', balance: formatAmount(60_000_000) },
     { symbol: 'Circulating Supply', balance: formatAmount(33_040_012) },
@@ -121,14 +114,14 @@ export default function Bonds() {
       </Hero>
       <Wrapper>
         <UpperRow>
-          <Link href="/bonds/create" passHref>
+          <Link href="/bonds/buy" passHref>
             <PrimaryButton>Buy Bond</PrimaryButton>
           </Link>
           <APYBox>APY: 53%</APYBox>
         </UpperRow>
         <CardWrapper>
-          {info.map((i, index) => (
-            <BalanceRow symbol={i.symbol} balance={i.balance} key={index} />
+          {info.map((item, index) => (
+            <BalanceRow symbol={item.symbol} balance={item.balance} key={index} />
           ))}
         </CardWrapper>
         <Table bondIds={nftIds} />

@@ -22,6 +22,7 @@ import BASE_V1_VOTER_ABI from 'constants/abi/BASE_V1_VOTER.json'
 import BASE_V1_GAUGE_ABI from 'constants/abi/BASE_V1_GAUGE.json'
 import BASE_V1_BRIBE_ABI from 'constants/abi/BASE_V1_BRIBE.json'
 import BASE_V1_MINTER_ABI from 'constants/abi/BASE_V1_MINTER.json'
+import BONDS_ABI from 'constants/abi/BONDS.json'
 
 import { Providers } from 'constants/providers'
 import {
@@ -34,6 +35,7 @@ import {
   BaseV1Voter,
   ZERO_ADDRESS,
   BaseV1Minter,
+  Bonds,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -134,6 +136,13 @@ export function useMulticall2Contract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? Multicall2[chainId] : undefined), [chainId])
   return useContract(address, MULTICALL2_ABI)
+}
+
+// TODO
+export function useBondsContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? Bonds[chainId] : undefined), [chainId])
+  return useContract(address, BONDS_ABI)
 }
 
 export function getProviderOrSigner(library: any, account?: string): any {

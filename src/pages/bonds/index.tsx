@@ -97,7 +97,6 @@ const BalanceText = styled.div`
 `
 
 export default function Bonds() {
-  const { chainId, account } = useWeb3React()
   const nftIds = useOwnedNfts()
   const info = [
     { symbol: 'APY', balance: '53%' },

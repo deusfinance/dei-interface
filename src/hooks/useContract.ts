@@ -138,7 +138,6 @@ export function useMulticall2Contract() {
   return useContract(address, MULTICALL2_ABI)
 }
 
-// TODO
 export function useBondsContract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? Bonds[chainId] : undefined), [chainId])

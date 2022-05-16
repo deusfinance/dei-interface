@@ -5,7 +5,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import utc from 'dayjs/plugin/utc'
 
-import { useVeDeusContract } from 'hooks/useContract'
+import { useBondsContract } from 'hooks/useContract'
 import { useHasPendingVest, useTransactionAdder } from 'state/transactions/hooks'
 import { useVestedInformation } from 'hooks/useVested'
 
@@ -131,7 +131,7 @@ function TableRow({ bondId }: { bondId: number }) {
   const [awaitingClaimAndWithdrawConfirmation, setAwaitingClaimAndWithdrawConfirmation] = useState(false)
   const [pendingTxHash, setPendingTxHash] = useState('')
   const { deusAmount, veDEUSAmount, lockEnd } = useVestedInformation(bondId)
-  const veDEUSContract = useVeDeusContract()
+  const bondsContract = useBondsContract()
   const addTransaction = useTransactionAdder()
   const showTransactionPending = useHasPendingVest(pendingTxHash)
 
@@ -139,9 +139,9 @@ function TableRow({ bondId }: { bondId: number }) {
 
   const onClaimAndWithdraw = useCallback(async () => {
     try {
-      if (!veDEUSContract || !lockHasEnded) return
+      if (!bondsContract || !lockHasEnded) return
       setAwaitingClaimAndWithdrawConfirmation(true)
-      const response = await veDEUSContract.withdraw(bondId)
+      const response = await bondsContract.withdraw(bondId)
       addTransaction(response, {
         summary: `Claim Reward And Withdraw #${bondId} from Bonds`,
         vest: { hash: response.hash },
@@ -153,13 +153,13 @@ function TableRow({ bondId }: { bondId: number }) {
       setAwaitingClaimAndWithdrawConfirmation(false)
       setPendingTxHash('')
     }
-  }, [veDEUSContract, lockHasEnded, bondId, addTransaction])
+  }, [bondsContract, lockHasEnded, bondId, addTransaction])
 
   const onClaim = useCallback(async () => {
     try {
-      if (!veDEUSContract || !lockHasEnded) return
+      if (!bondsContract || !lockHasEnded) return
       setAwaitingClaimConfirmation(true)
-      const response = await veDEUSContract.withdraw(bondId)
+      const response = await bondsContract.claim(bondId)
       addTransaction(response, { summary: `Claim Bond #${bondId} Reward`, vest: { hash: response.hash } })
       setPendingTxHash(response.hash)
       setAwaitingClaimConfirmation(false)
@@ -168,10 +168,10 @@ function TableRow({ bondId }: { bondId: number }) {
       setAwaitingClaimConfirmation(false)
       setPendingTxHash('')
     }
-  }, [veDEUSContract, lockHasEnded, bondId, addTransaction])
+  }, [bondsContract, lockHasEnded, bondId, addTransaction])
 
   function getActionButton() {
-    const title = !lockHasEnded ? 'ClaimAndWithdraw' : 'Claim'
+    const title = !lockHasEnded ? 'Claim & Withdraw' : 'Claim'
     const callback = !lockHasEnded ? onClaimAndWithdraw : onClaim
     if (!lockHasEnded) {
       if (awaitingClaimConfirmation || awaitingClaimAndWithdrawConfirmation) {

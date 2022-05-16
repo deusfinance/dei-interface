@@ -21,8 +21,8 @@ import { ContextError, InvalidContext, useInvalidContext } from 'components/Inva
 import InputBox from './InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-import InputDate, { IncreaseDatePresets } from './InputDate'
-import UserLockInformation from './UserLockInformation'
+import UserLockInformation from './BondsInformation'
+import BondsInformation from './BondsInformation'
 
 dayjs.extend(utc)
 
@@ -151,13 +151,8 @@ function IncreaseAmount({ nftId }: { nftId: number }) {
   return (
     <>
       <InputBox currency={deusCurrency} value={typedValue} onChange={(value: string) => setTypedValue(value)} />
-      <UserLockInformation amount={deusAmount} selectedDate={lockEnd} title="Current vesting setup:" />
-      <UserLockInformation
-        amount={typedValue}
-        selectedDate={lockEnd}
-        currentVotingPower={veDEUSAmount}
-        title="New vesting setup:"
-      />
+      <UserLockInformation selectedDate={lockEnd} title="Current vesting setup:" />
+      <UserLockInformation selectedDate={lockEnd} title="New vesting setup:" />
       {INSUFFICIENT_BALANCE ? (
         <PrimaryButton disabled>INSUFFICIENT BALANCE</PrimaryButton>
       ) : awaitingConfirmation ? (
@@ -216,21 +211,8 @@ function IncreaseDuration({ nftId }: { nftId: number }) {
 
   return (
     <>
-      <InputDate
-        selectedDate={selectedDate}
-        minimumDate={minimumDate}
-        maximumDate={getMaximumDate()}
-        onDateSelect={setSelectedDate}
-      />
-      <IncreaseDatePresets
-        selectedDate={selectedDate}
-        lockEnd={lockEnd}
-        minimumDate={minimumDate}
-        maximumDate={getMaximumDate()}
-        onDateSelect={setSelectedDate}
-      />
-      <UserLockInformation amount={deusAmount} selectedDate={lockEnd} title="Current vesting setup:" />
-      <UserLockInformation amount={deusAmount} selectedDate={selectedDate} title="New vesting setup:" />
+      <BondsInformation selectedDate={lockEnd} title="Current vesting setup:" />
+      <BondsInformation selectedDate={selectedDate} title="New vesting setup:" />
       {awaitingConfirmation ? (
         <PrimaryButton active>
           Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />

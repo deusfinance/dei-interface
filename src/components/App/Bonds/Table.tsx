@@ -7,17 +7,13 @@ import utc from 'dayjs/plugin/utc'
 
 import { useVeDeusContract } from 'hooks/useContract'
 import { useHasPendingVest, useTransactionAdder } from 'state/transactions/hooks'
-import { useVestedInformation, useVestedAPY } from 'hooks/useVested'
+import { useVestedInformation } from 'hooks/useVested'
 
 import Pagination from 'components/Pagination'
-import ImageWithFallback from 'components/ImageWithFallback'
 import { RowCenter } from 'components/Row'
 import Column from 'components/Column'
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing, Info } from 'components/Icons'
-
-import DEUS_LOGO from '/public/static/images/tokens/deus.svg'
-import { formatAmount } from 'utils/numbers'
+import { DotFlashing } from 'components/Icons'
 
 dayjs.extend(utc)
 dayjs.extend(relativeTime)
@@ -99,24 +95,16 @@ const CellDescription = styled.div`
 `
 
 const itemsPerPage = 10
-export default function Table({
-  nftIds,
-  toggleLockManager,
-  toggleAPYManager,
-}: {
-  nftIds: number[]
-  toggleLockManager: (nftId: number) => void
-  toggleAPYManager: (nftId: number) => void
-}) {
+export default function Table({ bondIds }: { bondIds: number[] }) {
   const [offset, setOffset] = useState(0)
 
   const paginatedItems = useMemo(() => {
-    return nftIds.slice(offset, offset + itemsPerPage)
-  }, [nftIds, offset])
+    return bondIds.slice(offset, offset + itemsPerPage)
+  }, [bondIds, offset])
 
   const pageCount = useMemo(() => {
-    return Math.ceil(nftIds.length / itemsPerPage)
-  }, [nftIds])
+    return Math.ceil(bondIds.length / itemsPerPage)
+  }, [bondIds])
 
   const onPageChange = ({ selected }: { selected: number }) => {
     setOffset(Math.ceil(selected * itemsPerPage))
@@ -137,14 +125,7 @@ export default function Table({
           </Head>
           <tbody>
             {paginatedItems.length > 0 &&
-              paginatedItems.map((nftId: number, index) => (
-                <TableRow
-                  key={index}
-                  nftId={nftId}
-                  toggleLockManager={toggleLockManager}
-                  toggleAPYManager={toggleAPYManager}
-                />
-              ))}
+              paginatedItems.map((bondId: number, index) => <TableRow key={index} bondId={bondId} />)}
           </tbody>
         </TableWrapper>
         {paginatedItems.length == 0 && <NoResults>No Results Found</NoResults>}
@@ -154,89 +135,93 @@ export default function Table({
   )
 }
 
-function TableRow({
-  nftId,
-  toggleLockManager,
-  toggleAPYManager,
-}: {
-  nftId: number
-  toggleLockManager: (nftId: number) => void
-  toggleAPYManager: (nftId: number) => void
-}) {
-  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false)
+function TableRow({ bondId }: { bondId: number }) {
+  const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState(false)
+  const [awaitingClaimAndWithdrawConfirmation, setAwaitingClaimAndWithdrawConfirmation] = useState(false)
   const [pendingTxHash, setPendingTxHash] = useState('')
-  const { deusAmount, veDEUSAmount, lockEnd } = useVestedInformation(nftId)
-  const { userAPY } = useVestedAPY(nftId)
+  const { deusAmount, veDEUSAmount, lockEnd } = useVestedInformation(bondId)
   const veDEUSContract = useVeDeusContract()
   const addTransaction = useTransactionAdder()
   const showTransactionPending = useHasPendingVest(pendingTxHash)
 
   const lockHasEnded = useMemo(() => dayjs.utc(lockEnd).isBefore(dayjs.utc().subtract(10, 'seconds')), [lockEnd]) // subtracting 10 seconds to mitigate this from being true on page load
 
-  const onWithdraw = useCallback(async () => {
+  const onClaimAndWithdraw = useCallback(async () => {
     try {
       if (!veDEUSContract || !lockHasEnded) return
-      setAwaitingConfirmation(true)
-      const response = await veDEUSContract.withdraw(nftId)
-      addTransaction(response, { summary: `Withdraw #${nftId} from Vesting`, vest: { hash: response.hash } })
+      setAwaitingClaimAndWithdrawConfirmation(true)
+      const response = await veDEUSContract.withdraw(bondId)
+      addTransaction(response, { summary: `Withdraw #${bondId} from Vesting`, vest: { hash: response.hash } })
       setPendingTxHash(response.hash)
-      setAwaitingConfirmation(false)
+      setAwaitingClaimAndWithdrawConfirmation(false)
     } catch (err) {
       console.error(err)
-      setAwaitingConfirmation(false)
+      setAwaitingClaimAndWithdrawConfirmation(false)
       setPendingTxHash('')
     }
-  }, [veDEUSContract, lockHasEnded, nftId, addTransaction])
+  }, [veDEUSContract, lockHasEnded, bondId, addTransaction])
 
-  function getExpirationCell() {
+  const onClaim = useCallback(async () => {
+    try {
+      if (!veDEUSContract || !lockHasEnded) return
+      setAwaitingClaimAndWithdrawConfirmation(true)
+      const response = await veDEUSContract.withdraw(bondId)
+      addTransaction(response, { summary: `Withdraw #${bondId} from Vesting`, vest: { hash: response.hash } })
+      setPendingTxHash(response.hash)
+      setAwaitingClaimAndWithdrawConfirmation(false)
+    } catch (err) {
+      console.error(err)
+      setAwaitingClaimAndWithdrawConfirmation(false)
+      setPendingTxHash('')
+    }
+  }, [veDEUSContract, lockHasEnded, bondId, addTransaction])
+
+  function getActionButton() {
+    const title = !lockHasEnded ? 'ClaimAndWithdraw' : 'Claim'
+    const callback = !lockHasEnded ? onClaimAndWithdraw : onClaim
     if (!lockHasEnded) {
-      return (
-        <CellWrap>
-          <CellAmount>{dayjs.utc(lockEnd).format('LLL')}</CellAmount>
-          <CellDescription>Expires in {dayjs.utc(lockEnd).fromNow(true)}</CellDescription>
-        </CellWrap>
-      )
+      if (awaitingClaimConfirmation || awaitingClaimAndWithdrawConfirmation) {
+        return (
+          <PrimaryButton active>
+            Confirming <DotFlashing style={{ marginLeft: '10px' }} />
+          </PrimaryButton>
+        )
+      }
+      if (showTransactionPending) {
+        return (
+          <PrimaryButton active>
+            {title}ing <DotFlashing style={{ marginLeft: '10px' }} />
+          </PrimaryButton>
+        )
+      }
+      return <PrimaryButton onClick={callback}>{title}</PrimaryButton>
+    } else {
     }
-    if (awaitingConfirmation) {
-      return (
-        <PrimaryButton active>
-          Confirming <DotFlashing style={{ marginLeft: '10px' }} />
-        </PrimaryButton>
-      )
-    }
-    if (showTransactionPending) {
-      return (
-        <PrimaryButton active>
-          Withdrawing <DotFlashing style={{ marginLeft: '10px' }} />
-        </PrimaryButton>
-      )
-    }
-    return <PrimaryButton onClick={onWithdraw}>Withdraw</PrimaryButton>
   }
 
   return (
     <Row>
       <Cell>
         <RowCenter>
-          <ImageWithFallback src={DEUS_LOGO} alt={`veDeus logo`} width={30} height={30} />
-          <NFTWrap>
-            <CellAmount>#{nftId}</CellAmount>
-            <CellDescription>veDEUS ID</CellDescription>
-          </NFTWrap>
+          <CellAmount>#{bondId}</CellAmount>
+          <CellDescription>Bond ID</CellDescription>
         </RowCenter>
       </Cell>
-      <Cell>{deusAmount} DEUS</Cell>
-      <Cell>{formatAmount(parseFloat(veDEUSAmount))} veDEUS</Cell>
-      <Cell style={{ padding: '5px 10px' }}>{getExpirationCell()}</Cell>
-      <Cell>
-        <CellRow>
-          {formatAmount(parseFloat(userAPY), 0)}%
-          <Info onClick={() => toggleAPYManager(nftId)} />
-        </CellRow>
-      </Cell>
+      <Cell>{deusAmount} USDC</Cell>
       <Cell style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => toggleLockManager(nftId)}>Update Lock</PrimaryButton>
+        <CellWrap>
+          <CellAmount>{dayjs.utc(lockEnd).format('LLL')}</CellAmount>
+          <CellDescription>Expires in {dayjs.utc(lockEnd).fromNow(true)}</CellDescription>
+        </CellWrap>
       </Cell>
+      <Cell style={{ padding: '5px 10px' }}>150</Cell>
+      <Cell style={{ padding: '5px 10px' }}>
+        <CellWrap>
+          <CellAmount>{dayjs.utc(lockEnd).format('LLL')}</CellAmount>
+          <CellDescription>Expires in {dayjs.utc(lockEnd).fromNow(true)}</CellDescription>
+        </CellWrap>
+      </Cell>
+      <Cell style={{ padding: '5px 10px' }}>{getActionButton()}</Cell>
     </Row>
   )
 }

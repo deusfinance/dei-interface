@@ -100,10 +100,10 @@ export default function Bonds() {
   const { chainId, account } = useWeb3React()
   const nftIds = useOwnedNfts()
   const info = [
-    { symbol: 'Total DEI Supply', balance: formatAmount(60_000_000) },
-    { symbol: 'Circulating Supply', balance: formatAmount(33_040_012) },
+    { symbol: 'APY', balance: '53%' },
     { symbol: 'Current Redeem Lower Band', balance: '0.374' },
-    { symbol: 'Bond Fixed Interest', balance: '34%' },
+    { symbol: 'Circulating Supply', balance: formatAmount(33_040_012) },
+    { symbol: 'Total DEI Supply', balance: formatAmount(60_000_000) },
   ]
 
   return (
@@ -117,7 +117,6 @@ export default function Bonds() {
           <Link href="/bonds/buy" passHref>
             <PrimaryButton>Buy Bond</PrimaryButton>
           </Link>
-          <APYBox>APY: 53%</APYBox>
         </UpperRow>
         <CardWrapper>
           {info.map((item, index) => (

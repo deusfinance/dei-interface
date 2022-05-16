@@ -26,6 +26,11 @@ export const BaseV1Minter: AddressMap = {
   [SupportedChainId.FANTOM]: '0xC4209c19b183e72A037b2D1Fb11fbe522054A90D',
 }
 
+// TODO
+export const Bonds: AddressMap = {
+  [SupportedChainId.FANTOM]: '',
+}
+
 // NEEDS CHANGING
 export const LenderManager: AddressMap = {
   [SupportedChainId.FANTOM]: '0xc02f204bab0248c694516dbaf985d40718ed4f86',

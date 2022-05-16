@@ -131,6 +131,9 @@ export default function NavBar() {
       <DefaultWrapper>
         <NavLogo />
         <Routes>
+          <Link href="/bonds" passHref>
+            <NavLink active={router.route === '/bonds'}>Bonds</NavLink>
+          </Link>
           <Link href="/borrow" passHref>
             <NavLink active={router.route === '/borrow'}>Borrow</NavLink>
           </Link>

@@ -19,6 +19,8 @@ import {
 import { Card } from 'components/Card'
 import { NavButton } from 'components/Button'
 import { ExternalLink } from 'components/Link'
+import { ArrowDown } from 'react-feather'
+import { Wallet } from '../Icons/Wallet'
 
 const Container = styled.div`
   overflow: hidden;
@@ -76,6 +78,14 @@ export default function Menu() {
       </NavButton>
       <div>
         <InlineModal isOpen={isOpen}>
+          <Link href="/bonds" passHref>
+            <Row active={router.route === '/bonds'}>
+              <div>Bonds</div>
+              <IconWrapper>
+                <Wallet size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <Link href="/borrow" passHref>
             <Row active={router.route === '/borrow'}>
               <div>Borrow</div>
@@ -104,7 +114,7 @@ export default function Menu() {
             <Row active={router.route === '/claim'}>
               <div>Claim</div>
               <IconWrapper>
-                <DropletIcon size={20} />
+                <ArrowDown size={20} />
               </IconWrapper>
             </Row>
           </Link>

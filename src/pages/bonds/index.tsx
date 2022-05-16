@@ -11,6 +11,7 @@ import Disclaimer from 'components/Disclaimer'
 import { Table } from 'components/App/Bonds'
 import { PrimaryButton } from 'components/Button'
 import { RowEnd, RowStart } from 'components/Row'
+import { useDeiMetrics } from 'state/dashboard/hooks'
 import Box from 'components/Box'
 
 const Container = styled.div`
@@ -98,11 +99,12 @@ const BalanceText = styled.div`
 
 export default function Bonds() {
   const nftIds = useOwnedNfts()
+  const { deiTotalSupply, deiCirculationSupply } = useDeiMetrics()
   const info = [
     { symbol: 'APY', balance: '53%' },
     { symbol: 'Current Redeem Lower Band', balance: '0.374' },
-    { symbol: 'Circulating Supply', balance: formatAmount(33_040_012) },
-    { symbol: 'Total DEI Supply', balance: formatAmount(60_000_000) },
+    { symbol: 'Circulating Supply', balance: formatAmount(deiCirculationSupply) },
+    { symbol: 'Total DEI Supply', balance: formatAmount(deiTotalSupply) },
   ]
 
   return (

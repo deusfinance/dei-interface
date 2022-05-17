@@ -2,8 +2,6 @@ import React from 'react'
 import Link from 'next/link'
 import styled from 'styled-components'
 
-import useOwnedNfts from 'hooks/useOwnedNfts'
-import useWeb3React from 'hooks/useWeb3'
 import { formatAmount } from 'utils/numbers'
 
 import Hero, { HeroSubtext } from 'components/Hero'
@@ -12,9 +10,9 @@ import { Table } from 'components/App/Bonds'
 import { PrimaryButton } from 'components/Button'
 import { RowEnd, RowStart } from 'components/Row'
 import { useDeiMetrics } from 'state/dashboard/hooks'
-import Box from 'components/Box'
 import useBonded from 'hooks/useBonded'
 import { Loader } from 'components/Icons'
+import useOwnedBonds, { BondType } from 'hooks/useOwnedBonds'
 
 const Container = styled.div`
   display: flex;
@@ -27,21 +25,6 @@ const Wrapper = styled(Container)`
   margin: 0 auto;
   margin-top: 50px;
   width: clamp(250px, 90%, 1200px);
-
-  // & > * {
-  //   &:nth-child(3) {
-  //     margin-bottom: 25px;
-  //     display: flex;
-  //     flex-flow: row nowrap;
-  //     width: 100%;
-  //     gap: 15px;
-  //     & > * {
-  //       &:last-child {
-  //         max-width: 300px;
-  //       }
-  //     }
-  //   }
-  // }
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin-top: 20px;
@@ -83,11 +66,6 @@ const CardWrapper = styled.div`
 `}
 `
 
-const APYBox = styled(Box)`
-  border: 0.5px solid ${({ theme }) => theme.yellow3};
-  color: ${({ theme }) => theme.yellow3};
-`
-
 const InfoRow = styled(RowStart)`
   display: flex;
   flex-flow: row nowrap;
@@ -100,12 +78,16 @@ const BalanceText = styled.div`
 `
 
 export default function Bonds() {
-  const nftIds = useOwnedNfts()
   const { deiTotalSupply, deiCirculatingSupply } = useDeiMetrics()
-  const { APY } = useBonded()
+  // TODO: remove test const & useBonded parameters
+  const test = 250 * 10 ** 18
+  const { APY, amounts } = useBonded([0, 1], [test.toString(), test.toString()])
+  const nftIds = useOwnedBonds()
+  console.log({ APY, amounts })
+  console.log(nftIds)
 
   const info = [
-    { symbol: 'APY', balance: APY == 0 ? <Loader /> : APY },
+    { symbol: 'APY', balance: APY == 0 ? <Loader /> : `${APY}%` },
     { symbol: 'Current Redeem Lower Band', balance: '0.374' },
     { symbol: 'Circulating Supply', balance: formatAmount(deiCirculatingSupply) },
     { symbol: 'Total DEI Supply', balance: formatAmount(deiTotalSupply) },
@@ -128,7 +110,7 @@ export default function Bonds() {
             <BalanceRow symbol={item.symbol} balance={item.balance} key={index} />
           ))}
         </CardWrapper>
-        <Table bondIds={nftIds} />
+        <Table bondIds={nftIds.map((nft: BondType) => nft.id)} />
       </Wrapper>
       <Disclaimer />
     </Container>

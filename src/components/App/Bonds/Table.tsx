@@ -10,7 +10,6 @@ import { useHasPendingVest, useTransactionAdder } from 'state/transactions/hooks
 import { useVestedInformation } from 'hooks/useVested'
 
 import Pagination from 'components/Pagination'
-import { RowCenter } from 'components/Row'
 import Column from 'components/Column'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
@@ -130,7 +129,7 @@ function TableRow({ bondId }: { bondId: number }) {
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState(false)
   const [awaitingClaimAndWithdrawConfirmation, setAwaitingClaimAndWithdrawConfirmation] = useState(false)
   const [pendingTxHash, setPendingTxHash] = useState('')
-  const { deusAmount, veDEUSAmount, lockEnd } = useVestedInformation(bondId)
+  const { deusAmount, lockEnd } = useVestedInformation(bondId)
   const bondsContract = useBondsContract()
   const addTransaction = useTransactionAdder()
   const showTransactionPending = useHasPendingVest(pendingTxHash)
@@ -173,33 +172,30 @@ function TableRow({ bondId }: { bondId: number }) {
   function getActionButton() {
     const title = !lockHasEnded ? 'Claim & Withdraw' : 'Claim'
     const callback = !lockHasEnded ? onClaimAndWithdraw : onClaim
-    if (!lockHasEnded) {
-      if (awaitingClaimConfirmation || awaitingClaimAndWithdrawConfirmation) {
-        return (
-          <PrimaryButton active>
-            Confirming <DotFlashing style={{ marginLeft: '10px' }} />
-          </PrimaryButton>
-        )
-      }
-      if (showTransactionPending) {
-        return (
-          <PrimaryButton active>
-            {title}ing <DotFlashing style={{ marginLeft: '10px' }} />
-          </PrimaryButton>
-        )
-      }
-      return <PrimaryButton onClick={callback}>{title}</PrimaryButton>
-    } else {
+    if (awaitingClaimConfirmation || awaitingClaimAndWithdrawConfirmation) {
+      return (
+        <PrimaryButton active>
+          Confirming <DotFlashing style={{ marginLeft: '10px' }} />
+        </PrimaryButton>
+      )
     }
+    if (showTransactionPending) {
+      return (
+        <PrimaryButton active>
+          {title}ing <DotFlashing style={{ marginLeft: '10px' }} />
+        </PrimaryButton>
+      )
+    }
+    return <PrimaryButton onClick={callback}>{title}</PrimaryButton>
   }
 
   return (
     <Row>
       <Cell>
-        <RowCenter>
+        <CellWrap>
           <CellAmount>#{bondId}</CellAmount>
-          <CellDescription>Bond ID</CellDescription>
-        </RowCenter>
+          <CellDescription>Bond Id</CellDescription>
+        </CellWrap>
       </Cell>
       <Cell>{deusAmount} USDC</Cell>
       <Cell style={{ padding: '5px 10px' }}>

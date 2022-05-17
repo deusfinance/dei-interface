@@ -6,46 +6,19 @@ export const useDashboardState = () => {
 }
 
 export const useDeusMetrics = () => {
-  const {
-    deusPrice,
-    deusMarketCap,
-    deusTotalSupply,
-    deusFullyDilutedValuation,
-    deusEmissions,
-    deusBurnedEvents,
-    deusDexLiquidity,
-    stakedDeusLiquidity,
-    deiCirculationSupply,
-  } = useDashboardState()
+  const { deiMarketCap, deiCirculatingSupply, deiTotalSupply } = useDashboardState()
   return useMemo(() => {
     return {
-      deusPrice,
-      deusMarketCap,
-      deusTotalSupply,
-      deusFullyDilutedValuation,
-      deusEmissions,
-      deusBurnedEvents,
-      deusDexLiquidity,
-      stakedDeusLiquidity,
-      deiCirculationSupply,
+      deiMarketCap,
+      deiCirculatingSupply,
+      deiTotalSupply,
     }
-  }, [
-    deusPrice,
-    deusMarketCap,
-    deusTotalSupply,
-    deusFullyDilutedValuation,
-    deusEmissions,
-    deusBurnedEvents,
-    deusDexLiquidity,
-    stakedDeusLiquidity,
-    deiCirculationSupply,
-  ])
+  }, [deiMarketCap, deiCirculatingSupply, deiTotalSupply])
 }
 
 export const useDeiMetrics = () => {
-  const { deiMarketCap, deiTotalSupply, deiDexLiquidity, mintedDei, stakedDeiLiquidity, deiCirculationSupply } =
-    useDashboardState()
+  const { deiMarketCap, deiCirculatingSupply, deiTotalSupply } = useDashboardState()
   return useMemo(() => {
-    return { deiMarketCap, deiTotalSupply, deiDexLiquidity, mintedDei, stakedDeiLiquidity, deiCirculationSupply }
-  }, [deiMarketCap, deiTotalSupply, deiDexLiquidity, mintedDei, stakedDeiLiquidity, deiCirculationSupply])
+    return { deiMarketCap, deiCirculatingSupply, deiTotalSupply }
+  }, [deiMarketCap, deiCirculatingSupply, deiTotalSupply])
 }

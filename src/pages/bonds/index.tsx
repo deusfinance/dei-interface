@@ -13,6 +13,8 @@ import { PrimaryButton } from 'components/Button'
 import { RowEnd, RowStart } from 'components/Row'
 import { useDeiMetrics } from 'state/dashboard/hooks'
 import Box from 'components/Box'
+import useBonded from 'hooks/useBonded'
+import { Loader } from 'components/Icons'
 
 const Container = styled.div`
   display: flex;
@@ -99,11 +101,13 @@ const BalanceText = styled.div`
 
 export default function Bonds() {
   const nftIds = useOwnedNfts()
-  const { deiTotalSupply, deiCirculationSupply } = useDeiMetrics()
+  const { deiTotalSupply, deiCirculatingSupply } = useDeiMetrics()
+  const { APY } = useBonded()
+
   const info = [
-    { symbol: 'APY', balance: '53%' },
+    { symbol: 'APY', balance: APY == 0 ? <Loader /> : APY },
     { symbol: 'Current Redeem Lower Band', balance: '0.374' },
-    { symbol: 'Circulating Supply', balance: formatAmount(deiCirculationSupply) },
+    { symbol: 'Circulating Supply', balance: formatAmount(deiCirculatingSupply) },
     { symbol: 'Total DEI Supply', balance: formatAmount(deiTotalSupply) },
   ]
 
@@ -131,7 +135,7 @@ export default function Bonds() {
   )
 }
 
-function BalanceRow({ symbol, balance }: { symbol: string; balance: string }) {
+function BalanceRow({ symbol, balance }: { symbol: string; balance: string | number }) {
   return (
     <InfoRow>
       {symbol}: <BalanceText>{balance}</BalanceText>

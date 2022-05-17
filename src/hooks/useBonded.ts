@@ -1,40 +1,34 @@
 // use apy (decimal)
 // array of id => res : array of result
 
-import { useMemo } from "react"
-import { useSingleContractMultipleMethods } from "state/multicall/hooks"
+import { useMemo } from 'react'
+import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
+import { useSupportedChainId } from 'hooks/useSupportedChainId'
+import { useBondsContract } from 'hooks/useContract'
 
-const getAPY = () => {}
-export default useBonded(){
-    const isSupportedChainId = useSupportedChainId()
-    const ids = []
-    // TODO
-    // const bondsContract  = 
-    const calls = useMemo(
-        () =>
-          !isSupportedChainId
-            ? []
-            : [
-                {
-                  methodName: 'APY method',
-                  callInputs: [],
-                },
-                {
-                  methodName: '',
-                  callInputs: [],
-                },
-              ],
-        [isSupportedChainId, ids]
-      )
-    
-    [
-        {methodName:"name of method for apy", callInputs:[]}
-    ]
+// export default function useBonded(bondIds: number[], deusPrices: number[]) {
+export default function useBonded() {
+  const isSupportedChainId = useSupportedChainId()
+  const ids = []
+  // TODO
+  const bondsContract = useBondsContract()
+  const calls = useMemo(
+    () =>
+      !isSupportedChainId
+        ? []
+        : [
+            {
+              methodName: 'getAPY',
+              callInputs: [],
+            },
+          ],
+    [isSupportedChainId]
+  )
 
-    calls.push(ids.map(id => {methodName:"", callInputs:[id]}))
+  const [APY, res] = useSingleContractMultipleMethods(bondsContract, calls)
+  console.log('use bonded: ', { APY, res })
 
-    const [APY, res] = useSingleContractMultipleMethods(bondsContract, calls)
-    if(!APY || !res ) return []
+  if (!APY || !res) return { APY: 0 }
 
-    return
+  return { APY: 0 }
 }

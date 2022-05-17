@@ -7,7 +7,7 @@
       { "internalType": "address", "name": "dei_", "type": "address" },
       { "internalType": "address", "name": "usdc_", "type": "address" },
       { "internalType": "address", "name": "nft_", "type": "address" },
-      { "internalType": "address", "name": "apy_", "type": "address" },
+      { "internalType": "address", "name": "apyCalculator_", "type": "address" },
       { "internalType": "address", "name": "oracle_", "type": "address" },
       { "internalType": "uint256", "name": "capacity_", "type": "uint256" }
     ],
@@ -58,14 +58,14 @@
   },
   {
     "inputs": [],
-    "name": "CLAIM_INTERVAL",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "DEFAULT_ADMIN_ROLE",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "DEFAULT_ADMIN_ROLE",
+    "name": "PAUSER_ROLE",
     "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
     "stateMutability": "view",
     "type": "function"
@@ -89,7 +89,7 @@
   },
   {
     "inputs": [],
-    "name": "apy",
+    "name": "apyCalculator",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
@@ -128,7 +128,10 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+    "inputs": [
+      { "internalType": "uint256", "name": "amount", "type": "uint256" },
+      { "internalType": "uint256", "name": "minApy", "type": "uint256" }
+    ],
     "name": "buyBond",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -146,6 +149,13 @@
     "name": "claim",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "claimInterval",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -181,11 +191,8 @@
   },
   {
     "inputs": [],
-    "name": "getAPY",
-    "outputs": [
-      { "internalType": "uint256", "name": "apyValue", "type": "uint256" },
-      { "internalType": "uint256", "name": "precision", "type": "uint256" }
-    ],
+    "name": "getApy",
+    "outputs": [{ "internalType": "uint256", "name": "apyValue", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -193,6 +200,23 @@
     "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }],
     "name": "getRoleAdmin",
     "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+      { "internalType": "uint256", "name": "index", "type": "uint256" }
+    ],
+    "name": "getRoleMember",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }],
+    "name": "getRoleMemberCount",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -259,8 +283,8 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "apy_", "type": "address" }],
-    "name": "setAPY",
+    "inputs": [{ "internalType": "address", "name": "apyCalculator_", "type": "address" }],
+    "name": "setApyCalculator",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -268,6 +292,13 @@
   {
     "inputs": [{ "internalType": "uint256", "name": "cap", "type": "uint256" }],
     "name": "setCap",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "claimInterval_", "type": "uint256" }],
+    "name": "setClaimInterval",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

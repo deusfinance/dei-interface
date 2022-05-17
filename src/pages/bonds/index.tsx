@@ -2,8 +2,6 @@ import React from 'react'
 import Link from 'next/link'
 import styled from 'styled-components'
 
-import useOwnedNfts from 'hooks/useOwnedNfts'
-import useWeb3React from 'hooks/useWeb3'
 import { formatAmount } from 'utils/numbers'
 
 import Hero, { HeroSubtext } from 'components/Hero'
@@ -11,7 +9,7 @@ import Disclaimer from 'components/Disclaimer'
 import { Table } from 'components/App/Bonds'
 import { PrimaryButton } from 'components/Button'
 import { RowEnd, RowStart } from 'components/Row'
-import Box from 'components/Box'
+import useOwnedBonds, { BondType } from 'hooks/useOwnedBonds'
 
 const Container = styled.div`
   display: flex;
@@ -24,21 +22,6 @@ const Wrapper = styled(Container)`
   margin: 0 auto;
   margin-top: 50px;
   width: clamp(250px, 90%, 1200px);
-
-  // & > * {
-  //   &:nth-child(3) {
-  //     margin-bottom: 25px;
-  //     display: flex;
-  //     flex-flow: row nowrap;
-  //     width: 100%;
-  //     gap: 15px;
-  //     & > * {
-  //       &:last-child {
-  //         max-width: 300px;
-  //       }
-  //     }
-  //   }
-  // }
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin-top: 20px;
@@ -80,11 +63,6 @@ const CardWrapper = styled.div`
 `}
 `
 
-const APYBox = styled(Box)`
-  border: 0.5px solid ${({ theme }) => theme.yellow3};
-  color: ${({ theme }) => theme.yellow3};
-`
-
 const InfoRow = styled(RowStart)`
   display: flex;
   flex-flow: row nowrap;
@@ -97,7 +75,9 @@ const BalanceText = styled.div`
 `
 
 export default function Bonds() {
-  const nftIds = useOwnedNfts()
+  const nftIds = useOwnedBonds()
+  console.log(nftIds)
+
   const info = [
     { symbol: 'APY', balance: '53%' },
     { symbol: 'Current Redeem Lower Band', balance: '0.374' },
@@ -122,7 +102,7 @@ export default function Bonds() {
             <BalanceRow symbol={item.symbol} balance={item.balance} key={index} />
           ))}
         </CardWrapper>
-        <Table bondIds={nftIds} />
+        <Table bondIds={nftIds.map((nft: BondType) => nft.id)} />
       </Wrapper>
       <Disclaimer />
     </Container>

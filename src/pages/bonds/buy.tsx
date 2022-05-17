@@ -3,8 +3,6 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 import { ZERO } from '@sushiswap/core-sdk'
 import BigNumber from 'bignumber.js'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -12,13 +10,13 @@ import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useCurrency } from 'hooks/useCurrency'
 import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
-import { useHasPendingVest, useTransactionAdder } from 'state/transactions/hooks'
-import { useVeDeusContract } from 'hooks/useContract'
+import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
+import { useBondsContract } from 'hooks/useContract'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 
 import { USDC_TOKEN } from 'constants/bonds'
 import { SupportedChainId } from 'constants/chains'
-import { veDEUS } from 'constants/addresses'
+import { Bonds } from 'constants/addresses'
 
 import { InputBox, BondsInformation } from 'components/App/Bonds'
 import Hero, { HeroSubtext } from 'components/Hero'
@@ -26,8 +24,6 @@ import { PrimaryButton } from 'components/Button'
 import { Card } from 'components/Card'
 import { ArrowBubble, DotFlashing } from 'components/Icons'
 import Disclaimer from 'components/Disclaimer'
-
-dayjs.extend(utc)
 
 const Container = styled.div`
   display: flex;
@@ -97,13 +93,13 @@ export default function Buy() {
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false)
   const [pendingTxHash, setPendingTxHash] = useState('')
   const addTransaction = useTransactionAdder()
-  const showTransactionPending = useHasPendingVest(pendingTxHash)
+  const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
   const usdcCurrency = useCurrency(USDC_TOKEN.address)
-  const deusBalance = useCurrencyBalance(account ?? undefined, usdcCurrency ?? undefined)
-  const veDEUSContract = useVeDeusContract()
+  const usdcBalance = useCurrencyBalance(account ?? undefined, usdcCurrency ?? undefined)
+  const bondContract = useBondsContract()
   const spender = useMemo(() => {
-    return chainId && chainId in veDEUS ? veDEUS[chainId] : undefined
+    return chainId && Bonds[chainId] ? Bonds[chainId] : undefined
   }, [chainId])
 
   const [approvalState, approveCallback] = useApproveCallback(usdcCurrency ?? undefined, spender)
@@ -113,20 +109,26 @@ export default function Buy() {
   }, [usdcCurrency, approvalState, typedValue])
 
   const INSUFFICIENT_BALANCE = useMemo(() => {
-    if (!deusBalance || deusBalance.equalTo(ZERO)) return false
-    return new BigNumber(deusBalance.toExact()).isLessThan(typedValue)
-  }, [deusBalance, typedValue])
+    if (!usdcBalance || usdcBalance.equalTo(ZERO)) return false
+    return new BigNumber(usdcBalance.toExact()).isLessThan(typedValue)
+  }, [usdcBalance, typedValue])
 
   const amountBN: BigNumber = useMemo(() => {
     if (!typedValue || typedValue === '0' || !usdcCurrency) return new BigNumber('0')
     return new BigNumber(typedValue).times(new BigNumber(10).pow(usdcCurrency.decimals))
   }, [typedValue, usdcCurrency])
 
+  //TODO: add apy from contract
+  const apyBN: BigNumber = useMemo(() => {
+    // if (!typedValue || typedValue === '0' || !usdcCurrency) return new BigNumber('0')
+    return new BigNumber(35).times(new BigNumber(10).pow(16))
+  }, [])
+
   const onBuyBond = useCallback(async () => {
     try {
-      if (amountBN.isEqualTo('0') || !veDEUSContract || INSUFFICIENT_BALANCE) return
+      if (amountBN.isEqualTo('0') || !bondContract || INSUFFICIENT_BALANCE) return
       setAwaitingConfirmation(true)
-      const response = await veDEUSContract.buyBond(amountBN.toFixed())
+      const response = await bondContract.buyBond(amountBN.toFixed(), apyBN.toFixed())
       addTransaction(response, { summary: `Buy Bond with ${typedValue} USDC`, vest: { hash: response.hash } })
       setPendingTxHash(response.hash)
       setAwaitingConfirmation(false)
@@ -135,7 +137,7 @@ export default function Buy() {
       setAwaitingConfirmation(false)
       setPendingTxHash('')
     }
-  }, [typedValue, amountBN, INSUFFICIENT_BALANCE, veDEUSContract, addTransaction])
+  }, [typedValue, amountBN, INSUFFICIENT_BALANCE, bondContract, addTransaction])
 
   const onReturnClick = useCallback(() => {
     router.push('/bonds')

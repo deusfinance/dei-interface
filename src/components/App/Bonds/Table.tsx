@@ -6,14 +6,14 @@ import localizedFormat from 'dayjs/plugin/localizedFormat'
 import utc from 'dayjs/plugin/utc'
 
 import { useBondsContract } from 'hooks/useContract'
-import { useHasPendingVest, useTransactionAdder } from 'state/transactions/hooks'
+import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
+import { formatAmount } from 'utils/numbers'
 
 import Pagination from 'components/Pagination'
 import Column from 'components/Column'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import { BondType } from 'hooks/useOwnedBonds'
-import { formatAmount } from 'utils/numbers'
 
 dayjs.extend(utc)
 dayjs.extend(relativeTime)
@@ -58,9 +58,9 @@ const Cell = styled.td<{
   height: 90px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    :nth-child(3),
-    :nth-child(4),
-    :nth-child(5) {
+    :nth-child(2),
+    :nth-child(3),    
+    :nth-child(4) {
       display: none;
     }
   `}
@@ -88,7 +88,6 @@ const CellDescription = styled.div`
 const itemsPerPage = 10
 export default function Table({ bonds, rewards }: { bonds: BondType[]; rewards: number[] }) {
   const [offset, setOffset] = useState(0)
-  console.log(bonds)
 
   const paginatedItems = useMemo(() => {
     return bonds.slice(offset, offset + itemsPerPage)
@@ -137,7 +136,7 @@ function TableRow({ bond, reward }: { bond: BondType; reward: number }) {
   const bondsContract = useBondsContract()
   const addTransaction = useTransactionAdder()
   const { id: bondId, endTime, apy } = bond
-  const showTransactionPending = useHasPendingVest(pendingTxHash)
+  const showTransactionPending = useIsTransactionPending(pendingTxHash)
   const lockHasEnded = useMemo(() => dayjs.utc(endTime).isBefore(dayjs.utc().subtract(10, 'seconds')), [endTime]) // subtracting 10 seconds to mitigate this from being true on page load
 
   const onClaimAndExit = useCallback(async () => {
@@ -175,7 +174,7 @@ function TableRow({ bond, reward }: { bond: BondType; reward: number }) {
 
   function getActionButton() {
     const title = lockHasEnded ? 'Claim & Exit' : 'Claim'
-    const callback = lockHasEnded ? onClaimAndExit : onClaim
+    const callback = lockHasEnded ? onClaimAndExit : reward > 0 ? onClaim : undefined
     if (awaitingClaimConfirmation || awaitingClaimAndExitConfirmation) {
       return (
         <PrimaryButton active>
@@ -190,7 +189,11 @@ function TableRow({ bond, reward }: { bond: BondType; reward: number }) {
         </PrimaryButton>
       )
     }
-    return <PrimaryButton onClick={callback}>{title}</PrimaryButton>
+    return (
+      <PrimaryButton onClick={callback} disabled={!lockHasEnded && reward == 0}>
+        {title}
+      </PrimaryButton>
+    )
   }
 
   return (
@@ -204,7 +207,7 @@ function TableRow({ bond, reward }: { bond: BondType; reward: number }) {
       <Cell>{bond.amount} USDC</Cell>
       <Cell style={{ padding: '5px 10px' }}>
         <CellWrap>
-          <CellAmount>{dayjs.utc(endTime).format('LLL')}</CellAmount>
+          <CellAmount>{dayjs.utc(endTime).format('LL')}</CellAmount>
           <CellDescription>Expires in {dayjs.utc(endTime).fromNow(true)}</CellDescription>
         </CellWrap>
       </Cell>

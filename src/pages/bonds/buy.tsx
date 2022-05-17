@@ -10,13 +10,15 @@ import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useCurrency } from 'hooks/useCurrency'
 import useRpcChangerCallback from 'hooks/useRpcChangerCallback'
+import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { useBondsContract } from 'hooks/useContract'
-import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
+import { useBondsData } from 'hooks/useBonded'
 
 import { USDC_TOKEN } from 'constants/bonds'
 import { SupportedChainId } from 'constants/chains'
 import { Bonds } from 'constants/addresses'
+import { toBN } from 'utils/numbers'
 
 import { InputBox, BondsInformation } from 'components/App/Bonds'
 import Hero, { HeroSubtext } from 'components/Hero'
@@ -94,7 +96,7 @@ export default function Buy() {
   const [pendingTxHash, setPendingTxHash] = useState('')
   const addTransaction = useTransactionAdder()
   const showTransactionPending = useIsTransactionPending(pendingTxHash)
-
+  const { apy } = useBondsData()
   const usdcCurrency = useCurrency(USDC_TOKEN.address)
   const usdcBalance = useCurrencyBalance(account ?? undefined, usdcCurrency ?? undefined)
   const bondContract = useBondsContract()
@@ -110,19 +112,17 @@ export default function Buy() {
 
   const INSUFFICIENT_BALANCE = useMemo(() => {
     if (!usdcBalance || usdcBalance.equalTo(ZERO)) return false
-    return new BigNumber(usdcBalance.toExact()).isLessThan(typedValue)
+    return toBN(usdcBalance.toExact()).isLessThan(typedValue)
   }, [usdcBalance, typedValue])
 
   const amountBN: BigNumber = useMemo(() => {
-    if (!typedValue || typedValue === '0' || !usdcCurrency) return new BigNumber('0')
-    return new BigNumber(typedValue).times(new BigNumber(10).pow(usdcCurrency.decimals))
+    if (!typedValue || typedValue === '0' || !usdcCurrency) return toBN('0')
+    return toBN(typedValue).times(toBN(10).pow(usdcCurrency.decimals))
   }, [typedValue, usdcCurrency])
 
-  //TODO: add apy from contract
   const apyBN: BigNumber = useMemo(() => {
-    // if (!typedValue || typedValue === '0' || !usdcCurrency) return new BigNumber('0')
-    return new BigNumber(35).times(new BigNumber(10).pow(16))
-  }, [])
+    return toBN(apy).times(1e16)
+  }, [apy])
 
   const onBuyBond = useCallback(async () => {
     try {
@@ -137,7 +137,7 @@ export default function Buy() {
       setAwaitingConfirmation(false)
       setPendingTxHash('')
     }
-  }, [typedValue, amountBN, INSUFFICIENT_BALANCE, bondContract, addTransaction])
+  }, [typedValue, amountBN, apyBN, INSUFFICIENT_BALANCE, bondContract, addTransaction])
 
   const onReturnClick = useCallback(() => {
     router.push('/bonds')
@@ -219,7 +219,7 @@ export default function Buy() {
       <CardWrapper>
         <InputBox currency={usdcCurrency} value={typedValue} onChange={(value: string) => setTypedValue(value)} />
         {getActionButton()}
-        <BondsInformation bondsAPY={'100'} />
+        <BondsInformation bondsAPY={apy.toString()} />
       </CardWrapper>
     )
   }

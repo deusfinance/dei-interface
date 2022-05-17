@@ -1,0 +1,58 @@
+[
+  {
+    "inputs": [],
+    "name": "getPrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lastPriceUpdate",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "minimumRequiredSignatures",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "validEpoch",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "price", "type": "uint256" },
+          { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+          { "internalType": "bytes", "name": "reqId", "type": "bytes" },
+          {
+            "components": [
+              { "internalType": "uint256", "name": "signature", "type": "uint256" },
+              { "internalType": "address", "name": "owner", "type": "address" },
+              { "internalType": "address", "name": "nonce", "type": "address" }
+            ],
+            "internalType": "struct SchnorrSign[]",
+            "name": "sigs",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct IOracle.Signature",
+        "name": "signature",
+        "type": "tuple"
+      }
+    ],
+    "name": "setPrice",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

@@ -27,7 +27,10 @@ export const BaseV1Minter: AddressMap = {
 }
 
 export const Bonds: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xC8baB432A3D9bA3E9951D897c367538109BA0E0e',
+  [SupportedChainId.FANTOM]: '0xd76c3700d1859B71CDbB2c8b770A9917041A10fd',
+}
+export const BondsOracle: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xc19Efb4c7bA36d7ECC0225946ae3A4C78364C7FB',
 }
 
 // NEEDS CHANGING

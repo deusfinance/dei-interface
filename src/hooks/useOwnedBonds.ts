@@ -33,12 +33,12 @@ export default function useOwnedBonds() {
 
   return useMemo(() => {
     if (!bondResult || !bondResult.length) return []
-
+    const bondIds = bondResult[1]
     return bondResult[0].reduce((acc: BondType[], bond: any, index: number) => {
       if (!bond || toBN(bond.duration.toString()).isZero()) return acc
 
       const bondObject: BondType = {
-        id: index, //TODO
+        id: toBN(bondIds[index].toString()).toNumber(),
         amount: toBN(bond.amount.toString()).div(1e6).toNumber(),
         apy: toBN(bond.apy.toString()).div(1e16).toNumber(),
         startTime: toBN(bond.startTime.toString()).times(1000).toNumber(),

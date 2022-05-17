@@ -4,10 +4,11 @@
       { "internalType": "address", "name": "admin", "type": "address" },
       { "internalType": "address", "name": "trusty", "type": "address" },
       { "internalType": "address", "name": "deus_", "type": "address" },
-      { "internalType": "address", "name": "dei_", "type": "address" },
-      { "internalType": "address", "name": "usdc_", "type": "address" },
+      { "internalType": "address", "name": "exitToken_", "type": "address" },
+      { "internalType": "address", "name": "entryToken_", "type": "address" },
       { "internalType": "address", "name": "nft_", "type": "address" },
       { "internalType": "address", "name": "apyCalculator_", "type": "address" },
+      { "internalType": "address", "name": "preMaturityExitCalculator_", "type": "address" },
       { "internalType": "address", "name": "oracle_", "type": "address" },
       { "internalType": "uint256", "name": "capacity_", "type": "uint256" }
     ],
@@ -16,8 +17,49 @@
   },
   {
     "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "user", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "bondAmount", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "bondId", "type": "uint256" }
+    ],
+    "name": "BuyBond",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "user", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "bondId", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "claimAmount", "type": "uint256" }
+    ],
+    "name": "Claim",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "user", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "bondAmount", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "bondId", "type": "uint256" }
+    ],
+    "name": "MaturityExitBond",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [{ "indexed": false, "internalType": "address", "name": "account", "type": "address" }],
     "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "user", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "bondAmount", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "withdrawAmount", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "bondId", "type": "uint256" }
+    ],
+    "name": "PrematureWithdraw",
     "type": "event"
   },
   {
@@ -48,6 +90,69 @@
       { "indexed": true, "internalType": "address", "name": "sender", "type": "address" }
     ],
     "name": "RoleRevoked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "oldValue", "type": "address" },
+      { "indexed": false, "internalType": "address", "name": "newValue", "type": "address" }
+    ],
+    "name": "SetApyCalculator",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "oldValue", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "newValue", "type": "uint256" }
+    ],
+    "name": "SetCap",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "oldValue", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "newValue", "type": "uint256" }
+    ],
+    "name": "SetClaimInterval",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "oldValue", "type": "address" },
+      { "indexed": false, "internalType": "address", "name": "newValue", "type": "address" }
+    ],
+    "name": "SetNft",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "oldValue", "type": "address" },
+      { "indexed": false, "internalType": "address", "name": "newValue", "type": "address" }
+    ],
+    "name": "SetOracle",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "oldValue", "type": "address" },
+      { "indexed": false, "internalType": "address", "name": "newValue", "type": "address" }
+    ],
+    "name": "SetPreMaturityExitCalculator",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "oldValue", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "newValue", "type": "uint256" }
+    ],
+    "name": "SetSoldAmount",
     "type": "event"
   },
   {
@@ -119,10 +224,11 @@
           { "internalType": "uint256", "name": "startTime", "type": "uint256" },
           { "internalType": "uint256", "name": "lastClaimTimestamp", "type": "uint256" }
         ],
-        "internalType": "struct DeiBonds.Bond[]",
+        "internalType": "struct IDeiBonds.Bond[]",
         "name": "",
         "type": "tuple[]"
-      }
+      },
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -170,23 +276,23 @@
   },
   {
     "inputs": [],
-    "name": "dei",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "deus",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "bondId", "type": "uint256" }],
-    "name": "exit",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "inputs": [],
+    "name": "entryToken",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "exitToken",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -241,6 +347,13 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "uint256", "name": "bondId", "type": "uint256" }],
+    "name": "maturityExit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "nft",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
@@ -260,6 +373,20 @@
     "name": "paused",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "preMaturityExitCalculator",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "bondId", "type": "uint256" }],
+    "name": "prematureWithdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -318,15 +445,22 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "soldBond_", "type": "uint256" }],
-    "name": "setSoldBond",
+    "inputs": [{ "internalType": "address", "name": "preMaturityExitCalculator_", "type": "address" }],
+    "name": "setPreMaturityExitCalculator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "soldAmount_", "type": "uint256" }],
+    "name": "setSoldAmount",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "soldBond",
+    "name": "soldAmount",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
@@ -339,13 +473,6 @@
     "type": "function"
   },
   { "inputs": [], "name": "unpause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  {
-    "inputs": [],
-    "name": "usdc",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
   {
     "inputs": [
       { "internalType": "address", "name": "token", "type": "address" },

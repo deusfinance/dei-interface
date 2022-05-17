@@ -11,8 +11,9 @@ import { PrimaryButton } from 'components/Button'
 import { RowEnd, RowStart } from 'components/Row'
 import useOwnedBonds from 'hooks/useOwnedBonds'
 import { useDeiMetrics } from 'state/dashboard/hooks'
-import useBonded from 'hooks/useBonded'
+import useBonded, { useBondsData } from 'hooks/useBonded'
 import { Loader } from 'components/Icons'
+import { useBondsOracle } from '../../hooks/useBonded'
 
 const Container = styled.div`
   display: flex;
@@ -72,27 +73,24 @@ const InfoRow = styled(RowStart)`
   white-space: nowrap;
 `
 
-const BalanceText = styled.div`
+const ItemValue = styled.div`
   color: ${({ theme }) => theme.yellow3};
   margin-left: 5px;
 `
 
 export default function Bonds() {
   const bonds = useOwnedBonds()
-  console.log(bonds)
-
   const { deiTotalSupply, deiCirculatingSupply } = useDeiMetrics()
-  // TODO: remove test const & useBonded parameters
-  const deusPrice = 250 * 10 ** 18
-  const { APY, rewards } = useBonded([0, 1], deusPrice)
-  const nftIds = useOwnedBonds()
-  console.log(nftIds, APY, rewards)
+  const { deusPrice } = useBondsOracle()
+  const { rewards } = useBonded(bonds, deusPrice)
+  const { apy } = useBondsData()
+  // console.log({ bonds, apy, rewards, deusPrice })
 
-  const info = [
-    { symbol: 'APY', balance: APY == 0 ? <Loader /> : `${APY}%` },
-    { symbol: 'Current Redeem Lower Band', balance: '0.374' },
-    { symbol: 'Circulating Supply', balance: formatAmount(deiCirculatingSupply) },
-    { symbol: 'Total DEI Supply', balance: formatAmount(deiTotalSupply) },
+  const bondInfo = [
+    { label: 'APY', value: apy == 0 ? '0' : `${apy}%` },
+    { label: 'Current Redeem Lower Band', value: '0.374' },
+    { label: 'Circulating Supply', value: formatAmount(deiCirculatingSupply) },
+    { label: 'Total DEI Supply', value: formatAmount(deiTotalSupply) },
   ]
 
   return (
@@ -108,21 +106,15 @@ export default function Bonds() {
           </Link>
         </UpperRow>
         <CardWrapper>
-          {info.map((item, index) => (
-            <BalanceRow symbol={item.symbol} balance={item.balance} key={index} />
+          {bondInfo.map((item, index) => (
+            <InfoRow key={index}>
+              {item.label}: <ItemValue>{item.value == '0' ? <Loader /> : item.value}</ItemValue>
+            </InfoRow>
           ))}
         </CardWrapper>
         <Table bonds={bonds} rewards={rewards} />
       </Wrapper>
       <Disclaimer />
     </Container>
-  )
-}
-
-function BalanceRow({ symbol, balance }: { symbol: string; balance: string | number | JSX.Element }) {
-  return (
-    <InfoRow>
-      {symbol}: <BalanceText>{balance}</BalanceText>
-    </InfoRow>
   )
 }

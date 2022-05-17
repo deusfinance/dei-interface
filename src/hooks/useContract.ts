@@ -23,6 +23,7 @@ import BASE_V1_GAUGE_ABI from 'constants/abi/BASE_V1_GAUGE.json'
 import BASE_V1_BRIBE_ABI from 'constants/abi/BASE_V1_BRIBE.json'
 import BASE_V1_MINTER_ABI from 'constants/abi/BASE_V1_MINTER.json'
 import BONDS_ABI from 'constants/abi/BONDS.json'
+import BONDS_ORACLE_ABI from 'constants/abi/BONDS_ORACLE.json'
 
 import { Providers } from 'constants/providers'
 import {
@@ -36,6 +37,7 @@ import {
   ZERO_ADDRESS,
   BaseV1Minter,
   Bonds,
+  BondsOracle,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -142,6 +144,11 @@ export function useBondsContract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? Bonds[chainId] : undefined), [chainId])
   return useContract(address, BONDS_ABI)
+}
+export function useBondsOracleContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? BondsOracle[chainId] : undefined), [chainId])
+  return useContract(address, BONDS_ORACLE_ABI)
 }
 
 export function getProviderOrSigner(library: any, account?: string): any {

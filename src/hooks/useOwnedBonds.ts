@@ -10,6 +10,7 @@ export type BondType = {
   apy: number
   startTime: number
   duration: number
+  endTime: number
   lastClaimTimestamp: number
 }
 
@@ -33,15 +34,16 @@ export default function useOwnedBonds() {
   return useMemo(() => {
     if (!bondResult || !bondResult.length) return []
 
-    return bondResult[0].reduce((acc: BondType[], bond: any) => {
+    return bondResult[0].reduce((acc: BondType[], bond: any, index: number) => {
       if (!bond || toBN(bond.duration.toString()).isZero()) return acc
 
       const bondObject: BondType = {
-        id: 0, //TODO
-        amount: toBN(bond.amount.toString()).toNumber(),
+        id: index, //TODO
+        amount: toBN(bond.amount.toString()).div(1e6).toNumber(),
         apy: toBN(bond.apy.toString()).div(1e16).toNumber(),
-        startTime: toBN(bond.startTime.toString()).toNumber(),
-        duration: toBN(bond.duration.toString()).toNumber(),
+        startTime: toBN(bond.startTime.toString()).times(1000).toNumber(),
+        duration: toBN(bond.duration.toString()).times(1000).toNumber(),
+        endTime: toBN(bond.startTime.toString()).plus(bond.duration.toString()).times(1000).toNumber(),
         lastClaimTimestamp: toBN(bond.lastClaimTimestamp.toString()).toNumber(),
       }
       acc.push(bondObject)

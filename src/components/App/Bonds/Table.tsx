@@ -7,12 +7,12 @@ import utc from 'dayjs/plugin/utc'
 
 import { useBondsContract } from 'hooks/useContract'
 import { useHasPendingVest, useTransactionAdder } from 'state/transactions/hooks'
-import { useVestedInformation } from 'hooks/useVested'
 
 import Pagination from 'components/Pagination'
 import Column from 'components/Column'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
+import { BondType } from 'hooks/useOwnedBonds'
 
 dayjs.extend(utc)
 dayjs.extend(relativeTime)
@@ -85,16 +85,17 @@ const CellDescription = styled.div`
 `
 
 const itemsPerPage = 10
-export default function Table({ bondIds }: { bondIds: number[] }) {
+export default function Table({ bonds }: { bonds: BondType[] }) {
   const [offset, setOffset] = useState(0)
+  console.log(bonds)
 
   const paginatedItems = useMemo(() => {
-    return bondIds.slice(offset, offset + itemsPerPage)
-  }, [bondIds, offset])
+    return bonds.slice(offset, offset + itemsPerPage)
+  }, [bonds, offset])
 
   const pageCount = useMemo(() => {
-    return Math.ceil(bondIds.length / itemsPerPage)
-  }, [bondIds])
+    return Math.ceil(bonds.length / itemsPerPage)
+  }, [bonds])
 
   const onPageChange = ({ selected }: { selected: number }) => {
     setOffset(Math.ceil(selected * itemsPerPage))
@@ -109,13 +110,14 @@ export default function Table({ bondIds }: { bondIds: number[] }) {
               <Cell>Bond ID</Cell>
               <Cell>Bond Amount</Cell>
               <Cell>Bond Expiration</Cell>
+              <Cell>APY</Cell>
               <Cell>Reward</Cell>
               <Cell>Action</Cell>
             </tr>
           </Head>
           <tbody>
             {paginatedItems.length > 0 &&
-              paginatedItems.map((bondId: number, index) => <TableRow key={index} bondId={bondId} />)}
+              paginatedItems.map((bond: BondType, index) => <TableRow key={index} bond={bond} />)}
           </tbody>
         </TableWrapper>
         {paginatedItems.length == 0 && <NoResults>No Bonds Found</NoResults>}
@@ -125,38 +127,38 @@ export default function Table({ bondIds }: { bondIds: number[] }) {
   )
 }
 
-function TableRow({ bondId }: { bondId: number }) {
+function TableRow({ bond }: { bond: BondType }) {
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState(false)
-  const [awaitingClaimAndWithdrawConfirmation, setAwaitingClaimAndWithdrawConfirmation] = useState(false)
+  const [awaitingClaimAndExitConfirmation, setAwaitingClaimExitConfirmation] = useState(false)
   const [pendingTxHash, setPendingTxHash] = useState('')
-  const { deusAmount, lockEnd } = useVestedInformation(bondId)
   const bondsContract = useBondsContract()
   const addTransaction = useTransactionAdder()
+  const { id: bondId, endTime, apy } = bond
   const showTransactionPending = useHasPendingVest(pendingTxHash)
+  const lockHasEnded = useMemo(() => dayjs.utc(endTime).isBefore(dayjs.utc().subtract(10, 'seconds')), [endTime]) // subtracting 10 seconds to mitigate this from being true on page load
+  console.log({ lockHasEnded })
 
-  const lockHasEnded = useMemo(() => dayjs.utc(lockEnd).isBefore(dayjs.utc().subtract(10, 'seconds')), [lockEnd]) // subtracting 10 seconds to mitigate this from being true on page load
-
-  const onClaimAndWithdraw = useCallback(async () => {
+  const onClaimAndExit = useCallback(async () => {
     try {
-      if (!bondsContract || !lockHasEnded) return
-      setAwaitingClaimAndWithdrawConfirmation(true)
-      const response = await bondsContract.withdraw(bondId)
+      if (!bondsContract) return
+      setAwaitingClaimExitConfirmation(true)
+      const response = await bondsContract.exit(bondId)
       addTransaction(response, {
-        summary: `Claim Reward And Withdraw #${bondId} from Bonds`,
+        summary: `Claim Reward And Exit #${bondId} from Bonds`,
         vest: { hash: response.hash },
       })
       setPendingTxHash(response.hash)
-      setAwaitingClaimAndWithdrawConfirmation(false)
+      setAwaitingClaimExitConfirmation(false)
     } catch (err) {
       console.error(err)
-      setAwaitingClaimAndWithdrawConfirmation(false)
+      setAwaitingClaimExitConfirmation(false)
       setPendingTxHash('')
     }
-  }, [bondsContract, lockHasEnded, bondId, addTransaction])
+  }, [bondsContract, bondId, addTransaction])
 
   const onClaim = useCallback(async () => {
     try {
-      if (!bondsContract || !lockHasEnded) return
+      if (!bondsContract) return
       setAwaitingClaimConfirmation(true)
       const response = await bondsContract.claim(bondId)
       addTransaction(response, { summary: `Claim Bond #${bondId} Reward`, vest: { hash: response.hash } })
@@ -167,12 +169,12 @@ function TableRow({ bondId }: { bondId: number }) {
       setAwaitingClaimConfirmation(false)
       setPendingTxHash('')
     }
-  }, [bondsContract, lockHasEnded, bondId, addTransaction])
+  }, [bondsContract, bondId, addTransaction])
 
   function getActionButton() {
-    const title = !lockHasEnded ? 'Claim & Withdraw' : 'Claim'
-    const callback = !lockHasEnded ? onClaimAndWithdraw : onClaim
-    if (awaitingClaimConfirmation || awaitingClaimAndWithdrawConfirmation) {
+    const title = lockHasEnded ? 'Claim & Exit' : 'Claim'
+    const callback = lockHasEnded ? onClaimAndExit : onClaim
+    if (awaitingClaimConfirmation || awaitingClaimAndExitConfirmation) {
       return (
         <PrimaryButton active>
           Confirming <DotFlashing style={{ marginLeft: '10px' }} />
@@ -197,14 +199,15 @@ function TableRow({ bondId }: { bondId: number }) {
           <CellDescription>Bond Id</CellDescription>
         </CellWrap>
       </Cell>
-      <Cell>{deusAmount} USDC</Cell>
+      <Cell>{bond.amount} USDC</Cell>
       <Cell style={{ padding: '5px 10px' }}>
         <CellWrap>
-          <CellAmount>{dayjs.utc(lockEnd).format('LLL')}</CellAmount>
-          <CellDescription>Expires in {dayjs.utc(lockEnd).fromNow(true)}</CellDescription>
+          <CellAmount>{dayjs.utc(endTime).format('LLL')}</CellAmount>
+          <CellDescription>Expires in {dayjs.utc(endTime).fromNow(true)}</CellDescription>
         </CellWrap>
       </Cell>
-      <Cell style={{ padding: '5px 10px' }}>150</Cell>
+      <Cell style={{ padding: '5px 10px' }}>{apy}%</Cell>
+      <Cell style={{ padding: '5px 10px' }}>150 DEUS</Cell>
       <Cell style={{ padding: '5px 10px' }}>{getActionButton()}</Cell>
     </Row>
   )

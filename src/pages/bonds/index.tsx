@@ -9,7 +9,7 @@ import Disclaimer from 'components/Disclaimer'
 import { Table } from 'components/App/Bonds'
 import { PrimaryButton } from 'components/Button'
 import { RowEnd, RowStart } from 'components/Row'
-import useOwnedBonds, { BondType } from 'hooks/useOwnedBonds'
+import useOwnedBonds from 'hooks/useOwnedBonds'
 
 const Container = styled.div`
   display: flex;
@@ -75,8 +75,8 @@ const BalanceText = styled.div`
 `
 
 export default function Bonds() {
-  const nftIds = useOwnedBonds()
-  console.log(nftIds)
+  const bonds = useOwnedBonds()
+  console.log(bonds)
 
   const info = [
     { symbol: 'APY', balance: '53%' },
@@ -102,7 +102,7 @@ export default function Bonds() {
             <BalanceRow symbol={item.symbol} balance={item.balance} key={index} />
           ))}
         </CardWrapper>
-        <Table bondIds={nftIds.map((nft: BondType) => nft.id)} />
+        <Table bonds={bonds} />
       </Wrapper>
       <Disclaimer />
     </Container>

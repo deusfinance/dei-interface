@@ -78,12 +78,12 @@ const BalanceText = styled.div`
 `
 
 export default function Bonds() {
+
   const { deiTotalSupply, deiCirculatingSupply } = useDeiMetrics()
   // TODO: remove test const & useBonded parameters
   const test = 250 * 10 ** 18
   const { APY, amounts } = useBonded([0, 1], [test.toString(), test.toString()])
   const nftIds = useOwnedBonds()
-  console.log({ APY, amounts })
   console.log(nftIds)
 
   const info = [

@@ -1,40 +1,41 @@
-// use apy (decimal)
-// array of id => res : array of result
+import { useMemo } from 'react'
+import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
+import { useSupportedChainId } from 'hooks/useSupportedChainId'
+import { useBondsContract } from 'hooks/useContract'
+import { toBN } from 'utils/numbers'
 
-import { useMemo } from "react"
-import { useSingleContractMultipleMethods } from "state/multicall/hooks"
+export default function useBonded(bondsId: number[], deusPrice: number) {
+  const isSupportedChainId = useSupportedChainId()
+  const bondsContract = useBondsContract()
 
-const getAPY = () => {}
-export default useBonded(){
-    const isSupportedChainId = useSupportedChainId()
-    const ids = []
-    // TODO
-    // const bondsContract  = 
-    const calls = useMemo(
-        () =>
-          !isSupportedChainId
-            ? []
-            : [
-                {
-                  methodName: 'APY method',
-                  callInputs: [],
-                },
-                {
-                  methodName: '',
-                  callInputs: [],
-                },
-              ],
-        [isSupportedChainId, ids]
-      )
-    
-    [
-        {methodName:"name of method for apy", callInputs:[]}
-    ]
+  const bondCalls = useMemo(
+    () =>
+      !isSupportedChainId
+        ? []
+        : [
+            {
+              methodName: 'getApy',
+              callInputs: [],
+            },
+            ...bondsId.map((id) => ({
+              methodName: 'claimableDeus',
+              callInputs: [id, toBN(deusPrice).toFixed()],
+            })),
+          ],
+    [isSupportedChainId, bondsId, deusPrice]
+  )
 
-    calls.push(ids.map(id => {methodName:"", callInputs:[id]}))
+  const [APY, ...claimableDeus] = useSingleContractMultipleMethods(bondsContract, bondCalls)
+  if (!APY.result || !claimableDeus.length) return { APY: 0, rewards: [] }
 
-    const [APY, res] = useSingleContractMultipleMethods(bondsContract, calls)
-    if(!APY || !res ) return []
+  const apyValue = APY.result.apyValue
+  const rewards = claimableDeus.map((reward) => {
+    if (reward && reward.result && reward.result.length) {
+      const deusAmount = reward.result[0]
+      return toBN(deusAmount.toString()).div(1e18).toNumber()
+    }
+    return 0
+  })
 
-    return
+  return { APY: toBN(apyValue.toString()).div(1e16).toNumber(), rewards }
 }

@@ -10,6 +10,9 @@ import { Table } from 'components/App/Bonds'
 import { PrimaryButton } from 'components/Button'
 import { RowEnd, RowStart } from 'components/Row'
 import useOwnedBonds from 'hooks/useOwnedBonds'
+import { useDeiMetrics } from 'state/dashboard/hooks'
+import useBonded from 'hooks/useBonded'
+import { Loader } from 'components/Icons'
 
 const Container = styled.div`
   display: flex;
@@ -78,11 +81,18 @@ export default function Bonds() {
   const bonds = useOwnedBonds()
   console.log(bonds)
 
+  const { deiTotalSupply, deiCirculatingSupply } = useDeiMetrics()
+  // TODO: remove test const & useBonded parameters
+  const deusPrice = 250 * 10 ** 18
+  const { APY, rewards } = useBonded([0, 1], deusPrice)
+  const nftIds = useOwnedBonds()
+  console.log(nftIds, APY, rewards)
+
   const info = [
-    { symbol: 'APY', balance: '53%' },
+    { symbol: 'APY', balance: APY == 0 ? <Loader /> : `${APY}%` },
     { symbol: 'Current Redeem Lower Band', balance: '0.374' },
-    { symbol: 'Circulating Supply', balance: formatAmount(33_040_012) },
-    { symbol: 'Total DEI Supply', balance: formatAmount(60_000_000) },
+    { symbol: 'Circulating Supply', balance: formatAmount(deiCirculatingSupply) },
+    { symbol: 'Total DEI Supply', balance: formatAmount(deiTotalSupply) },
   ]
 
   return (
@@ -102,14 +112,14 @@ export default function Bonds() {
             <BalanceRow symbol={item.symbol} balance={item.balance} key={index} />
           ))}
         </CardWrapper>
-        <Table bonds={bonds} />
+        <Table bonds={bonds} rewards={rewards} />
       </Wrapper>
       <Disclaimer />
     </Container>
   )
 }
 
-function BalanceRow({ symbol, balance }: { symbol: string; balance: string }) {
+function BalanceRow({ symbol, balance }: { symbol: string; balance: string | number | JSX.Element }) {
   return (
     <InfoRow>
       {symbol}: <BalanceText>{balance}</BalanceText>

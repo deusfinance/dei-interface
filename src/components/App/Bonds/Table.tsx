@@ -13,6 +13,7 @@ import Column from 'components/Column'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import { BondType } from 'hooks/useOwnedBonds'
+import { formatAmount } from 'utils/numbers'
 
 dayjs.extend(utc)
 dayjs.extend(relativeTime)
@@ -85,7 +86,7 @@ const CellDescription = styled.div`
 `
 
 const itemsPerPage = 10
-export default function Table({ bonds }: { bonds: BondType[] }) {
+export default function Table({ bonds, rewards }: { bonds: BondType[]; rewards: number[] }) {
   const [offset, setOffset] = useState(0)
   console.log(bonds)
 
@@ -117,7 +118,9 @@ export default function Table({ bonds }: { bonds: BondType[] }) {
           </Head>
           <tbody>
             {paginatedItems.length > 0 &&
-              paginatedItems.map((bond: BondType, index) => <TableRow key={index} bond={bond} />)}
+              paginatedItems.map((bond: BondType, index) => (
+                <TableRow key={index} bond={bond} reward={rewards[index]} />
+              ))}
           </tbody>
         </TableWrapper>
         {paginatedItems.length == 0 && <NoResults>No Bonds Found</NoResults>}
@@ -127,7 +130,7 @@ export default function Table({ bonds }: { bonds: BondType[] }) {
   )
 }
 
-function TableRow({ bond }: { bond: BondType }) {
+function TableRow({ bond, reward }: { bond: BondType; reward: number }) {
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState(false)
   const [awaitingClaimAndExitConfirmation, setAwaitingClaimExitConfirmation] = useState(false)
   const [pendingTxHash, setPendingTxHash] = useState('')
@@ -136,7 +139,6 @@ function TableRow({ bond }: { bond: BondType }) {
   const { id: bondId, endTime, apy } = bond
   const showTransactionPending = useHasPendingVest(pendingTxHash)
   const lockHasEnded = useMemo(() => dayjs.utc(endTime).isBefore(dayjs.utc().subtract(10, 'seconds')), [endTime]) // subtracting 10 seconds to mitigate this from being true on page load
-  console.log({ lockHasEnded })
 
   const onClaimAndExit = useCallback(async () => {
     try {
@@ -207,7 +209,7 @@ function TableRow({ bond }: { bond: BondType }) {
         </CellWrap>
       </Cell>
       <Cell style={{ padding: '5px 10px' }}>{apy}%</Cell>
-      <Cell style={{ padding: '5px 10px' }}>150 DEUS</Cell>
+      <Cell style={{ padding: '5px 10px' }}>{formatAmount(reward)} DEUS</Cell>
       <Cell style={{ padding: '5px 10px' }}>{getActionButton()}</Cell>
     </Row>
   )

@@ -6,6 +6,14 @@ function waitRandom(min: number, max: number): Promise<void> {
   return wait(min + Math.round(Math.random() * Math.max(0, max - min)))
 }
 
+export function autoRefresh(callback: () => void, seconds: number, instantCall = true): () => void {
+  if (instantCall) callback()
+  const interval = setInterval(() => {
+    callback()
+  }, seconds * 1000)
+  return () => clearInterval(interval)
+}
+
 /**
  * This error is thrown if the function is cancelled before completing
  */

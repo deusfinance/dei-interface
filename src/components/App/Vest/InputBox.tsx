@@ -107,7 +107,7 @@ export default function InputBox({
               alt={`${currency?.symbol} Logo`}
               round
             />
-            {currency.symbol}
+            {currency?.symbol}
           </Row>
           <Balance onClick={handleClick}>
             {balanceDisplay ? balanceDisplay : '0.00'} {currency?.symbol}

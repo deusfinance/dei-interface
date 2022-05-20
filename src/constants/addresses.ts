@@ -1,3 +1,4 @@
+import { constructSameAddressMap } from 'utils/address'
 import { SupportedChainId } from './chains'
 
 interface AddressMap {
@@ -8,6 +9,39 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export const Multicall2: AddressMap = {
   [SupportedChainId.FANTOM]: '0x22D4cF72C45F8198CfbF4B568dBdB5A85e8DC0B5',
+}
+
+/* =====================================
+                USDC ADDRESS
+===================================== */
+export const USDC_ADDRESS = {
+  [SupportedChainId.MAINNET]: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  [SupportedChainId.RINKEBY]: '0x49AC7cEDdb9464DA9274b164Cd6BA7129Da2C03E',
+  [SupportedChainId.POLYGON]: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+  [SupportedChainId.FANTOM]: '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
+  [SupportedChainId.BSC]: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+}
+
+/* =====================================
+                DEI ADDRESS
+===================================== */
+export const DEI_ADDRESS: AddressMap = {
+  ...constructSameAddressMap('0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3', [
+    SupportedChainId.MAINNET,
+    SupportedChainId.POLYGON,
+    SupportedChainId.FANTOM,
+  ]),
+}
+
+/* =====================================
+                DEUS ADDRESS
+===================================== */
+export const DEUS_ADDRESS: AddressMap = {
+  ...constructSameAddressMap('0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44', [
+    SupportedChainId.MAINNET,
+    SupportedChainId.POLYGON,
+    SupportedChainId.FANTOM,
+  ]),
 }
 
 export const veDEUS: AddressMap = {

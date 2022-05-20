@@ -22,6 +22,7 @@ import BASE_V1_VOTER_ABI from 'constants/abi/BASE_V1_VOTER.json'
 import BASE_V1_GAUGE_ABI from 'constants/abi/BASE_V1_GAUGE.json'
 import BASE_V1_BRIBE_ABI from 'constants/abi/BASE_V1_BRIBE.json'
 import BASE_V1_MINTER_ABI from 'constants/abi/BASE_V1_MINTER.json'
+import DYNAMIC_REDEEMER_ABI from 'constants/abi/DYNAMIC_REDEEMER.json'
 
 import { Providers } from 'constants/providers'
 import {
@@ -34,6 +35,7 @@ import {
   BaseV1Voter,
   ZERO_ADDRESS,
   BaseV1Minter,
+  DynamicRedeemer,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -65,6 +67,12 @@ export function useERC20Contract(tokenAddress: string | null | undefined, withSi
 
 export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
   return useContract(tokenAddress, ERC20_BYTES32_ABI, withSignerIfPossible)
+}
+
+export function useDynamicRedeemerContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? DynamicRedeemer[chainId] : undefined), [chainId])
+  return useContract(address, DYNAMIC_REDEEMER_ABI)
 }
 
 export function useGeneralLenderContract(pool: BorrowPool) {

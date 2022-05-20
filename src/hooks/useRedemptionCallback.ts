@@ -7,6 +7,8 @@ import useWeb3React from './useWeb3'
 import { useDynamicRedeemerContract } from './useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { toHex } from 'utils/hex'
+import { RedeemError } from 'utils/parseError'
+import toast from 'react-hot-toast'
 
 export enum RedeemCallbackState {
   INVALID = 'INVALID',
@@ -101,6 +103,8 @@ export default function useRedemptionCallback(
             })
             .catch((callError) => {
               console.debug('Call threw an error', call, callError)
+              // console.log(RedeemError(callError))
+              toast.error(RedeemError(callError))
               return {
                 error: new Error(callError.message), // TODO make this human readable
               }

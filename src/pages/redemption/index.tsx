@@ -1,25 +1,23 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 
+import { useCurrencyBalance } from 'state/wallet/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
+import useWeb3React from 'hooks/useWeb3'
+import { useSupportedChainId } from 'hooks/useSupportedChainId'
+import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
+import useRedemptionCallback from 'hooks/useRedemptionCallback'
+import { useRedeemAmounts, useRedeemData } from 'hooks/useRedemptionPage'
+import { tryParseAmount } from 'utils/parse'
+
 import { PrimaryButton } from 'components/Button'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Vest/InputBox'
-
-import { DEUS_ADDRESS, USDC_ADDRESS, DynamicRedeemer } from 'constants/addresses'
-import { SupportedChainId } from 'constants/chains'
-
-import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { useCurrency } from 'hooks/useCurrency'
-import useWeb3React from 'hooks/useWeb3'
-import { useWalletModalToggle } from 'state/application/hooks'
-import useRedemptionCallback from 'hooks/useRedemptionCallback'
-import { useRedeemAmounts, useRedeemData } from 'hooks/useRedemptionPage'
-import { tryParseAmount } from 'utils/parse'
-import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import { DotFlashing } from 'components/Icons'
-import { useCurrencyBalance } from 'state/wallet/hooks'
-import { DEI_TOKEN } from 'constants/borrow'
+
+import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
+import { DynamicRedeemer } from 'constants/addresses'
 
 const Container = styled.div`
   display: flex;
@@ -31,7 +29,7 @@ const Container = styled.div`
 const Wrapper = styled(Container)`
   margin: 0 auto;
   margin-top: 50px;
-  width: clamp(250px, 90%, 1200px);
+  width: clamp(250px, 90%, 500px);
 
   & > * {
     &:nth-child(1) {
@@ -58,15 +56,14 @@ export default function Redemption() {
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
 
-  const redeemPaused = false
   const deiCurrency = DEI_TOKEN
-  const usdcCurrency = useCurrency(USDC_ADDRESS[SupportedChainId.FANTOM])
-  const deusCurrency = useCurrency(DEUS_ADDRESS[SupportedChainId.FANTOM])
+  const usdcCurrency = USDC_TOKEN
+  const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
 
   const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts()
-  const result = useRedeemData()
-  console.log(result)
+  const { redeemPaused } = useRedeemData()
+  // console.log({ redeemPaused, rest })
 
   // Amount typed in either fields
   const deiAmount = useMemo(() => {
@@ -107,16 +104,16 @@ export default function Redemption() {
     console.log(redeemCallbackState, redeemCallback, redeemCallbackError)
     if (!redeemCallback) return
 
-    let error = ''
+    // let error = ''
     try {
       const txHash = await redeemCallback()
       console.log({ txHash })
     } catch (e) {
       if (e instanceof Error) {
-        error = e.message
+        // error = e.message
       } else {
         console.error(e)
-        error = 'An unknown error occurred.'
+        // error = 'An unknown error occurred.'
       }
     }
   }, [redeemCallbackState, redeemCallback, redeemCallbackError])
@@ -160,14 +157,6 @@ export default function Redemption() {
       return <PrimaryButton disabled>Insufficient {deiCurrency?.symbol} Balance</PrimaryButton>
     }
 
-    // if (loading) {
-    //   // global DEI data
-    //   return (
-    //     <PrimaryButton active>
-    //       Loading <DotFlashing style={{ marginLeft: '10px' }} />
-    //     </PrimaryButton>
-    //   )
-    // }
     return <PrimaryButton onClick={() => handleRedeem()}>Redeem DEI</PrimaryButton>
   }
 
@@ -181,6 +170,7 @@ export default function Redemption() {
         <InputBox currency={deiCurrency} value={amountIn} onChange={(value: string) => onUserInput(value)} />
         <InputBox currency={usdcCurrency} value={amountOut1} onChange={(value: string) => onUserOutput1(value)} />
         <InputBox currency={deusCurrency} value={amountOut2} onChange={(value: string) => onUserOutput2(value)} />
+        <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getActionButton()}
       </Wrapper>

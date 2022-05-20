@@ -3,6 +3,7 @@ import { Web3ReactProvider } from '@web3-react/core'
 import { ModalProvider } from 'styled-react-modal'
 import dynamic from 'next/dynamic'
 import type { AppProps } from 'next/app'
+import { Toaster } from 'react-hot-toast'
 
 import Web3ReactManager from '../components/Web3ReactManager'
 import ThemeProvider, { ThemedGlobalStyle } from '../theme'
@@ -31,6 +32,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             <ThemeProvider>
               <ThemedGlobalStyle />
               <ModalProvider backgroundComponent={ModalBackground}>
+                <Toaster position="bottom-center" />
                 <Popups />
                 <Updaters />
                 <Layout>

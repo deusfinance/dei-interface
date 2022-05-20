@@ -69,8 +69,8 @@ export function useRedeemData(): { redeemTranche: RedeemTranche; redemptionFee: 
 
     return {
       trancheId: currentTrancheValue,
-      USDRatio: toBN(data.USDRatio.toString()).toNumber(),
-      deusRatio: toBN(data.deusRatio.toString()).toNumber(),
+      USDRatio: toBN(data.USDRatio.toString()).div(1e6).toNumber(),
+      deusRatio: toBN(data.deusRatio.toString()).div(1e6).toNumber(),
       amountRemaining:
         usdTokenDecimalsValue != null ? toBN(formatUnits(data.amountRemaining, usdTokenDecimalsValue)).toNumber() : 0,
       endTime: toBN(data.endTime.toString()).times(1000).toNumber(),

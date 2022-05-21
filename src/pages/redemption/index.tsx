@@ -1,6 +1,10 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { darken } from 'polished'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
+import utc from 'dayjs/plugin/utc'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -15,9 +19,6 @@ import { PrimaryButton } from 'components/Button'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
-import { DEI_ADDRESS, USDC_ADDRESS, DEUS_ADDRESS } from 'constants/addresses'
-import { SupportedChainId } from 'constants/chains'
-import { useCurrency } from 'hooks/useCurrency'
 import { Loader } from 'components/Icons'
 import { RowBetween, RowStart } from 'components/Row'
 import { CountDown } from 'components/App/Redemption/CountDown'
@@ -25,6 +26,11 @@ import { DotFlashing } from 'components/Icons'
 
 import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
 import { DynamicRedeemer } from 'constants/addresses'
+import { formatAmount } from 'utils/numbers'
+
+dayjs.extend(utc)
+dayjs.extend(relativeTime)
+dayjs.extend(localizedFormat)
 
 const Container = styled.div`
   display: flex;
@@ -39,7 +45,7 @@ const Wrapper = styled(Container)`
   width: clamp(250px, 90%, 500px);
 
   & > * {
-    &:nth-child(2) {
+    &:nth-child(1) {
       margin-bottom: 25px;
       display: flex;
       width: 100%;
@@ -57,22 +63,24 @@ const Wrapper = styled(Container)`
   `}
 `
 
-
 // const RedemptionInfoWrapper = styled.div`
 const RedemptionInfoWrapper = styled(RowBetween)`
   // display: grid;
   // gap: 10px;
+  margin-top: 1px;
   justify-content: center;
   // grid-template-columns: auto auto auto;
   flex-wrap: nowrap;
-  overflow: hidden;
+  /* overflow: hidden; */
+  margin: auto;
   margin-bottom: 10px;
   background: ${({ theme }) => theme.bg1};
   border: 1px solid ${({ theme }) => theme.border1};
   border-radius: 2px;
   padding: 1.5rem 2rem;
+  max-width: 1300px;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
   padding: 1rem;
   display: grid;
   row-gap: 20px;
@@ -102,16 +110,13 @@ export default function Redemption() {
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
 
-    const [deusPrice, setDeusPrice] = useState(43)
-  const [deusAmount, setDeusAmount] = useState(10)
-  
   const deiCurrency = DEI_TOKEN
   const usdcCurrency = USDC_TOKEN
   const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
 
   const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts()
-  const { redeemPaused } = useRedeemData()
+  const { redeemPaused, redeemTranche } = useRedeemData()
   // console.log({ redeemPaused, rest })
 
   // Amount typed in either fields
@@ -202,18 +207,27 @@ export default function Redemption() {
       return <PrimaryButton disabled>Redeem Paused</PrimaryButton>
     }
 
+    if (Number(amountOut1) > redeemTranche.amountRemaining) {
+      return <PrimaryButton disabled>Exceeded Remaining Amount</PrimaryButton>
+    }
+
     if (insufficientBalance) {
       return <PrimaryButton disabled>Insufficient {deiCurrency?.symbol} Balance</PrimaryButton>
     }
 
     return <PrimaryButton onClick={() => handleRedeem()}>Redeem DEI</PrimaryButton>
   }
+  const now = dayjs().utc()
+  const diff = dayjs.utc(redeemTranche.endTime).diff(now)
+  const hours = dayjs.utc(diff).hour()
+  const minutes = dayjs.utc(diff).minute()
+  const seconds = dayjs.utc(diff).second()
 
   const redemptionInfo = [
-    { label: 'Deus Ratio', value: '9' },
-    { label: 'Usdc Ratio', value: '9' },
-    { label: 'Remaining Amount', value: '9' },
-    { label: 'End Time', value: <CountDown hours={0} minutes={24} seconds={5} /> },
+    { label: 'End Time', value: <CountDown hours={hours} minutes={minutes} seconds={seconds} /> },
+    { label: 'DEUS Ratio', value: redeemTranche.deusRatio },
+    { label: 'USDC Ratio', value: redeemTranche.USDRatio },
+    { label: 'Remaining USDC Amount', value: formatAmount(redeemTranche.amountRemaining) },
   ]
 
   return (
@@ -222,23 +236,23 @@ export default function Redemption() {
         <div>Redemption</div>
         <HeroSubtext>redeem your dei</HeroSubtext>
       </Hero>
+      <RedemptionInfoWrapper>
+        {redemptionInfo.map((item, index) => (
+          <InfoRow key={index}>
+            {item.label}: <ItemValue>{item.value == '0' ? <Loader /> : item.value}</ItemValue>
+          </InfoRow>
+        ))}
+      </RedemptionInfoWrapper>
       <Wrapper>
-
-        <RedemptionInfoWrapper>
-          {redemptionInfo.map((item, index) => (
-            <InfoRow key={index}>
-              {item.label}: <ItemValue>{item.value == '0' ? <Loader /> : item.value}</ItemValue>
-            </InfoRow>
-          ))}
-        </RedemptionInfoWrapper>
         <InputBox currency={deiCurrency} value={amountIn} onChange={(value: string) => onUserInput(value)} />
         <InputBox currency={usdcCurrency} value={amountOut1} onChange={(value: string) => onUserOutput1(value)} />
         <InputBox currency={deusCurrency} value={amountOut2} onChange={(value: string) => onUserOutput2(value)} />
-        <Description>{`get ${deusAmount} DEUS with ${deusPrice} price.`}</Description>
+        {amountOut2 !== '' && (
+          <Description>{`you will get ~$${Number(amountOut2).toFixed(2)} DEUS as "DEUS NFT".`}</Description>
+        )}
         <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getActionButton()}
-
       </Wrapper>
       <Disclaimer />
     </Container>

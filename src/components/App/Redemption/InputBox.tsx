@@ -12,6 +12,7 @@ import { maxAmountSpend } from 'utils/currency'
 import ImageWithFallback from 'components/ImageWithFallback'
 import Box from 'components/Box'
 import { NumericalInput } from 'components/Input'
+import { RowBetween } from '../../Row/index'
 
 const Wrapper = styled(Box)`
   justify-content: space-between;
@@ -38,10 +39,20 @@ const Row = styled.div`
   align-items: flex-start;
   gap: 10px;
   font-size: 1.5rem;
-
+  align-items: center;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     gap: 3px;
   `}
+`
+
+const SignWrap = styled(RowBetween)`
+  width: 25px;
+  height: 25px;
+  padding: 3px;
+  border-radius: 25px;
+  border: 1px solid;
+  align-items: center;
+  box-shadow: 0px 0px 4px 0px #ddd;
 `
 
 const Balance = styled(Row)`
@@ -117,14 +128,11 @@ export default function InputBox({
             </Balance>
           ) : null}
         </Column>
-        {currency?.symbol == 'DEUS' ? (
-          <DollarSign
-            color="#F3B71E"
-            fontWeight="bold"
-            style={{ marginBottom: '10px', border: '1px solid', borderStyle: 'none solid', height: '100%' }}
-          />
-        ) : (
-          ''
+
+        {currency?.symbol == 'DEUS' && (
+          <SignWrap>
+            <DollarSign color="#F3B71E" size={'20px'} />
+          </SignWrap>
         )}
         <NumericalInput
           value={value || ''}

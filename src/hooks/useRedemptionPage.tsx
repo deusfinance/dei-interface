@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react'
 import { BigNumber } from 'bignumber.js'
 import debounce from 'lodash/debounce'
-import { toBN } from 'utils/numbers'
+import { removeTrailingZeros, toBN } from 'utils/numbers'
 import { useDynamicRedeemerContract } from './useContract'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { formatUnits } from '@ethersproject/units'
@@ -113,8 +113,8 @@ export function useRedeemAmounts(): {
       const inputAmount = toBN(amount)
       const outputAmount1 = inputAmount.times(USDRatio).times(feeFactorBN)
       const outputAmount2 = inputAmount.times(deusRatio).times(feeFactorBN)
-      setAmountOut1(outputAmount1.toString())
-      setAmountOut2(outputAmount2.toString())
+      setAmountOut1(removeTrailingZeros(outputAmount1.toFixed(6)))
+      setAmountOut2(removeTrailingZeros(outputAmount2.toFixed(6)))
     }, 300),
     [USDRatio, deusRatio, feeFactorBN, trancheId]
   )
@@ -131,8 +131,8 @@ export function useRedeemAmounts(): {
       const inputAmount = outputAmount1.div(USDRatio).div(feeFactorBN)
       const outputAmount2 = inputAmount.times(deusRatio).times(feeFactorBN)
 
-      setAmountIn(inputAmount.toString())
-      setAmountOut2(outputAmount2.toString())
+      setAmountIn(removeTrailingZeros(inputAmount.toFixed(18)))
+      setAmountOut2(removeTrailingZeros(outputAmount2.toFixed(6)))
     }, 300),
     [USDRatio, deusRatio, feeFactorBN, trancheId]
   )
@@ -149,8 +149,8 @@ export function useRedeemAmounts(): {
       const inputAmount = outputAmount2.div(deusRatio).div(feeFactorBN)
       const outputAmount1 = inputAmount.times(USDRatio).times(feeFactorBN)
 
-      setAmountIn(inputAmount.toString())
-      setAmountOut1(outputAmount1.toString())
+      setAmountIn(removeTrailingZeros(inputAmount.toFixed(18)))
+      setAmountOut1(removeTrailingZeros(outputAmount1.toFixed(6)))
     }, 300),
     [USDRatio, deusRatio, feeFactorBN, trancheId]
   )

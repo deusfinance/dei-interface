@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import { Currency } from '@sushiswap/core-sdk'
 import { isMobile } from 'react-device-detect'
-import { DollarSign } from 'react-feather'
 
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import useWeb3React from 'hooks/useWeb3'
@@ -10,27 +9,21 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { maxAmountSpend } from 'utils/currency'
 
 import ImageWithFallback from 'components/ImageWithFallback'
-import Box from 'components/Box'
 import { NumericalInput } from 'components/Input'
 import { RowBetween } from '../../Row/index'
 
-const Wrapper = styled(Box)`
-  justify-content: space-between;
-  align-items: flex-start;
-  height: 70px;
+const Wrapper = styled.div`
+  background: rgb(28 28 28);
+  border-radius: 15px;
+  color: ${({ theme }) => theme.text2};
+  white-space: nowrap;
+  height: 80px;
   gap: 10px;
   padding: 0.6rem;
-  align-items: center;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 0.5rem;
   `}
-`
-
-const Column = styled.div`
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
 `
 
 const Row = styled.div`
@@ -45,16 +38,6 @@ const Row = styled.div`
   `}
 `
 
-const SignWrap = styled(RowBetween)`
-  width: 25px;
-  height: 25px;
-  padding: 3px;
-  border-radius: 25px;
-  border: 1px solid;
-  align-items: center;
-  box-shadow: 0px 0px 4px 0px #ddd;
-`
-
 const Balance = styled(Row)`
   font-size: 0.7rem;
   text-align: center;
@@ -64,7 +47,7 @@ const Balance = styled(Row)`
   color: ${({ theme }) => theme.text2};
 
   & > span {
-    background: ${({ theme }) => theme.secondary1};
+    background: ${({ theme }) => theme.bg2};
     border-radius: 6px;
     padding: 2px 4px;
     font-size: 0.5rem;
@@ -85,10 +68,12 @@ export default function InputBox({
   currency,
   value,
   onChange,
+  title,
 }: {
   currency: Currency
   value: string
   onChange(values: string): void
+  title: string
 }) {
   const { account } = useWeb3React()
   const logo = useCurrencyLogo(currency?.wrapped.address)
@@ -104,14 +89,30 @@ export default function InputBox({
   }, [balanceExact, onChange])
 
   function getImageSize() {
-    return isMobile ? 25 : 40
+    return isMobile ? 22 : 30
   }
 
   return (
     <>
       <Wrapper>
-        <Column>
-          <Row>
+        <RowBetween alignItems={'center'}>
+          <div style={{ fontSize: '0.75rem' }}>{title}</div>
+          {currency?.symbol != 'DEUS' ? (
+            <Balance onClick={handleClick}>
+              {balanceDisplay ? balanceDisplay : '0.00'}
+              <span>MAX</span>
+            </Balance>
+          ) : null}
+        </RowBetween>
+        <RowBetween>
+          <NumericalInput
+            value={value || ''}
+            onUserInput={onChange}
+            placeholder="0.0"
+            autoFocus
+            style={{ textAlign: 'left', height: '50px', fontSize: '1.3rem' }}
+          />
+          <Row style={{ width: currency?.symbol != 'DEI' ? '110px' : 'unset' }}>
             <ImageWithFallback
               src={logo}
               width={getImageSize()}
@@ -119,28 +120,12 @@ export default function InputBox({
               alt={`${currency?.symbol} Logo`}
               round
             />
-            {currency?.symbol}
+            <p style={{ marginLeft: '5px', fontSize: '1.5rem', color: '#ccc' }}>
+              {currency?.symbol == 'DEUS' && 'v'}
+              {currency?.symbol}
+            </p>
           </Row>
-          {currency?.symbol != 'DEUS' ? (
-            <Balance onClick={handleClick}>
-              {balanceDisplay ? balanceDisplay : '0.00'} {currency?.symbol}
-              <span>MAX</span>
-            </Balance>
-          ) : null}
-        </Column>
-
-        {currency?.symbol == 'DEUS' && (
-          <SignWrap>
-            <DollarSign color="#F3B71E" size={'20px'} />
-          </SignWrap>
-        )}
-        <NumericalInput
-          value={value || ''}
-          onUserInput={onChange}
-          placeholder="Enter an amount"
-          autoFocus
-          style={{ textAlign: 'right', height: '50px', fontSize: '1.3rem' }}
-        />
+        </RowBetween>
       </Wrapper>
     </>
   )

@@ -281,10 +281,10 @@ export default function Redemption() {
 
       <RedeemInfoWrapper>
         <RowStart>
-          DEUS Ratio:<ItemValue>{redeemTranche.trancheId == null ? <Loader /> : redeemTranche.deusRatio}</ItemValue>
+          USDC Ratio:<ItemValue>{redeemTranche.trancheId == null ? <Loader /> : redeemTranche.USDRatio}</ItemValue>
         </RowStart>
         <RowEnd>
-          USDC Ratio:<ItemValue>{redeemTranche.trancheId == null ? <Loader /> : redeemTranche.USDRatio}</ItemValue>
+          DEUS Ratio:<ItemValue>{redeemTranche.trancheId == null ? <Loader /> : redeemTranche.deusRatio}</ItemValue>
         </RowEnd>
       </RedeemInfoWrapper>
       <RedeemInfoWrapper>

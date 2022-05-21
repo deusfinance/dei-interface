@@ -1,4 +1,10 @@
 import { useState, useEffect } from 'react'
+import styled from 'styled-components'
+
+const CountDownText = styled.p`
+  color: ${({ theme }) => theme.yellow3};
+  margin-left: 5px;
+`
 
 export const CountDown = ({
   hours,
@@ -19,6 +25,9 @@ export const CountDown = ({
     const timer = setInterval(() => tick(), 1000)
     return () => clearInterval(timer)
   })
+  useEffect(() => {
+    setTime({ hours, minutes, seconds })
+  }, [hours, minutes, seconds])
   const tick = () => {
     if (time.hours === 0 && time.minutes === 0 && time.seconds === 0) {
       setOver(true)
@@ -43,10 +52,8 @@ export const CountDown = ({
     }
   }
   return (
-    <>
-      <p>{`${time.hours.toString().padStart(2, '0')} : ${time.minutes.toString().padStart(2, '0')} : ${time.seconds
-        .toString()
-        .padStart(2, '0')}`}</p>
-    </>
+    <CountDownText>{`${time.hours.toString().padStart(2, '0')} : ${time.minutes
+      .toString()
+      .padStart(2, '0')} : ${time.seconds.toString().padStart(2, '0')}`}</CountDownText>
   )
 }

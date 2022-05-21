@@ -76,6 +76,14 @@ export default function Menu() {
       </NavButton>
       <div>
         <InlineModal isOpen={isOpen}>
+          <Link href="/redemption" passHref>
+            <Row active={router.route === '/redemption'}>
+              <div>Redemption</div>
+              <IconWrapper>
+                <CreditCardIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <Link href="/borrow" passHref>
             <Row active={router.route === '/borrow'}>
               <div>Borrow</div>

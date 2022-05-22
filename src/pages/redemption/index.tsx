@@ -1,10 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { darken } from 'polished'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import localizedFormat from 'dayjs/plugin/localizedFormat'
-import utc from 'dayjs/plugin/utc'
+import { ArrowDown, Plus } from 'react-feather'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -14,24 +11,17 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useRedemptionCallback from 'hooks/useRedemptionCallback'
 import { useRedeemAmounts, useRedeemData } from 'hooks/useRedemptionPage'
 import { tryParseAmount } from 'utils/parse'
+import { getRemainingTime } from 'utils/time'
 
 import { PrimaryButton } from 'components/Button'
+import { DotFlashing, Info } from 'components/Icons'
+import { Row } from 'components/Row'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
-import { Loader } from 'components/Icons'
-import { Row, RowBetween, RowEnd, RowStart } from 'components/Row'
-import { CountDown } from 'components/App/Redemption/CountDown'
-import { DotFlashing, Info } from 'components/Icons'
-
+import RedemptionInfoBox from 'components/App/Redemption/RedemptionInfoBox'
 import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
 import { DynamicRedeemer } from 'constants/addresses'
-import { formatAmount } from 'utils/numbers'
-import { ArrowDown, Plus } from 'react-feather'
-
-dayjs.extend(utc)
-dayjs.extend(relativeTime)
-dayjs.extend(localizedFormat)
 
 const Container = styled.div`
   display: flex;
@@ -57,11 +47,6 @@ const Wrapper = styled(Container)`
   }
 `
 
-const ItemValue = styled.div`
-  color: ${({ theme }) => theme.yellow3};
-  margin-left: 5px;
-`
-
 const Description = styled.div`
   font-size: 0.65rem;
   margin-left: 10px;
@@ -81,25 +66,6 @@ const RedeemButton = styled(PrimaryButton)`
   border-radius: 15px;
 `
 
-const RedeemInfoWrapper = styled(RowBetween)`
-  align-items: center;
-  margin-top: 1px;
-  height: 30px;
-  white-space: nowrap;
-  margin: auto;
-  background-color: rgb(13 13 13);
-  border: 1px solid #1c1c1c;
-  border-radius: 15px;
-  padding: 1.25rem 2rem;
-  font-size: 0.75rem;
-  max-width: 500px;
-  width: 100%;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width:90%;
-  `}
-`
-
 export default function Redemption() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -111,7 +77,7 @@ export default function Redemption() {
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
 
   const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts()
-  const { redeemPaused, redeemTranche, redemptionFee } = useRedeemData()
+  const { redeemPaused, redeemTranche } = useRedeemData()
   // console.log({ redeemPaused, rest })
 
   // Amount typed in either fields
@@ -142,6 +108,8 @@ export default function Redemption() {
     const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [deiCurrency, approvalState, amountIn])
+
+  const { diff } = getRemainingTime(redeemTranche.endTime)
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -205,8 +173,9 @@ export default function Redemption() {
     if (redeemPaused) {
       return <RedeemButton disabled>Redeem Paused</RedeemButton>
     }
+
     if (diff < 0 && redeemTranche.trancheId != null) {
-      return <RedeemButton disabled>Redeem Paused</RedeemButton>
+      return <RedeemButton disabled>Tranche Ended</RedeemButton>
     }
 
     if (Number(amountOut1) > redeemTranche.amountRemaining) {
@@ -226,11 +195,6 @@ export default function Redemption() {
 
     return <RedeemButton onClick={() => handleRedeem()}>Redeem DEI</RedeemButton>
   }
-  const now = dayjs().utc()
-  const diff = dayjs.utc(redeemTranche.endTime).diff(now)
-  const hours = dayjs.utc(diff).hour()
-  const minutes = dayjs.utc(diff).minute()
-  const seconds = dayjs.utc(diff).second()
 
   return (
     <Container>
@@ -274,32 +238,7 @@ export default function Redemption() {
         {getApproveButton()}
         {getActionButton()}
       </Wrapper>
-      <RedeemInfoWrapper>
-        <p>End Time</p>
-        {redeemTranche.trancheId == null ? <Loader /> : <CountDown hours={hours} minutes={minutes} seconds={seconds} />}
-      </RedeemInfoWrapper>
-
-      <RedeemInfoWrapper>
-        <RowStart>
-          USDC Ratio:<ItemValue>{redeemTranche.trancheId == null ? <Loader /> : redeemTranche.USDRatio}</ItemValue>
-        </RowStart>
-        <RowEnd>
-          DEUS Ratio:<ItemValue>{redeemTranche.trancheId == null ? <Loader /> : redeemTranche.deusRatio}</ItemValue>
-        </RowEnd>
-      </RedeemInfoWrapper>
-      <RedeemInfoWrapper>
-        <p>Remaining USDC Amount</p>
-        {redeemTranche.trancheId == null ? (
-          <Loader />
-        ) : (
-          <ItemValue>{formatAmount(redeemTranche.amountRemaining)}</ItemValue>
-        )}
-      </RedeemInfoWrapper>
-      <RedeemInfoWrapper>
-        <p>Redemption Fee</p>
-        {redeemTranche.trancheId == null ? <Loader /> : <ItemValue>{redemptionFee || 'Zero'}</ItemValue>}
-      </RedeemInfoWrapper>
-
+      <RedemptionInfoBox />
       <Disclaimer />
     </Container>
   )

@@ -35,14 +35,19 @@ const ItemValue = styled.div`
 
 export default function RedemptionInfoBox() {
   const { redeemTranche, redemptionFee } = useRedeemData()
-  const { hours, minutes, seconds } = getRemainingTime(redeemTranche.endTime)
+  const { diff, hours, minutes, seconds } = getRemainingTime(redeemTranche.endTime)
   const showLoader = redeemTranche.trancheId == null ? true : false
-
   return (
     <>
       <RedeemInfoWrapper>
-        <p>End Time</p>
-        {showLoader ? <Loader /> : <CountDown hours={hours} minutes={minutes} seconds={seconds} />}
+        <RowStart>End Time</RowStart>
+        {showLoader ? (
+          <Loader />
+        ) : diff < 0 ? (
+          <ItemValue>Ended</ItemValue>
+        ) : (
+          <CountDown hours={hours} minutes={minutes} seconds={seconds} />
+        )}
       </RedeemInfoWrapper>
 
       <RedeemInfoWrapper>

@@ -1,14 +1,14 @@
 import { useCallback, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Currency, CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core-sdk'
-import { useTransactionAdder } from 'state/transactions/hooks'
+import toast from 'react-hot-toast'
 
-import useWeb3React from './useWeb3'
-import { useDynamicRedeemerContract } from './useContract'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import useWeb3React from 'hooks/useWeb3'
+import { useDynamicRedeemerContract } from 'hooks/useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { toHex } from 'utils/hex'
-import { RedeemError } from 'utils/parseError'
-import toast from 'react-hot-toast'
+import { DefaultHandlerError } from 'utils/parseError'
 
 export enum RedeemCallbackState {
   INVALID = 'INVALID',
@@ -52,7 +52,7 @@ export default function useRedemptionCallback(
   }, [account, library, dynamicRedeemer, deiAmount])
 
   return useMemo(() => {
-    if (!account || !chainId || !library || !dynamicRedeemer || !usdcCurrency || !deiCurrency) {
+    if (!account || !chainId || !library || !dynamicRedeemer || !usdcCurrency || !deiCurrency || !deiAmount) {
       return {
         state: RedeemCallbackState.INVALID,
         callback: null,
@@ -103,8 +103,7 @@ export default function useRedemptionCallback(
             })
             .catch((callError) => {
               console.debug('Call threw an error', call, callError)
-              // console.log(RedeemError(callError))
-              toast.error(RedeemError(callError))
+              toast.error(DefaultHandlerError(callError))
               return {
                 error: new Error(callError.message), // TODO make this human readable
               }

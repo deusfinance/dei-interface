@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Currency, CurrencyAmount, NativeCurrency, Token, ZERO } from '@sushiswap/core-sdk'
 import BigNumber from 'bignumber.js'
+import toast from 'react-hot-toast'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { BorrowAction, BorrowPool, LenderVersion, TypedField } from 'state/borrow/reducer'
@@ -12,6 +13,7 @@ import useWeb3React from './useWeb3'
 import { useGeneralLenderContract } from './useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { toHex } from 'utils/hex'
+import { DefaultHandlerError } from 'utils/parseError'
 
 export enum BorrowCallbackState {
   INVALID = 'INVALID',
@@ -167,6 +169,8 @@ export default function useBorrowCallback(
             })
             .catch((callError) => {
               console.debug('Call threw an error', call, callError)
+              toast.error(DefaultHandlerError(callError))
+
               return {
                 error: new Error(callError.message), // TODO make this human readable
               }

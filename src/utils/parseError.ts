@@ -12,19 +12,9 @@ function getErrorState(error: any): string | undefined {
   return reason
 }
 
-export function RedeemError(error: any): string | null {
+export function DefaultHandlerError(error: any): string | null {
   const reason = getErrorState(error)
-
-  switch (reason) {
-    case 'ds-math-sub-underflow':
-      return 'Your input amount is very high. Try decreasing your input amount.'
-    default:
-      if (reason?.indexOf('undefined is not an object') !== -1) {
-        console.error(error, reason)
-        return `An error occurred when trying to execute this swap. You may need to increase your slippage tolerance. If that does not work, there may be an incompatibility with the token you are trading. Note fee on transfer and rebase tokens are incompatible with Uniswap V3.`
-      }
-      return `${reason ? `"${reason}"` : ''}.`
-  }
+  return `${reason ? `"${reason}"` : ''}.`
 }
 
 //TODO: get All error and make a readable message here

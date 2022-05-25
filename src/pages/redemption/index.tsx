@@ -6,12 +6,12 @@ import { ArrowDown, Plus } from 'react-feather'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
+import useDebounce from 'hooks/useDebounce'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useRedemptionCallback from 'hooks/useRedemptionCallback'
-import { useRedeemAmounts, useRedeemData } from 'hooks/useRedemptionPage'
+import { useRedeemAmountsOut, useRedeemData } from 'hooks/useRedemptionPage'
 import { tryParseAmount } from 'utils/parse'
-import { getRemainingTime } from 'utils/time'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing, Info } from 'components/Icons'
@@ -35,16 +35,16 @@ const Wrapper = styled(Container)`
   margin: 0 auto;
   margin-top: 50px;
   width: clamp(250px, 90%, 500px);
-  background-color:rgb(13 13 13);
-  padding:20px 15px;
-  border: 1px solid rgb(0,0,0); 
+  background-color: rgb(13 13 13);
+  padding: 20px 15px;
+  border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
-  justify-content:center;
-
+  justify-content: center;
 
   & > * {
     &:nth-child(2) {
       margin: 15px auto;
+    }
   }
 `
 
@@ -71,13 +71,15 @@ export default function Redemption() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
-
+  const [amountIn, setAmountIn] = useState('')
+  const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
   const usdcCurrency = USDC_TOKEN
   const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
 
-  const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts()
+  /* const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts() */
+  const { amountOut1, amountOut2 } = useRedeemAmountsOut(debouncedAmountIn, deiCurrency)
   const { redeemPaused, redeemTranche } = useRedeemData()
   // console.log({ redeemPaused, rest })
 
@@ -110,7 +112,7 @@ export default function Redemption() {
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [deiCurrency, approvalState, amountIn])
 
-  const { diff } = getRemainingTime(redeemTranche.endTime)
+  // const { diff } = getRemainingTime(redeemTranche.endTime)
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -175,9 +177,9 @@ export default function Redemption() {
       return <RedeemButton disabled>Redeem Paused</RedeemButton>
     }
 
-    if (diff < 0 && redeemTranche.trancheId != null) {
-      return <RedeemButton disabled>Tranche Ended</RedeemButton>
-    }
+    // if (diff < 0 && redeemTranche.trancheId != null) {
+    //   return <RedeemButton disabled>Tranche Ended</RedeemButton>
+    // }
 
     if (Number(amountOut1) > redeemTranche.amountRemaining) {
       return <RedeemButton disabled>Exceeds Available Amount</RedeemButton>
@@ -207,7 +209,7 @@ export default function Redemption() {
         <InputBox
           currency={deiCurrency}
           value={amountIn}
-          onChange={(value: string) => onUserInput(value)}
+          onChange={(value: string) => setAmountIn(value)}
           title={'From'}
         />
         <ArrowDown />
@@ -215,15 +217,17 @@ export default function Redemption() {
         <InputBox
           currency={usdcCurrency}
           value={amountOut1}
-          onChange={(value: string) => onUserOutput1(value)}
+          onChange={(value: string) => console.log(value)}
           title={'To'}
+          disabled={true}
         />
         <PlusIcon size={'30px'} />
         <InputBox
           currency={deusCurrency}
           value={amountOut2}
-          onChange={(value: string) => onUserOutput2(value)}
+          onChange={(value: string) => console.log(value)}
           title={'To ($)'}
+          disabled={true}
         />
         {
           <Row mt={'8px'}>

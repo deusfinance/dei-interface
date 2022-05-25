@@ -22,6 +22,7 @@ import InputBox from 'components/App/Redemption/InputBox'
 import RedemptionInfoBox from 'components/App/Redemption/RedemptionInfoBox'
 import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
 import { DynamicRedeemer } from 'constants/addresses'
+import { ExternalLink } from 'components/Link'
 
 const Container = styled.div`
   display: flex;
@@ -229,8 +230,14 @@ export default function Redemption() {
             {/* <ToolTip id="id" /> */}
             <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
             <Description>
-              you will get an NFT {`"DEUS voucher"`} that will let <br /> you claim DEUS worth $
-              {Number(amountOut2).toFixed(2)}
+              you will get an NFT {`"DEUS voucher"`} that will let you {` `}
+              <ExternalLink
+                style={{ textDecoration: 'underline' }}
+                href="https://discord.com/channels/746652484382228480/895295996672745502/977997313131831336"
+              >
+                claim DEUS later
+              </ExternalLink>
+              .
             </Description>
           </Row>
         }

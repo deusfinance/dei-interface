@@ -15,11 +15,21 @@ export function getDurationSeconds(targetDate: Date, ROUND_MODE: RoundMode): num
   return ROUND_MODE === RoundMode.ROUND_DOWN ? Math.floor(result) : Math.ceil(result)
 }
 
-export function getRemainingTime(timeStamp: number): { diff: number; hours: number; minutes: number; seconds: number } {
+export function getRemainingTime(timeStamp: number): {
+  diff: number
+  day: number
+  hours: number
+  minutes: number
+  seconds: number
+} {
   const now = dayjs().utc()
-  const diff = dayjs.utc(timeStamp).diff(now)
+  const endTime = dayjs.utc(timeStamp)
+  const diff = endTime.diff(now)
+
+  const day = endTime.diff(now, 'day')
   const hours = dayjs.utc(diff).hour()
   const minutes = dayjs.utc(diff).minute()
   const seconds = dayjs.utc(diff).second()
-  return { diff, hours, minutes, seconds }
+
+  return { diff, day, hours, minutes, seconds }
 }

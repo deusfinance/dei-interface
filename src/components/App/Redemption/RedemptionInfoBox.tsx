@@ -15,7 +15,7 @@ const RedeemInfoWrapper = styled(RowBetween)`
   height: 30px;
   white-space: nowrap;
   margin: auto;
-  background-color: rgb(13 13 13);
+  background-color: #0d0d0d;
   border: 1px solid #1c1c1c;
   border-radius: 15px;
   padding: 1.25rem 2rem;
@@ -35,8 +35,11 @@ const ItemValue = styled.div`
 
 export default function RedemptionInfoBox() {
   const { redeemTranche, redemptionFee } = useRedeemData()
-  const { diff, hours, minutes, seconds } = getRemainingTime(redeemTranche.endTime)
+  const { diff, day, hours, minutes, seconds } = getRemainingTime(redeemTranche.endTime)
+
   const showLoader = redeemTranche.trancheId == null ? true : false
+  const roundedDays = day + (hours > 12 ? 1 : 0) //adds 1 more day if remained hours is above 12 hours.
+
   return (
     <>
       <RedeemInfoWrapper>
@@ -45,6 +48,8 @@ export default function RedemptionInfoBox() {
           <Loader />
         ) : diff < 0 ? (
           <ItemValue>Ended</ItemValue>
+        ) : day > 0 ? (
+          <ItemValue>{`~ ${roundedDays} day${roundedDays > 1 ? 's' : ''}`}</ItemValue>
         ) : (
           <CountDown hours={hours} minutes={minutes} seconds={seconds} />
         )}

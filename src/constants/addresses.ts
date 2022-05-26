@@ -45,7 +45,7 @@ export const DEUS_ADDRESS: AddressMap = {
 }
 
 export const DynamicRedeemer: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xb84Ef95CcE9A4aBA7A061b63a78F86975a7dE695',
+  [SupportedChainId.FANTOM]: '0xFD74E924dc96c72Ba52439e28CE780908A630D13',
 }
 export const veDEUS: AddressMap = {
   [SupportedChainId.FANTOM]: '0x8b42c6cb07c8dd5fe5db3ac03693867afd11353d',

@@ -49,7 +49,8 @@ const Wrapper = styled(Container)`
 `
 
 const Description = styled.div`
-  font-size: 0.65rem;
+  font-size: 0.85rem;
+  line-height: 1.25rem;
   margin-left: 10px;
   color: ${({ theme }) => darken(0.4, theme.text1)};
 `
@@ -237,7 +238,7 @@ export default function Redemption() {
               you will get an NFT {`"DEUS voucher"`} that will let you {` `}
               <ExternalLink
                 style={{ textDecoration: 'underline' }}
-                href="https://discord.com/channels/746652484382228480/895295996672745502/977997313131831336"
+                href="https://lafayettetabor.medium.com/dynamic-redemption-tranches-fedc69df4e3"
               >
                 claim DEUS later
               </ExternalLink>

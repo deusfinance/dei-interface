@@ -2,11 +2,11 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { useRedeemData } from 'hooks/useRedemptionPage'
-import { formatAmount } from 'utils/numbers'
-import { getRemainingTime } from 'utils/time'
+// import { formatAmount } from 'utils/numbers'
+// import { getRemainingTime } from 'utils/time'
 
 import { RowBetween, RowEnd, RowStart } from 'components/Row'
-import { CountDown } from 'components/App/Redemption/CountDown'
+// import { CountDown } from 'components/App/Redemption/CountDown'
 import { Loader } from 'components/Icons'
 
 const RedeemInfoWrapper = styled(RowBetween)`
@@ -34,15 +34,15 @@ const ItemValue = styled.div`
 `
 
 export default function RedemptionInfoBox() {
-  const { redeemTranche, redemptionFee } = useRedeemData()
-  const { diff, day, hours, minutes, seconds } = getRemainingTime(redeemTranche.endTime)
+  const { redeemTranche } = useRedeemData()
+  // const { diff, day, hours, minutes, seconds } = getRemainingTime(redeemTranche.endTime)
 
   const showLoader = redeemTranche.trancheId == null ? true : false
-  const roundedDays = day + (hours > 12 ? 1 : 0) //adds 1 more day if remained hours is above 12 hours.
+  // const roundedDays = day + (hours > 12 ? 1 : 0) //adds 1 more day if remained hours is above 12 hours.
 
   return (
     <>
-      <RedeemInfoWrapper>
+      {/* <RedeemInfoWrapper>
         <RowStart>End Time</RowStart>
         {showLoader ? (
           <Loader />
@@ -53,7 +53,7 @@ export default function RedemptionInfoBox() {
         ) : (
           <CountDown hours={hours} minutes={minutes} seconds={seconds} />
         )}
-      </RedeemInfoWrapper>
+      </RedeemInfoWrapper> */}
 
       <RedeemInfoWrapper>
         <RowStart>
@@ -63,14 +63,14 @@ export default function RedemptionInfoBox() {
           DEUS Ratio:<ItemValue>{showLoader ? <Loader /> : redeemTranche.deusRatio}</ItemValue>
         </RowEnd>
       </RedeemInfoWrapper>
-      <RedeemInfoWrapper>
+      {/* <RedeemInfoWrapper>
         <p>Remaining USDC Amount</p>
         {showLoader ? <Loader /> : <ItemValue>{formatAmount(redeemTranche.amountRemaining)}</ItemValue>}
-      </RedeemInfoWrapper>
-      <RedeemInfoWrapper>
+      </RedeemInfoWrapper> */}
+      {/* <RedeemInfoWrapper>
         <p>Redemption Fee</p>
         {showLoader ? <Loader /> : <ItemValue>{redemptionFee || 'Zero'}</ItemValue>}
-      </RedeemInfoWrapper>
+      </RedeemInfoWrapper> */}
     </>
   )
 }

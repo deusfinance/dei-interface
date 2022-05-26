@@ -69,11 +69,13 @@ export default function InputBox({
   value,
   onChange,
   title,
+  disabled,
 }: {
   currency: Currency
   value: string
   onChange(values: string): void
   title: string
+  disabled?: boolean
 }) {
   const { account } = useWeb3React()
   const logo = useCurrencyLogo(currency?.wrapped.address)
@@ -110,6 +112,7 @@ export default function InputBox({
             onUserInput={onChange}
             placeholder="0.0"
             autoFocus
+            disabled={disabled}
             style={{ textAlign: 'left', height: '50px', fontSize: '1.3rem' }}
           />
           <Row style={{ width: currency?.symbol != 'DEI' ? '110px' : 'unset' }}>

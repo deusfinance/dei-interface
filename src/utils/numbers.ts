@@ -43,6 +43,7 @@ export function toBN(num: BigNumber.Value): BigNumber {
 
 export const BN_ZERO: BigNumber = toBN('0')
 export const BN_ONE: BigNumber = toBN('1')
+export const BN_TEN: BigNumber = toBN('10')
 
 export function removeTrailingZeros(str: string): string {
   return str.replace(/\.?0+$/, '')

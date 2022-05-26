@@ -1,10 +1,12 @@
 import { useState, useCallback, useMemo } from 'react'
+import { Token } from '@sushiswap/core-sdk'
 import { BigNumber } from 'bignumber.js'
-import debounce from 'lodash/debounce'
-import { removeTrailingZeros, toBN } from 'utils/numbers'
-import { useDynamicRedeemerContract } from './useContract'
-import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { formatUnits } from '@ethersproject/units'
+import debounce from 'lodash/debounce'
+
+import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
+import { BN_TEN, removeTrailingZeros, toBN } from 'utils/numbers'
+import { useDynamicRedeemerContract } from 'hooks/useContract'
 
 export type RedeemTranche = {
   trancheId: number | null
@@ -57,25 +59,32 @@ export function useRedeemData(): { redeemTranche: RedeemTranche; redemptionFee: 
             methodName: 'tranches',
             callInputs: [currentTrancheValue],
           },
+          {
+            methodName: 'usdRedeemPerDEI',
+            callInputs: [],
+          },
+          {
+            methodName: 'deusRedeemPerDEI',
+            callInputs: [],
+          },
         ]
       : []
 
-  const [result] = useSingleContractMultipleMethods(contract, trancheDetailsCall)
+  const [result, ...ratios] = useSingleContractMultipleMethods(contract, trancheDetailsCall)
 
   const redeemTranche: RedeemTranche = useMemo(() => {
-    if (!result || !result.result || !result.result?.length)
+    if (!result || !result.result || !result.result?.length || !ratios || !ratios.length)
       return { trancheId: null, USDRatio: 0, deusRatio: 0, amountRemaining: 0, endTime: 0 }
     const data = result.result
-
     return {
       trancheId: currentTrancheValue,
-      USDRatio: toBN(data.USDRatio.toString()).div(1e6).toNumber(),
-      deusRatio: toBN(data.deusRatio.toString()).div(1e6).toNumber(),
+      USDRatio: ratios[0].result ? toBN(ratios[0].result[0].toString()).div(1e6).toNumber() : 0,
+      deusRatio: ratios[1].result ? toBN(ratios[1].result[0].toString()).div(1e6).toNumber() : 0,
       amountRemaining:
         usdTokenDecimalsValue != null ? toBN(formatUnits(data.amountRemaining, usdTokenDecimalsValue)).toNumber() : 0,
       endTime: toBN(data.endTime.toString()).times(1000).toNumber(),
     } as RedeemTranche
-  }, [result, currentTrancheValue, usdTokenDecimalsValue])
+  }, [result, ratios, currentTrancheValue, usdTokenDecimalsValue])
   return { redeemTranche, redemptionFee: redemptionFeeValue, redeemPaused: redeemPausedValue }
 }
 
@@ -105,11 +114,6 @@ export function useRedeemAmounts(): {
         setAmountOut2('')
         return
       }
-      //   if (deiStatus == DeiStatus.ERROR) {
-      //     toast.error('Missing dependencies from oracle.')
-      //     return
-      //   }
-
       const inputAmount = toBN(amount)
       const outputAmount1 = inputAmount.times(USDRatio).times(feeFactorBN)
       const outputAmount2 = inputAmount.times(deusRatio).times(feeFactorBN)
@@ -175,5 +179,46 @@ export function useRedeemAmounts(): {
     onUserInput,
     onUserOutput1,
     onUserOutput2,
+  }
+}
+
+export function useRedeemAmountsOut(
+  amountIn: string,
+  tokenIn: Token
+): {
+  amountOut1: string
+  amountOut2: string
+} {
+  const amountInBN = amountIn ? toBN(amountIn).times(BN_TEN.pow(tokenIn.decimals)).toFixed(0) : ''
+  const contract = useDynamicRedeemerContract()
+
+  const amountOutCall = useMemo(
+    () =>
+      !amountInBN || amountInBN == '' || amountInBN == '0'
+        ? []
+        : [
+            {
+              methodName: 'usdRedeemValue',
+              callInputs: [amountInBN],
+            },
+            {
+              methodName: 'deusRedeemValue',
+              callInputs: [amountInBN],
+            },
+          ],
+    [amountInBN]
+  )
+
+  const [usdRedeem, deusRedeem] = useSingleContractMultipleMethods(contract, amountOutCall)
+
+  const amountOut1 =
+    !usdRedeem || !usdRedeem.result ? '' : toBN(formatUnits(usdRedeem.result[0].toString(), 6)).toString()
+
+  const amountOut2 =
+    !deusRedeem || !deusRedeem.result ? '' : toBN(formatUnits(deusRedeem.result[0].toString(), 6)).toString()
+
+  return {
+    amountOut1,
+    amountOut2,
   }
 }

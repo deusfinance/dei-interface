@@ -9,6 +9,13 @@
     "type": "event"
   },
   {
+    "inputs": [],
+    "name": "DEUS_TO_USDC",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       { "internalType": "uint8", "name": "_tranche", "type": "uint8" },
       { "internalType": "uint256", "name": "_USDRatio", "type": "uint256" },
@@ -37,6 +44,13 @@
   },
   {
     "inputs": [],
+    "name": "deiBurned",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "deiToken",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
@@ -46,6 +60,20 @@
     "inputs": [],
     "name": "deusNFT",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "deusRedeemPerDEI",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+    "name": "deusRedeemValue",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -67,7 +95,8 @@
       { "internalType": "address", "name": "_deiToken", "type": "address" },
       { "internalType": "address", "name": "_usdToken", "type": "address" },
       { "internalType": "uint256", "name": "_usdTokenDecimals", "type": "uint256" },
-      { "internalType": "uint256", "name": "_redemptionFee", "type": "uint256" }
+      { "internalType": "uint256", "name": "_redemptionFee", "type": "uint256" },
+      { "internalType": "uint256", "name": "_currentTokenId", "type": "uint256" }
     ],
     "name": "initialize",
     "outputs": [],
@@ -78,6 +107,13 @@
     "inputs": [],
     "name": "owner",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "redeemAmounts",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },

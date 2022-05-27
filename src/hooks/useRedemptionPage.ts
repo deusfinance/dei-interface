@@ -16,7 +16,12 @@ export type RedeemTranche = {
   endTime: number
 }
 
-export function useRedeemData(): { redeemTranche: RedeemTranche; redemptionFee: number; redeemPaused: boolean } {
+export function useRedeemData(): {
+  redeemTranche: RedeemTranche
+  redemptionFee: number
+  deiBurned: number
+  redeemPaused: boolean
+} {
   const contract = useDynamicRedeemerContract()
   const currentTrancheCall = [
     {
@@ -35,21 +40,26 @@ export function useRedeemData(): { redeemTranche: RedeemTranche; redemptionFee: 
       methodName: 'usdTokenDecimals',
       callInputs: [],
     },
+    {
+      methodName: 'deiBurned',
+      callInputs: [],
+    },
   ]
-  const [currentTranche, redeemPaused, redemptionFee, usdTokenDecimals] = useSingleContractMultipleMethods(
+  const [currentTranche, redeemPaused, redemptionFee, usdTokenDecimals, deiBurned] = useSingleContractMultipleMethods(
     contract,
     currentTrancheCall
   )
 
   //TODO
-  const { currentTrancheValue, redeemPausedValue, redemptionFeeValue, usdTokenDecimalsValue } = useMemo(
+  const { currentTrancheValue, redeemPausedValue, redemptionFeeValue, usdTokenDecimalsValue, deiBurnedValue } = useMemo(
     () => ({
       currentTrancheValue: currentTranche?.result ? Number(currentTranche.result[0].toString()) : null,
       redeemPausedValue: redeemPaused?.result ? redeemPaused?.result[0] : false,
       redemptionFeeValue: redemptionFee?.result ? toBN(formatUnits(redemptionFee.result[0], 6)).toNumber() : 0,
       usdTokenDecimalsValue: usdTokenDecimals?.result ? Number(usdTokenDecimals.result[0].toString()) : null,
+      deiBurnedValue: deiBurned?.result ? toBN(formatUnits(deiBurned.result[0], 18)).toNumber() : 0,
     }),
-    [currentTranche, redeemPaused, redemptionFee, usdTokenDecimals]
+    [currentTranche, redeemPaused, redemptionFee, usdTokenDecimals, deiBurned]
   )
 
   const trancheDetailsCall =
@@ -85,7 +95,12 @@ export function useRedeemData(): { redeemTranche: RedeemTranche; redemptionFee: 
       endTime: toBN(data.endTime.toString()).times(1000).toNumber(),
     } as RedeemTranche
   }, [result, ratios, currentTrancheValue, usdTokenDecimalsValue])
-  return { redeemTranche, redemptionFee: redemptionFeeValue, redeemPaused: redeemPausedValue }
+  return {
+    redeemTranche,
+    redemptionFee: redemptionFeeValue,
+    deiBurned: deiBurnedValue,
+    redeemPaused: redeemPausedValue,
+  }
 }
 
 export function useRedeemAmounts(): {

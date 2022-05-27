@@ -8,6 +8,7 @@ import { useRedeemData } from 'hooks/useRedemptionPage'
 import { RowBetween, RowEnd, RowStart } from 'components/Row'
 // import { CountDown } from 'components/App/Redemption/CountDown'
 import { Loader } from 'components/Icons'
+import { formatAmount } from 'utils/numbers'
 
 const RedeemInfoWrapper = styled(RowBetween)`
   align-items: center;
@@ -34,7 +35,7 @@ const ItemValue = styled.div`
 `
 
 export default function RedemptionInfoBox() {
-  const { redeemTranche } = useRedeemData()
+  const { redeemTranche, deiBurned } = useRedeemData()
   // const { diff, day, hours, minutes, seconds } = getRemainingTime(redeemTranche.endTime)
 
   const showLoader = redeemTranche.trancheId == null ? true : false
@@ -62,6 +63,10 @@ export default function RedemptionInfoBox() {
         <RowEnd>
           DEUS Ratio:<ItemValue>{showLoader ? <Loader /> : redeemTranche.deusRatio}</ItemValue>
         </RowEnd>
+      </RedeemInfoWrapper>
+      <RedeemInfoWrapper>
+        <p>Total DEI Redeemed</p>
+        {showLoader ? <Loader /> : <ItemValue>{formatAmount(deiBurned)}</ItemValue>}
       </RedeemInfoWrapper>
       {/* <RedeemInfoWrapper>
         <p>Remaining USDC Amount</p>

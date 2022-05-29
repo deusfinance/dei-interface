@@ -13,14 +13,15 @@ export async function createTransactionCallback(
   methodName: string,
   constructCall: () =>
     | { address: string; calldata: string; value: number; error?: undefined }
-    | { address?: undefined; calldata?: undefined; value?: undefined; error: any },
+    | { address?: undefined; calldata?: undefined; value?: undefined; error: any }
+    | Promise<any>,
   addTransaction: any,
   account: undefined | null | string,
   library: any,
   summary: string
 ) {
   console.log(`on${methodName} callback`)
-  const call = constructCall()
+  const call = await constructCall()
   const { address, calldata, value } = call
   if ('error' in call) {
     console.error(call.error)

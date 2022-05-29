@@ -1,14 +1,11 @@
 import { useCallback, useMemo } from 'react'
-import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Currency, CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core-sdk'
-import toast from 'react-hot-toast'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useDynamicRedeemerContract } from 'hooks/useContract'
-import { calculateGasMargin } from 'utils/web3'
 import { toHex } from 'utils/hex'
-import { DefaultHandlerError } from 'utils/parseError'
+import { createTransactionCallback } from 'utils/web3'
 
 export enum RedeemCallbackState {
   INVALID = 'INVALID',
@@ -66,11 +63,30 @@ export default function useRedemptionCallback(
         error: 'No amount provided',
       }
     }
+    const methodName = 'Redeem'
+    const summary = `Redeem ${deiAmount?.toSignificant()} DEI for ${usdcAmount?.toSignificant()} USDC & $${deusAmount} as DEUS NFT`
 
     return {
       state: RedeemCallbackState.VALID,
       error: null,
-      callback: async function onRedeem(): Promise<string> {
+      callback: () => createTransactionCallback(methodName, constructCall, addTransaction, account, library, summary),
+    }
+  }, [
+    account,
+    chainId,
+    library,
+    addTransaction,
+    constructCall,
+    dynamicRedeemer,
+    usdcCurrency,
+    deiCurrency,
+    usdcAmount,
+    deusAmount,
+    deiAmount,
+  ])
+}
+/* 
+ callback: async function onRedeem(): Promise<string> {
         console.log('onRedeem callback')
         const call = constructCall()
         const { address, calldata, value } = call
@@ -89,8 +105,9 @@ export default function useRedemptionCallback(
           : { from: account, to: address, data: calldata, value }
 
         console.log('REDEEM TRANSACTION', { tx, value })
+        const isForceEnabled = true
 
-        const estimatedGas = await library.estimateGas(tx).catch((gasError) => {
+        let estimatedGas = await library.estimateGas(tx).catch((gasError) => {
           console.debug('Gas estimate failed, trying eth_call to extract error', call)
 
           return library
@@ -111,7 +128,11 @@ export default function useRedemptionCallback(
         })
 
         if ('error' in estimatedGas) {
-          throw new Error('Unexpected error. Could not estimate gas for this transaction.')
+          if (isForceEnabled) {
+            estimatedGas = BigNumber.from(500_000)
+          } else {
+            throw new Error('Unexpected error. Could not estimate gas for this transaction.')
+          }
         }
 
         return library
@@ -138,19 +159,4 @@ export default function useRedemptionCallback(
               throw new Error(`Transaction failed: ${error.message}`)
             }
           })
-      },
-    }
-  }, [
-    account,
-    chainId,
-    library,
-    addTransaction,
-    constructCall,
-    dynamicRedeemer,
-    usdcCurrency,
-    deiCurrency,
-    usdcAmount,
-    deusAmount,
-    deiAmount,
-  ])
-}
+      }, */

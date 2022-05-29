@@ -1,18 +1,10 @@
-import { getAddress } from '@ethersproject/address'
+import { isAddress } from 'utils/validate'
 
 export interface AddressMap {
   [chainId: number]: string
 }
 export interface DecimalMap {
   [chainId: number]: number
-}
-
-export function isAddress(value: string) {
-  try {
-    return getAddress(value)
-  } catch {
-    return false
-  }
 }
 
 export function truncateAddress(address: string, size = 4) {

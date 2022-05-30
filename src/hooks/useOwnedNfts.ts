@@ -4,7 +4,8 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useVeDeusContract } from 'hooks/useContract'
 
-const idMapping = Array.from(Array(1000).keys())
+//TODO: build an array with balanceOf(account) size
+const idMapping = Array.from(Array(100).keys())
 
 export default function useOwnedNfts(): number[] {
   const { account, chainId } = useWeb3React()

@@ -51,7 +51,7 @@ const Routes = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     & > * {
-      &:nth-child(4) {
+      &:nth-child(2) {
         display: none;
       }
     }
@@ -59,16 +59,10 @@ const Routes = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     & > * {
-      &:nth-child(3) {
-        display: none;
-      }
-    }
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    & > * {
       &:nth-child(1),
-      &:nth-child(2) {
+      &:nth-child(3),
+      &:nth-child(4)
+     {
         display: none;
       }
     }
@@ -82,11 +76,6 @@ const Items = styled.div`
   gap: 5px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    & > * {
-      &:first-child {
-        display: none;
-      }
-    }
   `}
 `
 
@@ -140,9 +129,12 @@ export default function NavBar() {
           <Link href="/vest" passHref>
             <NavLink active={router.route === '/vest'}>Vest</NavLink>
           </Link>
-          <Link href="/liquidity" passHref>
-            <NavLink active={router.route === '/liquidity'}>Liquidity</NavLink>
+          <Link href="/rewards" passHref>
+            <NavLink active={router.route === '/rewards'}>Rewards</NavLink>
           </Link>
+          {/* <Link href="/liquidity" passHref>
+            <NavLink active={router.route === '/liquidity'}>Liquidity</NavLink>
+          </Link> */}
         </Routes>
         <Items>
           <Web3Network />

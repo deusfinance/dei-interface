@@ -165,9 +165,11 @@ function TableRow({ nftId, reward }: { nftId: number; reward: number }) {
       setAwaitingConfirmation(false)
     } catch (err) {
       console.log(DefaultHandlerError(err))
-      toast.error(DefaultHandlerError(err))
       setAwaitingConfirmation(false)
       setPendingTxHash('')
+      if (err?.code === 4001) {
+        toast.error('Transaction rejected.')
+      } else toast.error(DefaultHandlerError(err))
     }
   }, [veDistContract, nftId, addTransaction])
 

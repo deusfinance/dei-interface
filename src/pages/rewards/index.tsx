@@ -10,7 +10,7 @@ import useWeb3React from 'hooks/useWeb3'
 import useDistRewards from 'hooks/useDistRewards'
 
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatAmount, formatDollarAmount } from 'utils/numbers'
 import { DefaultHandlerError } from 'utils/parseError'
 
 import Hero, { HeroSubtext } from 'components/Hero'
@@ -96,13 +96,18 @@ export default function Rewards() {
   const rewards = useDistRewards()
 
   //pass just unclaimed tokenIds to claimAll method
-  const unClaimedIds = useMemo(() => {
-    if (!nftIds.length || !rewards.length) return []
-    return rewards.reduce((acc: number[], value: number, index: number) => {
-      if (!value) return acc
-      acc.push(nftIds[index])
-      return acc
-    }, [])
+  const [unClaimedIds, totalRewards] = useMemo(() => {
+    if (!nftIds.length || !rewards.length) return [[], 0]
+    let total = 0
+    return [
+      rewards.reduce((acc: number[], value: number, index: number) => {
+        if (!value) return acc
+        acc.push(nftIds[index])
+        total += value
+        return acc
+      }, []),
+      total,
+    ]
   }, [nftIds, rewards])
 
   const onClaimAll = useCallback(async () => {
@@ -138,11 +143,15 @@ export default function Rewards() {
       )
     }
 
-    if (!unClaimedIds.length) {
+    if (!totalRewards) {
       return <PrimaryButton disabled>Claim All</PrimaryButton>
     }
 
-    return <PrimaryButton onClick={onClaimAll}>Claim All</PrimaryButton>
+    return (
+      <PrimaryButton onClick={onClaimAll}>
+        Claim All <br /> ({formatAmount(totalRewards)} veDEUS)
+      </PrimaryButton>
+    )
   }
 
   return (

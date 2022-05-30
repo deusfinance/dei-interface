@@ -4,7 +4,7 @@ function getErrorState(error: any): string | undefined {
 
   while (Boolean(error)) {
     reason = error.reason ?? error.message ?? reason
-    message = error.data.message ?? message
+    message = error.data?.message ?? message
     error = error.error ?? error.data?.originalError
   }
   reason = message ?? reason

@@ -53,7 +53,7 @@ export const veDEUS: AddressMap = {
 }
 
 export const veDist: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xf9e1B3E1b24928189939C37C7E77d3E6005710A6',
+  [SupportedChainId.FANTOM]: '0x04c8B22A312698cee2060B9593683eDA72fC1856',
 }
 
 export const BaseV1Factory: AddressMap = {

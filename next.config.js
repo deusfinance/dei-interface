@@ -1,6 +1,6 @@
 module.exports = {
   images: {
-    domains: ['raw.githubusercontent.com', 'assets.spookyswap.finance'],
+    domains: ['raw.githubusercontent.com', 'assets.spooky.fi'],
   },
   async redirects() {
     return [

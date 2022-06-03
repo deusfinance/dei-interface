@@ -20,7 +20,7 @@ export const CountDown = ({
     minutes,
     seconds,
   })
-  const [over, setOver] = useState(false)
+  const [, setOver] = useState(false)
   useEffect(() => {
     const timer = setInterval(() => tick(), 1000)
     return () => clearInterval(timer)

@@ -15,6 +15,8 @@ import {
   Github as GithubIcon,
   Lock as LockIcon,
   Droplet as DropletIcon,
+  Redeem as RedeemIcon,
+  Gift as GiftIcon,
 } from 'components/Icons'
 import { Card } from 'components/Card'
 import { NavButton } from 'components/Button'
@@ -80,7 +82,7 @@ export default function Menu() {
             <Row active={router.route === '/redemption'}>
               <div>Redemption</div>
               <IconWrapper>
-                <CreditCardIcon size={20} />
+                <RedeemIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
@@ -100,17 +102,17 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/liquidity" passHref>
-            <Row active={router.route === '/liquidity'}>
-              <div>Liquidity</div>
+          <Link href="/rewards" passHref>
+            <Row active={router.route === '/rewards'}>
+              <div>Rewards</div>
               <IconWrapper>
-                <DropletIcon size={20} />
+                <GiftIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/claim" passHref>
-            <Row active={router.route === '/claim'}>
-              <div>Claim</div>
+          <Link href="/liquidity" passHref>
+            <Row active={router.route === '/liquidity'}>
+              <div>Liquidity</div>
               <IconWrapper>
                 <DropletIcon size={20} />
               </IconWrapper>

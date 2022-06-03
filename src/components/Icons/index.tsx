@@ -9,6 +9,7 @@ export { ChevronLeft, ChevronDown, ChevronUp } from './Chevron'
 export { default as DotFlashing } from './DotFlashing'
 export { default as Droplet } from './Droplet'
 export { default as Info } from './Info'
+export { default as Gift } from './Gift'
 export { default as GreenCircle } from './GreenCircle'
 export { default as Connected } from './Connected'
 export { default as Copy } from './Copy'
@@ -24,6 +25,7 @@ export { Twitter, Telegram, Github } from './Socials'
 export { default as ThemeToggle } from './ThemeToggle'
 export { default as Trade } from './Trade'
 export { Wallet } from './Wallet'
+export { default as Redeem } from './Redeem'
 
 // for wrapping react feather icons
 export const IconWrapper = styled.div<{ stroke?: string; size?: string; marginRight?: string; marginLeft?: string }>`

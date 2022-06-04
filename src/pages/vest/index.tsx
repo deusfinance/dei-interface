@@ -3,21 +3,22 @@ import Link from 'next/link'
 import styled from 'styled-components'
 
 import useOwnedNfts from 'hooks/useOwnedNfts'
-import { useDeusPrice } from 'hooks/useCoingeckoPrice'
 import useWeb3React from 'hooks/useWeb3'
 import { useVestedAPY } from 'hooks/useVested'
+import useDistRewards from 'hooks/useDistRewards'
 
-import { formatAmount, formatDollarAmount } from 'utils/numbers'
+import { formatAmount } from 'utils/numbers'
 import { getMaximumDate } from 'utils/vest'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import { Table } from 'components/App/Vest'
 import { PrimaryButton } from 'components/Button'
-import LockManager from 'components/App/Vest/LockManager'
-import APYManager from 'components/App/Vest/APYManager'
 import { RowEnd } from 'components/Row'
 import Box from 'components/Box'
+import { Table } from 'components/App/Vest'
+import LockManager from 'components/App/Vest/LockManager'
+import APYManager from 'components/App/Vest/APYManager'
+import ClaimAll from 'components/App/Vest/ClaimAll'
 
 const Container = styled.div`
   display: flex;
@@ -59,8 +60,11 @@ const UpperRow = styled(RowEnd)`
     height: 100%;
     max-width: fit-content;
     &:first-child {
-      max-width: 200px;
+      max-width: 185px;
       margin-right: auto;
+    }
+    &:last-child {
+      max-width: 185px;
     }
 
     ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -72,8 +76,7 @@ const UpperRow = styled(RowEnd)`
       &:nth-child(3) {
         display: none;
       }
-      flex: 1;
-      max-width: none;
+
     `}
   }
 `
@@ -83,9 +86,9 @@ export default function Vest() {
   const [showLockManager, setShowLockManager] = useState(false)
   const [showAPYManager, setShowAPYManager] = useState(false)
   const [nftId, setNftId] = useState(0)
-  const nftIds = useOwnedNfts()
   const { lockedVeDEUS, globalAPY } = useVestedAPY(undefined, getMaximumDate())
-  const deusPrice = useDeusPrice()
+  const rewards = useDistRewards()
+  const nftIds = useOwnedNfts()
 
   useEffect(() => {
     setShowLockManager(false)
@@ -115,11 +118,16 @@ export default function Vest() {
           <Link href="/vest/create" passHref>
             <PrimaryButton>Create Lock</PrimaryButton>
           </Link>
-          <Box>DEUS Price: {formatDollarAmount(parseFloat(deusPrice), 2)}</Box>
           <Box>veDEUS Locked: {formatAmount(parseFloat(lockedVeDEUS), 0)}</Box>
           <Box>Max APY: {formatAmount(parseFloat(globalAPY), 0)}%</Box>
+          <ClaimAll nftIds={nftIds} rewards={rewards} />
         </UpperRow>
-        <Table nftIds={nftIds} toggleLockManager={toggleLockManager} toggleAPYManager={toggleAPYManager} />
+        <Table
+          nftIds={nftIds}
+          rewards={rewards}
+          toggleLockManager={toggleLockManager}
+          toggleAPYManager={toggleAPYManager}
+        />
       </Wrapper>
       <LockManager isOpen={showLockManager} onDismiss={() => setShowLockManager(false)} nftId={nftId} />
       <APYManager

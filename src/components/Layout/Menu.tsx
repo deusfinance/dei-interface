@@ -16,7 +16,7 @@ import {
   Lock as LockIcon,
   Droplet as DropletIcon,
   Redeem as RedeemIcon,
-  Gift as GiftIcon,
+  // Gift as GiftIcon,
 } from 'components/Icons'
 import { Card } from 'components/Card'
 import { NavButton } from 'components/Button'
@@ -102,14 +102,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/rewards" passHref>
+          {/* <Link href="/rewards" passHref>
             <Row active={router.route === '/rewards'}>
               <div>Rewards</div>
               <IconWrapper>
                 <GiftIcon size={20} />
               </IconWrapper>
             </Row>
-          </Link>
+          </Link> */}
           <Link href="/liquidity" passHref>
             <Row active={router.route === '/liquidity'}>
               <div>Liquidity</div>

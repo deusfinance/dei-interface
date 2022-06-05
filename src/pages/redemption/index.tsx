@@ -12,6 +12,7 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useRedemptionCallback from 'hooks/useRedemptionCallback'
 import { useRedeemAmountsOut, useRedeemData } from 'hooks/useRedemptionPage'
 import { tryParseAmount } from 'utils/parse'
+import { getRemainingTime } from 'utils/time'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing, Info } from 'components/Icons'
@@ -113,7 +114,7 @@ export default function Redemption() {
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [deiCurrency, approvalState, amountIn])
 
-  // const { diff } = getRemainingTime(redeemTranche.endTime)
+  const { diff } = getRemainingTime(redeemTranche.endTime)
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -178,9 +179,9 @@ export default function Redemption() {
       return <RedeemButton disabled>Redeem Paused</RedeemButton>
     }
 
-    // if (diff < 0 && redeemTranche.trancheId != null) {
-    //   return <RedeemButton disabled>Tranche Ended</RedeemButton>
-    // }
+    if (diff < 0 && redeemTranche.trancheId != null) {
+      return <RedeemButton disabled>Tranche Ended</RedeemButton>
+    }
 
     if (Number(amountOut1) > redeemTranche.amountRemaining) {
       return <RedeemButton disabled>Exceeds Available Amount</RedeemButton>

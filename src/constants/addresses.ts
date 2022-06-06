@@ -7,10 +7,6 @@ interface AddressMap {
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-export const Multicall2: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x22D4cF72C45F8198CfbF4B568dBdB5A85e8DC0B5',
-}
-
 /* =====================================
                 USDC ADDRESS
 ===================================== */
@@ -44,16 +40,12 @@ export const DEUS_ADDRESS: AddressMap = {
   ]),
 }
 
-export const DynamicRedeemer: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xFD74E924dc96c72Ba52439e28CE780908A630D13',
-}
-
 export const veDEUS: AddressMap = {
   [SupportedChainId.FANTOM]: '0x8b42c6cb07c8dd5fe5db3ac03693867afd11353d',
 }
 
-export const veDist: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x09cE8C8E2704E84750E9c1a4F54A30eF60aF0073',
+export const Multicall2: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x22D4cF72C45F8198CfbF4B568dBdB5A85e8DC0B5',
 }
 
 export const BaseV1Factory: AddressMap = {
@@ -68,26 +60,35 @@ export const BaseV1Minter: AddressMap = {
   [SupportedChainId.FANTOM]: '0xC4209c19b183e72A037b2D1Fb11fbe522054A90D',
 }
 
-// NEEDS CHANGING
 export const LenderManager: AddressMap = {
   [SupportedChainId.FANTOM]: '0xc02f204bab0248c694516dbaf985d40718ed4f86',
 }
 
-// NEEDS CHANGING
 export const SolidAddress: AddressMap = {
   [SupportedChainId.FANTOM]: '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
 }
 
-// NEEDS CHANGING
 export const Locker: AddressMap = {
   [SupportedChainId.FANTOM]: '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3',
 }
 
-// NEEDS CHANGING
 export const SolidexLpDepositor: AddressMap = {
   [SupportedChainId.FANTOM]: '0x26E1A0d851CF28E697870e1b7F053B605C8b060F',
 }
 
 export const Reimburse: AddressMap = {
   [SupportedChainId.FANTOM]: '0x85B6996ab768600C14dA1464205bd6b3a864417D',
+}
+
+export const DynamicRedeemer: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xFD74E924dc96c72Ba52439e28CE780908A630D13',
+}
+
+export const veDist: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x09cE8C8E2704E84750E9c1a4F54A30eF60aF0073',
+}
+
+//TODO: add right contract
+export const DeiBonder: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x09cE8C8E2704E84750E9c1a4F54A30eF60aF0073',
 }

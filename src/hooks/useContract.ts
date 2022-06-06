@@ -24,6 +24,7 @@ import BASE_V1_GAUGE_ABI from 'constants/abi/BASE_V1_GAUGE.json'
 import BASE_V1_BRIBE_ABI from 'constants/abi/BASE_V1_BRIBE.json'
 import BASE_V1_MINTER_ABI from 'constants/abi/BASE_V1_MINTER.json'
 import DYNAMIC_REDEEMER_ABI from 'constants/abi/DYNAMIC_REDEEMER.json'
+import DEI_BONDER_ABI from 'constants/abi/DEI_Bonder.json'
 
 import { Providers } from 'constants/providers'
 import {
@@ -37,6 +38,7 @@ import {
   ZERO_ADDRESS,
   BaseV1Minter,
   DynamicRedeemer,
+  DeiBonder,
   veDist,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
@@ -63,18 +65,41 @@ export function useContract<T extends Contract = Contract>(
   }, [addressOrAddressMap, ABI, library, chainId, withSignerIfPossible, account]) as T
 }
 
+export function getProviderOrSigner(library: any, account?: string): any {
+  return account ? getSigner(library, account) : library
+}
+
+export function getSigner(library: any, account: string): any {
+  return library.getSigner(account).connectUnchecked()
+}
+
+export function getContract(
+  address: string,
+  ABI: any,
+  library: Web3Provider,
+  account?: string,
+  targetChainId?: number
+): Contract | null {
+  if (!isAddress(address) || address === AddressZero) {
+    throw new Error(`Invalid 'address' parameter '${address}'.`)
+  }
+
+  let providerOrSigner
+  if (targetChainId) {
+    providerOrSigner = getProviderOrSigner(Providers[targetChainId], account)
+  } else {
+    providerOrSigner = getProviderOrSigner(library, account)
+  }
+
+  return new Contract(address, ABI, providerOrSigner) as any
+}
+
 export function useERC20Contract(tokenAddress: string | null | undefined, withSignerIfPossible?: boolean) {
   return useContract(tokenAddress, ERC20_ABI, withSignerIfPossible)
 }
 
 export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
   return useContract(tokenAddress, ERC20_BYTES32_ABI, withSignerIfPossible)
-}
-
-export function useDynamicRedeemerContract() {
-  const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? DynamicRedeemer[chainId] : undefined), [chainId])
-  return useContract(address, DYNAMIC_REDEEMER_ABI)
 }
 
 export function useGeneralLenderContract(pool: BorrowPool) {
@@ -152,31 +177,14 @@ export function useMulticall2Contract() {
   return useContract(address, MULTICALL2_ABI)
 }
 
-export function getProviderOrSigner(library: any, account?: string): any {
-  return account ? getSigner(library, account) : library
+export function useDynamicRedeemerContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? DynamicRedeemer[chainId] : undefined), [chainId])
+  return useContract(address, DYNAMIC_REDEEMER_ABI)
 }
 
-export function getSigner(library: any, account: string): any {
-  return library.getSigner(account).connectUnchecked()
-}
-
-export function getContract(
-  address: string,
-  ABI: any,
-  library: Web3Provider,
-  account?: string,
-  targetChainId?: number
-): Contract | null {
-  if (!isAddress(address) || address === AddressZero) {
-    throw new Error(`Invalid 'address' parameter '${address}'.`)
-  }
-
-  let providerOrSigner
-  if (targetChainId) {
-    providerOrSigner = getProviderOrSigner(Providers[targetChainId], account)
-  } else {
-    providerOrSigner = getProviderOrSigner(library, account)
-  }
-
-  return new Contract(address, ABI, providerOrSigner) as any
+export function useDeiBonderContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? DeiBonder[chainId] : undefined), [chainId])
+  return useContract(address, DEI_BONDER_ABI)
 }

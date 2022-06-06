@@ -24,12 +24,22 @@ import RedemptionInfoBox from 'components/App/Redemption/RedemptionInfoBox'
 import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
 import { DynamicRedeemer } from 'constants/addresses'
 import { ExternalLink } from 'components/Link'
+import { Navigation, NavigationTypes } from 'components/StableCoin'
 
 const Container = styled.div`
   display: flex;
   flex-flow: column nowrap;
   overflow: visible;
   margin: 0 auto;
+`
+
+const SelectorContainer = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: visible;
+  margin: 0 auto;
+  margin-top: 24px;
+  padding-right: 24px;
 `
 
 const Wrapper = styled(Container)`
@@ -47,6 +57,30 @@ const Wrapper = styled(Container)`
       margin: 15px auto;
     }
   }
+`
+
+const RedeemWrapper = styled.div`
+  -webkit-filter: blur(8px);
+  -moz-filter: blur(8px);
+  -o-filter: blur(8px);
+  -ms-filter: blur(8px);
+  filter: blur(8px);
+`
+
+const MainWrapper = styled.div`
+  position: relative;
+`
+
+const ComingSoon = styled.span`
+  position: absolute;
+  margin: 0 auto;
+  padding: 20px 15px;
+  justify-content: center;
+  top: 39%;
+  left: 43%;
+  transform: translate(0, -50%);
+  z-index: 2;
+  font-size: 21px;
 `
 
 const Description = styled.div`
@@ -79,6 +113,8 @@ export default function Redemption() {
   const usdcCurrency = USDC_TOKEN
   const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
+
+  const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.MINT)
 
   /* const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts() */
   const { amountOut1, amountOut2 } = useRedeemAmountsOut(debouncedAmountIn, deiCurrency)
@@ -207,51 +243,111 @@ export default function Redemption() {
         <div>Bonds</div>
         <HeroSubtext>buy and redeem bonds</HeroSubtext>
       </Hero>
-      <Wrapper>
-        <InputBox
-          currency={deiCurrency}
-          value={amountIn}
-          onChange={(value: string) => setAmountIn(value)}
-          title={'From'}
-        />
-        <ArrowDown />
 
-        <InputBox
-          currency={usdcCurrency}
-          value={amountOut1}
-          onChange={(value: string) => console.log(value)}
-          title={'To'}
-          disabled={true}
-        />
-        <PlusIcon size={'30px'} />
-        <InputBox
-          currency={deusCurrency}
-          value={amountOut2}
-          onChange={(value: string) => console.log(value)}
-          title={'To ($)'}
-          disabled={true}
-        />
-        {
-          <Row mt={'8px'}>
-            {/* <ToolTip id="id" /> */}
-            <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
-            <Description>
-              you will get an NFT {`"DEUS voucher"`} that will let you {` `}
-              <ExternalLink
-                style={{ textDecoration: 'underline' }}
-                href="https://lafayettetabor.medium.com/dynamic-redemption-tranches-fedc69df4e3"
-              >
-                claim DEUS later
-              </ExternalLink>
-              .
-            </Description>
-          </Row>
-        }
-        <div style={{ marginTop: '20px' }}></div>
-        {getApproveButton()}
-        {getActionButton()}
-      </Wrapper>
-      <RedemptionInfoBox />
+      <SelectorContainer>
+        <Navigation selected={selected} setSelected={setSelected} />
+      </SelectorContainer>
+
+      {(selected === NavigationTypes.MINT) && (<>
+        <Wrapper>
+          <InputBox
+            currency={deiCurrency}
+            value={amountIn}
+            onChange={(value: string) => setAmountIn(value)}
+            title={'From'}
+          />
+          <ArrowDown />
+
+          <InputBox
+            currency={usdcCurrency}
+            value={amountOut1}
+            onChange={(value: string) => console.log(value)}
+            title={'To'}
+            disabled={true}
+          />
+          <PlusIcon size={'30px'} />
+          <InputBox
+            currency={deusCurrency}
+            value={amountOut2}
+            onChange={(value: string) => console.log(value)}
+            title={'To ($)'}
+            disabled={true}
+          />
+          {
+            <Row mt={'8px'}>
+              {/* <ToolTip id="id" /> */}
+              <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
+              <Description>
+                you will get an NFT {`"DEUS voucher"`} that will let you {` `}
+                <ExternalLink
+                  style={{ textDecoration: 'underline' }}
+                  href="https://lafayettetabor.medium.com/dynamic-redemption-tranches-fedc69df4e3"
+                >
+                  claim DEUS later
+                </ExternalLink>
+                .
+              </Description>
+            </Row>
+          }
+          <div style={{ marginTop: '20px' }}></div>
+          {getApproveButton()}
+          {getActionButton()}
+        </Wrapper>
+        <RedemptionInfoBox />
+      </>)}
+
+      {(selected === NavigationTypes.REDEEM) && (<MainWrapper>
+          <ComingSoon> Coming soon... </ComingSoon>
+        <RedeemWrapper>
+          <Wrapper>
+          <InputBox
+            currency={deiCurrency}
+            value={amountIn}
+            onChange={(value: string) => setAmountIn(value)}
+            title={'From'}
+          />
+          <ArrowDown />
+
+          <InputBox
+            currency={usdcCurrency}
+            value={amountOut1}
+            onChange={(value: string) => console.log(value)}
+            title={'To'}
+            disabled={true}
+          />
+          <PlusIcon size={'30px'} />
+          <InputBox
+            currency={deusCurrency}
+            value={amountOut2}
+            onChange={(value: string) => console.log(value)}
+            title={'To ($)'}
+            disabled={true}
+          />
+          {
+            <Row mt={'8px'}>
+              {/* <ToolTip id="id" /> */}
+              <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
+              <Description>
+                you will get an NFT {`"DEUS voucher"`} that will let you {` `}
+                <ExternalLink
+                  style={{ textDecoration: 'underline' }}
+                  href="https://lafayettetabor.medium.com/dynamic-redemption-tranches-fedc69df4e3"
+                >
+                  claim DEUS later
+                </ExternalLink>
+                .
+              </Description>
+            </Row>
+          }
+          <div style={{ marginTop: '20px' }}></div>
+          {getApproveButton()}
+          {getActionButton()}
+          </Wrapper>
+          <RedemptionInfoBox />
+        </RedeemWrapper>
+      </MainWrapper>)}
+      
+      
       <Disclaimer />
     </Container>
   )

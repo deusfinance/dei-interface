@@ -40,10 +40,7 @@ export function useGetRedeemTime(amountIn: string): {
   redeemTime: number
 } {
   const contract = useDeiBonderContract()
-  console.log({ amountIn })
-
   const amountInBN = toBN(amountIn).times(1e18).toFixed()
-  console.log(amountInBN)
 
   const calls = [
     {

@@ -12,14 +12,15 @@ import useSwapCallback from 'hooks/useSwapCallback'
 import { useSwapAmountsOut } from 'hooks/useSwapPage'
 import { tryParseAmount } from 'utils/parse'
 
+import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
+import InputBox from 'components/App/Redemption/InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import InputBox from 'components/App/Redemption/InputBox'
-import { DEUS_TOKEN, USDC_TOKEN, BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
+
 import { Swap } from 'constants/addresses'
-import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
+import { BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
 
 const Container = styled.div`
   display: flex;
@@ -37,7 +38,8 @@ const Wrapper = styled(Container)`
   border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
   justify-content: center;
-
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
   & > * {
     &:nth-child(2) {
       margin: 15px auto;
@@ -58,14 +60,8 @@ export default function Redemption() {
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
-  // const usdcCurrency = USDC_TOKEN
-  // const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
-
-  /* const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts() */
   const { amountOut } = useSwapAmountsOut(debouncedAmountIn, deiCurrency)
-  // const { redeemPaused, redeemTranche } = useRedeemData()
-  // console.log({ redeemPaused, rest })
 
   // Amount typed in either fields
   const deiAmount = useMemo(() => {
@@ -163,12 +159,12 @@ export default function Redemption() {
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Swapping DEI <DotFlashing style={{ marginLeft: '10px' }} />
+          Swapping <DotFlashing style={{ marginLeft: '10px' }} />
         </RedeemButton>
       )
     }
 
-    return <RedeemButton onClick={() => handleRedeem()}>Swap DEI</RedeemButton>
+    return <RedeemButton onClick={() => handleRedeem()}>Swap</RedeemButton>
   }
 
   return (

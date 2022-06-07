@@ -7,7 +7,6 @@ export const Base = styled(RebassButton)`
   padding: ${({ padding }) => (padding ? padding : '0')};
   width: ${({ width }) => width && width};
   height: ${({ height }) => height && height};
-  font-family: Monument Grotesk;
   font-weight: 400;
   text-align: center;
   border-radius: 6px;
@@ -33,9 +32,10 @@ export const Base = styled(RebassButton)`
 `
 
 export const StyleSwapBase = css`
-  background: ${({ theme }) => theme.bg3};
-  border: 1px solid ${({ theme }) => theme.border1};
+  background-color: rgb(13 13 13);
   border-radius: 15px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
   text-align: center;
   margin: auto;
   width: 100%;
@@ -43,7 +43,6 @@ export const StyleSwapBase = css`
 `
 
 export const StyleTitles = css`
-  font-family: 'Monument Grotesk Semi';
   .inner-title {
     opacity: 0.75;
   }
@@ -76,9 +75,8 @@ export const Option = styled(Base)`
   display: inline-flex;
   height: 25px;
 
-  //   color: ${({ theme, active }) => (active ? theme.text1_2 : theme.text1)};
-  /* background: ${({ theme, bgColor, active }) =>
-    active ? (bgColor ? theme[bgColor] : theme.grad3) : theme.text1_2}; */
+  /* color: ${({ theme, active }) => (active ? theme.text3 : theme.text3)}; */
+  background: ${({ theme, active }) => (active ? theme.bg2 : theme.bg0)};
   border: ${({ active }) => active || '1px'} solid ${({ theme }) => theme.text1};
   margin: 1px;
   margin-right: 5px;
@@ -95,7 +93,7 @@ export const CustomOption = styled.div`
   font-size: 13px;
   height: 25px;
   margin: 1px;
-  border: 1px solid ${({ theme, active }) => (active ? theme.success : theme.text1)};
+  border: 1px solid ${({ theme, active }) => (active ? theme.text1 : theme.text2)};
   padding: 0 5px;
   display: inline-flex;
   justify-content: flex-end;

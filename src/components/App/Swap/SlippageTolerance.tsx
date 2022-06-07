@@ -1,9 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled, { css } from 'styled-components'
 import { Button as RebassButton } from 'rebass/styled-components'
-import { Type } from './Text'
 
-export const Base = styled(RebassButton)`
+export const Base = styled(RebassButton)<{ padding?: string; borderRadius?: string; active?: any }>`
   padding: ${({ padding }) => (padding ? padding : '0')};
   width: ${({ width }) => width && width};
   height: ${({ height }) => height && height};
@@ -72,13 +71,11 @@ const Wrapper = styled(FlexCenter)`
     left: 20px;
   }
 `
-export const Option = styled(Base)`
+export const Option = styled(Base)<{ theme?: any; active?: any; bgColor?: string }>`
   display: inline-flex;
   height: 25px;
-
-  //   color: ${({ theme, active }) => (active ? theme.text1_2 : theme.text1)};
-  /* background: ${({ theme, bgColor, active }) =>
-    active ? (bgColor ? theme[bgColor] : theme.grad3) : theme.text1_2}; */
+  color: ${({ theme, active }) => (active ? theme.text1_2 : theme.text1)};
+  background: ${({ theme, bgColor, active }) => (active ? (bgColor ? theme[bgColor] : theme.grad3) : theme.text1_2)};
   border: ${({ active }) => active || '1px'} solid ${({ theme }) => theme.text1};
   margin: 1px;
   margin-right: 5px;
@@ -86,12 +83,12 @@ export const Option = styled(Base)`
   font-size: 13px;
   transition: all 0s;
   cursor: ${({ active }) => (active ? 'default' : 'pointer')};
-  //   &:hover {
-  //     background: ${({ active, bgColor, theme }) => (active ? (bgColor ? theme[bgColor] : theme.grad3) : '#5f5f5f')};
-  //   }
+  &:hover {
+    background: ${({ active, bgColor, theme }) => (active ? (bgColor ? theme[bgColor] : theme.grad3) : '#5f5f5f')};
+  }
 `
 
-export const CustomOption = styled.div`
+export const CustomOption = styled.div<{ active?: any }>`
   font-size: 13px;
   height: 25px;
   margin: 1px;
@@ -112,7 +109,9 @@ const InputSlippage = styled.input.attrs({ type: 'number', min: 0.1 })`
   margin-right: 2px;
   background: transparent;
 `
+
 const defaultAmounts = [0.1, 0.5, 1]
+
 export default function SlippageTolerance({
   slippage,
   setSlippage,
@@ -149,8 +148,8 @@ export default function SlippageTolerance({
   return useMemo(() => {
     return (
       <Wrapper style={style}>
-        <Type.SM className="inner-title">Slippage Tolerance</Type.SM>
-        <div style={{ display: 'inline-block' }} height="25px">
+        <div className="inner-title">Slippage Tolerance</div>
+        <div style={{ display: 'inline-block' }}>
           {defaultAmounts.map((amount) => {
             return (
               <Option

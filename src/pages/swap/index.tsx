@@ -17,7 +17,7 @@ import { DotFlashing } from 'components/Icons'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
-import { DEUS_TOKEN, USDC_TOKEN, BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
+import { BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
 import { Swap } from 'constants/addresses'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 

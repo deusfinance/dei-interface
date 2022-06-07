@@ -19,6 +19,7 @@ import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
 import { DEUS_TOKEN, USDC_TOKEN, BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
 import { Swap } from 'constants/addresses'
+import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 
 const Container = styled.div`
   display: flex;
@@ -53,9 +54,11 @@ export default function Redemption() {
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
+  const [slippage, setSlippage] = useState(0.5)
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
+  console.log({ slippage })
   // const usdcCurrency = USDC_TOKEN
   // const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
@@ -201,6 +204,7 @@ export default function Redemption() {
         {getApproveButton()}
         {getActionButton()}
       </Wrapper>
+      <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
 
       <Disclaimer />
     </Container>

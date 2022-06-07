@@ -92,3 +92,8 @@ export const veDist: AddressMap = {
 export const DeiBonder: AddressMap = {
   [SupportedChainId.FANTOM]: '0x09cE8C8E2704E84750E9c1a4F54A30eF60aF0073',
 }
+
+//TODO: add right contract
+export const Swap: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xBea9F78090bDB9e662d8CB301A00ad09A5b756e9',
+}

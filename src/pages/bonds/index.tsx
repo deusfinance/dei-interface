@@ -9,8 +9,8 @@ import useWeb3React from 'hooks/useWeb3'
 import useDebounce from 'hooks/useDebounce'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import useRedemptionCallback from 'hooks/useRedemptionCallback'
-import { useRedeemAmountsOut, useRedeemData } from 'hooks/useRedemptionPage'
+import useBondsCallback from 'hooks/useBondsCallback'
+import { useBondsAmountsOut, useRedeemData } from 'hooks/useBondsPage'
 import { tryParseAmount } from 'utils/parse'
 import { getRemainingTime } from 'utils/time'
 
@@ -21,7 +21,7 @@ import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
 import RedemptionInfoBox from 'components/App/Redemption/RedemptionInfoBox'
-import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
+import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN, BDEI_TOKEN } from 'constants/tokens'
 import { DynamicRedeemer } from 'constants/addresses'
 import { ExternalLink } from 'components/Link'
 import { Navigation, NavigationTypes } from 'components/StableCoin'
@@ -110,6 +110,7 @@ export default function Redemption() {
   const [amountIn, setAmountIn] = useState('')
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
+  const bdeiCurrency = BDEI_TOKEN
   const usdcCurrency = USDC_TOKEN
   const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
@@ -117,8 +118,8 @@ export default function Redemption() {
   const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.MINT)
 
   /* const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts() */
-  const { amountOut1, amountOut2 } = useRedeemAmountsOut(debouncedAmountIn, deiCurrency)
-  const { redeemPaused, redeemTranche } = useRedeemData()
+  const { amountOut } = useBondsAmountsOut(debouncedAmountIn, bdeiCurrency)
+  // const { redeemPaused, redeemTranche } = useRedeemData()
   // console.log({ redeemPaused, rest })
 
   // Amount typed in either fields
@@ -131,15 +132,15 @@ export default function Redemption() {
     return deiCurrencyBalance?.lessThan(deiAmount)
   }, [deiCurrencyBalance, deiAmount])
 
-  const usdcAmount = useMemo(() => {
-    return tryParseAmount(amountOut1, usdcCurrency || undefined)
-  }, [amountOut1, usdcCurrency])
+  const bdeiAmount = useMemo(() => {
+    return tryParseAmount(amountOut, bdeiCurrency || undefined)
+  }, [amountOut, bdeiCurrency])
 
   const {
     state: redeemCallbackState,
     callback: redeemCallback,
     error: redeemCallbackError,
-  } = useRedemptionCallback(deiCurrency, usdcCurrency, deiAmount, usdcAmount, amountOut2)
+  } = useBondsCallback(deiCurrency, bdeiCurrency, deiAmount, bdeiAmount)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
@@ -150,7 +151,7 @@ export default function Redemption() {
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [deiCurrency, approvalState, amountIn])
 
-  const { diff } = getRemainingTime(redeemTranche.endTime)
+  // const { diff } = getRemainingTime(redeemTranche.endTime)
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -211,30 +212,18 @@ export default function Redemption() {
     if (showApprove) {
       return null
     }
-    if (redeemPaused) {
-      return <RedeemButton disabled>Redeem Paused</RedeemButton>
-    }
-
-    if (diff < 0 && redeemTranche.trancheId != null) {
-      return <RedeemButton disabled>Tranche Ended</RedeemButton>
-    }
-
-    if (Number(amountOut1) > redeemTranche.amountRemaining) {
-      return <RedeemButton disabled>Exceeds Available Amount</RedeemButton>
-    }
-
     if (insufficientBalance) {
       return <RedeemButton disabled>Insufficient {deiCurrency?.symbol} Balance</RedeemButton>
     }
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Redeeming DEI <DotFlashing style={{ marginLeft: '10px' }} />
+          BUYING DEI <DotFlashing style={{ marginLeft: '10px' }} />
         </RedeemButton>
       )
     }
 
-    return <RedeemButton onClick={() => handleRedeem()}>Redeem DEI</RedeemButton>
+    return <RedeemButton onClick={() => handleRedeem()}>BUY DEI</RedeemButton>
   }
 
   return (
@@ -259,95 +248,45 @@ export default function Redemption() {
           <ArrowDown />
 
           <InputBox
-            currency={usdcCurrency}
-            value={amountOut1}
+            currency={bdeiCurrency}
+            value={amountOut}
             onChange={(value: string) => console.log(value)}
             title={'To'}
             disabled={true}
           />
-          <PlusIcon size={'30px'} />
-          <InputBox
-            currency={deusCurrency}
-            value={amountOut2}
-            onChange={(value: string) => console.log(value)}
-            title={'To ($)'}
-            disabled={true}
-          />
-          {
-            <Row mt={'8px'}>
-              {/* <ToolTip id="id" /> */}
-              <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
-              <Description>
-                you will get an NFT {`"DEUS voucher"`} that will let you {` `}
-                <ExternalLink
-                  style={{ textDecoration: 'underline' }}
-                  href="https://lafayettetabor.medium.com/dynamic-redemption-tranches-fedc69df4e3"
-                >
-                  claim DEUS later
-                </ExternalLink>
-                .
-              </Description>
-            </Row>
-          }
           <div style={{ marginTop: '20px' }}></div>
           {getApproveButton()}
           {getActionButton()}
         </Wrapper>
-        <RedemptionInfoBox />
       </>)}
 
       {(selected === NavigationTypes.REDEEM) && (<MainWrapper>
-          <ComingSoon> Coming soon... </ComingSoon>
+        <ComingSoon> Coming soon... </ComingSoon>
         <RedeemWrapper>
           <Wrapper>
-          <InputBox
-            currency={deiCurrency}
-            value={amountIn}
-            onChange={(value: string) => setAmountIn(value)}
-            title={'From'}
-          />
-          <ArrowDown />
+            <InputBox
+              currency={deiCurrency}
+              value={amountIn}
+              onChange={(value: string) => setAmountIn(value)}
+              title={'From'}
+            />
+            <ArrowDown />
 
-          <InputBox
-            currency={usdcCurrency}
-            value={amountOut1}
-            onChange={(value: string) => console.log(value)}
-            title={'To'}
-            disabled={true}
-          />
-          <PlusIcon size={'30px'} />
-          <InputBox
-            currency={deusCurrency}
-            value={amountOut2}
-            onChange={(value: string) => console.log(value)}
-            title={'To ($)'}
-            disabled={true}
-          />
-          {
-            <Row mt={'8px'}>
-              {/* <ToolTip id="id" /> */}
-              <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
-              <Description>
-                you will get an NFT {`"DEUS voucher"`} that will let you {` `}
-                <ExternalLink
-                  style={{ textDecoration: 'underline' }}
-                  href="https://lafayettetabor.medium.com/dynamic-redemption-tranches-fedc69df4e3"
-                >
-                  claim DEUS later
-                </ExternalLink>
-                .
-              </Description>
-            </Row>
-          }
-          <div style={{ marginTop: '20px' }}></div>
-          {getApproveButton()}
-          {getActionButton()}
+            <InputBox
+              currency={bdeiCurrency}
+              value={amountOut}
+              onChange={(value: string) => console.log(value)}
+              title={'To'}
+              disabled={true}
+            />
+            <div style={{ marginTop: '20px' }}></div>
+            {getApproveButton()}
+            {getActionButton()}
           </Wrapper>
-          <RedemptionInfoBox />
         </RedeemWrapper>
       </MainWrapper>)}
-      
-      
+
+
       <Disclaimer />
     </Container>
   )

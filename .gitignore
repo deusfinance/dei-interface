@@ -78,3 +78,5 @@ out/
 
 # FuseBox cache
 .fusebox/
+
+.DS_Store

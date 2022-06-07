@@ -101,7 +101,6 @@ export const DeiBonder: AddressMap = {
   [SupportedChainId.FANTOM]: '0x2F0288b371597F00760a1cCEa7A8C5754a6585c1',
 }
 
-//TODO: add right contract
 export const Swap: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xBea9F78090bDB9e662d8CB301A00ad09A5b756e9',
+  [SupportedChainId.FANTOM]: '0x137188c8360C238Aee0b0176D9F4Fa8B2180CFab',
 }

@@ -9,6 +9,7 @@ import { useDeiSwapContract } from 'hooks/useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { toHex } from 'utils/hex'
 import { DefaultHandlerError } from 'utils/parseError'
+import { BN_TEN, removeTrailingZeros, toBN } from 'utils/numbers'
 
 export enum RedeemCallbackState {
     INVALID = 'INVALID',
@@ -16,10 +17,12 @@ export enum RedeemCallbackState {
 }
 
 export default function useSwapCallback(
-    deiCurrency: Currency | undefined | null,
-    usdcCurrency: Currency | undefined | null,
+    bdeiCurrency: Currency,
+    deiCurrency: Currency,
+    bdeiAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
     deiAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
-    usdcAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+    slippage: number,
+    deadline: number,
 ): {
     state: RedeemCallbackState
     callback: null | (() => Promise<string>)
@@ -29,6 +32,12 @@ export default function useSwapCallback(
     const addTransaction = useTransactionAdder()
     const dynamicRedeemer = useDeiSwapContract()
 
+    // console.log(bdeiCurrency, deiCurrency, bdeiAmount, deiAmount, slippage, deadline);
+
+    const amountInBN = bdeiAmount ? bdeiAmount.toSignificant(bdeiCurrency.decimals) : ''
+    const subtractSlippage = toBN(amountInBN).multipliedBy((100 - Number(slippage)) / 100).toFixed(0, 1);
+    const deadlineValue = Math.round(new Date().getTime() / 1000 + 60 * deadline)
+
     const constructCall = useCallback(() => {
         try {
             if (!account || !library || !dynamicRedeemer || !deiAmount) {
@@ -36,8 +45,10 @@ export default function useSwapCallback(
             }
 
             const methodName = 'swap'
-            const args = [1, 0, ]
+            const args = [1, 0, amountInBN, subtractSlippage, deadlineValue]
 
+            console.log({args});
+            
             return {
                 address: dynamicRedeemer.address,
                 calldata: dynamicRedeemer.interface.encodeFunctionData(methodName, args) ?? '',
@@ -48,17 +59,17 @@ export default function useSwapCallback(
                 error,
             }
         }
-    }, [account, library, dynamicRedeemer, deiAmount])
+    }, [account, library, dynamicRedeemer, deiAmount, bdeiAmount,subtractSlippage, deadlineValue])
 
     return useMemo(() => {
-        if (!account || !chainId || !library || !dynamicRedeemer || !usdcCurrency || !deiCurrency || !deiAmount) {
+        if (!account || !chainId || !library || !dynamicRedeemer || !bdeiCurrency || !deiCurrency || !deiAmount) {
             return {
                 state: RedeemCallbackState.INVALID,
                 callback: null,
                 error: 'Missing dependencies',
             }
         }
-        if (!usdcAmount || !deiAmount) {
+        if (!bdeiAmount || !deiAmount) {
             return {
                 state: RedeemCallbackState.INVALID,
                 callback: null,
@@ -122,7 +133,7 @@ export default function useSwapCallback(
                     })
                     .then((response: TransactionResponse) => {
                         console.log(response)
-                        const summary = `Redeem ${deiAmount?.toSignificant()} DEI for ${usdcAmount?.toSignificant()} USDC & $${0} as DEUS NFT`
+                        const summary = `Buy ${deiAmount?.toSignificant()} DEI`
                         addTransaction(response, { summary })
 
                         return response.hash
@@ -146,9 +157,9 @@ export default function useSwapCallback(
         addTransaction,
         constructCall,
         dynamicRedeemer,
-        usdcCurrency,
+        bdeiCurrency,
         deiCurrency,
-        usdcAmount,
+        bdeiAmount,
         deiAmount,
     ])
 }

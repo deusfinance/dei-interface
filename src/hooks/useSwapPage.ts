@@ -35,6 +35,8 @@ export function useSwapAmountsOut(
   const amountOut =
     !bdeiSwap || !bdeiSwap.result ? '' : toBN(formatUnits(bdeiSwap.result[0].toString(), 18)).toString()
 
+    // console.log(amountOut);
+
   return {
     amountOut,
   }

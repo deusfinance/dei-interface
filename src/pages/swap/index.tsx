@@ -18,7 +18,7 @@ import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
 import { DEUS_TOKEN, USDC_TOKEN, BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
-import { DynamicRedeemer } from 'constants/addresses'
+import { Swap } from 'constants/addresses'
 
 const Container = styled.div`
   display: flex;
@@ -56,12 +56,12 @@ export default function Redemption() {
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
-  const usdcCurrency = USDC_TOKEN
-  const deusCurrency = DEUS_TOKEN
+  // const usdcCurrency = USDC_TOKEN
+  // const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
 
   /* const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts() */
-  const { amountOut } = useSwapAmountsOut(debouncedAmountIn, bdeiCurrency)
+  const { amountOut } = useSwapAmountsOut(debouncedAmountIn, deiCurrency)
   // const { redeemPaused, redeemTranche } = useRedeemData()
   // console.log({ redeemPaused, rest })
 
@@ -83,16 +83,23 @@ export default function Redemption() {
     state: redeemCallbackState,
     callback: redeemCallback,
     error: redeemCallbackError,
-  } = useSwapCallback(deiCurrency, bdeiCurrency, deiAmount, bdeiAmount)
+  } = useSwapCallback(
+    bdeiCurrency,
+    deiCurrency,
+    tryParseAmount('10000', bdeiCurrency || undefined),
+    tryParseAmount('10000', bdeiCurrency || undefined),
+    0.5,
+    20
+  )
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? DynamicRedeemer[chainId] : undefined), [chainId])
-  const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
+  const spender = useMemo(() => (chainId ? Swap[chainId] : undefined), [chainId])
+  const [approvalState, approveCallback] = useApproveCallback(bdeiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
+    const show = bdeiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [deiCurrency, approvalState, amountIn])
+  }, [bdeiCurrency, approvalState, amountIn])
 
   // const { diff } = getRemainingTime(redeemTranche.endTime)
 
@@ -161,12 +168,12 @@ export default function Redemption() {
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          BUYING DEI <DotFlashing style={{ marginLeft: '10px' }} />
+          BUYING BDEI <DotFlashing style={{ marginLeft: '10px' }} />
         </RedeemButton>
       )
     }
 
-    return <RedeemButton onClick={() => handleRedeem()}>BUY DEI</RedeemButton>
+    return <RedeemButton onClick={() => handleRedeem()}>BUY BDEI</RedeemButton>
   }
 
   return (
@@ -176,7 +183,7 @@ export default function Redemption() {
       </Hero>
       <Wrapper>
         <InputBox
-          currency={deiCurrency}
+          currency={bdeiCurrency}
           value={amountIn}
           onChange={(value: string) => setAmountIn(value)}
           title={'From'}
@@ -184,7 +191,7 @@ export default function Redemption() {
         <ArrowDown />
 
         <InputBox
-          currency={bdeiCurrency}
+          currency={deiCurrency}
           value={amountOut}
           onChange={(value: string) => console.log(value)}
           title={'To'}

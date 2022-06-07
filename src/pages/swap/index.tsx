@@ -17,9 +17,8 @@ import { DotFlashing } from 'components/Icons'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
-import {  DEUS_TOKEN, USDC_TOKEN, TDEI_TOKEN,TBDEI_TOKEN } from 'constants/tokens'
+import { DEUS_TOKEN, USDC_TOKEN, BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
 import { DynamicRedeemer } from 'constants/addresses'
-
 
 const Container = styled.div`
   display: flex;
@@ -55,12 +54,11 @@ export default function Redemption() {
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const debouncedAmountIn = useDebounce(amountIn, 500)
-  const deiCurrency = TDEI_TOKEN
-  const bdeiCurrency = TBDEI_TOKEN
+  const deiCurrency = DEI_TOKEN
+  const bdeiCurrency = BDEI_TOKEN
   const usdcCurrency = USDC_TOKEN
   const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
-
 
   /* const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts() */
   const { amountOut } = useSwapAmountsOut(debouncedAmountIn, bdeiCurrency)
@@ -175,28 +173,28 @@ export default function Redemption() {
     <Container>
       <Hero>
         <div>Swap</div>
-      </Hero>      
-        <Wrapper>
-          <InputBox
-            currency={deiCurrency}
-            value={amountIn}
-            onChange={(value: string) => setAmountIn(value)}
-            title={'From'}
-          />
-          <ArrowDown />
+      </Hero>
+      <Wrapper>
+        <InputBox
+          currency={deiCurrency}
+          value={amountIn}
+          onChange={(value: string) => setAmountIn(value)}
+          title={'From'}
+        />
+        <ArrowDown />
 
-          <InputBox
-            currency={bdeiCurrency}
-            value={amountOut}
-            onChange={(value: string) => console.log(value)}
-            title={'To'}
-            disabled={true}
-          />
-          <div style={{ marginTop: '20px' }}></div>
-          {getApproveButton()}
-          {getActionButton()}
-        </Wrapper>
-  
+        <InputBox
+          currency={bdeiCurrency}
+          value={amountOut}
+          onChange={(value: string) => console.log(value)}
+          title={'To'}
+          disabled={true}
+        />
+        <div style={{ marginTop: '20px' }}></div>
+        {getApproveButton()}
+        {getActionButton()}
+      </Wrapper>
+
       <Disclaimer />
     </Container>
   )

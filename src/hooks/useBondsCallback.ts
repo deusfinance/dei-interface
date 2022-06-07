@@ -120,7 +120,7 @@ export default function useBondsCallback(
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const summary = `Mint ${deiAmount?.toSignificant()} bDEI & 1 Reduction Time NFT `
+            const summary = `Mint ${deiAmount?.toSignificant()} bDEI & 1 Time Reduction NFT `
             addTransaction(response, { summary })
 
             return response.hash

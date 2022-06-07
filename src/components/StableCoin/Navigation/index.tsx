@@ -23,11 +23,13 @@ const Item = styled.div<{
 
 export enum NavigationTypes {
   MINT = 'MINT',
+  SWAP = 'SWAP',
   REDEEM = 'REDEEM',
 }
 
 const NavigationLabels = {
   [NavigationTypes.MINT]: 'Mint',
+  [NavigationTypes.SWAP]: 'Swap',
   [NavigationTypes.REDEEM]: 'Redeem',
 }
 

@@ -96,13 +96,13 @@ const NftText = styled.div`
   border-radius: 2px;
 `
 const NftTextDescription = styled.a`
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   white-space: nowrap;
   position: absolute;
   margin-left: 12px;
   border-radius: 2px;
   left: 0;
-  top: 50px;
+  top: 45px;
   z-index: 10;
   color: #ffffff;
   background: #0d0d0d;
@@ -245,8 +245,8 @@ export default function Redemption() {
   return (
     <Container>
       <Hero>
-        <div>Bonds</div>
-        <HeroSubtext>buy and redeem bonds</HeroSubtext>
+        <div>DEI Bonds</div>
+        <HeroSubtext>Mint and Swap bDEI</HeroSubtext>
       </Hero>
 
       <SelectorContainer>
@@ -274,8 +274,11 @@ export default function Redemption() {
             <PlusIcon size={'30px'} />
             <NftWrap>
               <>
-                <NftText>Reduction Time NFT</NftText>
-                <NftTextDescription>use this to redeem your bDEI later</NftTextDescription>
+                <NftText>Time Reduction NFT</NftText>
+                <NftTextDescription>
+                  This NFT reduces the maturity
+                  <br /> time on your DEI bonds
+                </NftTextDescription>
               </>
               <Image src={NFT_IMG} height={'90px'} alt="nft" />
             </NftWrap>
@@ -286,6 +289,12 @@ export default function Redemption() {
           </Wrapper>
           <InfoBox amountIn={debouncedAmountIn} />
         </>
+      )}
+
+      {selected === NavigationTypes.SWAP && (
+        <MainWrapper>
+          <Wrapper>Coming soon...</Wrapper>
+        </MainWrapper>
       )}
 
       {selected === NavigationTypes.REDEEM && (

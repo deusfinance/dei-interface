@@ -40,7 +40,7 @@ export default function InfoBox({ amountIn }: { amountIn: string }) {
   return (
     <>
       <RedeemInfoWrapper>
-        <p>Redeemable Time</p>
+        <p>Bond Maturity</p>
         {redeemTime == 0 ? <Loader /> : <ItemValue>~ {roundedDays} days</ItemValue>}
       </RedeemInfoWrapper>
       <RedeemInfoWrapper>

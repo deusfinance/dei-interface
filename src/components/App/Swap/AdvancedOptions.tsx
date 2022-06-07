@@ -8,5 +8,12 @@ export default function AdvancedOptions({
   slippage: number
   setSlippage: (value: number) => void
 }) {
-  return <SlippageTolerance slippage={slippage} setSlippage={setSlippage} />
+  return (
+    <SlippageTolerance
+      slippage={slippage}
+      setSlippage={setSlippage}
+      style={{ marginTop: '15px' }}
+      bgColor={'grad_dei'}
+    />
+  )
 }

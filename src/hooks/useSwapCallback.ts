@@ -19,7 +19,7 @@ export enum RedeemCallbackState {
 export default function useSwapCallback(
     bdeiCurrency: Currency,
     deiCurrency: Currency,
-    bdeiAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+    bdeiAmount: CurrencyAmount<NativeCurrency | Token>,
     deiAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
     slippage: number,
     deadline: number,
@@ -32,7 +32,7 @@ export default function useSwapCallback(
     const addTransaction = useTransactionAdder()
     const dynamicRedeemer = useDeiSwapContract()
 
-    // console.log(bdeiCurrency, deiCurrency, bdeiAmount, deiAmount, slippage, deadline);
+    // console.log(bdeiAmount, deiAmount, slippage, deadline);
 
     const amountInBN = bdeiAmount ? bdeiAmount.toSignificant(bdeiCurrency.decimals) : ''
     const subtractSlippage = toBN(amountInBN).multipliedBy((100 - Number(slippage)) / 100).toFixed(0, 1);
@@ -45,8 +45,7 @@ export default function useSwapCallback(
             }
 
             const methodName = 'swap'
-            const args = [1, 0, amountInBN, subtractSlippage, deadlineValue]
-
+            const args = [1, 0, toHex(bdeiAmount.quotient), subtractSlippage, deadlineValue]
             console.log({args});
             
             return {
@@ -59,7 +58,7 @@ export default function useSwapCallback(
                 error,
             }
         }
-    }, [account, library, dynamicRedeemer, deiAmount, bdeiAmount,subtractSlippage, deadlineValue])
+    }, [account, library, dynamicRedeemer, deiAmount, bdeiAmount, subtractSlippage, deadlineValue])
 
     return useMemo(() => {
         if (!account || !chainId || !library || !dynamicRedeemer || !bdeiCurrency || !deiCurrency || !deiAmount) {

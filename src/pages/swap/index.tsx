@@ -58,7 +58,6 @@ export default function Redemption() {
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
-  console.log({ slippage })
   // const usdcCurrency = USDC_TOKEN
   // const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
@@ -86,14 +85,7 @@ export default function Redemption() {
     state: redeemCallbackState,
     callback: redeemCallback,
     error: redeemCallbackError,
-  } = useSwapCallback(
-    bdeiCurrency,
-    deiCurrency,
-    tryParseAmount('10000', bdeiCurrency || undefined),
-    tryParseAmount('10000', bdeiCurrency || undefined),
-    0.5,
-    20
-  )
+  } = useSwapCallback(bdeiCurrency, deiCurrency, bdeiAmount, deiAmount, slippage, 20)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
@@ -171,12 +163,12 @@ export default function Redemption() {
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          BUYING BDEI <DotFlashing style={{ marginLeft: '10px' }} />
+          Swapping DEI <DotFlashing style={{ marginLeft: '10px' }} />
         </RedeemButton>
       )
     }
 
-    return <RedeemButton onClick={() => handleRedeem()}>BUY BDEI</RedeemButton>
+    return <RedeemButton onClick={() => handleRedeem()}>Swap DEI</RedeemButton>
   }
 
   return (

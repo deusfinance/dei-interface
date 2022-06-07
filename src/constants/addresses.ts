@@ -40,6 +40,14 @@ export const DEUS_ADDRESS: AddressMap = {
   ]),
 }
 
+//TODO:its dai contract
+/* =====================================
+                bDEI ADDRESS
+===================================== */
+export const BDEI_ADDRESS: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E',
+}
+
 export const veDEUS: AddressMap = {
   [SupportedChainId.FANTOM]: '0x8b42c6cb07c8dd5fe5db3ac03693867afd11353d',
 }

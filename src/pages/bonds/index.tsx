@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { darken } from 'polished'
 import { ArrowDown, Plus } from 'react-feather'
+import Image from 'next/image'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -16,14 +17,15 @@ import { getRemainingTime } from 'utils/time'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing, Info } from 'components/Icons'
-import { Row } from 'components/Row'
+import { Row, RowEnd } from 'components/Row'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
 import RedemptionInfoBox from 'components/App/Redemption/RedemptionInfoBox'
-import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
+import { B_DEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
 import { DynamicRedeemer } from 'constants/addresses'
 import { ExternalLink } from 'components/Link'
+import NFT_IMG from '/public/static/images/pages/bonds/TR-NFT.svg'
 
 const Container = styled.div`
   display: flex;
@@ -56,6 +58,14 @@ const Description = styled.div`
   color: ${({ theme }) => darken(0.4, theme.text1)};
 `
 
+const NftText = styled.div`
+  white-space: nowrap;
+  position: absolute;
+  margin-left: 15px;
+  left: 0;
+  z-index: 10;
+`
+
 const PlusIcon = styled(Plus)`
   margin: -14px auto;
   z-index: 1000;
@@ -76,8 +86,7 @@ export default function Redemption() {
   const [amountIn, setAmountIn] = useState('')
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
-  const usdcCurrency = USDC_TOKEN
-  const deusCurrency = DEUS_TOKEN
+  const bDeiCurrency = B_DEI_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
 
   /* const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts() */
@@ -95,15 +104,13 @@ export default function Redemption() {
     return deiCurrencyBalance?.lessThan(deiAmount)
   }, [deiCurrencyBalance, deiAmount])
 
-  const usdcAmount = useMemo(() => {
-    return tryParseAmount(amountOut1, usdcCurrency || undefined)
-  }, [amountOut1, usdcCurrency])
+  const bdeiAmount = deiAmount
 
   const {
     state: redeemCallbackState,
     callback: redeemCallback,
     error: redeemCallbackError,
-  } = useRedemptionCallback(deiCurrency, usdcCurrency, deiAmount, usdcAmount, amountOut2)
+  } = useRedemptionCallback(deiCurrency, bDeiCurrency, deiAmount, bdeiAmount)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
@@ -179,10 +186,6 @@ export default function Redemption() {
       return <RedeemButton disabled>Redeem Paused</RedeemButton>
     }
 
-    if (diff < 0 && redeemTranche.trancheId != null) {
-      return <RedeemButton disabled>Tranche Ended</RedeemButton>
-    }
-
     if (Number(amountOut1) > redeemTranche.amountRemaining) {
       return <RedeemButton disabled>Exceeds Available Amount</RedeemButton>
     }
@@ -193,12 +196,12 @@ export default function Redemption() {
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Redeeming DEI <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
         </RedeemButton>
       )
     }
 
-    return <RedeemButton onClick={() => handleRedeem()}>Redeem DEI</RedeemButton>
+    return <RedeemButton onClick={() => handleRedeem()}>Buy Bonds</RedeemButton>
   }
 
   return (
@@ -217,31 +220,32 @@ export default function Redemption() {
         <ArrowDown />
 
         <InputBox
-          currency={usdcCurrency}
+          currency={bDeiCurrency}
           value={amountOut1}
           onChange={(value: string) => console.log(value)}
           title={'To'}
           disabled={true}
         />
         <PlusIcon size={'30px'} />
-        <InputBox
+        <RowEnd style={{ position: 'relative' }} height={'90px'}>
+          <NftText>1 NFT</NftText>
+          <Image src={NFT_IMG} height={'90px'} alt="nft" />
+        </RowEnd>
+        {/* <InputBox
           currency={deusCurrency}
           value={amountOut2}
           onChange={(value: string) => console.log(value)}
           title={'To ($)'}
           disabled={true}
-        />
+        /> */}
         {
           <Row mt={'8px'}>
             {/* <ToolTip id="id" /> */}
             <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
             <Description>
-              you will get an NFT {`"DEUS voucher"`} that will let you {` `}
-              <ExternalLink
-                style={{ textDecoration: 'underline' }}
-                href="https://lafayettetabor.medium.com/dynamic-redemption-tranches-fedc69df4e3"
-              >
-                claim DEUS later
+              you will get an NFT {`"Reduction Time"`} that will let you {` `}
+              <ExternalLink style={{ textDecoration: 'underline' }} href="">
+                redeem your bDEI later
               </ExternalLink>
               .
             </Description>

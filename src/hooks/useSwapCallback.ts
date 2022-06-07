@@ -132,7 +132,7 @@ export default function useSwapCallback(
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const summary = `Swap ${deiAmount?.toSignificant()} DEI for ${bdeiAmount?.toSignificant()} bDEI`
+            const summary = `Swap ${bdeiAmount?.toSignificant()} bDEI for ${deiAmount?.toSignificant()} DEI`
             addTransaction(response, { summary })
 
             return response.hash

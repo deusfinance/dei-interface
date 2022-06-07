@@ -123,6 +123,9 @@ export default function NavBar() {
           <Link href="/redemption" passHref>
             <NavLink active={router.route === '/redemption'}>Redemption</NavLink>
           </Link>
+          <Link href="/deibonds" passHref>
+            <NavLink active={router.route === '/deibonds'}>DeiBonds</NavLink>
+          </Link>
           <Link href="/borrow" passHref>
             <NavLink active={router.route === '/borrow'}>Borrow</NavLink>
           </Link>
@@ -132,6 +135,7 @@ export default function NavBar() {
           <Link href="/rewards" passHref>
             <NavLink active={router.route === '/rewards'}>Rewards</NavLink>
           </Link>
+
           {/* <Link href="/liquidity" passHref>
             <NavLink active={router.route === '/liquidity'}>Liquidity</NavLink>
           </Link> */}

@@ -19,7 +19,7 @@ export enum RedeemCallbackState {
 export default function useSwapCallback(
     bdeiCurrency: Currency,
     deiCurrency: Currency,
-    bdeiAmount: CurrencyAmount<NativeCurrency | Token>,
+    bdeiAmount: CurrencyAmount<NativeCurrency | Token>| null | undefined,
     deiAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
     slippage: number,
     deadline: number,
@@ -40,7 +40,7 @@ export default function useSwapCallback(
 
     const constructCall = useCallback(() => {
         try {
-            if (!account || !library || !dynamicRedeemer || !deiAmount) {
+            if (!account || !library || !dynamicRedeemer || !deiAmount || !bdeiAmount) {
                 throw new Error('Missing dependencies.')
             }
 

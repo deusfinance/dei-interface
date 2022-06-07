@@ -18,7 +18,6 @@ import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-
 import { Swap } from 'constants/addresses'
 import { BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
 

@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
-import { darken } from 'polished'
 import { ArrowDown, Plus } from 'react-feather'
 import Image from 'next/image'
 
@@ -13,18 +12,18 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useBondsCallback from 'hooks/useBondsCallback'
 import { useBondsAmountsOut } from 'hooks/useBondsPage'
 import { tryParseAmount } from 'utils/parse'
+import NFT_IMG from '/public/static/images/pages/bonds/TR-NFT.svg'
 
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing, Info } from 'components/Icons'
-import { Row, RowEnd } from 'components/Row'
+import { DotFlashing } from 'components/Icons'
+import { RowEnd } from 'components/Row'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
 import { DeiBonder } from 'constants/addresses'
-import { ExternalLink } from 'components/Link'
-import NFT_IMG from '/public/static/images/pages/bonds/TR-NFT.svg'
 import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
 import { Navigation, NavigationTypes } from 'components/StableCoin'
+import InfoBox from 'components/App/Bonds/InfoBox'
 
 const Container = styled.div`
   display: flex;
@@ -83,19 +82,33 @@ const ComingSoon = styled.span`
   font-size: 21px;
 `
 
-const Description = styled.div`
-  font-size: 0.85rem;
-  line-height: 1.25rem;
-  margin-left: 10px;
-  color: ${({ theme }) => darken(0.4, theme.text1)};
-`
-
 const NftText = styled.div`
   white-space: nowrap;
+  font-size: 0.85rem;
   position: absolute;
   margin-left: 10px;
   left: 0;
+  top: 20px;
   z-index: 10;
+  color: #f36c6c;
+  padding: 2px;
+  background: #0d0d0d;
+  border-radius: 2px;
+`
+const NftTextDescription = styled.a`
+  font-size: 0.75rem;
+  white-space: nowrap;
+  position: absolute;
+  margin-left: 12px;
+  border-radius: 2px;
+  left: 0;
+  top: 50px;
+  z-index: 10;
+  color: #ffffff;
+  background: #0d0d0d;
+  padding: 2px;
+  /* text-decoration: underline;
+  cursor: pointer; */
 `
 
 const PlusIcon = styled(Plus)`
@@ -108,6 +121,12 @@ const PlusIcon = styled(Plus)`
 `
 
 const RedeemButton = styled(PrimaryButton)`
+  border-radius: 15px;
+`
+const NftWrap = styled(RowEnd)`
+  position: relative;
+  border: 1px solid #1c1c1c;
+  height: 90px;
   border-radius: 15px;
 `
 
@@ -123,10 +142,7 @@ export default function Redemption() {
 
   const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.MINT)
 
-  /* const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts() */
   const { amountOut } = useBondsAmountsOut(debouncedAmountIn)
-  // const { redeemPaused, redeemTranche } = useRedeemData()
-  // console.log({ redeemPaused, rest })
 
   // Amount typed in either fields
   const deiAmount = useMemo(() => {
@@ -151,8 +167,6 @@ export default function Redemption() {
     const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [deiCurrency, approvalState, amountIn])
-
-  // const { diff } = getRemainingTime(redeemTranche.endTime)
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -220,12 +234,12 @@ export default function Redemption() {
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Buying Bonds <DotFlashing style={{ marginLeft: '10px' }} />
+          Minting bDEI <DotFlashing style={{ marginLeft: '10px' }} />
         </RedeemButton>
       )
     }
 
-    return <RedeemButton onClick={() => handleRedeem()}>Buy Bonds</RedeemButton>
+    return <RedeemButton onClick={() => handleRedeem()}>Mint bDEI</RedeemButton>
   }
 
   return (
@@ -258,25 +272,19 @@ export default function Redemption() {
               disabled={true}
             />
             <PlusIcon size={'30px'} />
-            <RowEnd style={{ position: 'relative' }} height={'90px'}>
-              <NftText>Reduction Time</NftText>
+            <NftWrap>
+              <>
+                <NftText>Reduction Time NFT</NftText>
+                <NftTextDescription>use this to redeem your bDEI later</NftTextDescription>
+              </>
               <Image src={NFT_IMG} height={'90px'} alt="nft" />
-            </RowEnd>
-            <Row mt={'8px'}>
-              {/* <ToolTip id="id" /> */}
-              <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
-              <Description>
-                you will get an NFT that will let you {` `}
-                <ExternalLink style={{ textDecoration: 'underline' }} href="">
-                  redeem your bDEI later
-                </ExternalLink>
-                .
-              </Description>
-            </Row>
+            </NftWrap>
             <div style={{ marginTop: '20px' }}></div>
+
             {getApproveButton()}
             {getActionButton()}
           </Wrapper>
+          <InfoBox amountIn={debouncedAmountIn} />
         </>
       )}
 

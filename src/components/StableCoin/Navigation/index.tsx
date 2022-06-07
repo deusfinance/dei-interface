@@ -27,7 +27,7 @@ export enum NavigationTypes {
 }
 
 const NavigationLabels = {
-  [NavigationTypes.MINT]: 'Buy',
+  [NavigationTypes.MINT]: 'Mint',
   [NavigationTypes.REDEEM]: 'Redeem',
 }
 

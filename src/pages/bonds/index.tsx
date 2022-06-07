@@ -10,10 +10,9 @@ import useWeb3React from 'hooks/useWeb3'
 import useDebounce from 'hooks/useDebounce'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import useRedemptionCallback from 'hooks/useRedemptionCallback'
-import { useRedeemAmountsOut, useRedeemData } from 'hooks/useRedemptionPage'
+import useBondsCallback from 'hooks/useBondsCallback'
+import { useBondsAmountsOut } from 'hooks/useBondsPage'
 import { tryParseAmount } from 'utils/parse'
-import { getRemainingTime } from 'utils/time'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing, Info } from 'components/Icons'
@@ -21,17 +20,26 @@ import { Row, RowEnd } from 'components/Row'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
-import RedemptionInfoBox from 'components/App/Redemption/RedemptionInfoBox'
-import { B_DEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
-import { DynamicRedeemer } from 'constants/addresses'
+import { DeiBonder } from 'constants/addresses'
 import { ExternalLink } from 'components/Link'
 import NFT_IMG from '/public/static/images/pages/bonds/TR-NFT.svg'
+import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
+import { Navigation, NavigationTypes } from 'components/StableCoin'
 
 const Container = styled.div`
   display: flex;
   flex-flow: column nowrap;
   overflow: visible;
   margin: 0 auto;
+`
+
+const SelectorContainer = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: visible;
+  margin: 0 auto;
+  margin-top: 24px;
+  padding-right: 24px;
 `
 
 const Wrapper = styled(Container)`
@@ -51,6 +59,30 @@ const Wrapper = styled(Container)`
   }
 `
 
+const RedeemWrapper = styled.div`
+  -webkit-filter: blur(8px);
+  -moz-filter: blur(8px);
+  -o-filter: blur(8px);
+  -ms-filter: blur(8px);
+  filter: blur(8px);
+`
+
+const MainWrapper = styled.div`
+  position: relative;
+`
+
+const ComingSoon = styled.span`
+  position: absolute;
+  margin: 0 auto;
+  padding: 20px 15px;
+  justify-content: center;
+  top: 39%;
+  left: 43%;
+  transform: translate(0, -50%);
+  z-index: 2;
+  font-size: 21px;
+`
+
 const Description = styled.div`
   font-size: 0.85rem;
   line-height: 1.25rem;
@@ -61,7 +93,7 @@ const Description = styled.div`
 const NftText = styled.div`
   white-space: nowrap;
   position: absolute;
-  margin-left: 15px;
+  margin-left: 10px;
   left: 0;
   z-index: 10;
 `
@@ -86,12 +118,14 @@ export default function Redemption() {
   const [amountIn, setAmountIn] = useState('')
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
-  const bDeiCurrency = B_DEI_TOKEN
+  const bDeiCurrency = BDEI_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
 
+  const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.MINT)
+
   /* const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts() */
-  const { amountOut1, amountOut2 } = useRedeemAmountsOut(debouncedAmountIn, deiCurrency)
-  const { redeemPaused, redeemTranche } = useRedeemData()
+  const { amountOut } = useBondsAmountsOut(debouncedAmountIn)
+  // const { redeemPaused, redeemTranche } = useRedeemData()
   // console.log({ redeemPaused, rest })
 
   // Amount typed in either fields
@@ -103,25 +137,22 @@ export default function Redemption() {
     if (!deiAmount) return false
     return deiCurrencyBalance?.lessThan(deiAmount)
   }, [deiCurrencyBalance, deiAmount])
-
-  const bdeiAmount = deiAmount
-
   const {
     state: redeemCallbackState,
     callback: redeemCallback,
     error: redeemCallbackError,
-  } = useRedemptionCallback(deiCurrency, bDeiCurrency, deiAmount, bdeiAmount)
+  } = useBondsCallback(deiCurrency, deiAmount)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? DynamicRedeemer[chainId] : undefined), [chainId])
+  const spender = useMemo(() => (chainId ? DeiBonder[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [deiCurrency, approvalState, amountIn])
 
-  const { diff } = getRemainingTime(redeemTranche.endTime)
+  // const { diff } = getRemainingTime(redeemTranche.endTime)
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -182,21 +213,14 @@ export default function Redemption() {
     if (showApprove) {
       return null
     }
-    if (redeemPaused) {
-      return <RedeemButton disabled>Redeem Paused</RedeemButton>
-    }
-
-    if (Number(amountOut1) > redeemTranche.amountRemaining) {
-      return <RedeemButton disabled>Exceeds Available Amount</RedeemButton>
-    }
-
     if (insufficientBalance) {
       return <RedeemButton disabled>Insufficient {deiCurrency?.symbol} Balance</RedeemButton>
     }
+
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Buying Bonds <DotFlashing style={{ marginLeft: '10px' }} />
         </RedeemButton>
       )
     }
@@ -210,52 +234,78 @@ export default function Redemption() {
         <div>Bonds</div>
         <HeroSubtext>buy and redeem bonds</HeroSubtext>
       </Hero>
-      <Wrapper>
-        <InputBox
-          currency={deiCurrency}
-          value={amountIn}
-          onChange={(value: string) => setAmountIn(value)}
-          title={'From'}
-        />
-        <ArrowDown />
 
-        <InputBox
-          currency={bDeiCurrency}
-          value={amountOut1}
-          onChange={(value: string) => console.log(value)}
-          title={'To'}
-          disabled={true}
-        />
-        <PlusIcon size={'30px'} />
-        <RowEnd style={{ position: 'relative' }} height={'90px'}>
-          <NftText>1 NFT</NftText>
-          <Image src={NFT_IMG} height={'90px'} alt="nft" />
-        </RowEnd>
-        {/* <InputBox
-          currency={deusCurrency}
-          value={amountOut2}
-          onChange={(value: string) => console.log(value)}
-          title={'To ($)'}
-          disabled={true}
-        /> */}
-        {
-          <Row mt={'8px'}>
-            {/* <ToolTip id="id" /> */}
-            <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
-            <Description>
-              you will get an NFT {`"Reduction Time"`} that will let you {` `}
-              <ExternalLink style={{ textDecoration: 'underline' }} href="">
-                redeem your bDEI later
-              </ExternalLink>
-              .
-            </Description>
-          </Row>
-        }
-        <div style={{ marginTop: '20px' }}></div>
-        {getApproveButton()}
-        {getActionButton()}
-      </Wrapper>
-      <RedemptionInfoBox />
+      <SelectorContainer>
+        <Navigation selected={selected} setSelected={setSelected} />
+      </SelectorContainer>
+
+      {selected === NavigationTypes.MINT && (
+        <>
+          <Wrapper>
+            <InputBox
+              currency={deiCurrency}
+              value={amountIn}
+              onChange={(value: string) => setAmountIn(value)}
+              title={'From'}
+            />
+            <ArrowDown />
+
+            <InputBox
+              currency={bDeiCurrency}
+              value={amountOut}
+              onChange={(value: string) => console.log(value)}
+              title={'To'}
+              disabled={true}
+            />
+            <PlusIcon size={'30px'} />
+            <RowEnd style={{ position: 'relative' }} height={'90px'}>
+              <NftText>Reduction Time</NftText>
+              <Image src={NFT_IMG} height={'90px'} alt="nft" />
+            </RowEnd>
+            <Row mt={'8px'}>
+              {/* <ToolTip id="id" /> */}
+              <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
+              <Description>
+                you will get an NFT that will let you {` `}
+                <ExternalLink style={{ textDecoration: 'underline' }} href="">
+                  redeem your bDEI later
+                </ExternalLink>
+                .
+              </Description>
+            </Row>
+            <div style={{ marginTop: '20px' }}></div>
+            {getApproveButton()}
+            {getActionButton()}
+          </Wrapper>
+        </>
+      )}
+
+      {selected === NavigationTypes.REDEEM && (
+        <MainWrapper style={{ pointerEvents: 'none' }}>
+          <ComingSoon> Coming soon... </ComingSoon>
+          <RedeemWrapper>
+            <Wrapper>
+              <RowEnd style={{ position: 'relative' }} height={'90px'}>
+                <NftText>1 NFT</NftText>
+                <Image src={NFT_IMG} height={'90px'} alt="nft" />
+              </RowEnd>
+              <ArrowDown />
+
+              <InputBox
+                currency={deiCurrency}
+                value={amountOut}
+                onChange={(value: string) => console.log(value)}
+                title={'To'}
+                disabled={true}
+              />
+              <div style={{ marginTop: '20px' }}></div>
+              {getApproveButton()}
+              {getActionButton()}
+            </Wrapper>
+          </RedeemWrapper>
+        </MainWrapper>
+      )}
+
       <Disclaimer />
     </Container>
   )

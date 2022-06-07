@@ -25,6 +25,7 @@ import BASE_V1_BRIBE_ABI from 'constants/abi/BASE_V1_BRIBE.json'
 import BASE_V1_MINTER_ABI from 'constants/abi/BASE_V1_MINTER.json'
 import DYNAMIC_REDEEMER_ABI from 'constants/abi/DYNAMIC_REDEEMER.json'
 import DEI_BONDER_ABI from 'constants/abi/DEI_Bonder.json'
+import SWAP_ABI from 'constants/abi/SWAP_ABI.json'
 
 import { Providers } from 'constants/providers'
 import {
@@ -40,6 +41,7 @@ import {
   DynamicRedeemer,
   DeiBonder,
   veDist,
+  Swap,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -187,4 +189,10 @@ export function useDeiBonderContract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? DeiBonder[chainId] : undefined), [chainId])
   return useContract(address, DEI_BONDER_ABI)
+}
+
+export function useDeiSwapContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? Swap[chainId] : undefined), [chainId])
+  return useContract(address, SWAP_ABI)
 }

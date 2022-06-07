@@ -45,7 +45,7 @@ export const DEUS_ADDRESS: AddressMap = {
                 bDEI ADDRESS
 ===================================== */
 export const BDEI_ADDRESS: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E',
+  [SupportedChainId.FANTOM]: '0xD7c5b177Ba14fbbeE9f12117803369E764004493',
 }
 
 export const veDEUS: AddressMap = {
@@ -98,5 +98,10 @@ export const veDist: AddressMap = {
 
 //TODO: add right contract
 export const DeiBonder: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x09cE8C8E2704E84750E9c1a4F54A30eF60aF0073',
+  [SupportedChainId.FANTOM]: '0x2F0288b371597F00760a1cCEa7A8C5754a6585c1',
+}
+
+//TODO: add right contract
+export const Swap: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xBea9F78090bDB9e662d8CB301A00ad09A5b756e9',
 }

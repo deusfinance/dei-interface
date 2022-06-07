@@ -1,31 +1,16 @@
 import { useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
-import { CurrencyAmount, Token } from '@sushiswap/core-sdk'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { toBN } from 'utils/numbers'
-import { toHex } from 'utils/hex'
 import { useDeiBonderContract } from 'hooks/useContract'
+import { toBN } from 'utils/numbers'
 
-export type RedeemTranche = {
-  trancheId: number | null
-  USDRatio: number
-  deusRatio: number
-  amountRemaining: number
-  endTime: number
-}
-
-export function useRedeemData(amountIn: CurrencyAmount<Token>): {
-  redeemTime: number
+export function useBonderData(): {
   deiBonded: number
   bondingPaused: boolean
 } {
   const contract = useDeiBonderContract()
-  const currentTrancheCall = [
-    {
-      methodName: 'getRedeemTime',
-      callInputs: [toHex(amountIn.quotient)],
-    },
+  const calls = [
     {
       methodName: 'bondingPaused',
       callInputs: [],
@@ -35,21 +20,48 @@ export function useRedeemData(amountIn: CurrencyAmount<Token>): {
       callInputs: [],
     },
   ]
-  const [redeemTime, bondingPaused, deiBonded] = useSingleContractMultipleMethods(contract, currentTrancheCall)
+  const [bondingPaused, deiBonded] = useSingleContractMultipleMethods(contract, calls)
 
-  const { redeemTimeValue, bondingPausedValue, deiBondedValue } = useMemo(
+  const { bondingPausedValue, deiBondedValue } = useMemo(
     () => ({
-      redeemTimeValue: redeemTime?.result ? Number(redeemTime.result[0].toString()) : 0,
       bondingPausedValue: bondingPaused?.result ? bondingPaused?.result[0] : false,
       deiBondedValue: deiBonded?.result ? toBN(formatUnits(deiBonded.result[0], 18)).toNumber() : 0,
     }),
-    [redeemTime, bondingPaused, deiBonded]
+    [bondingPaused, deiBonded]
+  )
+
+  return {
+    bondingPaused: bondingPausedValue,
+    deiBonded: deiBondedValue,
+  }
+}
+
+export function useGetRedeemTime(amountIn: string): {
+  redeemTime: number
+} {
+  const contract = useDeiBonderContract()
+  console.log({ amountIn })
+
+  const amountInBN = toBN(amountIn).times(1e18).toFixed()
+  console.log(amountInBN)
+
+  const calls = [
+    {
+      methodName: 'getRedeemTime',
+      callInputs: [amountInBN],
+    },
+  ]
+  const [redeemTime] = useSingleContractMultipleMethods(contract, calls)
+
+  const { redeemTimeValue } = useMemo(
+    () => ({
+      redeemTimeValue: redeemTime?.result ? toBN(redeemTime.result[0].toString()).times(1000).toNumber() : 0,
+    }),
+    [redeemTime]
   )
 
   return {
     redeemTime: redeemTimeValue,
-    bondingPaused: bondingPausedValue,
-    deiBonded: deiBondedValue,
   }
 }
 

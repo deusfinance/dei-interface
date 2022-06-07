@@ -63,18 +63,18 @@ export default function Redemption() {
   const { amountOut } = useSwapAmountsOut(debouncedAmountIn, deiCurrency)
 
   // Amount typed in either fields
+  const bdeiAmount = useMemo(() => {
+    return tryParseAmount(amountIn, bdeiCurrency || undefined)
+  }, [amountIn, bdeiCurrency])
+
   const deiAmount = useMemo(() => {
-    return tryParseAmount(amountIn, deiCurrency || undefined)
-  }, [amountIn, deiCurrency])
+    return tryParseAmount(amountOut, deiCurrency || undefined)
+  }, [amountOut, deiCurrency])
 
   const insufficientBalance = useMemo(() => {
     if (!deiAmount) return false
     return deiCurrencyBalance?.lessThan(deiAmount)
   }, [deiCurrencyBalance, deiAmount])
-
-  const bdeiAmount = useMemo(() => {
-    return tryParseAmount(amountOut, bdeiCurrency || undefined)
-  }, [amountOut, bdeiCurrency])
 
   const {
     state: redeemCallbackState,

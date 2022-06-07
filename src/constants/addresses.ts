@@ -40,12 +40,11 @@ export const DEUS_ADDRESS: AddressMap = {
   ]),
 }
 
-//TODO:its dai contract
 /* =====================================
                 bDEI ADDRESS
 ===================================== */
 export const BDEI_ADDRESS: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xD7c5b177Ba14fbbeE9f12117803369E764004493',
+  [SupportedChainId.FANTOM]: '0x05f6ea7F80BDC07f6E0728BbBBAbebEA4E142eE8',
 }
 
 export const veDEUS: AddressMap = {
@@ -96,11 +95,10 @@ export const veDist: AddressMap = {
   [SupportedChainId.FANTOM]: '0x09cE8C8E2704E84750E9c1a4F54A30eF60aF0073',
 }
 
-//TODO: add right contract
 export const DeiBonder: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x2F0288b371597F00760a1cCEa7A8C5754a6585c1',
+  [SupportedChainId.FANTOM]: '0xE7640957A5B5f0F2624F377F8e32c8dB2942AD62',
 }
 
 export const Swap: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x137188c8360C238Aee0b0176D9F4Fa8B2180CFab',
+  [SupportedChainId.FANTOM]: '0x9caC3CE5D8327aa5AF54b1b4e99785F991885Bf3',
 }

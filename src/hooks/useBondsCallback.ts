@@ -67,8 +67,8 @@ export default function useBondsCallback(
     return {
       state: RedeemCallbackState.VALID,
       error: null,
-      callback: async function onRedeem(): Promise<string> {
-        console.log('onRedeem callback')
+      callback: async function onMint(): Promise<string> {
+        console.log('onMint callback')
         const call = constructCall()
         const { address, calldata, value } = call
 
@@ -85,7 +85,7 @@ export default function useBondsCallback(
           ? { from: account, to: address, data: calldata }
           : { from: account, to: address, data: calldata, value }
 
-        console.log('REDEEM TRANSACTION', { tx, value })
+        console.log('MINT TRANSACTION', { tx, value })
 
         const estimatedGas = await library.estimateGas(tx).catch((gasError) => {
           console.debug('Gas estimate failed, trying eth_call to extract error', call)
@@ -120,7 +120,7 @@ export default function useBondsCallback(
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const summary = `Bonds ${deiAmount?.toSignificant()} DEI for ${deiAmount?.toSignificant()} bDEI & 1 Reduction NFT `
+            const summary = `Mint ${deiAmount?.toSignificant()} bDEI & 1 Reduction Time NFT `
             addTransaction(response, { summary })
 
             return response.hash

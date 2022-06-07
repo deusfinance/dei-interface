@@ -43,7 +43,8 @@ export const StyleSwapBase = css`
 
 export const StyleTitles = css`
   .inner-title {
-    opacity: 0.75;
+    font-size: 0.8rem;
+    /* opacity: 0.75; */
   }
 `
 
@@ -65,6 +66,8 @@ const Wrapper = styled(FlexCenter)`
     margin-top:10px;
   justify-content: space-between;
   padding: 10px 20px;
+  width: clamp(250px, 90%, 500px);
+
   &::first-child {
     position: absolute;
     left: 20px;
@@ -73,9 +76,9 @@ const Wrapper = styled(FlexCenter)`
 export const Option = styled(Base)<{ theme?: any; active?: any; bgColor?: string }>`
   display: inline-flex;
   height: 25px;
-  color: ${({ theme, active }) => (active ? theme.text1_2 : theme.text1)};
-  background: ${({ theme, bgColor, active }) => (active ? (bgColor ? theme[bgColor] : theme.grad3) : theme.text1_2)};
-  border: ${({ active }) => active || '1px'} solid ${({ theme }) => theme.text1};
+  color: ${({ theme, active }) => (active ? theme.text1 : theme.text2)};
+  /* background: ${({ theme, active }) => (active ? theme.text1 : theme.bg0)}; */
+  border: 1px solid ${({ theme, active }) => (active ? theme.green1 : theme.text1)};
   margin: 1px;
   margin-right: 5px;
   width: 50px;
@@ -83,7 +86,7 @@ export const Option = styled(Base)<{ theme?: any; active?: any; bgColor?: string
   transition: all 0s;
   cursor: ${({ active }) => (active ? 'default' : 'pointer')};
   &:hover {
-    background: ${({ active, bgColor, theme }) => (active ? (bgColor ? theme[bgColor] : theme.grad3) : '#5f5f5f')};
+    border: 1px solid ${({ theme, active }) => (active ? theme.green1 : theme.text1)};
   }
 `
 
@@ -91,7 +94,7 @@ export const CustomOption = styled.div<{ active?: any }>`
   font-size: 13px;
   height: 25px;
   margin: 1px;
-  border: 1px solid ${({ theme, active }) => (active ? theme.text1 : theme.text2)};
+  border: 1px solid ${({ theme, active }) => (active ? theme.green1 : theme.text1)};
   padding: 0 5px;
   display: inline-flex;
   justify-content: flex-end;
@@ -147,7 +150,7 @@ export default function SlippageTolerance({
   return useMemo(() => {
     return (
       <Wrapper style={style}>
-        <div className="inner-title">Slippage Tolerance</div>
+        <div className="inner-title">Slippage</div>
         <div style={{ display: 'inline-block' }}>
           {defaultAmounts.map((amount) => {
             return (

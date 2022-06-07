@@ -174,8 +174,8 @@ export default function Redemption() {
     setAwaitingApproveConfirmation(false)
   }
 
-  const handleRedeem = useCallback(async () => {
-    console.log('called handleRedeem')
+  const handleMint = useCallback(async () => {
+    console.log('called handleMint')
     console.log(redeemCallbackState, redeemCallback, redeemCallbackError)
     if (!redeemCallback) return
 
@@ -239,7 +239,7 @@ export default function Redemption() {
       )
     }
 
-    return <RedeemButton onClick={() => handleRedeem()}>Mint bDEI</RedeemButton>
+    return <RedeemButton onClick={() => handleMint()}>Mint bDEI</RedeemButton>
   }
 
   return (

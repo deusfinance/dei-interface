@@ -28,7 +28,7 @@ const Container = styled.div`
 const Wrapper = styled(Container)`
   margin: 0 auto;
   margin-top: 50px;
-  width: clamp(450px, 90%, 1000px);
+  width: clamp(250px, 90%, 1000px);
   background-color: rgb(13 13 13);
   padding: 20px 15px;
   border: 1px solid rgb(0, 0, 0);

@@ -10,7 +10,7 @@ import useDebounce from 'hooks/useDebounce'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useBondsCallback from 'hooks/useBondsCallback'
-import { useBondsAmountsOut } from 'hooks/useBondsPage'
+import { useBondsAmountsOut, useBonderData } from 'hooks/useBondsPage'
 import { tryParseAmount } from 'utils/parse'
 import NFT_IMG from '/public/static/images/pages/bonds/TR-NFT.svg'
 
@@ -106,7 +106,7 @@ export default function Mint({ onSwitch }: { onSwitch: any }) {
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
 
   const { amountOut } = useBondsAmountsOut(debouncedAmountIn)
-
+  const { bondingPaused } = useBonderData()
   // Amount typed in either fields
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
@@ -189,6 +189,10 @@ export default function Mint({ onSwitch }: { onSwitch: any }) {
     }
     if (showApprove) {
       return null
+    }
+
+    if (bondingPaused) {
+      return <RedeemButton disabled>Mint Paused</RedeemButton>
     }
     if (insufficientBalance) {
       return <RedeemButton disabled>Insufficient {deiCurrency?.symbol} Balance</RedeemButton>

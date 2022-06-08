@@ -12,7 +12,6 @@ import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import InputBox from 'components/App/Redemption/InputBox'
 import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
 import { MasterChefV2 } from 'constants/addresses'
 import StakeBox from 'components/App/deiPool/StakeBox'
@@ -23,7 +22,7 @@ import toast from 'react-hot-toast'
 import { DefaultHandlerError } from 'utils/parseError'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { RowCenter, RowEnd, RowStart } from 'components/Row'
-import { Navigation, NavigationTypes } from 'components/StableCoin'
+import Navigation, { NavigationTypes } from 'components/App/Stake/Navigation'
 
 const Container = styled.div`
   display: flex;
@@ -277,7 +276,7 @@ export default function Redemption() {
     return <DepositButton onClick={() => handleDeposit()}>Deposit</DepositButton>
   }
 
-  const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.MINT)
+  const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.STAKE)
 
   // const getAppComponent = (): JSX.Element => {
   //   if (selected == ActionTypes.ADD) {
@@ -289,6 +288,68 @@ export default function Redemption() {
   //   return <Add onSwitch={setSelected} />
   // }
 
+  const getAppComponent = (): JSX.Element => {
+    if (selected == NavigationTypes.STAKE) {
+      return (
+        <Wrapper>
+          <RowCenter>
+            <LeftTitle>bDEI</LeftTitle>
+            <RowEnd>
+              APY:<Label>43%</Label>
+            </RowEnd>
+          </RowCenter>
+          <div style={{ marginTop: '20px' }}></div>
+          <StakeBox
+            currency={bdeiCurrency}
+            onClick={(value: string) => console.log('test')}
+            onChange={(value: string) => setAmountIn(value)}
+            type={'stake'}
+            value={amountIn}
+            title={'bDEI Available'}
+          />
+          <div style={{ marginTop: '20px' }}></div>
+          <StakeBox
+            currency={null}
+            onClick={(value: string) => console.log('test')}
+            onChange={(value: string) => console.log(value)}
+            type={'claim'}
+            value={'1.48'}
+            title={'DEUS Available'}
+          />
+        </Wrapper>
+      )
+    } else {
+      return (
+        <Wrapper>
+          <RowCenter>
+            <LeftTitle>bDEI</LeftTitle>
+            <RowEnd>
+              APY:<Label>43%</Label>
+            </RowEnd>
+          </RowCenter>
+          <div style={{ marginTop: '20px' }}></div>
+          <StakeBox
+            currency={bdeiCurrency}
+            onClick={(value: string) => console.log('test')}
+            onChange={(value: string) => setAmountIn2(value)}
+            type={'unstake'}
+            value={amountIn2}
+            title={'bDEI Staked'}
+          />
+          <div style={{ marginTop: '20px' }}></div>
+          <StakeBox
+            currency={null}
+            onClick={(value: string) => console.log('test')}
+            onChange={(value: string) => console.log(value)}
+            type={'claim'}
+            value={'1.48'}
+            title={'DEUS Available'}
+          />
+        </Wrapper>
+      )
+    }
+  }
+
   return (
     <Container>
       <Hero>
@@ -298,6 +359,9 @@ export default function Redemption() {
       <SelectorContainer>
         <Navigation selected={selected} setSelected={setSelected} />
       </SelectorContainer>
+<<<<<<< HEAD
+      {getAppComponent()}
+=======
       <Wrapper>
         <RowCenter>
           <LeftTitle>bDEI</LeftTitle>
@@ -332,6 +396,7 @@ export default function Redemption() {
           title={'DEUS Available'}
         />
       </Wrapper>
+>>>>>>> f4f662bd74a614b9c0a57e6b1c0190b5a5ff91c8
       <Disclaimer />
     </Container>
   )

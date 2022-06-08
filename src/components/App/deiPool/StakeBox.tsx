@@ -86,7 +86,7 @@ export default function StakeBox({
   disabled,
   type,
 }: {
-  currency: Currency
+  currency: Currency | null
   value: string
   onClick(values: string): void
   onChange(value: string): void
@@ -111,25 +111,31 @@ export default function StakeBox({
       <Wrapper>
         <div>
           <RowBetween alignItems={'center'}>
-            <div style={{ fontSize: '0.75rem' }}>{title}</div>
-            {/* {currency?.symbol != 'DEUS' ? ( */}
-            <Balance onClick={handleClick}>
-              {balanceDisplay ? balanceDisplay : '0.00'}
-              <span>MAX</span>
-            </Balance>
-            {/* ) : null} */}
+            {type === 'claim' ? (
+              <TextData>{title}</TextData>
+            ) : (
+              <>
+                <div style={{ fontSize: '0.75rem' }}>{title}</div>
+                <Balance onClick={handleClick}>
+                  {balanceDisplay ? balanceDisplay : '0.00'}
+                  <span>MAX</span>
+                </Balance>
+              </>
+            )}
           </RowBetween>
-          {/* <RowBetween alignItems={'center'}><TextData>{title}</TextData></RowBetween> */}
           <RowBetween>
-            <NumericalInput
-              value={value || ''}
-              onUserInput={onChange}
-              placeholder="0.0"
-              autoFocus
-              disabled={disabled}
-              style={{ textAlign: 'left', fontSize: '1.1rem' }}
-            />
-            {/* <TextData>{value}</TextData> */}
+            {type === 'claim' ? (
+              <TextData>{value}</TextData>
+            ) : (
+              <NumericalInput
+                value={value || ''}
+                onUserInput={onChange}
+                placeholder="0.0"
+                autoFocus
+                disabled={disabled}
+                style={{ textAlign: 'left', fontSize: '1.1rem' }}
+              />
+            )}
           </RowBetween>
         </div>
 

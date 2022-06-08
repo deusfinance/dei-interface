@@ -1,7 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
-import { darken } from 'polished'
-import { ArrowDown, Plus } from 'react-feather'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -12,18 +10,12 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useRedemptionCallback from 'hooks/useRedemptionCallback'
 import { useRedeemAmountsOut, useRedeemData } from 'hooks/useRedemptionPage'
 import { tryParseAmount } from 'utils/parse'
-import { getRemainingTime } from 'utils/time'
 
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing, Info } from 'components/Icons'
-import { Row } from 'components/Row'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import InputBox from 'components/App/Redemption/InputBox'
-import RedemptionInfoBox from 'components/App/Redemption/RedemptionInfoBox'
 import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
 import { DynamicRedeemer } from 'constants/addresses'
-import { ExternalLink } from 'components/Link'
 import PoolOverview from 'components/App/Staking/PoolOverview'
 
 const Container = styled.div`

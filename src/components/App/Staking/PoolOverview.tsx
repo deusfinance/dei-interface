@@ -1,9 +1,8 @@
-import { Row, RowBetween, RowStart } from 'components/Row'
-import React, { useState, useMemo, useCallback } from 'react'
+import { Row } from 'components/Row'
+import React from 'react'
 import styled from 'styled-components'
 
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing, Info } from 'components/Icons'
 import ImageWithFallback from 'components/ImageWithFallback'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { Loader } from 'components/Icons'

@@ -96,7 +96,7 @@ export const veDist: AddressMap = {
 }
 
 export const DeiBonder: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xE7640957A5B5f0F2624F377F8e32c8dB2942AD62',
+  [SupportedChainId.FANTOM]: '0x958C24d5cDF94fAF47cF4d66400Af598Dedc6e62',
 }
 
 export const SwapFlashLoan: AddressMap = {

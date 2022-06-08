@@ -1,10 +1,14 @@
-import React from 'react'
+import React, { useMemo, useCallback } from 'react'
 import styled from 'styled-components'
+import { Currency } from '@sushiswap/core-sdk'
 
 import useWeb3React from 'hooks/useWeb3'
+import { maxAmountSpend } from 'utils/currency'
+import { useCurrencyBalance } from 'state/wallet/hooks'
 
-import { RowBetween } from '../../Row/index'
 import { PrimaryButton } from 'components/Button'
+import { NumericalInput } from 'components/Input'
+import { RowBetween } from 'components/Row'
 
 const Wrapper = styled.div`
   color: ${({ theme }) => theme.text2};
@@ -41,6 +45,32 @@ const Row = styled.div`
   `}
 `
 
+const Balance = styled(Row)`
+  font-size: 0.7rem;
+  text-align: center;
+  margin-top: 5px;
+  margin-left: 4px;
+  gap: 5px;
+  color: ${({ theme }) => theme.text2};
+
+  & > span {
+    background: ${({ theme }) => theme.bg2};
+    border-radius: 6px;
+    padding: 2px 4px;
+    font-size: 0.5rem;
+    color: ${({ theme }) => theme.text1};
+
+    &:hover {
+      background: ${({ theme }) => theme.secondary2};
+      cursor: pointer;
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+`
+
 const ActionButton = styled(PrimaryButton)`
   margin-top: 6px;
   height: 46px;
@@ -48,29 +78,58 @@ const ActionButton = styled(PrimaryButton)`
 `
 
 export default function StakeBox({
+  currency,
   value,
   onClick,
+  onChange,
   title,
   disabled,
   type,
 }: {
+  currency: Currency
   value: string
   onClick(values: string): void
+  onChange(value: string): void
   title: string
   disabled?: boolean
   type: string
 }) {
   const { account } = useWeb3React()
+  const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+
+  const [balanceExact, balanceDisplay] = useMemo(() => {
+    return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
+  }, [currencyBalance])
+
+  const handleClick = useCallback(() => {
+    if (!balanceExact || !onChange) return
+    onChange(balanceExact)
+  }, [balanceExact, onChange])
 
   return (
     <>
       <Wrapper>
         <div>
           <RowBetween alignItems={'center'}>
-            <TextData>{title}</TextData>
+            <div style={{ fontSize: '0.75rem' }}>{title}</div>
+            {/* {currency?.symbol != 'DEUS' ? ( */}
+            <Balance onClick={handleClick}>
+              {balanceDisplay ? balanceDisplay : '0.00'}
+              <span>MAX</span>
+            </Balance>
+            {/* ) : null} */}
           </RowBetween>
+          {/* <RowBetween alignItems={'center'}><TextData>{title}</TextData></RowBetween> */}
           <RowBetween>
-            <TextData>{value}</TextData>
+            <NumericalInput
+              value={value || ''}
+              onUserInput={onChange}
+              placeholder="0.0"
+              autoFocus
+              disabled={disabled}
+              style={{ textAlign: 'left', fontSize: '1.1rem' }}
+            />
+            {/* <TextData>{value}</TextData> */}
           </RowBetween>
         </div>
 

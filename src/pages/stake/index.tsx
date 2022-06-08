@@ -32,7 +32,7 @@ const Container = styled.div`
 
 const Wrapper = styled(Container)`
   margin: 0 auto;
-  margin-top: 50px;
+  margin-top: 25px;
   width: clamp(250px, 90%, 550px);
   background-color: rgb(13 13 13);
   padding: 20px 15px;

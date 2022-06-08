@@ -49,7 +49,7 @@ export function useStakingData(pid: number): {
     return {
       depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0], 18)).toNumber() : 0,
       reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0,
-      tokenPerBlockValue: tokenPerBlock?.result ? toBN(tokenPerBlock.result[0].toString()).toNumber() : 0,
+      tokenPerBlockValue: tokenPerBlock?.result ? toBN(formatUnits(tokenPerBlock.result[0], 18)).toNumber() : 0,
       totalbDEIValue: totalBDEI?.result ? toBN(formatUnits(totalBDEI.result[0], 18)).toNumber() : 0,
     }
   }, [userInfo, tokenPerBlock, pendingTokens, totalBDEI])
@@ -66,6 +66,7 @@ export function useGetApy(): number {
   const { tokenPerBlock, totalDeposited } = useStakingData(0)
   const deiPrice = useDeiPrice()
   const deusPrice = useDeusPrice()
+
   return (
     (tokenPerBlock * (tokenPerBlock * parseFloat(deusPrice) * 365 * 24 * 60 * 60)) /
     (totalDeposited * parseFloat(deiPrice))

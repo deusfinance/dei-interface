@@ -41,7 +41,7 @@ import {
   DynamicRedeemer,
   DeiBonder,
   veDist,
-  Swap,
+  SwapFlashLoan,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -193,6 +193,6 @@ export function useDeiBonderContract() {
 
 export function useDeiSwapContract() {
   const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? Swap[chainId] : undefined), [chainId])
+  const address = useMemo(() => (chainId ? SwapFlashLoan[chainId] : undefined), [chainId])
   return useContract(address, SWAP_ABI)
 }

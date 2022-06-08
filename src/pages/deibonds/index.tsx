@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
+
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { Navigation, NavigationTypes } from 'components/StableCoin'
-import Mint from './mint'
-import Swap from './swap'
-import Redeem from './redeem'
+import Mint from 'components/App/Bonds/mint'
+import Redeem from 'components/App/Bonds/redeem'
+import Swap from 'components/App/Bonds/swap'
 
 const Container = styled.div`
   display: flex;

@@ -16,10 +16,9 @@ import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import InputBox from 'components/App/Redemption/InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-import Hero from 'components/Hero'
-import Disclaimer from 'components/Disclaimer'
-import { Swap } from 'constants/addresses'
+import { SwapFlashLoan } from 'constants/addresses'
 import { BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
+import { NavigationTypes } from 'components/StableCoin'
 
 const Container = styled.div`
   display: flex;
@@ -50,7 +49,7 @@ const RedeemButton = styled(PrimaryButton)`
   border-radius: 15px;
 `
 
-export default function Redemption() {
+export default function SwapPage({ onSwitch }: { onSwitch: any }) {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
@@ -59,7 +58,7 @@ export default function Redemption() {
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
-  const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
+  const bDeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
   const { amountOut } = useSwapAmountsOut(debouncedAmountIn, deiCurrency)
 
   // Amount typed in either fields
@@ -72,26 +71,26 @@ export default function Redemption() {
   }, [amountOut, deiCurrency])
 
   const insufficientBalance = useMemo(() => {
-    if (!deiAmount) return false
-    return deiCurrencyBalance?.lessThan(deiAmount)
-  }, [deiCurrencyBalance, deiAmount])
+    if (!bdeiAmount) return false
+    return bDeiCurrencyBalance?.lessThan(bdeiAmount)
+  }, [bDeiCurrencyBalance, bdeiAmount])
 
   const {
-    state: redeemCallbackState,
-    callback: redeemCallback,
-    error: redeemCallbackError,
+    state: swapCallbackState,
+    callback: swapCallback,
+    error: swapCallbackError,
   } = useSwapCallback(bdeiCurrency, deiCurrency, bdeiAmount, deiAmount, slippage, 20)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? Swap[chainId] : undefined), [chainId])
+  const spender = useMemo(() => (chainId ? SwapFlashLoan[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(bdeiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = bdeiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [bdeiCurrency, approvalState, amountIn])
 
-  // const { diff } = getRemainingTime(redeemTranche.endTime)
+  // const { diff } = getRemainingTime(swapTranche.endTime)
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -99,15 +98,15 @@ export default function Redemption() {
     setAwaitingApproveConfirmation(false)
   }
 
-  const handleRedeem = useCallback(async () => {
-    console.log('called handleRedeem')
-    console.log(redeemCallbackState, redeemCallback, redeemCallbackError)
-    if (!redeemCallback) return
+  const handleSwap = useCallback(async () => {
+    console.log('called handleSwap')
+    console.log(swapCallbackState, swapCallback, swapCallbackError)
+    if (!swapCallback) return
 
     // let error = ''
     try {
       setAwaitingRedeemConfirmation(true)
-      const txHash = await redeemCallback()
+      const txHash = await swapCallback()
       setAwaitingRedeemConfirmation(false)
       console.log({ txHash })
     } catch (e) {
@@ -119,7 +118,7 @@ export default function Redemption() {
         // error = 'An unknown error occurred.'
       }
     }
-  }, [redeemCallbackState, redeemCallback, redeemCallbackError])
+  }, [swapCallbackState, swapCallback, swapCallbackError])
 
   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
@@ -153,7 +152,7 @@ export default function Redemption() {
       return null
     }
     if (insufficientBalance) {
-      return <RedeemButton disabled>Insufficient {deiCurrency?.symbol} Balance</RedeemButton>
+      return <RedeemButton disabled>Insufficient {bdeiCurrency?.symbol} Balance</RedeemButton>
     }
     if (awaitingRedeemConfirmation) {
       return (
@@ -163,14 +162,11 @@ export default function Redemption() {
       )
     }
 
-    return <RedeemButton onClick={() => handleRedeem()}>Swap</RedeemButton>
+    return <RedeemButton onClick={() => handleSwap()}>Swap</RedeemButton>
   }
 
   return (
-    <Container>
-      <Hero>
-        <div>Swap</div>
-      </Hero>
+    <>
       <Wrapper>
         <InputBox
           currency={bdeiCurrency}
@@ -178,7 +174,7 @@ export default function Redemption() {
           onChange={(value: string) => setAmountIn(value)}
           title={'From'}
         />
-        <ArrowDown />
+        <ArrowDown style={{ cursor: 'pointer' }} onClick={() => onSwitch(NavigationTypes.MINT)} />
 
         <InputBox
           currency={deiCurrency}
@@ -192,8 +188,6 @@ export default function Redemption() {
         {getActionButton()}
       </Wrapper>
       <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
-
-      <Disclaimer />
-    </Container>
+    </>
   )
 }

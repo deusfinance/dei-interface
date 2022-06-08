@@ -41,7 +41,7 @@ export default function useSwapCallback(
 
       const methodName = 'swap'
 
-      const subtractSlippage = toBN(toHex(bdeiAmount.quotient))
+      const subtractSlippage = toBN(toHex(deiAmount.quotient))
         .multipliedBy((100 - Number(slippage)) / 100)
         .toFixed(0, 1)
 
@@ -79,8 +79,8 @@ export default function useSwapCallback(
     return {
       state: RedeemCallbackState.VALID,
       error: null,
-      callback: async function onRedeem(): Promise<string> {
-        console.log('onRedeem callback')
+      callback: async function onSwap(): Promise<string> {
+        console.log('onSwap callback')
         const call = constructCall()
         const { address, calldata, value } = call
 

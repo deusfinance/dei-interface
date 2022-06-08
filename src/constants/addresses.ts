@@ -99,6 +99,6 @@ export const DeiBonder: AddressMap = {
   [SupportedChainId.FANTOM]: '0xE7640957A5B5f0F2624F377F8e32c8dB2942AD62',
 }
 
-export const Swap: AddressMap = {
+export const SwapFlashLoan: AddressMap = {
   [SupportedChainId.FANTOM]: '0x9caC3CE5D8327aa5AF54b1b4e99785F991885Bf3',
 }

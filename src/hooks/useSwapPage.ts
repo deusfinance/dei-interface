@@ -1,12 +1,10 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Token } from '@sushiswap/core-sdk'
-import { BigNumber } from 'bignumber.js'
 import { formatUnits } from '@ethersproject/units'
-import debounce from 'lodash/debounce'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { BN_TEN, removeTrailingZeros, toBN } from 'utils/numbers'
-import { useDeiSwapContract, useDynamicRedeemerContract } from 'hooks/useContract'
+import { BN_TEN, toBN } from 'utils/numbers'
+import { useDeiSwapContract } from 'hooks/useContract'
 
 export function useSwapAmountsOut(
   amountIn: string,
@@ -23,19 +21,16 @@ export function useSwapAmountsOut(
         ? []
         : [
             {
-            methodName: 'calculateSwap',
-            callInputs: [1, 0, amountInBN], // TODO: what is the first and second inputs?
-            }
+              methodName: 'calculateSwap',
+              callInputs: [1, 0, amountInBN], // TODO: what is the first and second inputs?
+            },
           ],
     [amountInBN]
   )
 
   const [bdeiSwap] = useSingleContractMultipleMethods(contract, amountOutCall)
 
-  const amountOut =
-    !bdeiSwap || !bdeiSwap.result ? '' : toBN(formatUnits(bdeiSwap.result[0].toString(), 18)).toString()
-
-    // console.log(amountOut);
+  const amountOut = !bdeiSwap || !bdeiSwap.result ? '' : toBN(formatUnits(bdeiSwap.result[0].toString(), 18)).toString()
 
   return {
     amountOut,

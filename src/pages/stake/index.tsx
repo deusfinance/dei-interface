@@ -22,6 +22,8 @@ import { useMasterChefV2Contract } from 'hooks/useContract'
 import toast from 'react-hot-toast'
 import { DefaultHandlerError } from 'utils/parseError'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
+import { RowCenter, RowEnd, RowStart } from 'components/Row'
+import { Navigation, NavigationTypes } from 'components/StableCoin'
 
 const Container = styled.div`
   display: flex;
@@ -44,6 +46,15 @@ const Wrapper = styled(Container)`
       margin: 15px auto;
     }
   } */
+`
+
+const SelectorContainer = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: visible;
+  margin: 0 auto;
+  margin-top: 24px;
+  padding-right: 24px;
 `
 
 const TopWrapper = styled.div`
@@ -78,9 +89,15 @@ const DepositButton = styled(PrimaryButton)`
   border-radius: 15px;
 `
 
-const LeftTitle = styled.span`
+const LeftTitle = styled(RowStart)`
   font-size: 24px;
   font-weight: 500;
+  padding-bottom: -1px;
+`
+
+const Label = styled.div`
+  color: ${({ theme }) => theme.yellow3};
+  margin-left: 5px;
 `
 
 export default function Redemption() {
@@ -260,7 +277,7 @@ export default function Redemption() {
     return <DepositButton onClick={() => handleDeposit()}>Deposit</DepositButton>
   }
 
-  const [selected, setSelected] = useState<ActionTypes>(ActionTypes.ADD)
+  const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.MINT)
 
   // const getAppComponent = (): JSX.Element => {
   //   if (selected == ActionTypes.ADD) {
@@ -277,17 +294,43 @@ export default function Redemption() {
       <Hero>
         <div>bDEI Staking</div>
       </Hero>
+
+      <SelectorContainer>
+        <Navigation selected={selected} setSelected={setSelected} />
+      </SelectorContainer>
       <Wrapper>
-        <LeftTitle>bDEI</LeftTitle>
+        <RowCenter>
+          <LeftTitle>bDEI</LeftTitle>
+          <RowEnd>
+            APY:<Label>43%</Label>
+          </RowEnd>
+        </RowCenter>
+        <div style={{ marginTop: '20px' }}></div>
+        <StakeBox
+          currency={bdeiCurrency}
+          onClick={showApprove ? onDeposit : handleApprove}
+          onChange={(value: string) => setAmountIn(value)}
+          type={'Stake'}
+          value={amountIn}
+          title={'bDEI Available'}
+        />
+        <div style={{ marginTop: '20px' }}></div>
+        <StakeBox
+          currency={bdeiCurrency}
+          onClick={onWithdraw}
+          onChange={(value: string) => setAmountIn2(value)}
+          type={'Unstake'}
+          value={amountIn2}
+          title={'bDEI Staked'}
+        />
         <div style={{ marginTop: '20px' }}></div>
         <StakeBox
           onClick={(value: string) => console.log('test')}
-          type={'stake'}
+          onChange={(value: string) => console.log(value)}
+          type={'claim'}
           value={'1.48'}
-          title={'LP Available'}
+          title={'DEUS Available'}
         />
-        <div style={{ marginTop: '20px' }}></div>
-        <StakeBox onClick={(value: string) => console.log('test')} type={'unstake'} value={'2.1'} title={'LP Staked'} />
       </Wrapper>
       <Disclaimer />
     </Container>

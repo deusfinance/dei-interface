@@ -100,9 +100,9 @@ export default function StakeBox({
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
 
   const [balanceExact, balanceDisplay] = useMemo(() => {
-    if (type === 'stake') return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
+    if (!maxValue) return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
     return [maxValue, maxValue]
-  }, [currencyBalance])
+  }, [currencyBalance, maxValue])
 
   const handleClick = useCallback(() => {
     if (!balanceExact || !onChange) return
@@ -114,8 +114,8 @@ export default function StakeBox({
       <Wrapper>
         <div>
           <RowBetween alignItems={'center'}>
-            {type === 'claim' ? (
-              <TextData>{title}</TextData>
+            {type === 'claim' || type === 'claiming' ? (
+              <TextData style={{ opacity: '0' }}>{'.'}</TextData>
             ) : (
               <>
                 <div style={{ fontSize: '0.75rem' }}>{title}</div>
@@ -127,8 +127,8 @@ export default function StakeBox({
             )}
           </RowBetween>
           <RowBetween>
-            {type === 'claim' ? (
-              <TextData>{value}</TextData>
+            {type === 'claim' || type === 'claiming' ? (
+              <TextData style={{ marginTop: '-5px' }}>{value}</TextData>
             ) : (
               <NumericalInput
                 value={value || ''}

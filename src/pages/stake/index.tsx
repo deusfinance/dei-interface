@@ -34,7 +34,7 @@ const Container = styled.div`
 const Wrapper = styled(Container)`
   margin: 0 auto;
   margin-top: 50px;
-  width: clamp(250px, 90%, 500px);
+  width: clamp(250px, 90%, 550px);
   background-color: rgb(13 13 13);
   padding: 20px 15px;
   border: 1px solid rgb(0, 0, 0);
@@ -192,7 +192,7 @@ export default function Redemption() {
     try {
       if (!masterChefContract || !account || !isSupportedChainId || !amountIn2) return
       setAwaitingWithdrawConfirmation(true)
-      const response = await masterChefContract.deposit(0, toBN(amountIn2).times(1e18).toFixed(), account)
+      const response = await masterChefContract.withdraw(0, toBN(amountIn2).times(1e18).toFixed(), account)
       addTransaction(response, { summary: `Withdraw ${amountIn2}`, vest: { hash: response.hash } })
       setAwaitingWithdrawConfirmation(false)
       // setPendingTxHash(response.hash)
@@ -317,7 +317,7 @@ export default function Redemption() {
             type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
             value={amountIn2}
             title={'bDEI Staked'}
-            maxValue={'100'}
+            maxValue={depositAmount.toString()}
           />
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox

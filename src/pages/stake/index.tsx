@@ -9,19 +9,19 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import { tryParseAmount } from 'utils/parse'
 
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
 import { MasterChefV2 } from 'constants/addresses'
 import StakeBox from 'components/App/deiPool/StakeBox'
 import { ActionTypes } from 'components/StableCoin2'
-import { useStakingData } from 'hooks/useBdeiStakingPage'
+import { useGetApy, useStakingData } from 'hooks/useBdeiStakingPage'
 import { useMasterChefV2Contract } from 'hooks/useContract'
 import toast from 'react-hot-toast'
 import { DefaultHandlerError } from 'utils/parseError'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { RowCenter, RowEnd, RowStart } from 'components/Row'
+import { toBN } from 'utils/numbers'
 import Navigation, { NavigationTypes } from 'components/App/Stake/Navigation'
 
 const Container = styled.div`
@@ -97,6 +97,7 @@ const LeftTitle = styled(RowStart)`
 const Label = styled.div`
   color: ${({ theme }) => theme.yellow3};
   margin-left: 5px;
+  font-size: 1.2rem;
 `
 
 export default function Redemption() {
@@ -115,9 +116,8 @@ export default function Redemption() {
   const [pendingTxHash, setPendingTxHash] = useState('')
   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const bDEssi = useStakingData(0)
-  console.log(bDEssi)
-
+  const { rewardsAmount, depositAmount } = useStakingData(0)
+  const apy = useGetApy()
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
   }, [amountIn, deiCurrency])
@@ -138,45 +138,23 @@ export default function Redemption() {
   // } = useRedemptionCallback(deiCurrency, usdcCurrency, deiAmount, usdcAmount, amountOut2)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitClaimConfirmation] = useState<boolean>(false)
 
   const spender = useMemo(() => (chainId ? MasterChefV2[chainId] : undefined), [chainId])
-  const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
+  const [approvalState, approveCallback] = useApproveCallback(bdeiCurrency ?? undefined, spender)
+
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
+    const show = bdeiCurrency && approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [deiCurrency, approvalState, amountIn])
+  }, [bdeiCurrency, approvalState])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
     await approveCallback()
     setAwaitingApproveConfirmation(false)
   }
-
-  const handleDeposit = useCallback(async () => {
-    console.log('handleDeposit')
-
-    //   console.log('called handleDeposit')
-    //   console.log(depositCallbackState, depositCallback, depositCallbackError)
-    //   if (!depositCallback) return
-    //   try {
-    //     setAwaitingDepositConfirmation(true)
-    //     const txHash = await depositCallback()
-    //     setAwaitingDepositConfirmation(false)
-    //     console.log({ txHash })
-    //   } catch (e) {
-    //     setAwaitingDepositConfirmation(false)
-    //     if (e instanceof Error) {
-    //       // error = e.message
-    //     } else {
-    //       console.error(e)
-    //       // error = 'An unknown error occurred.'
-    //     }
-    //   }
-  }, []) // depositCallbackState, depositCallback, depositCallbackError
 
   const onClaimReward = useCallback(async () => {
     try {
@@ -194,14 +172,11 @@ export default function Redemption() {
     }
   }, [masterChefContract, addTransaction, account, isSupportedChainId])
 
-  //todo
-  const amountttt = 0
-
   const onDeposit = useCallback(async () => {
     try {
-      if (!masterChefContract || !account || !isSupportedChainId) return
+      if (!masterChefContract || !account || !isSupportedChainId || !amountIn) return
       setAwaitingDepositConfirmation(true)
-      const response = await masterChefContract.deposit(0, amountttt, account)
+      const response = await masterChefContract.deposit(0, toBN(amountIn).times(1e18).toFixed(), account)
       addTransaction(response, { summary: `Deposit`, vest: { hash: response.hash } })
       setAwaitingDepositConfirmation(false)
       // setPendingTxHash(response.hash)
@@ -211,15 +186,14 @@ export default function Redemption() {
       setAwaitingDepositConfirmation(false)
       // setPendingTxHash('')
     }
-  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountttt])
+  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountIn])
 
-  const amountttt2222 = 0
   const onWithdraw = useCallback(async () => {
     try {
-      if (!masterChefContract || !account || !isSupportedChainId) return
+      if (!masterChefContract || !account || !isSupportedChainId || !amountIn2) return
       setAwaitingWithdrawConfirmation(true)
-      const response = await masterChefContract.deposit(0, amountttt, account)
-      addTransaction(response, { summary: `Withdraw ${amountttt2222}`, vest: { hash: response.hash } })
+      const response = await masterChefContract.deposit(0, toBN(amountIn2).times(1e18).toFixed(), account)
+      addTransaction(response, { summary: `Withdraw ${amountIn2}`, vest: { hash: response.hash } })
       setAwaitingWithdrawConfirmation(false)
       // setPendingTxHash(response.hash)
     } catch (err) {
@@ -228,9 +202,9 @@ export default function Redemption() {
       setAwaitingWithdrawConfirmation(false)
       // setPendingTxHash('')
     }
-  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountttt2222])
+  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountIn2])
 
-  function getApproveButton(): JSX.Element | null {
+  /*   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
       return null
     }
@@ -274,7 +248,7 @@ export default function Redemption() {
     }
 
     return <DepositButton onClick={() => handleDeposit()}>Deposit</DepositButton>
-  }
+  } */
 
   const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.STAKE)
 
@@ -292,47 +266,55 @@ export default function Redemption() {
     if (selected == NavigationTypes.STAKE) {
       return (
         <Wrapper>
-          <RowCenter>
+          <RowCenter style={{ alignItems: 'center' }}>
             <LeftTitle>bDEI</LeftTitle>
             <RowEnd>
-              APY:<Label>43%</Label>
+              APY:<Label>{apy}%</Label>
             </RowEnd>
           </RowCenter>
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
             currency={bdeiCurrency}
-            onClick={(value: string) => console.log('test')}
+            onClick={showApprove ? handleApprove : onDeposit}
             onChange={(value: string) => setAmountIn(value)}
-            type={'stake'}
+            type={
+              showApprove
+                ? awaitingApproveConfirmation
+                  ? 'Approving...'
+                  : 'Approve'
+                : awaitingDepositConfirmation
+                ? 'Staking...'
+                : 'Stake'
+            }
             value={amountIn}
             title={'bDEI Available'}
           />
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
             currency={null}
-            onClick={(value: string) => console.log('test')}
+            onClick={onClaimReward}
             onChange={(value: string) => console.log(value)}
-            type={'claim'}
-            value={'1.48'}
-            title={'DEUS Available'}
+            type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
+            value={`${rewardsAmount} DEUS`}
+            title={'Rewards'}
           />
         </Wrapper>
       )
     } else {
       return (
         <Wrapper>
-          <RowCenter>
+          <RowCenter style={{ alignItems: 'center' }}>
             <LeftTitle>bDEI</LeftTitle>
             <RowEnd>
-              APY:<Label>43%</Label>
+              APY:<Label>{apy}%</Label>
             </RowEnd>
           </RowCenter>
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
             currency={bdeiCurrency}
-            onClick={(value: string) => console.log('test')}
+            onClick={onWithdraw}
             onChange={(value: string) => setAmountIn2(value)}
-            type={'unstake'}
+            type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
             value={amountIn2}
             title={'bDEI Staked'}
             maxValue={'100'}
@@ -340,11 +322,11 @@ export default function Redemption() {
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
             currency={null}
-            onClick={(value: string) => console.log('test')}
+            onClick={onClaimReward}
             onChange={(value: string) => console.log(value)}
-            type={'claim'}
-            value={'1.48'}
-            title={'DEUS Available'}
+            type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
+            value={`${rewardsAmount} DEUS`}
+            title={'Rewards'}
           />
         </Wrapper>
       )
@@ -356,7 +338,6 @@ export default function Redemption() {
       <Hero>
         <div>bDEI Staking</div>
       </Hero>
-
       <SelectorContainer>
         <Navigation selected={selected} setSelected={setSelected} />
       </SelectorContainer>

@@ -335,6 +335,7 @@ export default function Redemption() {
             type={'unstake'}
             value={amountIn2}
             title={'bDEI Staked'}
+            maxValue={'100'}
           />
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
@@ -359,44 +360,8 @@ export default function Redemption() {
       <SelectorContainer>
         <Navigation selected={selected} setSelected={setSelected} />
       </SelectorContainer>
-<<<<<<< HEAD
+
       {getAppComponent()}
-=======
-      <Wrapper>
-        <RowCenter>
-          <LeftTitle>bDEI</LeftTitle>
-          <RowEnd>
-            APY:<Label>43%</Label>
-          </RowEnd>
-        </RowCenter>
-        <div style={{ marginTop: '20px' }}></div>
-        <StakeBox
-          currency={bdeiCurrency}
-          onClick={showApprove ? onDeposit : handleApprove}
-          onChange={(value: string) => setAmountIn(value)}
-          type={'Stake'}
-          value={amountIn}
-          title={'bDEI Available'}
-        />
-        <div style={{ marginTop: '20px' }}></div>
-        <StakeBox
-          currency={bdeiCurrency}
-          onClick={onWithdraw}
-          onChange={(value: string) => setAmountIn2(value)}
-          type={'Unstake'}
-          value={amountIn2}
-          title={'bDEI Staked'}
-        />
-        <div style={{ marginTop: '20px' }}></div>
-        <StakeBox
-          onClick={(value: string) => console.log('test')}
-          onChange={(value: string) => console.log(value)}
-          type={'claim'}
-          value={'1.48'}
-          title={'DEUS Available'}
-        />
-      </Wrapper>
->>>>>>> f4f662bd74a614b9c0a57e6b1c0190b5a5ff91c8
       <Disclaimer />
     </Container>
   )

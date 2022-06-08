@@ -85,6 +85,7 @@ export default function StakeBox({
   title,
   disabled,
   type,
+  maxValue,
 }: {
   currency: Currency | null
   value: string
@@ -93,12 +94,14 @@ export default function StakeBox({
   title: string
   disabled?: boolean
   type: string
+  maxValue?: string
 }) {
   const { account } = useWeb3React()
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
 
   const [balanceExact, balanceDisplay] = useMemo(() => {
-    return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
+    if (type === 'stake') return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
+    return [maxValue, maxValue]
   }, [currencyBalance])
 
   const handleClick = useCallback(() => {

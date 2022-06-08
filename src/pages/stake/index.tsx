@@ -9,14 +9,13 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import { tryParseAmount } from 'utils/parse'
 
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
 import { MasterChefV2 } from 'constants/addresses'
 import StakeBox from 'components/App/deiPool/StakeBox'
 import { ActionTypes } from 'components/StableCoin2'
-import { useStakingData } from 'hooks/useBdeiStakingPage'
+import { useGetApy, useStakingData } from 'hooks/useBdeiStakingPage'
 import { useMasterChefV2Contract } from 'hooks/useContract'
 import toast from 'react-hot-toast'
 import { DefaultHandlerError } from 'utils/parseError'
@@ -98,6 +97,7 @@ const LeftTitle = styled(RowStart)`
 const Label = styled.div`
   color: ${({ theme }) => theme.yellow3};
   margin-left: 5px;
+  font-size: 1.2rem;
 `
 
 export default function Redemption() {
@@ -116,9 +116,8 @@ export default function Redemption() {
   const [pendingTxHash, setPendingTxHash] = useState('')
   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const bDEssi = useStakingData(0)
-  console.log(bDEssi)
-
+  const { rewardsAmount, depositAmount } = useStakingData(0)
+  const apy = useGetApy()
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
   }, [amountIn, deiCurrency])
@@ -267,10 +266,10 @@ export default function Redemption() {
     if (selected == NavigationTypes.STAKE) {
       return (
         <Wrapper>
-          <RowCenter>
+          <RowCenter style={{ alignItems: 'center' }}>
             <LeftTitle>bDEI</LeftTitle>
             <RowEnd>
-              APY:<Label>43%</Label>
+              APY:<Label>{apy}%</Label>
             </RowEnd>
           </RowCenter>
           <div style={{ marginTop: '20px' }}></div>
@@ -295,19 +294,19 @@ export default function Redemption() {
             currency={null}
             onClick={onClaimReward}
             onChange={(value: string) => console.log(value)}
-            type={'claim'}
-            value={'1.48'}
-            title={'DEUS Available'}
+            type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
+            value={`${rewardsAmount} DEUS`}
+            title={'Rewards'}
           />
         </Wrapper>
       )
     } else {
       return (
         <Wrapper>
-          <RowCenter>
+          <RowCenter style={{ alignItems: 'center' }}>
             <LeftTitle>bDEI</LeftTitle>
             <RowEnd>
-              APY:<Label>43%</Label>
+              APY:<Label>{apy}%</Label>
             </RowEnd>
           </RowCenter>
           <div style={{ marginTop: '20px' }}></div>
@@ -324,9 +323,9 @@ export default function Redemption() {
             currency={null}
             onClick={onClaimReward}
             onChange={(value: string) => console.log(value)}
-            type={'claim'}
-            value={'1.48'}
-            title={'DEUS Available'}
+            type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
+            value={`${rewardsAmount} DEUS`}
+            title={'Rewards'}
           />
         </Wrapper>
       )

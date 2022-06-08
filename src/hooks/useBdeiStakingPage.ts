@@ -5,6 +5,7 @@ import { toBN } from 'utils/numbers'
 import useWeb3React from './useWeb3'
 import { BDEI_TOKEN } from 'constants/tokens'
 import { formatUnits } from '@ethersproject/units'
+import { useDeiPrice, useDeusPrice } from './useCoingeckoPrice'
 
 export function useStakingData(pid: number): {
   depositAmount: number
@@ -59,4 +60,14 @@ export function useStakingData(pid: number): {
     tokenPerBlock: tokenPerBlockValue,
     totalDeposited: totalbDEIValue,
   }
+}
+
+export function useGetApy(): number {
+  const { tokenPerBlock, totalDeposited } = useStakingData(0)
+  const deiPrice = useDeiPrice()
+  const deusPrice = useDeusPrice()
+  return (
+    (tokenPerBlock * (tokenPerBlock * parseFloat(deusPrice) * 365 * 24 * 60 * 60)) /
+    (totalDeposited * parseFloat(deiPrice))
+  )
 }

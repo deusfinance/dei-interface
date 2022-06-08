@@ -24,6 +24,7 @@ import { DefaultHandlerError } from 'utils/parseError'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { RowCenter, RowEnd, RowStart } from 'components/Row'
 import { Navigation, NavigationTypes } from 'components/StableCoin'
+import { toBN } from 'utils/numbers'
 
 const Container = styled.div`
   display: flex;
@@ -139,45 +140,23 @@ export default function Redemption() {
   // } = useRedemptionCallback(deiCurrency, usdcCurrency, deiAmount, usdcAmount, amountOut2)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitClaimConfirmation] = useState<boolean>(false)
 
   const spender = useMemo(() => (chainId ? MasterChefV2[chainId] : undefined), [chainId])
-  const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
+  const [approvalState, approveCallback] = useApproveCallback(bdeiCurrency ?? undefined, spender)
+
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
+    const show = bdeiCurrency && approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [deiCurrency, approvalState, amountIn])
+  }, [bdeiCurrency, approvalState])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
     await approveCallback()
     setAwaitingApproveConfirmation(false)
   }
-
-  const handleDeposit = useCallback(async () => {
-    console.log('handleDeposit')
-
-    //   console.log('called handleDeposit')
-    //   console.log(depositCallbackState, depositCallback, depositCallbackError)
-    //   if (!depositCallback) return
-    //   try {
-    //     setAwaitingDepositConfirmation(true)
-    //     const txHash = await depositCallback()
-    //     setAwaitingDepositConfirmation(false)
-    //     console.log({ txHash })
-    //   } catch (e) {
-    //     setAwaitingDepositConfirmation(false)
-    //     if (e instanceof Error) {
-    //       // error = e.message
-    //     } else {
-    //       console.error(e)
-    //       // error = 'An unknown error occurred.'
-    //     }
-    //   }
-  }, []) // depositCallbackState, depositCallback, depositCallbackError
 
   const onClaimReward = useCallback(async () => {
     try {
@@ -195,14 +174,11 @@ export default function Redemption() {
     }
   }, [masterChefContract, addTransaction, account, isSupportedChainId])
 
-  //todo
-  const amountttt = 0
-
   const onDeposit = useCallback(async () => {
     try {
-      if (!masterChefContract || !account || !isSupportedChainId) return
+      if (!masterChefContract || !account || !isSupportedChainId || !amountIn) return
       setAwaitingDepositConfirmation(true)
-      const response = await masterChefContract.deposit(0, amountttt, account)
+      const response = await masterChefContract.deposit(0, toBN(amountIn).times(1e18).toFixed(), account)
       addTransaction(response, { summary: `Deposit`, vest: { hash: response.hash } })
       setAwaitingDepositConfirmation(false)
       // setPendingTxHash(response.hash)
@@ -212,15 +188,14 @@ export default function Redemption() {
       setAwaitingDepositConfirmation(false)
       // setPendingTxHash('')
     }
-  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountttt])
+  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountIn])
 
-  const amountttt2222 = 0
   const onWithdraw = useCallback(async () => {
     try {
-      if (!masterChefContract || !account || !isSupportedChainId) return
+      if (!masterChefContract || !account || !isSupportedChainId || !amountIn2) return
       setAwaitingWithdrawConfirmation(true)
-      const response = await masterChefContract.deposit(0, amountttt, account)
-      addTransaction(response, { summary: `Withdraw ${amountttt2222}`, vest: { hash: response.hash } })
+      const response = await masterChefContract.deposit(0, toBN(amountIn2).times(1e18).toFixed(), account)
+      addTransaction(response, { summary: `Withdraw ${amountIn2}`, vest: { hash: response.hash } })
       setAwaitingWithdrawConfirmation(false)
       // setPendingTxHash(response.hash)
     } catch (err) {
@@ -229,9 +204,9 @@ export default function Redemption() {
       setAwaitingWithdrawConfirmation(false)
       // setPendingTxHash('')
     }
-  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountttt2222])
+  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountIn2])
 
-  function getApproveButton(): JSX.Element | null {
+  /*   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
       return null
     }
@@ -275,7 +250,7 @@ export default function Redemption() {
     }
 
     return <DepositButton onClick={() => handleDeposit()}>Deposit</DepositButton>
-  }
+  } */
 
   const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.MINT)
 
@@ -308,9 +283,17 @@ export default function Redemption() {
         <div style={{ marginTop: '20px' }}></div>
         <StakeBox
           currency={bdeiCurrency}
-          onClick={showApprove ? onDeposit : handleApprove}
+          onClick={showApprove ? handleApprove : onDeposit}
           onChange={(value: string) => setAmountIn(value)}
-          type={'Stake'}
+          type={
+            showApprove
+              ? awaitingApproveConfirmation
+                ? 'Approving...'
+                : 'Approve'
+              : awaitingDepositConfirmation
+              ? 'Staking...'
+              : 'Stake'
+          }
           value={amountIn}
           title={'bDEI Available'}
         />
@@ -319,7 +302,7 @@ export default function Redemption() {
           currency={bdeiCurrency}
           onClick={onWithdraw}
           onChange={(value: string) => setAmountIn2(value)}
-          type={'Unstake'}
+          type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
           value={amountIn2}
           title={'bDEI Staked'}
         />

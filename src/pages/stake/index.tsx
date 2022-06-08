@@ -317,6 +317,7 @@ export default function Redemption() {
             type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
             value={amountIn2}
             title={'bDEI Staked'}
+            maxValue={'100'}
           />
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
@@ -340,6 +341,7 @@ export default function Redemption() {
       <SelectorContainer>
         <Navigation selected={selected} setSelected={setSelected} />
       </SelectorContainer>
+
       {getAppComponent()}
       <Disclaimer />
     </Container>

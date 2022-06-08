@@ -88,7 +88,7 @@ export default function StakeBox({
 }: {
   currency: Currency | null
   value: string
-  onClick(values: string): void
+  onClick: any
   onChange(value: string): void
   title: string
   disabled?: boolean
@@ -140,7 +140,9 @@ export default function StakeBox({
         </div>
 
         <div>
-          <ActionButton active>{type}</ActionButton>
+          <ActionButton active onClick={onClick}>
+            {type}
+          </ActionButton>
         </div>
       </Wrapper>
     </>

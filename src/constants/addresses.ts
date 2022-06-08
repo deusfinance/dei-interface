@@ -102,3 +102,7 @@ export const DeiBonder: AddressMap = {
 export const Swap: AddressMap = {
   [SupportedChainId.FANTOM]: '0x9caC3CE5D8327aa5AF54b1b4e99785F991885Bf3',
 }
+
+export const MasterChefV2: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x67932809213AFd6bac5ECD2e4e214Fe18209c419',
+}

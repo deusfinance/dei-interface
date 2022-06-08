@@ -13,8 +13,14 @@ import { DotFlashing } from 'components/Icons'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
-import { DynamicRedeemer } from 'constants/addresses'
+import { MasterChefV2 } from 'constants/addresses'
 import StakeBox from 'components/App/deiPool/StakeBox'
+import { ActionTypes } from 'components/StableCoin2'
+import { useStakingData } from 'hooks/useBdeiStakingPage'
+import { useMasterChefV2Contract } from 'hooks/useContract'
+import toast from 'react-hot-toast'
+import { DefaultHandlerError } from 'utils/parseError'
+import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { RowCenter, RowEnd, RowStart } from 'components/Row'
 import Navigation, { NavigationTypes } from 'components/App/Stake/Navigation'
 
@@ -103,6 +109,14 @@ export default function Redemption() {
   const bdeiCurrency = BDEI_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
   const bdeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
+  const masterChefContract = useMasterChefV2Contract()
+
+  const addTransaction = useTransactionAdder()
+  const [pendingTxHash, setPendingTxHash] = useState('')
+  const showTransactionPending = useIsTransactionPending(pendingTxHash)
+
+  const bDEssi = useStakingData(0)
+  console.log(bDEssi)
 
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
@@ -125,7 +139,11 @@ export default function Redemption() {
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? DynamicRedeemer[chainId] : undefined), [chainId])
+  const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
+  const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState<boolean>(false)
+  const [awaitingClaimConfirmation, setAwaitClaimConfirmation] = useState<boolean>(false)
+
+  const spender = useMemo(() => (chainId ? MasterChefV2[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
@@ -159,6 +177,58 @@ export default function Redemption() {
     //     }
     //   }
   }, []) // depositCallbackState, depositCallback, depositCallbackError
+
+  const onClaimReward = useCallback(async () => {
+    try {
+      if (!masterChefContract || !account || !isSupportedChainId) return
+      setAwaitClaimConfirmation(true)
+      const response = await masterChefContract.harvest(0, account)
+      addTransaction(response, { summary: `Claim Rewards`, vest: { hash: response.hash } })
+      setAwaitClaimConfirmation(false)
+      // setPendingTxHash(response.hash)
+    } catch (err) {
+      console.log(err)
+      toast.error(DefaultHandlerError(err))
+      setAwaitClaimConfirmation(false)
+      // setPendingTxHash('')
+    }
+  }, [masterChefContract, addTransaction, account, isSupportedChainId])
+
+  //todo
+  const amountttt = 0
+
+  const onDeposit = useCallback(async () => {
+    try {
+      if (!masterChefContract || !account || !isSupportedChainId) return
+      setAwaitingDepositConfirmation(true)
+      const response = await masterChefContract.deposit(0, amountttt, account)
+      addTransaction(response, { summary: `Deposit`, vest: { hash: response.hash } })
+      setAwaitingDepositConfirmation(false)
+      // setPendingTxHash(response.hash)
+    } catch (err) {
+      console.log(err)
+      toast.error(DefaultHandlerError(err))
+      setAwaitingDepositConfirmation(false)
+      // setPendingTxHash('')
+    }
+  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountttt])
+
+  const amountttt2222 = 0
+  const onWithdraw = useCallback(async () => {
+    try {
+      if (!masterChefContract || !account || !isSupportedChainId) return
+      setAwaitingWithdrawConfirmation(true)
+      const response = await masterChefContract.deposit(0, amountttt, account)
+      addTransaction(response, { summary: `Withdraw ${amountttt2222}`, vest: { hash: response.hash } })
+      setAwaitingWithdrawConfirmation(false)
+      // setPendingTxHash(response.hash)
+    } catch (err) {
+      console.log(err)
+      toast.error(DefaultHandlerError(err))
+      setAwaitingWithdrawConfirmation(false)
+      // setPendingTxHash('')
+    }
+  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountttt2222])
 
   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
@@ -289,7 +359,44 @@ export default function Redemption() {
       <SelectorContainer>
         <Navigation selected={selected} setSelected={setSelected} />
       </SelectorContainer>
+<<<<<<< HEAD
       {getAppComponent()}
+=======
+      <Wrapper>
+        <RowCenter>
+          <LeftTitle>bDEI</LeftTitle>
+          <RowEnd>
+            APY:<Label>43%</Label>
+          </RowEnd>
+        </RowCenter>
+        <div style={{ marginTop: '20px' }}></div>
+        <StakeBox
+          currency={bdeiCurrency}
+          onClick={showApprove ? onDeposit : handleApprove}
+          onChange={(value: string) => setAmountIn(value)}
+          type={'Stake'}
+          value={amountIn}
+          title={'bDEI Available'}
+        />
+        <div style={{ marginTop: '20px' }}></div>
+        <StakeBox
+          currency={bdeiCurrency}
+          onClick={onWithdraw}
+          onChange={(value: string) => setAmountIn2(value)}
+          type={'Unstake'}
+          value={amountIn2}
+          title={'bDEI Staked'}
+        />
+        <div style={{ marginTop: '20px' }}></div>
+        <StakeBox
+          onClick={(value: string) => console.log('test')}
+          onChange={(value: string) => console.log(value)}
+          type={'claim'}
+          value={'1.48'}
+          title={'DEUS Available'}
+        />
+      </Wrapper>
+>>>>>>> f4f662bd74a614b9c0a57e6b1c0190b5a5ff91c8
       <Disclaimer />
     </Container>
   )

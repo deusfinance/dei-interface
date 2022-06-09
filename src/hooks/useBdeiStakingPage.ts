@@ -7,6 +7,45 @@ import { BDEI_TOKEN } from 'constants/tokens'
 import { formatUnits } from '@ethersproject/units'
 import { useDeiPrice, useDeusPrice } from './useCoingeckoPrice'
 
+export function useTokenPerBlock(): {
+  tokenPerBlock: number
+  totalDeposited: number
+} {
+  const contract = useMasterChefV2Contract()
+  const bDEIContract = useERC20Contract(BDEI_TOKEN.address)
+
+  const calls = [
+    {
+      methodName: 'tokenPerBlock',
+      callInputs: [],
+    },
+  ]
+
+  const bDEICalls = !contract
+    ? []
+    : [
+        {
+          methodName: 'balanceOf',
+          callInputs: [contract.address],
+        },
+      ]
+
+  const [tokenPerBlock] = useSingleContractMultipleMethods(contract, calls)
+  const [totalBDEI] = useSingleContractMultipleMethods(bDEIContract, bDEICalls)
+
+  const { tokenPerBlockValue, totalbDEIValue } = useMemo(() => {
+    return {
+      tokenPerBlockValue: tokenPerBlock?.result ? toBN(formatUnits(tokenPerBlock.result[0], 18)).toNumber() : 0,
+      totalbDEIValue: totalBDEI?.result ? toBN(formatUnits(totalBDEI.result[0], 18)).toNumber() : 0,
+    }
+  }, [tokenPerBlock, totalBDEI])
+
+  return {
+    tokenPerBlock: tokenPerBlockValue,
+    totalDeposited: totalbDEIValue,
+  }
+}
+
 export function useStakingData(pid: number): {
   depositAmount: number
   rewardsAmount: number
@@ -63,12 +102,10 @@ export function useStakingData(pid: number): {
 }
 
 export function useGetApy(): number {
-  const { tokenPerBlock, totalDeposited } = useStakingData(0)
+  const { tokenPerBlock, totalDeposited } = useTokenPerBlock()
+  // const { tokenPerBlock, totalDeposited } = useStakingData(0)
+  console.log(tokenPerBlock, totalDeposited)
   const deiPrice = useDeiPrice()
   const deusPrice = useDeusPrice()
-
-  return (
-    (tokenPerBlock * (tokenPerBlock * parseFloat(deusPrice) * 365 * 24 * 60 * 60)) /
-    (totalDeposited * parseFloat(deiPrice))
-  )
+  return (tokenPerBlock * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) / (totalDeposited * parseFloat(deiPrice))
 }

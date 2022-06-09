@@ -18,6 +18,8 @@ import { DynamicRedeemer } from 'constants/addresses'
 // import StakeBox from 'components/App/deiPool/StakeBox'
 import { ActionTypes } from 'components/StableCoin2'
 import { ActionSetter } from 'components/StableCoin2'
+import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
+import StakeBox from 'components/App/deiPool/StakeBox'
 
 const Container = styled.div`
   display: flex;
@@ -27,13 +29,14 @@ const Container = styled.div`
 `
 
 const Wrapper = styled(Container)`
-  margin: 0 auto;
   margin-top: 50px;
   width: clamp(250px, 90%, 500px);
   background-color: rgb(13 13 13);
   padding: 20px 15px;
   border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
   /* justify-content: center; */
   /* & > * {
     &:nth-child(2) {
@@ -48,7 +51,11 @@ const TopWrapper = styled.div`
   flex-wrap: wrap;
 `
 
-const RightWrapper = styled.div`
+const FarmWrapper = styled(Wrapper)`
+  border-radius: 15px;
+`
+
+const LiquidityWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 50%;
@@ -172,7 +179,7 @@ export default function Redemption() {
     return null
   }
 
-  function getActionButton(): JSX.Element | null {
+  function getActionButton(type: string): JSX.Element | null {
     if (!chainId || !account) {
       return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
     }
@@ -186,22 +193,42 @@ export default function Redemption() {
     if (awaitingRedeemConfirmation) {
       return (
         <DepositButton>
-          Depositing DEI/bDEI <DotFlashing style={{ marginLeft: '10px' }} />
+          {type === 'add' ? 'Depositing DEI/bDEI' : 'Withdrawing DEI/bDEI'}
+          <DotFlashing style={{ marginLeft: '10px' }} />
         </DepositButton>
       )
     }
 
-    return <DepositButton onClick={() => handleDeposit()}>Deposit</DepositButton>
+    return <DepositButton onClick={() => handleDeposit()}>{type === 'add' ? 'Deposit' : 'Withdraw'}</DepositButton>
   }
 
   const [selected, setSelected] = useState<ActionTypes>(ActionTypes.ADD)
+  const [slippage, setSlippage] = useState(0.5)
 
   const getAppComponent = (): JSX.Element => {
     if (selected == ActionTypes.REMOVE) {
       return (
         <>
           <Wrapper>
-            <span> hi </span>
+            <InputBox
+              currency={deiCurrency}
+              value={amountIn}
+              onChange={(value: string) => setAmountIn(value)}
+              title={'From'}
+            />
+
+            <div style={{ marginTop: '20px' }}></div>
+
+            <InputBox
+              currency={bdeiCurrency}
+              value={amountIn2}
+              onChange={(value: string) => setAmountIn2(value)}
+              title={'From'}
+            />
+
+            <div style={{ marginTop: '20px' }}></div>
+            {getApproveButton()}
+            {getActionButton('remove')}
           </Wrapper>
         </>
       )
@@ -227,7 +254,7 @@ export default function Redemption() {
 
             <div style={{ marginTop: '20px' }}></div>
             {getApproveButton()}
-            {getActionButton()}
+            {getActionButton('add')}
           </Wrapper>
         </>
       )
@@ -240,30 +267,35 @@ export default function Redemption() {
         <div>Liquidity pool</div>
       </Hero>
       <TopWrapper>
-        <RightWrapper>
+        <LiquidityWrapper>
           <ToggleState>
             <ActionSetter selected={selected} setSelected={setSelected} />
           </ToggleState>
 
           {getAppComponent()}
-        </RightWrapper>
-        <Wrapper>
+          <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
+        </LiquidityWrapper>
+        <FarmWrapper>
           <LeftTitle>My farm</LeftTitle>
           <div style={{ marginTop: '20px' }}></div>
-          {/* <StakeBox
+          <StakeBox
+            currency={null}
             onClick={(value: string) => console.log('test')}
-            type={'stake'}
+            onChange={(value: string) => console.log('test')}
+            type={'Stake All'}
             value={'1.48'}
             title={'LP Available'}
           />
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
+            currency={null}
             onClick={(value: string) => console.log('test')}
-            type={'unstake'}
+            onChange={(value: string) => console.log('test')}
+            type={'Unstake All'}
             value={'2.1'}
             title={'LP Staked'}
-          /> */}
-        </Wrapper>
+          />
+        </FarmWrapper>
       </TopWrapper>
       <Disclaimer />
     </Container>

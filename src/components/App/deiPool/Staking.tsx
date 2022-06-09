@@ -11,6 +11,7 @@ import { MasterChefV2 } from 'constants/addresses'
 import StakeBox from 'components/App/deiPool/StakeBox'
 import { useGetApy, useStakingData } from 'hooks/useBdeiStakingPage'
 import { useMasterChefV2Contract } from 'hooks/useContract'
+import Navigation, { NavigationTypes } from 'components/App/Stake/Navigation'
 import toast from 'react-hot-toast'
 import { DefaultHandlerError } from 'utils/parseError'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -18,6 +19,7 @@ import { RowCenter, RowEnd, RowStart } from 'components/Row'
 import { toBN } from 'utils/numbers'
 import { Loader } from 'components/Icons'
 import { Currency } from '@sushiswap/core-sdk'
+import { StakingType } from 'constants/stakings'
 
 const Container = styled.div`
   display: flex;
@@ -54,9 +56,20 @@ const Label = styled.div`
   font-size: 1.2rem;
 `
 
-export default function Staking({ type, pid, currency }: { type: string; pid: number; currency: Currency }) {
+const SelectorContainer = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: visible;
+  margin: 0 auto;
+  padding-right: 24px;
+  margin-bottom: 12px;
+`
+
+export default function Staking({ pool }: { pool: StakingType }) {
   const { chainId, account } = useWeb3React()
   //   const toggleWalletModal = useWalletModalToggle()
+  const { token: currency, pid, name } = pool
+
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
@@ -82,6 +95,8 @@ export default function Staking({ type, pid, currency }: { type: string; pid: nu
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitClaimConfirmation] = useState<boolean>(false)
+
+  const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.STAKE)
 
   const spender = useMemo(() => (chainId ? MasterChefV2[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(currency ?? undefined, spender)
@@ -152,52 +167,58 @@ export default function Staking({ type, pid, currency }: { type: string; pid: nu
   )
 
   return (
-    <Wrapper>
-      <RowCenter style={{ alignItems: 'center' }}>
-        <LeftTitle>{currency.name}</LeftTitle>
-        <RowEnd>
-          APR:<Label>{apr ? `${apr.toFixed(3)}%` : <Loader />}</Label>
-        </RowEnd>
-      </RowCenter>
-      <div style={{ marginTop: '20px' }}></div>
-      {type === 'unstake' && (
+    <>
+      <Wrapper>
+        <SelectorContainer>
+          <Navigation selected={selected} setSelected={setSelected} />
+        </SelectorContainer>
+
+        <RowCenter style={{ alignItems: 'center' }}>
+          <LeftTitle>{name}</LeftTitle>
+          <RowEnd>
+            APR:<Label>{apr ? `${apr.toFixed(3)}%` : <Loader />}</Label>
+          </RowEnd>
+        </RowCenter>
+        <div style={{ marginTop: '20px' }}></div>
+        {selected === NavigationTypes.UNSTAKE && (
+          <StakeBox
+            currency={currency}
+            onClick={() => onWithdraw(pid)}
+            onChange={(value: string) => setAmountIn(value)}
+            type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
+            value={amountIn}
+            title={`${currency.name} Staked`}
+            maxValue={depositAmount.toString()}
+          />
+        )}
+        {selected === NavigationTypes.STAKE && (
+          <StakeBox
+            currency={currency}
+            onClick={showApprove ? handleApprove : () => onDeposit(pid)}
+            onChange={(value: string) => setAmountIn(value)}
+            type={
+              showApprove
+                ? awaitingApproveConfirmation
+                  ? 'Approving...'
+                  : 'Approve'
+                : awaitingDepositConfirmation
+                ? 'Staking...'
+                : 'Stake'
+            }
+            value={amountIn}
+            title={'LP Balance:'}
+          />
+        )}
+        <div style={{ marginTop: '20px' }}></div>
         <StakeBox
-          currency={currency}
-          onClick={() => onWithdraw(pid)}
-          onChange={(value: string) => setAmountIn(value)}
-          type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
-          value={amountIn}
-          title={`${currency.name} Staked`}
-          maxValue={depositAmount.toString()}
+          currency={null}
+          onClick={onClaimReward}
+          onChange={(value: string) => console.log(value)}
+          type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
+          value={`${rewardsAmount.toFixed(3)} DEUS`}
+          title={'Rewards'}
         />
-      )}
-      {type === 'stake' && (
-        <StakeBox
-          currency={currency}
-          onClick={showApprove ? handleApprove : () => onDeposit(pid)}
-          onChange={(value: string) => setAmountIn(value)}
-          type={
-            showApprove
-              ? awaitingApproveConfirmation
-                ? 'Approving...'
-                : 'Approve'
-              : awaitingDepositConfirmation
-              ? 'Staking...'
-              : 'Stake'
-          }
-          value={amountIn}
-          title={'LP Balance:'}
-        />
-      )}
-      <div style={{ marginTop: '20px' }}></div>
-      <StakeBox
-        currency={null}
-        onClick={onClaimReward}
-        onChange={(value: string) => console.log(value)}
-        type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
-        value={`${rewardsAmount.toFixed(3)} DEUS`}
-        title={'Rewards'}
-      />
-    </Wrapper>
+      </Wrapper>
+    </>
   )
 }

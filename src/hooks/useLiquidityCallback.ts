@@ -144,7 +144,9 @@ export default function useManageLiquidity(
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const summary = `Deposit into pool for ${minAmountOut} LP-bDEI/DEI`
+            const summary = isRemove
+              ? `Remove ${minAmountOut} LP-bDEI/DEI from pool`
+              : `Deposit into pool for ${minAmountOut} LP-bDEI/DEI`
             // TODO: add different summary
             addTransaction(response, { summary })
 
@@ -174,5 +176,6 @@ export default function useManageLiquidity(
     addTransaction,
     constructCall,
     swapContract,
+    isRemove,
   ])
 }

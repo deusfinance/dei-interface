@@ -22,6 +22,7 @@ import { useIsTransactionPending, useTransactionAdder } from 'state/transactions
 import { RowCenter, RowEnd, RowStart } from 'components/Row'
 import { toBN } from 'utils/numbers'
 import Navigation, { NavigationTypes } from 'components/App/Stake/Navigation'
+import { Loader } from 'components/Icons'
 
 const Container = styled.div`
   display: flex;
@@ -268,7 +269,7 @@ export default function Pools() {
           <RowCenter style={{ alignItems: 'center' }}>
             <LeftTitle>bDEI</LeftTitle>
             <RowEnd>
-              APR:<Label>{apy.toFixed(3)}%</Label>
+              APR:<Label>{apy ? `${apy.toFixed(3)}%` : <Loader />}</Label>
             </RowEnd>
           </RowCenter>
           <div style={{ marginTop: '20px' }}></div>
@@ -305,7 +306,7 @@ export default function Pools() {
           <RowCenter style={{ alignItems: 'center' }}>
             <LeftTitle>bDEI</LeftTitle>
             <RowEnd>
-              APR:<Label>{apy.toFixed(3)}%</Label>
+              APR:<Label>{apy ? `${apy.toFixed(3)}%` : <Loader />}</Label>
             </RowEnd>
           </RowCenter>
           <div style={{ marginTop: '20px' }}></div>

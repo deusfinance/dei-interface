@@ -268,7 +268,7 @@ export default function Pools() {
           <RowCenter style={{ alignItems: 'center' }}>
             <LeftTitle>bDEI</LeftTitle>
             <RowEnd>
-              APR:<Label>{apy}%</Label>
+              APR:<Label>{apy.toFixed(3)}%</Label>
             </RowEnd>
           </RowCenter>
           <div style={{ marginTop: '20px' }}></div>
@@ -286,7 +286,7 @@ export default function Pools() {
                 : 'Stake'
             }
             value={amountIn}
-            title={'bDEI Available'}
+            title={'bDEI Balance:'}
           />
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
@@ -294,7 +294,7 @@ export default function Pools() {
             onClick={onClaimReward}
             onChange={(value: string) => console.log(value)}
             type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
-            value={`${rewardsAmount} DEUS`}
+            value={`${rewardsAmount.toFixed(3)} DEUS`}
             title={'Rewards'}
           />
         </Wrapper>
@@ -305,7 +305,7 @@ export default function Pools() {
           <RowCenter style={{ alignItems: 'center' }}>
             <LeftTitle>bDEI</LeftTitle>
             <RowEnd>
-              APR:<Label>{apy}%</Label>
+              APR:<Label>{apy.toFixed(3)}%</Label>
             </RowEnd>
           </RowCenter>
           <div style={{ marginTop: '20px' }}></div>
@@ -324,7 +324,7 @@ export default function Pools() {
             onClick={onClaimReward}
             onChange={(value: string) => console.log(value)}
             type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
-            value={`${rewardsAmount} DEUS`}
+            value={`${rewardsAmount.toFixed(3)} DEUS`}
             title={'Rewards'}
           />
         </Wrapper>

@@ -80,7 +80,7 @@ export default function useManageLiquidity(
         error: 'Missing dependencies',
       }
     }
-    if (!amounts || !minAmountOut) {
+    if (!amounts || !amounts.length || !minAmountOut) {
       return {
         state: LiquidityCallbackState.INVALID,
         callback: null,
@@ -145,6 +145,7 @@ export default function useManageLiquidity(
           .then((response: TransactionResponse) => {
             console.log(response)
             const summary = `Deposit into pool for ${minAmountOut} LP-bDEI/DEI`
+            // TODO: add different summary
             addTransaction(response, { summary })
 
             return response.hash
@@ -161,5 +162,17 @@ export default function useManageLiquidity(
           })
       },
     }
-  }, [account, chainId, library, addTransaction, constructCall, swapContract])
+  }, [
+    account,
+    chainId,
+    library,
+    amounts,
+    deadline,
+    minAmountOut,
+    pool,
+    slippage,
+    addTransaction,
+    constructCall,
+    swapContract,
+  ])
 }

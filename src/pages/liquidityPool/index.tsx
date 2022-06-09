@@ -23,6 +23,7 @@ import { ActionSetter } from 'components/StableCoin2'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import StakeBox from 'components/App/deiPool/StakeBox'
 import useDebounce from 'hooks/useDebounce'
+import { ArrowDown } from 'react-feather'
 
 const Container = styled.div`
   display: flex;
@@ -40,12 +41,11 @@ const Wrapper = styled(Container)`
   border-radius: 15px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
-  /* justify-content: center; */
-  /* & > * {
+  & > * {
     &:nth-child(2) {
       margin: 15px auto;
     }
-  } */
+  }
 `
 
 const TopWrapper = styled.div`
@@ -62,6 +62,11 @@ const LiquidityWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 50%;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: clamp(250px, 90%, 500px);
+    margin: 0 auto;
+  `}
 `
 
 const ToggleState = styled.div`
@@ -113,7 +118,7 @@ export default function LiquidityPool() {
   const debouncedAmountIn2 = useDebounce(amountIn2, 500)
   const debouncedLPAmountIn = useDebounce(lpAmountIn, 500)
 
-  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn).toString()
+  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn)
   const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2]).toString()
   console.log({ amountOut, amountOut2, lpAmountIn })
 
@@ -126,6 +131,7 @@ export default function LiquidityPool() {
   }, [amountIn2, bdeiCurrency])
 
   const insufficientBalance = useMemo(() => {
+    // TODO: complete this later
     if (!deiAmount || !bdeiAmount) return false
     return deiCurrencyBalance?.lessThan(deiAmount) && bdeiCurrencyBalance?.lessThan(bdeiAmount)
   }, [deiCurrencyBalance, bdeiCurrencyBalance, deiAmount, bdeiAmount])
@@ -135,8 +141,8 @@ export default function LiquidityPool() {
     callback: liquidityCallback,
     error: liquidityCallbackError,
   } = useManageLiquidity(
-    [debouncedAmountIn, debouncedAmountIn2],
-    isRemove ? amountOut : amountOut2,
+    isRemove ? amountOut : [debouncedAmountIn, debouncedAmountIn2],
+    isRemove ? lpAmountIn : amountOut2,
     pool,
     slippage,
     20,
@@ -159,6 +165,12 @@ export default function LiquidityPool() {
     return [show, show && approvalState2 === ApprovalState.PENDING]
   }, [bdeiCurrency, approvalState2, amountIn2])
 
+  const [approvalState3, approveCallback3] = useApproveCallback(lpCurrency ?? undefined, spender)
+  const [showApprove3, showApproveLoader3] = useMemo(() => {
+    const show = lpCurrency && approvalState3 !== ApprovalState.APPROVED && !!lpAmountIn
+    return [show, show && approvalState3 === ApprovalState.PENDING]
+  }, [lpCurrency, approvalState3, lpAmountIn])
+
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
     await approveCallback()
@@ -168,6 +180,12 @@ export default function LiquidityPool() {
   const handleApprove2 = async () => {
     setAwaitingApproveConfirmation(true)
     await approveCallback2()
+    setAwaitingApproveConfirmation(false)
+  }
+
+  const handleApprove3 = async () => {
+    setAwaitingApproveConfirmation(true)
+    await approveCallback3()
     setAwaitingApproveConfirmation(false)
   }
 
@@ -195,8 +213,8 @@ export default function LiquidityPool() {
     [liquidityCallbackState, liquidityCallback, liquidityCallbackError]
   )
 
-  function getApproveButton(): JSX.Element | null {
-    if (!isSupportedChainId || !account) {
+  function getApproveButton(type: string): JSX.Element | null {
+    if (!isSupportedChainId || !account || !type) {
       return null
     }
     if (awaitingApproveConfirmation) {
@@ -206,26 +224,30 @@ export default function LiquidityPool() {
         </DepositButton>
       )
     }
-    if (showApproveLoader || showApproveLoader2) {
+    if (showApproveLoader || showApproveLoader2 || showApproveLoader3) {
       return (
         <DepositButton active>
           Approving <DotFlashing style={{ marginLeft: '10px' }} />
         </DepositButton>
       )
     }
-    if (showApprove) {
+    if (showApprove && type === 'add') {
       return <DepositButton onClick={handleApprove}>Allow us to spend {deiCurrency?.symbol}</DepositButton>
-    } else if (showApprove2) {
+    } else if (showApprove2 && type === 'add') {
       return <DepositButton onClick={handleApprove2}>Allow us to spend {bdeiCurrency?.symbol}</DepositButton>
+    } else if (showApprove3 && type === 'remove') {
+      return <DepositButton onClick={handleApprove3}>Allow us to spend {lpCurrency?.symbol}</DepositButton>
     }
     return null
   }
 
   function getActionButton(type: string): JSX.Element | null {
-    if (!chainId || !account) {
+    if (!chainId || !account || !type) {
       return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
     }
-    if (showApprove || showApprove2) {
+    if ((showApprove || showApprove2) && type === 'add') {
+      return null
+    } else if (showApprove3 && type === 'remove') {
       return null
     }
 
@@ -251,23 +273,33 @@ export default function LiquidityPool() {
         <>
           <Wrapper>
             <InputBox
-              currency={deiCurrency}
-              value={amountIn}
-              onChange={(value: string) => setAmountIn(value)}
+              currency={lpCurrency}
+              value={lpAmountIn}
+              onChange={(value: string) => setLPAmountIn(value)}
               title={'From'}
+            />
+            <ArrowDown style={{ cursor: 'pointer' }} />
+
+            <InputBox
+              currency={deiCurrency}
+              value={amountOut[0]?.toString()}
+              onChange={() => console.debug('')}
+              title={'To'}
+              disabled
             />
 
             <div style={{ marginTop: '20px' }}></div>
 
             <InputBox
               currency={bdeiCurrency}
-              value={amountIn2}
-              onChange={(value: string) => setAmountIn2(value)}
-              title={'From'}
+              value={amountOut[1]?.toString()}
+              onChange={() => console.debug('')}
+              title={'To'}
+              disabled
             />
 
             <div style={{ marginTop: '20px' }}></div>
-            {getApproveButton()}
+            {getApproveButton('remove')}
             {getActionButton('remove')}
           </Wrapper>
         </>
@@ -293,7 +325,7 @@ export default function LiquidityPool() {
             />
 
             <div style={{ marginTop: '20px' }}></div>
-            {getApproveButton()}
+            {getApproveButton('add')}
             {getActionButton('add')}
           </Wrapper>
         </>
@@ -319,21 +351,23 @@ export default function LiquidityPool() {
           <LeftTitle>My farm</LeftTitle>
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
-            currency={null}
-            onClick={(value: string) => console.log('test')}
-            onChange={(value: string) => console.log('test')}
+            currency={lpCurrency}
+            onClick={() => console.debug('')}
+            onChange={() => console.debug('')}
             type={'Stake All'}
-            value={'1.48'}
+            value={lpCurrencyBalance?.toSignificant(6) || '0'}
             title={'LP Available'}
+            disabled
           />
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
             currency={null}
-            onClick={(value: string) => console.log('test')}
-            onChange={(value: string) => console.log('test')}
+            onClick={() => console.debug('')}
+            onChange={() => console.debug('')}
             type={'Unstake All'}
             value={'2.1'}
             title={'LP Staked'}
+            disabled
           />
         </FarmWrapper>
       </TopWrapper>

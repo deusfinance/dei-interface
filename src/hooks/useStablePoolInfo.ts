@@ -90,7 +90,7 @@ export function useRemoveLiquidity(pool: StablePoolType, amountIn: string): numb
     if (!result || !result.result?.length) return []
     if (!result.result[0].length) return []
     return result.result[0].map((balance: BigNumber, index: number) => {
-      return toBN(balance.toString()).div(BN_TEN.pow(pool.liquidityTokens[index].decimals)).toNumber()
+      return toBN(balance.toString()).div(BN_TEN.pow(pool.liquidityTokens[index].decimals)).toNumber().toString()
     })
   }, [result, pool])
 }

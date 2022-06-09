@@ -134,7 +134,7 @@ export default function StakeBox({
   return (
     <>
       <Wrapper>
-        <div style={{ flex: 1, paddingRight: '20px' }}>
+        <div style={{ flex: 1 }}>
           <RowBetween alignItems={'center'}>
             {type === 'claim' || type === 'claiming' ? (
               <TextData style={{ opacity: '0' }}>{'.'}</TextData>

@@ -64,7 +64,7 @@ const LiquidityWrapper = styled.div`
   width: 50%;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: clamp(250px, 90%, 500px);
+    width: 100%;
     margin: 0 auto;
   `}
 `

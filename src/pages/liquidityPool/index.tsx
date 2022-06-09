@@ -14,12 +14,15 @@ import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
 import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
-import { DynamicRedeemer } from 'constants/addresses'
+import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
+import useManageLiquidity from 'hooks/useLiquidityCallback'
+import { StablePools } from 'constants/sPools'
 // import StakeBox from 'components/App/deiPool/StakeBox'
 import { ActionTypes } from 'components/StableCoin2'
 import { ActionSetter } from 'components/StableCoin2'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import StakeBox from 'components/App/deiPool/StakeBox'
+import useDebounce from 'hooks/useDebounce'
 
 const Container = styled.div`
   display: flex;
@@ -88,16 +91,31 @@ const LeftTitle = styled.span`
   font-weight: 500;
 `
 
-export default function Redemption() {
+export default function LiquidityPool() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const [amountIn2, setAmountIn2] = useState('')
+  const [lpAmountIn, setLPAmountIn] = useState('')
+  const [isRemove, setIsRemove] = useState(false)
+  const [selected, setSelected] = useState<ActionTypes>(ActionTypes.ADD)
+  const [slippage, setSlippage] = useState(0.5)
   const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
+  const pool = StablePools[0]
+  const lpCurrency = pool.lpToken
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
   const bdeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
+  const lpCurrencyBalance = useCurrencyBalance(account ?? undefined, lpCurrency)
+
+  const debouncedAmountIn = useDebounce(amountIn, 500)
+  const debouncedAmountIn2 = useDebounce(amountIn2, 500)
+  const debouncedLPAmountIn = useDebounce(lpAmountIn, 500)
+
+  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn).toString()
+  const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2]).toString()
+  console.log({ amountOut, amountOut2, lpAmountIn })
 
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
@@ -112,15 +130,23 @@ export default function Redemption() {
     return deiCurrencyBalance?.lessThan(deiAmount) && bdeiCurrencyBalance?.lessThan(bdeiAmount)
   }, [deiCurrencyBalance, bdeiCurrencyBalance, deiAmount, bdeiAmount])
 
-  // const {
-  //   state: depositCallbackState,
-  //   callback: depositCallback,
-  //   error: depositCallbackError,
-  // } = useRedemptionCallback(deiCurrency, usdcCurrency, deiAmount, usdcAmount, amountOut2)
+  const {
+    state: liquidityCallbackState,
+    callback: liquidityCallback,
+    error: liquidityCallbackError,
+  } = useManageLiquidity(
+    [debouncedAmountIn, debouncedAmountIn2],
+    isRemove ? amountOut : amountOut2,
+    pool,
+    slippage,
+    20,
+    isRemove
+  )
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? DynamicRedeemer[chainId] : undefined), [chainId])
+  const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState<boolean>(false)
+  const spender = useMemo(() => (chainId ? pool.swapFlashLoan : undefined), [chainId])
+
   const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
@@ -145,27 +171,29 @@ export default function Redemption() {
     setAwaitingApproveConfirmation(false)
   }
 
-  const handleDeposit = useCallback(async () => {
-    console.log('handleDeposit')
-
-    //   console.log('called handleDeposit')
-    //   console.log(depositCallbackState, depositCallback, depositCallbackError)
-    //   if (!depositCallback) return
-    //   try {
-    //     setAwaitingDepositConfirmation(true)
-    //     const txHash = await depositCallback()
-    //     setAwaitingDepositConfirmation(false)
-    //     console.log({ txHash })
-    //   } catch (e) {
-    //     setAwaitingDepositConfirmation(false)
-    //     if (e instanceof Error) {
-    //       // error = e.message
-    //     } else {
-    //       console.error(e)
-    //       // error = 'An unknown error occurred.'
-    //     }
-    //   }
-  }, []) // depositCallbackState, depositCallback, depositCallbackError
+  const handleLiquidity = useCallback(
+    async (type: string) => {
+      console.log('called handleLiquidity')
+      console.log(liquidityCallbackState, liquidityCallback, liquidityCallbackError)
+      type === 'add' ? setIsRemove(false) : setIsRemove(true)
+      if (!liquidityCallback) return
+      try {
+        setAwaitingLiquidityConfirmation(true)
+        const txHash = await liquidityCallback()
+        setAwaitingLiquidityConfirmation(false)
+        console.log({ txHash })
+      } catch (e) {
+        setAwaitingLiquidityConfirmation(false)
+        if (e instanceof Error) {
+          // error = e.message
+        } else {
+          console.error(e)
+          // error = 'An unknown error occurred.'
+        }
+      }
+    },
+    [liquidityCallbackState, liquidityCallback, liquidityCallbackError]
+  )
 
   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
@@ -204,7 +232,7 @@ export default function Redemption() {
     if (insufficientBalance) {
       return <DepositButton disabled>Insufficient {deiCurrency?.symbol} Balance</DepositButton>
     }
-    if (awaitingRedeemConfirmation) {
+    if (awaitingLiquidityConfirmation) {
       return (
         <DepositButton>
           {type === 'add' ? 'Depositing DEI/bDEI' : 'Withdrawing DEI/bDEI'}
@@ -212,12 +240,10 @@ export default function Redemption() {
         </DepositButton>
       )
     }
-
-    return <DepositButton onClick={() => handleDeposit()}>{type === 'add' ? 'Deposit' : 'Withdraw'}</DepositButton>
+    return (
+      <DepositButton onClick={() => handleLiquidity(type)}>{type === 'add' ? 'Deposit' : 'Withdraw'}</DepositButton>
+    )
   }
-
-  const [selected, setSelected] = useState<ActionTypes>(ActionTypes.ADD)
-  const [slippage, setSlippage] = useState(0.5)
 
   const getAppComponent = (): JSX.Element => {
     if (selected == ActionTypes.REMOVE) {

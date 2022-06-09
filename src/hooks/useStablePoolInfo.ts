@@ -37,11 +37,13 @@ export function usePoolBalances(pool: StablePoolType): number[] {
 export function useAddLiquidity(pool: StablePoolType, amountIns: string[]): number {
   const { account } = useWeb3React()
   const contract = useDeiSwapContract()
+  console.log({ amountIns })
 
   const amountsInBN: string[] = useMemo(() => {
-    return amountIns.map((amount, index) =>
-      toBN(amount).times(BN_TEN.pow(pool.liquidityTokens[index].decimals)).toFixed()
-    )
+    return amountIns.map((amount, index) => {
+      if (!amount) return '0'
+      return toBN(amount).times(BN_TEN.pow(pool.liquidityTokens[index].decimals)).toFixed()
+    })
   }, [amountIns, pool])
 
   const liqCalls = useMemo(
@@ -71,7 +73,7 @@ export function useRemoveLiquidity(pool: StablePoolType, amountIn: string): numb
   const amountInBN = toBN(amountIn).times(1e18).toFixed()
   const liqCalls = useMemo(
     () =>
-      !account || amountInBN == ''
+      !account || amountIn == ''
         ? []
         : [
             {
@@ -79,7 +81,7 @@ export function useRemoveLiquidity(pool: StablePoolType, amountIn: string): numb
               callInputs: [amountInBN],
             },
           ],
-    [account, amountInBN]
+    [account, amountIn, amountInBN]
   )
 
   const [result] = useSingleContractMultipleMethods(contract, liqCalls)

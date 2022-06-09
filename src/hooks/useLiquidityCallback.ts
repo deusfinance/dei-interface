@@ -1,18 +1,16 @@
 import { useCallback, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
-import { Currency, CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core-sdk'
 import toast from 'react-hot-toast'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useDeiSwapContract } from 'hooks/useContract'
 import { calculateGasMargin } from 'utils/web3'
-import { toHex } from 'utils/hex'
 import { DefaultHandlerError } from 'utils/parseError'
-import { toBN } from 'utils/numbers'
+import { BN_TEN, toBN } from 'utils/numbers'
 import { StablePoolType } from 'constants/sPools'
 
-export enum RedeemCallbackState {
+export enum LiquidityCallbackState {
   INVALID = 'INVALID',
   VALID = 'VALID',
 }
@@ -23,9 +21,9 @@ export default function useManageLiquidity(
   pool: StablePoolType,
   slippage: number,
   deadline: number,
-  remove: boolean
+  isRemove: boolean
 ): {
-  state: RedeemCallbackState
+  state: LiquidityCallbackState
   callback: null | (() => Promise<string>)
   error: string | null
 } {
@@ -33,6 +31,11 @@ export default function useManageLiquidity(
   const addTransaction = useTransactionAdder()
   const swapContract = useDeiSwapContract()
   const deadlineValue = Math.round(new Date().getTime() / 1000 + 60 * deadline)
+  const minAmountOutBN = toBN(minAmountOut).times(1e18).toFixed(0, 1)
+  const amountsInBN = amounts.map((amount, index) => {
+    if (amount == '') return '0'
+    return toBN(amount).times(BN_TEN.pow(pool.liquidityTokens[index].decimals)).toFixed(0, 1)
+  })
 
   const constructCall = useCallback(() => {
     try {
@@ -40,13 +43,21 @@ export default function useManageLiquidity(
         throw new Error('Missing dependencies.')
       }
       let args = []
-      const methodName = remove ? 'removeLiquidity' : 'addLiquidity'
+      const methodName = isRemove ? 'removeLiquidity' : 'addLiquidity'
 
-      const subtractSlippage = toBN(toHex(deiAmount.quotient))
-        .multipliedBy((100 - Number(slippage)) / 100)
-        .toFixed(0, 1)
-
-      args = [1, 0, toHex(bdeiAmount.quotient), subtractSlippage, deadlineValue]
+      if (isRemove) {
+        const minAmountsBN = amountsInBN.map((amount) => {
+          return toBN(amount)
+            .multipliedBy((100 - Number(slippage)) / 100)
+            .toFixed(0, 1)
+        })
+        args = [minAmountOutBN, minAmountsBN, deadlineValue]
+      } else {
+        const minToMint = toBN(minAmountOutBN)
+          .multipliedBy((100 - Number(slippage)) / 100)
+          .toFixed(0, 1)
+        args = [amountsInBN, minToMint, deadlineValue]
+      }
       console.log({ args })
 
       return {
@@ -59,26 +70,26 @@ export default function useManageLiquidity(
         error,
       }
     }
-  }, [account, library, swapContract, deiAmount, bdeiAmount, slippage, deadlineValue])
+  }, [account, library, swapContract, amounts, slippage, isRemove, minAmountOutBN, amountsInBN, deadlineValue])
 
   return useMemo(() => {
-    if (!account || !chainId || !library || !swapContract || !bdeiCurrency || !deiCurrency || !deiAmount) {
+    if (!account || !chainId || !library || !swapContract || !pool || !slippage || !deadline) {
       return {
-        state: RedeemCallbackState.INVALID,
+        state: LiquidityCallbackState.INVALID,
         callback: null,
         error: 'Missing dependencies',
       }
     }
-    if (!bdeiAmount || !deiAmount) {
+    if (!amounts || !minAmountOut) {
       return {
-        state: RedeemCallbackState.INVALID,
+        state: LiquidityCallbackState.INVALID,
         callback: null,
         error: 'No amount provided',
       }
     }
 
     return {
-      state: RedeemCallbackState.VALID,
+      state: LiquidityCallbackState.VALID,
       error: null,
       callback: async function onSwap(): Promise<string> {
         console.log('onSwap callback')
@@ -133,7 +144,7 @@ export default function useManageLiquidity(
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const summary = `Swap ${bdeiAmount?.toSignificant()} bDEI for ${deiAmount?.toSignificant()} DEI`
+            const summary = `Deposit into pool for ${minAmountOut} LP-bDEI/DEI`
             addTransaction(response, { summary })
 
             return response.hash
@@ -150,16 +161,5 @@ export default function useManageLiquidity(
           })
       },
     }
-  }, [
-    account,
-    chainId,
-    library,
-    addTransaction,
-    constructCall,
-    swapContract,
-    bdeiCurrency,
-    deiCurrency,
-    bdeiAmount,
-    deiAmount,
-  ])
+  }, [account, chainId, library, addTransaction, constructCall, swapContract])
 }

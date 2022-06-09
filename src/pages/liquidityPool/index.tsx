@@ -103,8 +103,8 @@ export default function LiquidityPool() {
   const [amountIn, setAmountIn] = useState('')
   const [amountIn2, setAmountIn2] = useState('')
   const [lpAmountIn, setLPAmountIn] = useState('')
-  const [isRemove, setIsRemove] = useState(false)
   const [selected, setSelected] = useState<ActionTypes>(ActionTypes.ADD)
+  const isRemove = useMemo(() => selected == ActionTypes.REMOVE, [selected])
   const [slippage, setSlippage] = useState(0.5)
   const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
@@ -151,7 +151,7 @@ export default function LiquidityPool() {
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? pool.swapFlashLoan : undefined), [chainId])
+  const spender = useMemo(() => (chainId ? pool.swapFlashLoan : undefined), [chainId, pool])
 
   const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
@@ -189,29 +189,25 @@ export default function LiquidityPool() {
     setAwaitingApproveConfirmation(false)
   }
 
-  const handleLiquidity = useCallback(
-    async (type: string) => {
-      console.log('called handleLiquidity')
-      console.log(liquidityCallbackState, liquidityCallback, liquidityCallbackError)
-      type === 'add' ? setIsRemove(false) : setIsRemove(true)
-      if (!liquidityCallback) return
-      try {
-        setAwaitingLiquidityConfirmation(true)
-        const txHash = await liquidityCallback()
-        setAwaitingLiquidityConfirmation(false)
-        console.log({ txHash })
-      } catch (e) {
-        setAwaitingLiquidityConfirmation(false)
-        if (e instanceof Error) {
-          // error = e.message
-        } else {
-          console.error(e)
-          // error = 'An unknown error occurred.'
-        }
+  const handleLiquidity = useCallback(async () => {
+    console.log('called handleLiquidity')
+    console.log(liquidityCallbackState, liquidityCallback, liquidityCallbackError)
+    if (!liquidityCallback) return
+    try {
+      setAwaitingLiquidityConfirmation(true)
+      const txHash = await liquidityCallback()
+      setAwaitingLiquidityConfirmation(false)
+      console.log({ txHash })
+    } catch (e) {
+      setAwaitingLiquidityConfirmation(false)
+      if (e instanceof Error) {
+        // error = e.message
+      } else {
+        console.error(e)
+        // error = 'An unknown error occurred.'
       }
-    },
-    [liquidityCallbackState, liquidityCallback, liquidityCallbackError]
-  )
+    }
+  }, [liquidityCallbackState, liquidityCallback, liquidityCallbackError])
 
   function getApproveButton(type: string): JSX.Element | null {
     if (!isSupportedChainId || !account || !type) {
@@ -262,9 +258,7 @@ export default function LiquidityPool() {
         </DepositButton>
       )
     }
-    return (
-      <DepositButton onClick={() => handleLiquidity(type)}>{type === 'add' ? 'Deposit' : 'Withdraw'}</DepositButton>
-    )
+    return <DepositButton onClick={() => handleLiquidity()}>{type === 'add' ? 'Deposit' : 'Withdraw'}</DepositButton>
   }
 
   const getAppComponent = (): JSX.Element => {

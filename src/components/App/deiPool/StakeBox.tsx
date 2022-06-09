@@ -141,10 +141,12 @@ export default function StakeBox({
             ) : (
               <>
                 <TitleBox>{title}</TitleBox>
-                <Balance onClick={handleClick}>
-                  {balanceDisplay ? balanceDisplay : '0.00'}
-                  <span>MAX</span>
-                </Balance>
+                {!disabled && (
+                  <Balance onClick={handleClick}>
+                    {balanceDisplay ? balanceDisplay : '0.00'}
+                    <span>MAX</span>
+                  </Balance>
+                )}
               </>
             )}
           </RowBetween>

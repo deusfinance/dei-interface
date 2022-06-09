@@ -102,7 +102,7 @@ export default function InputBox({
           {currency?.symbol != 'DEUS' ? (
             <Balance onClick={handleClick}>
               {balanceDisplay ? balanceDisplay : '0.00'}
-              <span>MAX</span>
+              {!disabled && <span>MAX</span>}
             </Balance>
           ) : null}
         </RowBetween>

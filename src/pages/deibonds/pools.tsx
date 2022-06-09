@@ -23,6 +23,7 @@ import { RowCenter, RowEnd, RowStart } from 'components/Row'
 import { toBN } from 'utils/numbers'
 import Navigation, { NavigationTypes } from 'components/App/Stake/Navigation'
 import { Loader } from 'components/Icons'
+import { StablePools } from 'constants/sPools'
 
 const Container = styled.div`
   display: flex;
@@ -106,10 +107,15 @@ export default function Pools() {
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const [amountIn2, setAmountIn2] = useState('')
+  const [amountIn3, setAmountIn3] = useState('')
   const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
+  const pool = StablePools[0]
+  const lpCurrency = pool.lpToken
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
   const bdeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
+  const lpCurrencyBalance = useCurrencyBalance(account ?? undefined, lpCurrency)
+
   const masterChefContract = useMasterChefV2Contract()
 
   const addTransaction = useTransactionAdder()
@@ -118,6 +124,7 @@ export default function Pools() {
 
   const { rewardsAmount, depositAmount } = useStakingData(0)
   const apy = useGetApy()
+  const apy2 = parseFloat('0.0')
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
   }, [amountIn, deiCurrency])
@@ -126,16 +133,14 @@ export default function Pools() {
     return tryParseAmount(amountIn2, bdeiCurrency || undefined)
   }, [amountIn2, bdeiCurrency])
 
+  const lpAmount = useMemo(() => {
+    return tryParseAmount(amountIn3, lpCurrency || undefined)
+  }, [amountIn3, lpCurrency])
+
   const insufficientBalance = useMemo(() => {
     if (!deiAmount || !bdeiAmount) return false
     return deiCurrencyBalance?.lessThan(deiAmount) && bdeiCurrencyBalance?.lessThan(bdeiAmount)
   }, [deiCurrencyBalance, bdeiCurrencyBalance, deiAmount, bdeiAmount])
-
-  // const {
-  //   state: depositCallbackState,
-  //   callback: depositCallback,
-  //   error: depositCallbackError,
-  // } = useRedemptionCallback(deiCurrency, usdcCurrency, deiAmount, usdcAmount, amountOut2)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
@@ -144,15 +149,27 @@ export default function Pools() {
 
   const spender = useMemo(() => (chainId ? MasterChefV2[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(bdeiCurrency ?? undefined, spender)
+  const [approvalState2, approveCallback2] = useApproveCallback(lpCurrency ?? undefined, spender)
 
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = bdeiCurrency && approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [bdeiCurrency, approvalState])
 
+  const [showApprove2, showApproveLoader2] = useMemo(() => {
+    const show = lpCurrency && approvalState2 !== ApprovalState.APPROVED
+    return [show, show && approvalState2 === ApprovalState.PENDING]
+  }, [lpCurrency, approvalState2])
+
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
     await approveCallback()
+    setAwaitingApproveConfirmation(false)
+  }
+
+  const handleApprove2 = async () => {
+    setAwaitingApproveConfirmation(true)
+    await approveCallback2()
     setAwaitingApproveConfirmation(false)
   }
 
@@ -172,37 +189,43 @@ export default function Pools() {
     }
   }, [masterChefContract, addTransaction, account, isSupportedChainId])
 
-  const onDeposit = useCallback(async () => {
-    try {
-      if (!masterChefContract || !account || !isSupportedChainId || !amountIn) return
-      setAwaitingDepositConfirmation(true)
-      const response = await masterChefContract.deposit(0, toBN(amountIn).times(1e18).toFixed(), account)
-      addTransaction(response, { summary: `Deposit`, vest: { hash: response.hash } })
-      setAwaitingDepositConfirmation(false)
-      // setPendingTxHash(response.hash)
-    } catch (err) {
-      console.log(err)
-      toast.error(DefaultHandlerError(err))
-      setAwaitingDepositConfirmation(false)
-      // setPendingTxHash('')
-    }
-  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountIn])
+  const onDeposit = useCallback(
+    async (Pid: number) => {
+      try {
+        if (!masterChefContract || !account || !isSupportedChainId || !amountIn) return
+        setAwaitingDepositConfirmation(true)
+        const response = await masterChefContract.deposit(Pid, toBN(amountIn).times(1e18).toFixed(), account)
+        addTransaction(response, { summary: `Deposit`, vest: { hash: response.hash } })
+        setAwaitingDepositConfirmation(false)
+        // setPendingTxHash(response.hash)
+      } catch (err) {
+        console.log(err)
+        toast.error(DefaultHandlerError(err))
+        setAwaitingDepositConfirmation(false)
+        // setPendingTxHash('')
+      }
+    },
+    [masterChefContract, addTransaction, account, isSupportedChainId, amountIn]
+  )
 
-  const onWithdraw = useCallback(async () => {
-    try {
-      if (!masterChefContract || !account || !isSupportedChainId || !amountIn2) return
-      setAwaitingWithdrawConfirmation(true)
-      const response = await masterChefContract.withdraw(0, toBN(amountIn2).times(1e18).toFixed(), account)
-      addTransaction(response, { summary: `Withdraw ${amountIn2}`, vest: { hash: response.hash } })
-      setAwaitingWithdrawConfirmation(false)
-      // setPendingTxHash(response.hash)
-    } catch (err) {
-      console.log(err)
-      toast.error(DefaultHandlerError(err))
-      setAwaitingWithdrawConfirmation(false)
-      // setPendingTxHash('')
-    }
-  }, [masterChefContract, addTransaction, account, isSupportedChainId, amountIn2])
+  const onWithdraw = useCallback(
+    async (Pid: number) => {
+      try {
+        if (!masterChefContract || !account || !isSupportedChainId || !amountIn2) return
+        setAwaitingWithdrawConfirmation(true)
+        const response = await masterChefContract.withdraw(Pid, toBN(amountIn2).times(1e18).toFixed(), account)
+        addTransaction(response, { summary: `Withdraw ${amountIn2}`, vest: { hash: response.hash } })
+        setAwaitingWithdrawConfirmation(false)
+        // setPendingTxHash(response.hash)
+      } catch (err) {
+        console.log(err)
+        toast.error(DefaultHandlerError(err))
+        setAwaitingWithdrawConfirmation(false)
+        // setPendingTxHash('')
+      }
+    },
+    [masterChefContract, addTransaction, account, isSupportedChainId, amountIn2]
+  )
 
   /*   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
@@ -265,70 +288,136 @@ export default function Pools() {
   const getAppComponent = (): JSX.Element => {
     if (selected == NavigationTypes.STAKE) {
       return (
-        <Wrapper>
-          <RowCenter style={{ alignItems: 'center' }}>
-            <LeftTitle>bDEI</LeftTitle>
-            <RowEnd>
-              APR:<Label>{apy ? `${apy.toFixed(3)}%` : <Loader />}</Label>
-            </RowEnd>
-          </RowCenter>
-          <div style={{ marginTop: '20px' }}></div>
-          <StakeBox
-            currency={bdeiCurrency}
-            onClick={showApprove ? handleApprove : onDeposit}
-            onChange={(value: string) => setAmountIn(value)}
-            type={
-              showApprove
-                ? awaitingApproveConfirmation
-                  ? 'Approving...'
-                  : 'Approve'
-                : awaitingDepositConfirmation
-                ? 'Staking...'
-                : 'Stake'
-            }
-            value={amountIn}
-            title={'bDEI Balance:'}
-          />
-          <div style={{ marginTop: '20px' }}></div>
-          <StakeBox
-            currency={null}
-            onClick={onClaimReward}
-            onChange={(value: string) => console.log(value)}
-            type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
-            value={`${rewardsAmount.toFixed(3)} DEUS`}
-            title={'Rewards'}
-          />
-        </Wrapper>
+        <>
+          <Wrapper>
+            <RowCenter style={{ alignItems: 'center' }}>
+              <LeftTitle>bDEI</LeftTitle>
+              <RowEnd>
+                APR:<Label>{apy ? `${apy.toFixed(3)}%` : <Loader />}</Label>
+              </RowEnd>
+            </RowCenter>
+            <div style={{ marginTop: '20px' }}></div>
+            <StakeBox
+              currency={bdeiCurrency}
+              onClick={showApprove ? handleApprove : () => onDeposit(0)}
+              onChange={(value: string) => setAmountIn(value)}
+              type={
+                showApprove
+                  ? awaitingApproveConfirmation
+                    ? 'Approving...'
+                    : 'Approve'
+                  : awaitingDepositConfirmation
+                  ? 'Staking...'
+                  : 'Stake'
+              }
+              value={amountIn}
+              title={'bDEI Balance:'}
+            />
+            <div style={{ marginTop: '20px' }}></div>
+            <StakeBox
+              currency={null}
+              onClick={onClaimReward}
+              onChange={(value: string) => console.log(value)}
+              type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
+              value={`${rewardsAmount.toFixed(3)} DEUS`}
+              title={'Rewards'}
+            />
+          </Wrapper>
+
+          <Wrapper>
+            <RowCenter style={{ alignItems: 'center' }}>
+              <LeftTitle>DEI-bDEI</LeftTitle>
+              <RowEnd>
+                APR:<Label>{apy2 ? `${apy2.toFixed(3)}%` : <Loader />}</Label>
+              </RowEnd>
+            </RowCenter>
+            <div style={{ marginTop: '20px' }}></div>
+            <StakeBox
+              currency={lpCurrency}
+              onClick={showApprove2 ? handleApprove2 : () => onDeposit(1)}
+              onChange={(value: string) => setAmountIn3(value)}
+              type={
+                showApprove2
+                  ? awaitingApproveConfirmation
+                    ? 'Approving...'
+                    : 'Approve'
+                  : awaitingDepositConfirmation
+                  ? 'Staking...'
+                  : 'Stake'
+              }
+              value={amountIn3}
+              title={'LP Balance:'}
+            />
+            <div style={{ marginTop: '20px' }}></div>
+            <StakeBox
+              currency={null}
+              onClick={onClaimReward}
+              onChange={(value: string) => console.log(value)}
+              type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
+              value={`${rewardsAmount.toFixed(3)} DEUS`}
+              title={'Rewards'}
+            />
+          </Wrapper>
+        </>
       )
     } else {
       return (
-        <Wrapper>
-          <RowCenter style={{ alignItems: 'center' }}>
-            <LeftTitle>bDEI</LeftTitle>
-            <RowEnd>
-              APR:<Label>{apy ? `${apy.toFixed(3)}%` : <Loader />}</Label>
-            </RowEnd>
-          </RowCenter>
-          <div style={{ marginTop: '20px' }}></div>
-          <StakeBox
-            currency={bdeiCurrency}
-            onClick={onWithdraw}
-            onChange={(value: string) => setAmountIn2(value)}
-            type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
-            value={amountIn2}
-            title={'bDEI Staked'}
-            maxValue={depositAmount.toString()}
-          />
-          <div style={{ marginTop: '20px' }}></div>
-          <StakeBox
-            currency={null}
-            onClick={onClaimReward}
-            onChange={(value: string) => console.log(value)}
-            type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
-            value={`${rewardsAmount.toFixed(3)} DEUS`}
-            title={'Rewards'}
-          />
-        </Wrapper>
+        <>
+          <Wrapper>
+            <RowCenter style={{ alignItems: 'center' }}>
+              <LeftTitle>bDEI</LeftTitle>
+              <RowEnd>
+                APR:<Label>{apy ? `${apy.toFixed(3)}%` : <Loader />}</Label>
+              </RowEnd>
+            </RowCenter>
+            <div style={{ marginTop: '20px' }}></div>
+            <StakeBox
+              currency={bdeiCurrency}
+              onClick={() => onWithdraw(0)}
+              onChange={(value: string) => setAmountIn2(value)}
+              type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
+              value={amountIn2}
+              title={'bDEI Staked'}
+              maxValue={depositAmount.toString()}
+            />
+            <div style={{ marginTop: '20px' }}></div>
+            <StakeBox
+              currency={null}
+              onClick={onClaimReward}
+              onChange={(value: string) => console.log(value)}
+              type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
+              value={`${rewardsAmount.toFixed(3)} DEUS`}
+              title={'Rewards'}
+            />
+          </Wrapper>
+          <Wrapper>
+            <RowCenter style={{ alignItems: 'center' }}>
+              <LeftTitle>DEI-bDEI</LeftTitle>
+              <RowEnd>
+                APR:<Label>{apy2 ? `${apy2.toFixed(3)}%` : <Loader />}</Label>
+              </RowEnd>
+            </RowCenter>
+            <div style={{ marginTop: '20px' }}></div>
+            <StakeBox
+              currency={lpCurrency}
+              onClick={() => onWithdraw(1)}
+              onChange={(value: string) => setAmountIn3(value)}
+              type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
+              value={amountIn3}
+              title={'LP Staked'}
+              // maxValue={depositAmount.toString()}
+            />
+            <div style={{ marginTop: '20px' }}></div>
+            <StakeBox
+              currency={null}
+              onClick={onClaimReward}
+              onChange={(value: string) => console.log(value)}
+              type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
+              value={`${rewardsAmount.toFixed(3)} DEUS`}
+              title={'Rewards'}
+            />
+          </Wrapper>
+        </>
       )
     }
   }

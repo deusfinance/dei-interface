@@ -14,10 +14,16 @@ import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
 import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
-import { DynamicRedeemer } from 'constants/addresses'
+import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
+import useManageLiquidity from 'hooks/useLiquidityCallback'
+import { StablePools } from 'constants/sPools'
 // import StakeBox from 'components/App/deiPool/StakeBox'
 import { ActionTypes } from 'components/StableCoin2'
 import { ActionSetter } from 'components/StableCoin2'
+import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
+import StakeBox from 'components/App/deiPool/StakeBox'
+import useDebounce from 'hooks/useDebounce'
+import { ArrowDown } from 'react-feather'
 
 const Container = styled.div`
   display: flex;
@@ -27,19 +33,19 @@ const Container = styled.div`
 `
 
 const Wrapper = styled(Container)`
-  margin: 0 auto;
   margin-top: 50px;
   width: clamp(250px, 90%, 500px);
   background-color: rgb(13 13 13);
   padding: 20px 15px;
   border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
-  /* justify-content: center; */
-  /* & > * {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  & > * {
     &:nth-child(2) {
       margin: 15px auto;
     }
-  } */
+  }
 `
 
 const TopWrapper = styled.div`
@@ -48,10 +54,19 @@ const TopWrapper = styled.div`
   flex-wrap: wrap;
 `
 
-const RightWrapper = styled.div`
+const FarmWrapper = styled(Wrapper)`
+  border-radius: 15px;
+`
+
+const LiquidityWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 50%;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: clamp(250px, 90%, 500px);
+    margin: 0 auto;
+  `}
 `
 
 const ToggleState = styled.div`
@@ -81,16 +96,31 @@ const LeftTitle = styled.span`
   font-weight: 500;
 `
 
-export default function Redemption() {
+export default function LiquidityPool() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const [amountIn2, setAmountIn2] = useState('')
+  const [lpAmountIn, setLPAmountIn] = useState('')
+  const [isRemove, setIsRemove] = useState(false)
+  const [selected, setSelected] = useState<ActionTypes>(ActionTypes.ADD)
+  const [slippage, setSlippage] = useState(0.5)
   const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
+  const pool = StablePools[0]
+  const lpCurrency = pool.lpToken
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
   const bdeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
+  const lpCurrencyBalance = useCurrencyBalance(account ?? undefined, lpCurrency)
+
+  const debouncedAmountIn = useDebounce(amountIn, 500)
+  const debouncedAmountIn2 = useDebounce(amountIn2, 500)
+  const debouncedLPAmountIn = useDebounce(lpAmountIn, 500)
+
+  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn)
+  const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2]).toString()
+  console.log({ amountOut, amountOut2, lpAmountIn })
 
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
@@ -101,24 +131,45 @@ export default function Redemption() {
   }, [amountIn2, bdeiCurrency])
 
   const insufficientBalance = useMemo(() => {
+    // TODO: complete this later
     if (!deiAmount || !bdeiAmount) return false
     return deiCurrencyBalance?.lessThan(deiAmount) && bdeiCurrencyBalance?.lessThan(bdeiAmount)
   }, [deiCurrencyBalance, bdeiCurrencyBalance, deiAmount, bdeiAmount])
 
-  // const {
-  //   state: depositCallbackState,
-  //   callback: depositCallback,
-  //   error: depositCallbackError,
-  // } = useRedemptionCallback(deiCurrency, usdcCurrency, deiAmount, usdcAmount, amountOut2)
+  const {
+    state: liquidityCallbackState,
+    callback: liquidityCallback,
+    error: liquidityCallbackError,
+  } = useManageLiquidity(
+    isRemove ? amountOut : [debouncedAmountIn, debouncedAmountIn2],
+    isRemove ? lpAmountIn : amountOut2,
+    pool,
+    slippage,
+    20,
+    isRemove
+  )
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? DynamicRedeemer[chainId] : undefined), [chainId])
+  const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState<boolean>(false)
+  const spender = useMemo(() => (chainId ? pool.swapFlashLoan : undefined), [chainId])
+
   const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [deiCurrency, approvalState, amountIn])
+
+  const [approvalState2, approveCallback2] = useApproveCallback(bdeiCurrency ?? undefined, spender)
+  const [showApprove2, showApproveLoader2] = useMemo(() => {
+    const show = bdeiCurrency && approvalState2 !== ApprovalState.APPROVED && !!amountIn2
+    return [show, show && approvalState2 === ApprovalState.PENDING]
+  }, [bdeiCurrency, approvalState2, amountIn2])
+
+  const [approvalState3, approveCallback3] = useApproveCallback(lpCurrency ?? undefined, spender)
+  const [showApprove3, showApproveLoader3] = useMemo(() => {
+    const show = lpCurrency && approvalState3 !== ApprovalState.APPROVED && !!lpAmountIn
+    return [show, show && approvalState3 === ApprovalState.PENDING]
+  }, [lpCurrency, approvalState3, lpAmountIn])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -126,30 +177,44 @@ export default function Redemption() {
     setAwaitingApproveConfirmation(false)
   }
 
-  const handleDeposit = useCallback(async () => {
-    console.log('handleDeposit')
+  const handleApprove2 = async () => {
+    setAwaitingApproveConfirmation(true)
+    await approveCallback2()
+    setAwaitingApproveConfirmation(false)
+  }
 
-    //   console.log('called handleDeposit')
-    //   console.log(depositCallbackState, depositCallback, depositCallbackError)
-    //   if (!depositCallback) return
-    //   try {
-    //     setAwaitingDepositConfirmation(true)
-    //     const txHash = await depositCallback()
-    //     setAwaitingDepositConfirmation(false)
-    //     console.log({ txHash })
-    //   } catch (e) {
-    //     setAwaitingDepositConfirmation(false)
-    //     if (e instanceof Error) {
-    //       // error = e.message
-    //     } else {
-    //       console.error(e)
-    //       // error = 'An unknown error occurred.'
-    //     }
-    //   }
-  }, []) // depositCallbackState, depositCallback, depositCallbackError
+  const handleApprove3 = async () => {
+    setAwaitingApproveConfirmation(true)
+    await approveCallback3()
+    setAwaitingApproveConfirmation(false)
+  }
 
-  function getApproveButton(): JSX.Element | null {
-    if (!isSupportedChainId || !account) {
+  const handleLiquidity = useCallback(
+    async (type: string) => {
+      console.log('called handleLiquidity')
+      console.log(liquidityCallbackState, liquidityCallback, liquidityCallbackError)
+      type === 'add' ? setIsRemove(false) : setIsRemove(true)
+      if (!liquidityCallback) return
+      try {
+        setAwaitingLiquidityConfirmation(true)
+        const txHash = await liquidityCallback()
+        setAwaitingLiquidityConfirmation(false)
+        console.log({ txHash })
+      } catch (e) {
+        setAwaitingLiquidityConfirmation(false)
+        if (e instanceof Error) {
+          // error = e.message
+        } else {
+          console.error(e)
+          // error = 'An unknown error occurred.'
+        }
+      }
+    },
+    [liquidityCallbackState, liquidityCallback, liquidityCallbackError]
+  )
+
+  function getApproveButton(type: string): JSX.Element | null {
+    if (!isSupportedChainId || !account || !type) {
       return null
     }
     if (awaitingApproveConfirmation) {
@@ -159,49 +224,83 @@ export default function Redemption() {
         </DepositButton>
       )
     }
-    if (showApproveLoader) {
+    if (showApproveLoader || showApproveLoader2 || showApproveLoader3) {
       return (
         <DepositButton active>
           Approving <DotFlashing style={{ marginLeft: '10px' }} />
         </DepositButton>
       )
     }
-    if (showApprove) {
+    if (showApprove && type === 'add') {
       return <DepositButton onClick={handleApprove}>Allow us to spend {deiCurrency?.symbol}</DepositButton>
+    } else if (showApprove2 && type === 'add') {
+      return <DepositButton onClick={handleApprove2}>Allow us to spend {bdeiCurrency?.symbol}</DepositButton>
+    } else if (showApprove3 && type === 'remove') {
+      return <DepositButton onClick={handleApprove3}>Allow us to spend {lpCurrency?.symbol}</DepositButton>
     }
     return null
   }
 
-  function getActionButton(): JSX.Element | null {
-    if (!chainId || !account) {
+  function getActionButton(type: string): JSX.Element | null {
+    if (!chainId || !account || !type) {
       return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
     }
-    if (showApprove) {
+    if ((showApprove || showApprove2) && type === 'add') {
+      return null
+    } else if (showApprove3 && type === 'remove') {
       return null
     }
 
     if (insufficientBalance) {
       return <DepositButton disabled>Insufficient {deiCurrency?.symbol} Balance</DepositButton>
     }
-    if (awaitingRedeemConfirmation) {
+    if (awaitingLiquidityConfirmation) {
       return (
         <DepositButton>
-          Depositing DEI/bDEI <DotFlashing style={{ marginLeft: '10px' }} />
+          {type === 'add' ? 'Depositing DEI/bDEI' : 'Withdrawing DEI/bDEI'}
+          <DotFlashing style={{ marginLeft: '10px' }} />
         </DepositButton>
       )
     }
-
-    return <DepositButton onClick={() => handleDeposit()}>Deposit</DepositButton>
+    return (
+      <DepositButton onClick={() => handleLiquidity(type)}>{type === 'add' ? 'Deposit' : 'Withdraw'}</DepositButton>
+    )
   }
-
-  const [selected, setSelected] = useState<ActionTypes>(ActionTypes.ADD)
 
   const getAppComponent = (): JSX.Element => {
     if (selected == ActionTypes.REMOVE) {
       return (
         <>
           <Wrapper>
-            <span> hi </span>
+            <InputBox
+              currency={lpCurrency}
+              value={lpAmountIn}
+              onChange={(value: string) => setLPAmountIn(value)}
+              title={'From'}
+            />
+            <ArrowDown style={{ cursor: 'pointer' }} />
+
+            <InputBox
+              currency={deiCurrency}
+              value={amountOut[0]?.toString()}
+              onChange={() => console.debug('')}
+              title={'To'}
+              disabled
+            />
+
+            <div style={{ marginTop: '20px' }}></div>
+
+            <InputBox
+              currency={bdeiCurrency}
+              value={amountOut[1]?.toString()}
+              onChange={() => console.debug('')}
+              title={'To'}
+              disabled
+            />
+
+            <div style={{ marginTop: '20px' }}></div>
+            {getApproveButton('remove')}
+            {getActionButton('remove')}
           </Wrapper>
         </>
       )
@@ -226,8 +325,8 @@ export default function Redemption() {
             />
 
             <div style={{ marginTop: '20px' }}></div>
-            {getApproveButton()}
-            {getActionButton()}
+            {getApproveButton('add')}
+            {getActionButton('add')}
           </Wrapper>
         </>
       )
@@ -240,30 +339,37 @@ export default function Redemption() {
         <div>Liquidity pool</div>
       </Hero>
       <TopWrapper>
-        <RightWrapper>
+        <LiquidityWrapper>
           <ToggleState>
             <ActionSetter selected={selected} setSelected={setSelected} />
           </ToggleState>
 
           {getAppComponent()}
-        </RightWrapper>
-        <Wrapper>
+          <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
+        </LiquidityWrapper>
+        <FarmWrapper>
           <LeftTitle>My farm</LeftTitle>
           <div style={{ marginTop: '20px' }}></div>
-          {/* <StakeBox
-            onClick={(value: string) => console.log('test')}
-            type={'stake'}
-            value={'1.48'}
+          <StakeBox
+            currency={lpCurrency}
+            onClick={() => console.debug('')}
+            onChange={() => console.debug('')}
+            type={'Stake All'}
+            value={lpCurrencyBalance?.toSignificant(6) || '0'}
             title={'LP Available'}
+            disabled
           />
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
-            onClick={(value: string) => console.log('test')}
-            type={'unstake'}
+            currency={null}
+            onClick={() => console.debug('')}
+            onChange={() => console.debug('')}
+            type={'Unstake All'}
             value={'2.1'}
             title={'LP Staked'}
-          /> */}
-        </Wrapper>
+            disabled
+          />
+        </FarmWrapper>
       </TopWrapper>
       <Disclaimer />
     </Container>

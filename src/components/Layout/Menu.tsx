@@ -55,10 +55,10 @@ const Row = styled.div<{
     color: ${({ theme }) => theme.text1};
   }
 
-  ${({ active }) =>
+  ${({ active, theme }) =>
     active &&
-    `
-    pointer-events: none;
+    ` color: ${theme.text1};
+      pointer-events: none;
   `};
 `
 
@@ -78,6 +78,14 @@ export default function Menu() {
       </NavButton>
       <div>
         <InlineModal isOpen={isOpen}>
+          <Link href="/dashboard" passHref>
+            <Row active={router.route === '/dashboard'}>
+              <div>Dashboard</div>
+              <IconWrapper>
+                <CreditCardIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <Link href="/redemption" passHref>
             <Row active={router.route === '/redemption'}>
               <div>Redemption</div>

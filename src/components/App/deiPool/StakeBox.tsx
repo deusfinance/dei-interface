@@ -22,8 +22,9 @@ const Wrapper = styled.div`
   flex-direction: row;
   justify-content: space-between;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 0.5rem;
+    height: 70px;
   `}
 `
 
@@ -69,12 +70,33 @@ const Balance = styled(Row)`
   &:hover {
     cursor: pointer;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 100px;
+    font-size: 0.6rem;
+    margin-top: 1px;
+  `}
+`
+
+const TitleBox = styled.div`
+  font-size: 0.75rem;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size: 0.62rem;
+  `}
 `
 
 const ActionButton = styled(PrimaryButton)`
   margin-top: 6px;
   height: 46px;
   width: 170px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 91px;
+    height: 35px;
+    margin-top: 8px;
+    font-size: 0.78rem;
+  `}
 `
 
 export default function StakeBox({
@@ -118,7 +140,7 @@ export default function StakeBox({
               <TextData style={{ opacity: '0' }}>{'.'}</TextData>
             ) : (
               <>
-                <div style={{ fontSize: '0.75rem' }}>{title}</div>
+                <TitleBox>{title}</TitleBox>
                 <Balance onClick={handleClick}>
                   {balanceDisplay ? balanceDisplay : '0.00'}
                   <span>MAX</span>
@@ -128,7 +150,7 @@ export default function StakeBox({
           </RowBetween>
           <RowBetween>
             {type === 'claim' || type === 'claiming' ? (
-              <TextData style={{ marginTop: '-5px' }}>{value}</TextData>
+              <TextData style={{ marginTop: '-12px' }}>{value}</TextData>
             ) : (
               <NumericalInput
                 value={value || ''}

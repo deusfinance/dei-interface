@@ -127,9 +127,21 @@ export default function Redemption() {
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [deiCurrency, approvalState, amountIn])
 
+  const [approvalState2, approveCallback2] = useApproveCallback(bdeiCurrency ?? undefined, spender)
+  const [showApprove2, showApproveLoader2] = useMemo(() => {
+    const show = bdeiCurrency && approvalState2 !== ApprovalState.APPROVED && !!amountIn2
+    return [show, show && approvalState2 === ApprovalState.PENDING]
+  }, [bdeiCurrency, approvalState2, amountIn2])
+
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
     await approveCallback()
+    setAwaitingApproveConfirmation(false)
+  }
+
+  const handleApprove2 = async () => {
+    setAwaitingApproveConfirmation(true)
+    await approveCallback2()
     setAwaitingApproveConfirmation(false)
   }
 
@@ -166,7 +178,7 @@ export default function Redemption() {
         </DepositButton>
       )
     }
-    if (showApproveLoader) {
+    if (showApproveLoader || showApproveLoader2) {
       return (
         <DepositButton active>
           Approving <DotFlashing style={{ marginLeft: '10px' }} />
@@ -175,6 +187,8 @@ export default function Redemption() {
     }
     if (showApprove) {
       return <DepositButton onClick={handleApprove}>Allow us to spend {deiCurrency?.symbol}</DepositButton>
+    } else if (showApprove2) {
+      return <DepositButton onClick={handleApprove2}>Allow us to spend {bdeiCurrency?.symbol}</DepositButton>
     }
     return null
   }
@@ -183,7 +197,7 @@ export default function Redemption() {
     if (!chainId || !account) {
       return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
     }
-    if (showApprove) {
+    if (showApprove || showApprove2) {
       return null
     }
 

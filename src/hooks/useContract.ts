@@ -26,6 +26,7 @@ import BASE_V1_MINTER_ABI from 'constants/abi/BASE_V1_MINTER.json'
 import DYNAMIC_REDEEMER_ABI from 'constants/abi/DYNAMIC_REDEEMER.json'
 import DEI_BONDER_ABI from 'constants/abi/DEI_Bonder.json'
 import SWAP_ABI from 'constants/abi/SWAP_ABI.json'
+import MasterChefV2_ABI from 'constants/abi/MasterChefV2.json'
 
 import { Providers } from 'constants/providers'
 import {
@@ -42,6 +43,7 @@ import {
   DeiBonder,
   veDist,
   SwapFlashLoan,
+  MasterChefV2,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -195,4 +197,9 @@ export function useDeiSwapContract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? SwapFlashLoan[chainId] : undefined), [chainId])
   return useContract(address, SWAP_ABI)
+}
+export function useMasterChefV2Contract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? MasterChefV2[chainId] : undefined), [chainId])
+  return useContract(address, MasterChefV2_ABI)
 }

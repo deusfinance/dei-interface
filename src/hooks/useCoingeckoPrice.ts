@@ -32,6 +32,9 @@ export const SymbolIdentifiers: {
 export function useDeusPrice() {
   return useCoingeckoPrice(SymbolIdentifiers.DEUS, '0')
 }
+export function useDeiPrice() {
+  return useCoingeckoPrice(SymbolIdentifiers.DEI, '0')
+}
 
 export function useSolidPrice() {
   return useCoingeckoPrice(SymbolIdentifiers.SOLID, '0')

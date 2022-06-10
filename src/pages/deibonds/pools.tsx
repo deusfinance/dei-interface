@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import Hero from 'components/Hero'
@@ -26,7 +26,7 @@ export default function Pools() {
         <div>Pools</div>
       </Hero>
       {StakingPools.map((pool) => {
-        return <Staking pool={pool} />
+        return <Staking key={pool.pid} pool={pool} />
       })}
       <Disclaimer />
     </Container>

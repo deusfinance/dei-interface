@@ -135,9 +135,11 @@ export function usePoolInfo(pid: number): {
 export function useGetApy(pid: number): number {
   const { tokenPerBlock, totalAllocPoint } = useGlobalMasterChefData()
   const { totalDeposited, allocPoint } = usePoolInfo(pid)
-  console.log(tokenPerBlock, totalDeposited)
+  // console.log(tokenPerBlock, totalDeposited)
   const deiPrice = useDeiPrice()
   const deusPrice = useDeusPrice()
+  // console.log({ allocPoint, totalAllocPoint, pid })
+  if (totalDeposited === 0) return 0
   return (
     (tokenPerBlock * (allocPoint / totalAllocPoint) * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) /
     (totalDeposited * parseFloat(deiPrice))

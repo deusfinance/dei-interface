@@ -17,13 +17,13 @@ import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
 import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
 import useManageLiquidity from 'hooks/useLiquidityCallback'
 import { StablePools } from 'constants/sPools'
-// import StakeBox from 'components/App/deiPool/StakeBox'
 import { ActionTypes } from 'components/StableCoin2'
 import { ActionSetter } from 'components/StableCoin2'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
-import StakeBox from 'components/App/deiPool/StakeBox'
 import useDebounce from 'hooks/useDebounce'
 import { ArrowDown } from 'react-feather'
+import { StakingPools } from 'constants/stakings'
+import Staking from 'components/App/deiPool/Staking'
 
 const Container = styled.div`
   display: flex;
@@ -56,6 +56,7 @@ const TopWrapper = styled.div`
 
 const FarmWrapper = styled(Wrapper)`
   border-radius: 15px;
+  padding: 0;
 `
 
 const LiquidityWrapper = styled.div`
@@ -341,7 +342,12 @@ export default function LiquidityPool() {
           {getAppComponent()}
           <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
         </LiquidityWrapper>
+
         <FarmWrapper>
+          <Staking pool={StakingPools[1]} />
+        </FarmWrapper>
+
+        {/* <FarmWrapper>
           <LeftTitle>My farm</LeftTitle>
           <div style={{ marginTop: '20px' }}></div>
           <StakeBox
@@ -363,7 +369,7 @@ export default function LiquidityPool() {
             title={'LP Staked'}
             disabled
           />
-        </FarmWrapper>
+        </FarmWrapper> */}
       </TopWrapper>
       <Disclaimer />
     </Container>

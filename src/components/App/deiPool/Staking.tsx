@@ -9,7 +9,6 @@ import { tryParseAmount } from 'utils/parse'
 
 import { MasterChefV2 } from 'constants/addresses'
 import StakeBox from 'components/App/deiPool/StakeBox'
-import { useGetApy, useStakingData } from 'hooks/useBdeiStakingPage'
 import { useMasterChefV2Contract } from 'hooks/useContract'
 import Navigation, { NavigationTypes } from 'components/App/Stake/Navigation'
 import toast from 'react-hot-toast'
@@ -18,8 +17,8 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { RowCenter, RowEnd, RowStart } from 'components/Row'
 import { toBN } from 'utils/numbers'
 import { Loader } from 'components/Icons'
-import { Currency } from '@sushiswap/core-sdk'
 import { StakingType } from 'constants/stakings'
+import { useUserInfo, useGetApy } from 'hooks/useStakingInfo'
 
 const Container = styled.div`
   display: flex;
@@ -80,8 +79,9 @@ export default function Staking({ pool }: { pool: StakingType }) {
   const [pendingTxHash, setPendingTxHash] = useState('')
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const { rewardsAmount, depositAmount } = useStakingData(pid)
-  const apr = useGetApy() // TODO: use pool id
+  const { rewardsAmount, depositAmount } = useUserInfo(pid)
+  const apr = useGetApy(pid)
+  //   console.log(name, apr)
   const currencyAmount = useMemo(() => {
     return tryParseAmount(amountIn, currency || undefined)
   }, [amountIn, currency])
@@ -116,7 +116,7 @@ export default function Staking({ pool }: { pool: StakingType }) {
     try {
       if (!masterChefContract || !account || !isSupportedChainId) return
       setAwaitClaimConfirmation(true)
-      const response = await masterChefContract.harvest(0, account)
+      const response = await masterChefContract.harvest(pid, account)
       addTransaction(response, { summary: `Claim Rewards`, vest: { hash: response.hash } })
       setAwaitClaimConfirmation(false)
       // setPendingTxHash(response.hash)
@@ -126,45 +126,39 @@ export default function Staking({ pool }: { pool: StakingType }) {
       setAwaitClaimConfirmation(false)
       // setPendingTxHash('')
     }
-  }, [masterChefContract, addTransaction, account, isSupportedChainId])
+  }, [masterChefContract, addTransaction, pid, account, isSupportedChainId])
 
-  const onDeposit = useCallback(
-    async (Pid: number) => {
-      try {
-        if (!masterChefContract || !account || !isSupportedChainId || !amountIn) return
-        setAwaitingDepositConfirmation(true)
-        const response = await masterChefContract.deposit(Pid, toBN(amountIn).times(1e18).toFixed(), account)
-        addTransaction(response, { summary: `Deposit`, vest: { hash: response.hash } })
-        setAwaitingDepositConfirmation(false)
-        // setPendingTxHash(response.hash)
-      } catch (err) {
-        console.log(err)
-        toast.error(DefaultHandlerError(err))
-        setAwaitingDepositConfirmation(false)
-        // setPendingTxHash('')
-      }
-    },
-    [masterChefContract, addTransaction, account, isSupportedChainId, amountIn]
-  )
+  const onDeposit = useCallback(async () => {
+    try {
+      if (!masterChefContract || !account || !isSupportedChainId || !amountIn) return
+      setAwaitingDepositConfirmation(true)
+      const response = await masterChefContract.deposit(pid, toBN(amountIn).times(1e18).toFixed(), account)
+      addTransaction(response, { summary: `Deposit`, vest: { hash: response.hash } })
+      setAwaitingDepositConfirmation(false)
+      // setPendingTxHash(response.hash)
+    } catch (err) {
+      console.log(err)
+      toast.error(DefaultHandlerError(err))
+      setAwaitingDepositConfirmation(false)
+      // setPendingTxHash('')
+    }
+  }, [masterChefContract, addTransaction, pid, account, isSupportedChainId, amountIn])
 
-  const onWithdraw = useCallback(
-    async (Pid: number) => {
-      try {
-        if (!masterChefContract || !account || !isSupportedChainId || !amountIn) return
-        setAwaitingWithdrawConfirmation(true)
-        const response = await masterChefContract.withdraw(Pid, toBN(amountIn).times(1e18).toFixed(), account)
-        addTransaction(response, { summary: `Withdraw ${amountIn}`, vest: { hash: response.hash } })
-        setAwaitingWithdrawConfirmation(false)
-        // setPendingTxHash(response.hash)
-      } catch (err) {
-        console.log(err)
-        toast.error(DefaultHandlerError(err))
-        setAwaitingWithdrawConfirmation(false)
-        // setPendingTxHash('')
-      }
-    },
-    [masterChefContract, addTransaction, account, isSupportedChainId, amountIn]
-  )
+  const onWithdraw = useCallback(async () => {
+    try {
+      if (!masterChefContract || !account || !isSupportedChainId || !amountIn) return
+      setAwaitingWithdrawConfirmation(true)
+      const response = await masterChefContract.withdraw(pid, toBN(amountIn).times(1e18).toFixed(), account)
+      addTransaction(response, { summary: `Withdraw ${amountIn}`, vest: { hash: response.hash } })
+      setAwaitingWithdrawConfirmation(false)
+      // setPendingTxHash(response.hash)
+    } catch (err) {
+      console.log(err)
+      toast.error(DefaultHandlerError(err))
+      setAwaitingWithdrawConfirmation(false)
+      // setPendingTxHash('')
+    }
+  }, [masterChefContract, addTransaction, pid, account, isSupportedChainId, amountIn])
 
   return (
     <>
@@ -176,14 +170,14 @@ export default function Staking({ pool }: { pool: StakingType }) {
         <RowCenter style={{ alignItems: 'center' }}>
           <LeftTitle>{name}</LeftTitle>
           <RowEnd>
-            APR:<Label>{apr ? `${apr.toFixed(3)}%` : <Loader />}</Label>
+            APR:<Label>{apr !== null || apr !== NaN ? `${apr.toFixed(3)}%` : <Loader />}</Label>
           </RowEnd>
         </RowCenter>
         <div style={{ marginTop: '20px' }}></div>
         {selected === NavigationTypes.UNSTAKE && (
           <StakeBox
             currency={currency}
-            onClick={() => onWithdraw(pid)}
+            onClick={() => onWithdraw()}
             onChange={(value: string) => setAmountIn(value)}
             type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
             value={amountIn}
@@ -194,7 +188,7 @@ export default function Staking({ pool }: { pool: StakingType }) {
         {selected === NavigationTypes.STAKE && (
           <StakeBox
             currency={currency}
-            onClick={showApprove ? handleApprove : () => onDeposit(pid)}
+            onClick={showApprove ? handleApprove : () => onDeposit()}
             onChange={(value: string) => setAmountIn(value)}
             type={
               showApprove

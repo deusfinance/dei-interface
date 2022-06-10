@@ -49,14 +49,24 @@ const Wrapper = styled(Container)`
 `
 
 const TopWrapper = styled.div`
-  display: inline-flex;
+  display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 1200px;
+  margin 0 auto;
 `
 
 const FarmWrapper = styled(Wrapper)`
   border-radius: 15px;
   padding: 0;
+  & > * {
+    &:nth-child(1) {
+      padding: 0;
+      border: 0;
+      padding-bottom: 20px;
+    }
+  }
 `
 
 const LiquidityWrapper = styled.div`

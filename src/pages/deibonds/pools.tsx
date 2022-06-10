@@ -3,8 +3,8 @@ import styled from 'styled-components'
 
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import { BDEI_TOKEN } from 'constants/tokens'
-import { StablePools } from 'constants/sPools'
+// import { BDEI_TOKEN } from 'constants/tokens'
+// import { StablePools } from 'constants/sPools'
 import { StakingPools } from 'constants/stakings'
 import Staking from 'components/App/deiPool/Staking'
 

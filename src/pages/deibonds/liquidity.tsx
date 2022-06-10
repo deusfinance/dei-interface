@@ -97,7 +97,7 @@ const LeftTitle = styled.span`
   font-weight: 500;
 `
 
-export default function LiquidityPool() {
+export default function Liquidity() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()

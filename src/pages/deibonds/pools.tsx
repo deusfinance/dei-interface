@@ -16,18 +16,19 @@ const Container = styled.div`
 `
 
 export default function Pools() {
-  const bdeiCurrency = BDEI_TOKEN
-  const pool = StablePools[0]
-  const lpCurrency = pool.lpToken
+  // const pool = StablePools[0]
+  // const bdeiCurrency = BDEI_TOKEN
+  // const lpCurrency = pool.lpToken
 
   return (
     <Container>
       <Hero>
         <div>Pools</div>
       </Hero>
-      {StakingPools.map((pool) => {
+      <Staking pool={StakingPools[0]} />
+      {/* {StakingPools.map((pool) => {
         return <Staking key={pool.pid} pool={pool} />
-      })}
+      })} */}
       <Disclaimer />
     </Container>
   )

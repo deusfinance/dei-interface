@@ -170,7 +170,7 @@ export default function Staking({ pool }: { pool: StakingType }) {
         <RowCenter style={{ alignItems: 'center' }}>
           <LeftTitle>{name}</LeftTitle>
           <RowEnd>
-            APR:<Label>{apr !== null || apr !== NaN ? `${apr.toFixed(3)}%` : <Loader />}</Label>
+            APR:<Label>{apr !== null || apr !== NaN ? `${apr.toFixed(0)}%` : <Loader />}</Label>
           </RowEnd>
         </RowCenter>
         <div style={{ marginTop: '20px' }}></div>

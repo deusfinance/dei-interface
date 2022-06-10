@@ -37,7 +37,6 @@ export function usePoolBalances(pool: StablePoolType): number[] {
 export function useAddLiquidity(pool: StablePoolType, amountIns: string[]): number {
   const { account } = useWeb3React()
   const contract = useDeiSwapContract()
-  console.log({ amountIns })
 
   const amountsInBN: string[] = useMemo(() => {
     return amountIns.map((amount, index) => {

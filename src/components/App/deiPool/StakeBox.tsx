@@ -152,7 +152,7 @@ export default function StakeBox({
           </RowBetween>
           <RowBetween>
             {type === 'claim' || type === 'claiming' ? (
-              <TextData style={{ marginTop: '-12px' }}>{value}</TextData>
+              <TextData style={{ marginTop: '-9px' }}>{value}</TextData>
             ) : (
               <NumericalInput
                 value={value || ''}

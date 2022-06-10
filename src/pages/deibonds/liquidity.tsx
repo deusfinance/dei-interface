@@ -131,7 +131,7 @@ export default function Liquidity() {
 
   const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn)
   const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2]).toString()
-  console.log({ amountOut, amountOut2, lpAmountIn })
+  // console.log({ amountOut, amountOut2, lpAmountIn })
 
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
@@ -202,7 +202,7 @@ export default function Liquidity() {
 
   const handleLiquidity = useCallback(async () => {
     console.log('called handleLiquidity')
-    console.log(liquidityCallbackState, liquidityCallback, liquidityCallbackError)
+    // console.log(liquidityCallbackState, liquidityCallback, liquidityCallbackError)
     if (!liquidityCallback) return
     try {
       setAwaitingLiquidityConfirmation(true)

@@ -129,9 +129,15 @@ export default function Liquidity() {
   const debouncedAmountIn2 = useDebounce(amountIn2, 500)
   const debouncedLPAmountIn = useDebounce(lpAmountIn, 500)
 
-  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn)
+  const [amountInArray, setAmountInArray] = useState<string[]>([])
+  const debouncedArray = useDebounce(amountInArray, 500)
+  console.log({ ...debouncedArray })
+
+  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn) // TODO: continue here
   const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2]).toString()
   // console.log({ amountOut, amountOut2, lpAmountIn })
+
+  // TODO: when selected changes reset the
 
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
@@ -159,6 +165,11 @@ export default function Liquidity() {
     20,
     isRemove
   )
+
+  const inputTokens = {
+    [ActionTypes.ADD]: [DEI_TOKEN, BDEI_TOKEN],
+    [ActionTypes.REMOVE]: [pool.lpToken],
+  }
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState<boolean>(false)
@@ -277,14 +288,24 @@ export default function Liquidity() {
       return (
         <>
           <Wrapper>
-            <InputBox
-              currency={lpCurrency}
-              value={lpAmountIn}
-              onChange={(value: string) => setLPAmountIn(value)}
-              title={'From'}
-            />
-            <ArrowDown style={{ cursor: 'pointer' }} />
+            {inputTokens[selected].map((token, index) => {
+              return (
+                <InputBox
+                  key={token.address}
+                  currency={token}
+                  value={amountInArray[index]}
+                  onChange={(value: string) => {
+                    type MyType = typeof amountInArray
+                    const newArray: MyType = [...amountInArray]
+                    newArray[index] = value
+                    setAmountInArray([...newArray])
+                  }}
+                  title={'From'}
+                />
+              )
+            })}
 
+            <ArrowDown style={{ cursor: 'pointer' }} />
             <InputBox
               currency={deiCurrency}
               value={amountOut[0]?.toString()}
@@ -292,9 +313,7 @@ export default function Liquidity() {
               title={'To'}
               disabled
             />
-
             <div style={{ marginTop: '20px' }}></div>
-
             <InputBox
               currency={bdeiCurrency}
               value={amountOut[1]?.toString()}
@@ -302,7 +321,6 @@ export default function Liquidity() {
               title={'To'}
               disabled
             />
-
             <div style={{ marginTop: '20px' }}></div>
             {getApproveButton('remove')}
             {getActionButton('remove')}
@@ -313,21 +331,25 @@ export default function Liquidity() {
       return (
         <>
           <Wrapper>
-            <InputBox
-              currency={deiCurrency}
-              value={amountIn}
-              onChange={(value: string) => setAmountIn(value)}
-              title={'From'}
-            />
-
-            <div style={{ marginTop: '20px' }}></div>
-
-            <InputBox
-              currency={bdeiCurrency}
-              value={amountIn2}
-              onChange={(value: string) => setAmountIn2(value)}
-              title={'From'}
-            />
+            {inputTokens[selected].map((token, index) => {
+              return (
+                <>
+                  <InputBox
+                    key={token.address}
+                    currency={token}
+                    value={amountInArray[index]}
+                    onChange={(value: string) => {
+                      type MyType = typeof amountInArray
+                      const newArray: MyType = [...amountInArray]
+                      newArray[index] = value
+                      setAmountInArray([...newArray])
+                    }}
+                    title={'From'}
+                  />
+                  <div style={{ marginTop: '20px' }}></div>
+                </>
+              )
+            })}
 
             <div style={{ marginTop: '20px' }}></div>
             {getApproveButton('add')}

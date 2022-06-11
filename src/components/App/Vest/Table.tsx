@@ -132,7 +132,7 @@ export default function Table({
               <Cell>Vest Amount</Cell>
               <Cell>Vest Value</Cell>
               <Cell>Vest Expiration</Cell>
-              <Cell>APY</Cell>
+              <Cell>APR</Cell>
               <Cell>Actions</Cell>
             </tr>
           </Head>

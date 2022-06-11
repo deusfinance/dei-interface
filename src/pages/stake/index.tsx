@@ -268,7 +268,7 @@ export default function Redemption() {
           <RowCenter style={{ alignItems: 'center' }}>
             <LeftTitle>bDEI</LeftTitle>
             <RowEnd>
-              APY:<Label>{apy}%</Label>
+              APR:<Label>{apy}%</Label>
             </RowEnd>
           </RowCenter>
           <div style={{ marginTop: '20px' }}></div>
@@ -305,7 +305,7 @@ export default function Redemption() {
           <RowCenter style={{ alignItems: 'center' }}>
             <LeftTitle>bDEI</LeftTitle>
             <RowEnd>
-              APY:<Label>{apy}%</Label>
+              APR:<Label>{apy}%</Label>
             </RowEnd>
           </RowCenter>
           <div style={{ marginTop: '20px' }}></div>

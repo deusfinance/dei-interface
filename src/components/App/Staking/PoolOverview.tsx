@@ -119,7 +119,7 @@ export default function PoolOverview() {
         <ItemValue>{showLoader ? <Loader /> : formatDollarAmount(1646501)}</ItemValue>
       </PoolInfo> */}
       <PoolInfo>
-        <InfoTitle>APY</InfoTitle>
+        <InfoTitle>APR</InfoTitle>
         <ItemValue>{showLoader ? <Loader /> : '13.2%'}</ItemValue>
       </PoolInfo>
       <PoolInfo>

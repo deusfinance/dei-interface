@@ -50,9 +50,9 @@ export function useVestedInformation(nftId: number): {
   )
 }
 
-const DEUS_EMISSION_PER_WEEK = 0 // TODO turn this into a hook
-const CIRCULATING_SUPPLY = 1 // TODO turn this into a hook
-const WEEKLY_ACCRUED_DEI_FEES = '1' // TODO naturally we cant use this forever, upgrade to subgraphs IMMEDIATELY
+const DEUS_EMISSION_PER_WEEK = 5000
+const CIRCULATING_SUPPLY = 95702
+const WEEKLY_ACCRUED_DEI_FEES = '1'
 
 export function useVestedAPY(
   nftId?: number,

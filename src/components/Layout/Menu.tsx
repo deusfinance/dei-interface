@@ -17,6 +17,8 @@ import {
   Droplet as DropletIcon,
   Redeem as RedeemIcon,
   Gift as GiftIcon,
+  Portfolio as PortfolioIcon,
+  Trade as TradeIcon,
 } from 'components/Icons'
 import { Card } from 'components/Card'
 import { NavButton } from 'components/Button'
@@ -86,6 +88,30 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          <Link href="/deibonds" passHref>
+            <Row active={router.route === '/deibonds'}>
+              <div>DeiBonds</div>
+              <IconWrapper>
+                <TradeIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/deibonds/pools" passHref>
+            <Row active={router.route === '/deibonds/pools'}>
+              <div>Pools</div>
+              <IconWrapper>
+                <PortfolioIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/deibonds/liquidity" passHref>
+            <Row active={router.route === '/deibonds/liquidity'}>
+              <div>Liquidity</div>
+              <IconWrapper>
+                <PortfolioIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <Link href="/borrow" passHref>
             <Row active={router.route === '/borrow'}>
               <div>Borrow</div>
@@ -107,14 +133,6 @@ export default function Menu() {
               <div>Rewards</div>
               <IconWrapper>
                 <GiftIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
-          <Link href="/liquidity" passHref>
-            <Row active={router.route === '/liquidity'}>
-              <div>Liquidity</div>
-              <IconWrapper>
-                <DropletIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -131,13 +131,14 @@ export default function Liquidity() {
 
   const [amountInArray, setAmountInArray] = useState<string[]>([])
   const debouncedArray = useDebounce(amountInArray, 500)
-  console.log({ ...debouncedArray })
 
-  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn) // TODO: continue here
-  const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2]).toString()
-  // console.log({ amountOut, amountOut2, lpAmountIn })
+  // const debouncedArrayMemo = useMemo(() => {
+  //   return debouncedArray.length >= 1 ? [...debouncedArray] : ['', '']
+  // }, [JSON.stringify(debouncedArray)])
 
-  // TODO: when selected changes reset the
+  const amountOut = useRemoveLiquidity(pool, debouncedArray.length ? debouncedArray[0] : '')
+  const amountOut2 = useAddLiquidity(pool, debouncedArray.length > 1 ? [...debouncedArray] : ['', '']).toString()
+  console.log({ debouncedArray, amountOut, amountOut2 })
 
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
@@ -158,8 +159,8 @@ export default function Liquidity() {
     callback: liquidityCallback,
     error: liquidityCallbackError,
   } = useManageLiquidity(
-    isRemove ? amountOut : [debouncedAmountIn, debouncedAmountIn2],
-    isRemove ? lpAmountIn : amountOut2,
+    isRemove ? amountOut : debouncedArray,
+    isRemove ? debouncedArray[0] : amountOut2,
     pool,
     slippage,
     20,
@@ -170,6 +171,12 @@ export default function Liquidity() {
     [ActionTypes.ADD]: [DEI_TOKEN, BDEI_TOKEN],
     [ActionTypes.REMOVE]: [pool.lpToken],
   }
+
+  useEffect(() => {
+    setAmountInArray([...inputTokens[selected].map((token) => '')])
+    // amountOut = [] // TODO: refresh these to switch fast without showing the numbers
+    // amountOut2 = ''
+  }, [selected, JSON.stringify(inputTokens)])
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState<boolean>(false)
@@ -291,7 +298,7 @@ export default function Liquidity() {
             {inputTokens[selected].map((token, index) => {
               return (
                 <InputBox
-                  key={token.address}
+                  key={index}
                   currency={token}
                   value={amountInArray[index]}
                   onChange={(value: string) => {
@@ -333,9 +340,8 @@ export default function Liquidity() {
           <Wrapper>
             {inputTokens[selected].map((token, index) => {
               return (
-                <>
+                <div style={{ width: '100%' }} key={index}>
                   <InputBox
-                    key={token.address}
                     currency={token}
                     value={amountInArray[index]}
                     onChange={(value: string) => {
@@ -347,7 +353,7 @@ export default function Liquidity() {
                     title={'From'}
                   />
                   <div style={{ marginTop: '20px' }}></div>
-                </>
+                </div>
               )
             })}
 

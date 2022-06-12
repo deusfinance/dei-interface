@@ -14,7 +14,6 @@ import {
   Twitter as TwitterIcon,
   Github as GithubIcon,
   Lock as LockIcon,
-  Droplet as DropletIcon,
   Redeem as RedeemIcon,
   Gift as GiftIcon,
   Portfolio as PortfolioIcon,

@@ -174,11 +174,11 @@ export default function DeiStats() {
             {deiPrice === null ? <Loader /> : <ItemValue>{formatDollarAmount(parseFloat(deiPrice), 2)}</ItemValue>}
           </InfoWrapper>
           <Container>
+            <InfoWrapper>
+              <p>Total Supply</p>
+              {totalSupply === null ? <Loader /> : <ItemValue>{formatAmount(totalSupply, 2)}</ItemValue>}
+            </InfoWrapper>
             <SubWrapper>
-              <InfoWrapper secondary={true}>
-                <p>Total Supply</p>
-                {totalSupply === null ? <Loader /> : <ItemValue>{formatAmount(totalSupply, 2)}</ItemValue>}
-              </InfoWrapper>
               <InfoWrapper secondary={true}>
                 <p>Protocol Holdings</p>
                 {totalProtocolHoldings === null ? (
@@ -186,6 +186,10 @@ export default function DeiStats() {
                 ) : (
                   <ItemValue>{formatAmount(totalProtocolHoldings, 2)}</ItemValue>
                 )}
+              </InfoWrapper>
+              <InfoWrapper secondary={true}>
+                <p>Total DEI Redeemed</p>
+                {showLoader ? <Loader /> : <ItemValue>{formatAmount(deiBurned)}</ItemValue>}
               </InfoWrapper>
             </SubWrapper>
             <InfoWrapper>

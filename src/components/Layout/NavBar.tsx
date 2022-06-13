@@ -120,6 +120,9 @@ export default function NavBar() {
       <DefaultWrapper>
         <NavLogo />
         <Routes>
+          <Link href="/dashboard" passHref>
+            <NavLink active={router.route === '/dashboard'}>Dashboard</NavLink>
+          </Link>
           <Link href="/redemption" passHref>
             <NavLink active={router.route === '/redemption'}>Redemption</NavLink>
           </Link>

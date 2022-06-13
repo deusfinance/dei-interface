@@ -121,38 +121,40 @@ export default function Liquidity() {
   const bdeiCurrency = BDEI_TOKEN
   const pool = StablePools[0]
   const lpCurrency = pool.lpToken
-  const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
-  const bdeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
-  const lpCurrencyBalance = useCurrencyBalance(account ?? undefined, lpCurrency)
 
-  const debouncedAmountIn = useDebounce(amountIn, 500)
-  const debouncedAmountIn2 = useDebounce(amountIn2, 500)
-  const debouncedLPAmountIn = useDebounce(lpAmountIn, 500)
+  // const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
+  // const bdeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
+
+  //TODO: add insufficient balance of lp
+  // const lpCurrencyBalance = useCurrencyBalance(account ?? undefined, lpCurrency)
 
   const [amountInArray, setAmountInArray] = useState<string[]>([])
   const debouncedArray = useDebounce(amountInArray, 500)
 
-  // const debouncedArrayMemo = useMemo(() => {
-  //   return debouncedArray.length >= 1 ? [...debouncedArray] : ['', '']
-  // }, [JSON.stringify(debouncedArray)])
+  const debouncedArrayMemo = useMemo(() => {
+    return debouncedArray.length >= 1 ? [...debouncedArray] : ['', '']
+  }, [debouncedArray])
 
-  const amountOut = useRemoveLiquidity(pool, debouncedArray.length ? debouncedArray[0] : '')
-  const amountOut2 = useAddLiquidity(pool, debouncedArray.length > 1 ? [...debouncedArray] : ['', '']).toString()
+  const amountOut = useRemoveLiquidity(pool, debouncedArrayMemo.length ? debouncedArrayMemo[0] : '')
+  const amountOut2 = useAddLiquidity(
+    pool,
+    debouncedArrayMemo.length > 1 ? [...debouncedArrayMemo] : ['', '']
+  ).toString()
   console.log({ debouncedArray, amountOut, amountOut2 })
 
-  const deiAmount = useMemo(() => {
-    return tryParseAmount(amountIn, deiCurrency || undefined)
-  }, [amountIn, deiCurrency])
+  // const deiAmount = useMemo(() => {
+  //   return tryParseAmount(amountIn, deiCurrency || undefined)
+  // }, [amountIn, deiCurrency])
 
-  const bdeiAmount = useMemo(() => {
-    return tryParseAmount(amountIn2, bdeiCurrency || undefined)
-  }, [amountIn2, bdeiCurrency])
+  // const bdeiAmount = useMemo(() => {
+  //   return tryParseAmount(amountIn2, bdeiCurrency || undefined)
+  // }, [amountIn2, bdeiCurrency])
 
-  const insufficientBalance = useMemo(() => {
-    // TODO: complete this later
-    if (!deiAmount || !bdeiAmount) return false
-    return deiCurrencyBalance?.lessThan(deiAmount) && bdeiCurrencyBalance?.lessThan(bdeiAmount)
-  }, [deiCurrencyBalance, bdeiCurrencyBalance, deiAmount, bdeiAmount])
+  // const insufficientBalance = useMemo(() => {
+  //   // TODO: complete this later
+  //   if (!deiAmount || !bdeiAmount) return false
+  //   return deiCurrencyBalance?.lessThan(deiAmount) && bdeiCurrencyBalance?.lessThan(bdeiAmount)
+  // }, [deiCurrencyBalance, bdeiCurrencyBalance, deiAmount, bdeiAmount])
 
   const {
     state: liquidityCallbackState,
@@ -167,16 +169,19 @@ export default function Liquidity() {
     isRemove
   )
 
-  const inputTokens = {
-    [ActionTypes.ADD]: [DEI_TOKEN, BDEI_TOKEN],
-    [ActionTypes.REMOVE]: [pool.lpToken],
-  }
+  const inputTokens = useMemo(
+    () => ({
+      [ActionTypes.ADD]: [DEI_TOKEN, BDEI_TOKEN],
+      [ActionTypes.REMOVE]: [pool.lpToken],
+    }),
+    [pool]
+  )
+
+  // amountOut = [] // TODO: refresh these to switch fast without showing the numbers
 
   useEffect(() => {
-    setAmountInArray([...inputTokens[selected].map((token) => '')])
-    // amountOut = [] // TODO: refresh these to switch fast without showing the numbers
-    // amountOut2 = ''
-  }, [selected, JSON.stringify(inputTokens)])
+    setAmountInArray(inputTokens[selected].map(() => ''))
+  }, [selected, inputTokens])
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState<boolean>(false)
@@ -276,9 +281,9 @@ export default function Liquidity() {
       return null
     }
 
-    if (insufficientBalance) {
-      return <DepositButton disabled>Insufficient {deiCurrency?.symbol} Balance</DepositButton>
-    }
+    // if (insufficientBalance) {
+    //   return <DepositButton disabled>Insufficient {deiCurrency?.symbol} Balance</DepositButton>
+    // }
     if (awaitingLiquidityConfirmation) {
       return (
         <DepositButton>

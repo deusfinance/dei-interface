@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { useRedeemData } from 'hooks/useRedemptionPage'
 
-import { RowBetween, RowEnd, RowStart } from 'components/Row'
+import { RowBetween } from 'components/Row'
 import { Loader } from 'components/Icons'
 import { formatAmount, formatDollarAmount } from 'utils/numbers'
 import { useBonderData, useGetRedeemTime } from 'hooks/useBondsPage'

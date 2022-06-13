@@ -67,29 +67,22 @@ export function useVestedAPY(
   globalAPY: string
   userAPY: string
 } {
-  const isSupportedChainId = useSupportedChainId()
   const veDEUSContract = useVeDeusContract()
   const effectiveNftId = useMemo(() => nftId ?? 0, [nftId])
   const { lockEnd } = useVestedInformation(effectiveNftId)
   const effectiveLockEnd = useMemo(() => userInputLockEnd ?? lockEnd, [userInputLockEnd, lockEnd])
   const deusPrice = useDeusPrice()
 
-  const veDEUSCalls = useMemo(
-    () =>
-      !isSupportedChainId
-        ? []
-        : [
-            {
-              methodName: 'totalSupply',
-              callInputs: [],
-            },
-            {
-              methodName: 'supply',
-              callInputs: [],
-            },
-          ],
-    [isSupportedChainId]
-  )
+  const veDEUSCalls = [
+    {
+      methodName: 'totalSupply',
+      callInputs: [],
+    },
+    {
+      methodName: 'supply',
+      callInputs: [],
+    },
+  ]
 
   const [totalSupplyResult, supplyResult] = useSingleContractMultipleMethods(veDEUSContract, veDEUSCalls)
 
@@ -101,10 +94,10 @@ export function useVestedAPY(
     lockedVeDEUS: string
   } = useMemo(
     () => ({
-      totalVeDEUS: veDEUSCalls.length && totalSupplyResult?.result ? formatUnits(totalSupplyResult.result[0], 18) : '0',
-      lockedVeDEUS: veDEUSCalls.length && supplyResult?.result ? formatUnits(supplyResult.result[0], 18) : '0',
+      totalVeDEUS: totalSupplyResult?.result ? formatUnits(totalSupplyResult.result[0], 18) : '0',
+      lockedVeDEUS: supplyResult?.result ? formatUnits(supplyResult.result[0], 18) : '0',
     }),
-    [veDEUSCalls, totalSupplyResult, supplyResult]
+    [totalSupplyResult, supplyResult]
   )
 
   const annualUSDEmissionToVeDEUS: BigNumber = useMemo(() => {

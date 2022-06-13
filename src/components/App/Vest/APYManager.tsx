@@ -90,7 +90,7 @@ export default function APYManager({
     <StyledModal isOpen={isOpen} onBackgroundClick={onDismiss} onEscapeKeydown={onDismiss}>
       <ModalHeader title={`#${nftId} veDEUS NFT`} onClose={onDismiss} />
       <ModalInnerWrapper>
-        <Title>APY Breakdown</Title>
+        <Title>APR Breakdown</Title>
         <Row>
           <div>
             Lock End: <span>(UTC)</span>
@@ -119,29 +119,29 @@ export default function APYManager({
         <HorPartition />
         <Row>
           <div>
-            DEI Lending APY: <span>(paid in DEI)</span>
+            DEI Lending APR: <span>(paid in DEI)</span>
           </div>
           <div>{formatAmount(parseFloat(deiAPY), 0)}%</div>
         </Row>
         <Row>
           <div>
-            APY from Bribes: <span>(paid in Bribes)</span>
+            APR from Bribes: <span>(paid in Bribes)</span>
           </div>
           <div>{formatAmount(parseFloat(bribesAPY), 0)}%</div>
         </Row>
         <Row>
           <div>
-            Anti-Dilution APY: <span>(paid in veDEUS)</span>
+            Anti-Dilution APR: <span>(paid in veDEUS)</span>
           </div>
           <div>{formatAmount(parseFloat(antiDilutiveAPY), 0)}%</div>
         </Row>
         <HorPartition />
         <Row>
-          <div>Total APY: </div>
+          <div>Total APR: </div>
           <div>{formatAmount(parseFloat(globalAPY), 0)}%</div>
         </Row>
         <Row>
-          <div>Your APY: </div>
+          <div>Your APR: </div>
           <div>{formatAmount(parseFloat(userAPY), 0)}%</div>
         </Row>
         <PrimaryButton onClick={() => toggleLockManager(nftId)}>Update Lock</PrimaryButton>

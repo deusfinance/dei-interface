@@ -89,7 +89,7 @@ export default function UserLockInformation({
         <div>{totalVotingPower} veDEUS</div>
       </Row>
       <Row>
-        <div>Est. APY</div>
+        <div>Est. APR</div>
         <div>{formatAmount(parseFloat(userAPY), 0)}%</div>
       </Row>
       <Row>

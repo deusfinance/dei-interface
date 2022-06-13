@@ -1,1 +1,1 @@
-export { default as ActionSetter, ActionTypes } from './Navigation'
+export { default as ActionSetter, ActionTypes } from './Action'

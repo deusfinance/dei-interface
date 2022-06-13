@@ -9,3 +9,11 @@ export const USDC_TOKEN = new Token(SupportedChainId.FANTOM, USDC_ADDRESS[Suppor
 export const DEUS_TOKEN = new Token(SupportedChainId.FANTOM, DEUS_ADDRESS[SupportedChainId.FANTOM], 18, 'DEUS', 'DEUS')
 
 export const BDEI_TOKEN = new Token(SupportedChainId.FANTOM, BDEI_ADDRESS[SupportedChainId.FANTOM], 18, 'bDEI', 'bDEI')
+
+export const DEI_BDEI_LP_TOKEN = new Token(
+  SupportedChainId.FANTOM,
+  '0xdce9ec1eb454829b6fe0f54f504fef3c3c0642fc',
+  18,
+  'DB-LP',
+  'DB-LP'
+)

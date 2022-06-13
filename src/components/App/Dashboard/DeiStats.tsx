@@ -188,8 +188,8 @@ export default function DeiStats() {
                 )}
               </InfoWrapper>
               <InfoWrapper secondary={true}>
-                <p>Total DEI Redeemed</p>
-                {showLoader ? <Loader /> : <ItemValue>{formatAmount(deiBurned)}</ItemValue>}
+                <p>Total DEI Bonded</p>
+                {deiBonded == 0 ? <Loader /> : <ItemValue>{formatAmount(deiBonded)}</ItemValue>}
               </InfoWrapper>
             </SubWrapper>
             <InfoWrapper>

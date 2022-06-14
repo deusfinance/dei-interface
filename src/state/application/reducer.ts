@@ -13,6 +13,7 @@ import {
 export enum ApplicationModal {
   WALLET = 'WALLET',
   NETWORK = 'NETWORK',
+  DASHBOARD = 'DASHBOARD',
 }
 
 export type PopupContent = {

@@ -10,8 +10,12 @@ import { useERC20Contract } from './useContract'
 
 export function useDeiStats(): {
   totalSupply: number
+  deiProtocolHoldings1: number
+  deiProtocolHoldings2: number
   totalProtocolHoldings: number
   circulatingSupply: number
+  usdcReserves1: number
+  usdcReserves2: number
   totalUSDCReserves: number
 } {
   const { deiBonded } = useBonderData()
@@ -19,8 +23,8 @@ export function useDeiStats(): {
   const usdcContract = useERC20Contract(USDC_TOKEN.address)
   const protocolHoldings1Address = ProtocolHoldings1[SupportedChainId.FANTOM]
   const protocolHoldings2Address = ProtocolHoldings2[SupportedChainId.FANTOM]
-  const usdcReserves1 = USDCReserves1[SupportedChainId.FANTOM]
-  const usdcReserves2 = USDCReserves2[SupportedChainId.FANTOM]
+  const usdcReserves1Address = USDCReserves1[SupportedChainId.FANTOM]
+  const usdcReserves2Address = USDCReserves2[SupportedChainId.FANTOM]
 
   const calls = !deiContract
     ? []
@@ -41,12 +45,14 @@ export function useDeiStats(): {
 
   const [totalSupplyDEI, ph1DeiHoldings, ph2DeiHoldings] = useSingleContractMultipleMethods(deiContract, calls)
 
-  const { totalSupplyDEIValue, totalProtocolHoldings } = useMemo(() => {
+  const { totalSupplyDEIValue, totalProtocolHoldings, deiProtocolHoldings1, deiProtocolHoldings2 } = useMemo(() => {
     return {
       totalSupplyDEIValue: totalSupplyDEI?.result ? toBN(formatUnits(totalSupplyDEI.result[0], 18)).toNumber() : 0,
       totalProtocolHoldings:
         (ph1DeiHoldings?.result ? toBN(formatUnits(ph1DeiHoldings.result[0], 18)).toNumber() : 0) +
         (ph2DeiHoldings?.result ? toBN(formatUnits(ph2DeiHoldings.result[0], 18)).toNumber() : 0),
+      deiProtocolHoldings1: ph1DeiHoldings?.result ? toBN(formatUnits(ph1DeiHoldings.result[0], 18)).toNumber() : 0,
+      deiProtocolHoldings2: ph2DeiHoldings?.result ? toBN(formatUnits(ph2DeiHoldings.result[0], 18)).toNumber() : 0,
     }
   }, [totalSupplyDEI, ph1DeiHoldings, ph2DeiHoldings])
 
@@ -59,28 +65,34 @@ export function useDeiStats(): {
     : [
         {
           methodName: 'balanceOf',
-          callInputs: [usdcReserves1],
+          callInputs: [usdcReserves1Address],
         },
         {
           methodName: 'balanceOf',
-          callInputs: [usdcReserves2],
+          callInputs: [usdcReserves2Address],
         },
       ]
 
   const [usdcBalance1, usdcBalance2] = useSingleContractMultipleMethods(usdcContract, reservesCalls)
 
-  const { totalUSDCReserves } = useMemo(() => {
+  const { totalUSDCReserves, usdcReserves1, usdcReserves2 } = useMemo(() => {
     return {
       totalUSDCReserves:
         (usdcBalance1?.result ? toBN(formatUnits(usdcBalance1.result[0], 6)).toNumber() : 0) +
         (usdcBalance2?.result ? toBN(formatUnits(usdcBalance2.result[0], 6)).toNumber() : 0),
+      usdcReserves1: usdcBalance1?.result ? toBN(formatUnits(usdcBalance1.result[0], 6)).toNumber() : 0,
+      usdcReserves2: usdcBalance2?.result ? toBN(formatUnits(usdcBalance2.result[0], 6)).toNumber() : 0,
     }
   }, [usdcBalance1, usdcBalance2])
 
   return {
     totalSupply: totalSupplyDEIValue,
+    deiProtocolHoldings1,
+    deiProtocolHoldings2,
     totalProtocolHoldings,
     circulatingSupply,
+    usdcReserves1,
+    usdcReserves2,
     totalUSDCReserves,
   }
 }

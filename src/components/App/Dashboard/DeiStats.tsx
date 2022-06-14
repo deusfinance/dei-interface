@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { useRedeemData } from 'hooks/useRedemptionPage'
@@ -16,6 +16,8 @@ import { useTokenPerBlock } from 'hooks/useBdeiStakingPage'
 import { useDeiStats } from 'hooks/useDeiStats'
 import { StakingPools } from 'constants/stakings'
 import { useGetApy } from 'hooks/useStakingInfo'
+import { useDashboardModalToggle } from 'state/application/hooks'
+import StatsModal from './StatsModal'
 
 const Wrapper = styled.div`
   display: flex;
@@ -64,8 +66,13 @@ const InfoWrapper = styled(RowBetween)<{
   min-width: 500px;
   width: 100%;
 
+  &:hover {
+    background: #141414;
+    cursor: pointer;
+  }
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 1.25rem 1rem;
+    padding: 0.75rem 1rem;
     width: 90%;
     min-width: 265px;
   `}
@@ -95,6 +102,7 @@ const Container = styled.div`
     padding: 0.75rem 0.5rem;
     margin: 0 auto;
     min-width: 265px;
+    gap: 0.5rem;
   `}
 `
 
@@ -112,7 +120,6 @@ const ItemValue = styled.div`
 
 const Heading = styled.div`
   display: flex;
-  max-width: 500px;
   align-self: center;
   margin-left: 1rem;
   width: 100%;
@@ -131,14 +138,37 @@ const ItemWrapper = styled.div`
 const SubWrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 1rem;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
+    gap: 0.5rem;
     flex-flow: column nowrap;
   `}
 `
 
+export enum Dashboard {
+  EMPTY = 'EMPTY',
+  DEI_PRICE = 'DEI Price',
+  DEI_TOTAL_SUPPLY = 'DEI Total Supply',
+  DEI_PROTOCOL_HOLDINGS = 'DEI Protocol Holdings',
+  TOTAL_DEI_BONDED = 'Total DEI Bonded',
+  DEI_CIRCULATING_SUPPLY = 'DEI Circulating Supply',
+  TOTAL_USDC_RESERVES = 'Total USDC Reserves',
+  USDC_BACKING_FOR_DEI = 'USDC Backing per DEI',
+  GLOBAL_DEI_BORROWED = 'Global DEI Borrowed',
+  TOTAL_DEI_REDEEMED = 'Total DEI Redeemed',
+  REDEMPTION_PER_DEI = 'Redemption per DEI',
+  TOTAL_BDEI_STAKED = 'Total bDEI Staked',
+  BDEI_STAKING_APR = 'bDEI Staking APR',
+  DEI_BOND_MATURITY = 'Current DEI Bond Maturity',
+}
+
 export default function DeiStats() {
+  const toggleDashboardModal = useDashboardModalToggle()
+
+  const [currentStat, setCurrentStat] = useState(Dashboard.EMPTY)
+
   const deiPrice = useDeiPrice()
   const { redeemTranche, deiBurned } = useRedeemData()
 
@@ -164,98 +194,143 @@ export default function DeiStats() {
 
   const showLoader = redeemTranche.trancheId == null ? true : false
 
+  function handleClick(flag: Dashboard) {
+    console.log('clicked')
+    setCurrentStat(flag)
+    toggleDashboardModal()
+  }
+
   return (
-    <Wrapper>
-      <TopWrapper>
-        <Container>
-          <Heading>DEI stats</Heading>
-          <InfoWrapper>
-            <p>Price</p>
-            {deiPrice === null ? <Loader /> : <ItemValue>{formatDollarAmount(parseFloat(deiPrice), 2)}</ItemValue>}
-          </InfoWrapper>
+    <>
+      <Wrapper>
+        <TopWrapper>
           <Container>
-            <InfoWrapper>
-              <p>Total Supply</p>
-              {totalSupply === null ? <Loader /> : <ItemValue>{formatAmount(totalSupply, 2)}</ItemValue>}
-            </InfoWrapper>
-            <SubWrapper>
-              <InfoWrapper secondary={true}>
-                <p>Protocol Holdings</p>
-                {totalProtocolHoldings === null ? (
+            <Heading>DEI stats</Heading>
+            <div onClick={() => handleClick(Dashboard.DEI_PRICE)}>
+              <InfoWrapper>
+                <p>Price</p>
+                {deiPrice === null ? <Loader /> : <ItemValue>{formatDollarAmount(parseFloat(deiPrice), 2)}</ItemValue>}
+              </InfoWrapper>
+            </div>
+            <Container>
+              <div onClick={() => handleClick(Dashboard.DEI_TOTAL_SUPPLY)}>
+                <InfoWrapper>
+                  <p>Total Supply</p>
+                  {totalSupply === null ? <Loader /> : <ItemValue>{formatAmount(totalSupply, 2)}</ItemValue>}
+                </InfoWrapper>
+              </div>
+              <SubWrapper>
+                <div onClick={() => handleClick(Dashboard.DEI_PROTOCOL_HOLDINGS)}>
+                  <InfoWrapper secondary={true}>
+                    <p>Protocol Holdings</p>
+                    {totalProtocolHoldings === null ? (
+                      <Loader />
+                    ) : (
+                      <ItemValue>{formatAmount(totalProtocolHoldings, 2)}</ItemValue>
+                    )}
+                  </InfoWrapper>
+                </div>
+                <div onClick={() => handleClick(Dashboard.TOTAL_DEI_BONDED)}>
+                  <InfoWrapper secondary={true}>
+                    <p>Total DEI Bonded</p>
+                    {deiBonded == 0 ? <Loader /> : <ItemValue>{formatAmount(deiBonded)}</ItemValue>}
+                  </InfoWrapper>
+                </div>
+              </SubWrapper>
+              <div onClick={() => handleClick(Dashboard.DEI_CIRCULATING_SUPPLY)}>
+                <InfoWrapper>
+                  <p>Circulating Supply</p>
+                  {circulatingSupply === null ? (
+                    <Loader />
+                  ) : (
+                    <ItemValue>{formatAmount(circulatingSupply, 2)}</ItemValue>
+                  )}
+                </InfoWrapper>
+              </div>
+            </Container>
+            <div onClick={() => handleClick(Dashboard.TOTAL_USDC_RESERVES)}>
+              <InfoWrapper>
+                <p>Total USDC Reserves</p>
+                {totalUSDCReserves === null ? <Loader /> : <ItemValue>{formatAmount(totalUSDCReserves, 2)}</ItemValue>}
+              </InfoWrapper>
+            </div>
+            <div onClick={() => handleClick(Dashboard.USDC_BACKING_FOR_DEI)}>
+              <InfoWrapper>
+                <p>USDC Backing per DEI</p>
+                {usdcBackingPerDei === null ? (
                   <Loader />
                 ) : (
-                  <ItemValue>{formatAmount(totalProtocolHoldings, 2)}</ItemValue>
+                  <ItemValue>{formatDollarAmount(usdcBackingPerDei, 2)}</ItemValue>
                 )}
               </InfoWrapper>
-              <InfoWrapper secondary={true}>
-                <p>Total DEI Bonded</p>
-                {deiBonded == 0 ? <Loader /> : <ItemValue>{formatAmount(deiBonded)}</ItemValue>}
+            </div>
+            <div onClick={() => handleClick(Dashboard.GLOBAL_DEI_BORROWED)}>
+              <InfoWrapper>
+                <p>Global DEI Borrowed</p>
+                {borrowedElastic === null ? (
+                  <Loader />
+                ) : (
+                  <ItemValue>{formatAmount(parseFloat(borrowedElastic))}</ItemValue>
+                )}
               </InfoWrapper>
-            </SubWrapper>
-            <InfoWrapper>
-              <p>Circulating Supply</p>
-              {circulatingSupply === null ? <Loader /> : <ItemValue>{formatAmount(circulatingSupply, 2)}</ItemValue>}
-            </InfoWrapper>
+            </div>
           </Container>
-          <InfoWrapper>
-            <p>Total USDC Reserves</p>
-            {totalUSDCReserves === null ? <Loader /> : <ItemValue>{formatAmount(totalUSDCReserves, 2)}</ItemValue>}
-          </InfoWrapper>
-          <InfoWrapper>
-            <p>USDC Backing per DEI</p>
-            {usdcBackingPerDei === null ? (
-              <Loader />
-            ) : (
-              <ItemValue>{formatDollarAmount(usdcBackingPerDei, 2)}</ItemValue>
-            )}
-          </InfoWrapper>
-          <InfoWrapper>
-            <p>Global DEI Borrowed</p>
-            {borrowedElastic === null ? <Loader /> : <ItemValue>{formatAmount(parseFloat(borrowedElastic))}</ItemValue>}
-          </InfoWrapper>
-        </Container>
-        <StatsWrapper>
-          <Container>
-            <Heading>Redemption stats</Heading>
-            <InfoWrapper>
-              <p>Total DEI Redeemed</p>
-              {showLoader ? <Loader /> : <ItemValue>{formatAmount(deiBurned)}</ItemValue>}
-            </InfoWrapper>
-            <InfoWrapper>
-              <p>Redemption per DEI</p>
-              <ItemWrapper>
-                <ItemValue>
-                  ${showLoader ? <Loader /> : redeemTranche.USDRatio}
-                  <span>in USDC</span>
-                </ItemValue>
-                <ItemValue>
-                  ${showLoader ? <Loader /> : redeemTranche.deusRatio}
-                  <span>in vDEUS</span>
-                </ItemValue>
-              </ItemWrapper>
-            </InfoWrapper>
-          </Container>
-          <Container>
-            <Heading>DEI Bonds stats</Heading>
-            <InfoWrapper>
-              <p>Total DEI Bonded</p>
-              {deiBonded == 0 ? <Loader /> : <ItemValue>{formatAmount(deiBonded)}</ItemValue>}
-            </InfoWrapper>
-            <InfoWrapper>
-              <p>Total bDEI Staked</p>
-              {totalDeposited == 0 ? <Loader /> : <ItemValue>{formatAmount(totalDeposited)}</ItemValue>}
-            </InfoWrapper>
-            <InfoWrapper>
-              <p>bDEI Staking APR</p>
-              {bDeiSingleStakingAPR == 0 ? <Loader /> : <ItemValue>{bDeiSingleStakingAPR.toFixed(2)}%</ItemValue>}
-            </InfoWrapper>
-            <InfoWrapper>
-              <p>Current Bond maturity</p>
-              {redeemTime == 0 ? <Loader /> : <ItemValue>~ {roundedDays} days</ItemValue>}
-            </InfoWrapper>
-          </Container>
-        </StatsWrapper>
-      </TopWrapper>
-    </Wrapper>
+          <StatsWrapper>
+            <Container>
+              <Heading>Redemption stats</Heading>
+              <div onClick={() => handleClick(Dashboard.TOTAL_DEI_REDEEMED)}>
+                <InfoWrapper>
+                  <p>Total DEI Redeemed</p>
+                  {showLoader ? <Loader /> : <ItemValue>{formatAmount(deiBurned)}</ItemValue>}
+                </InfoWrapper>
+              </div>
+              <div onClick={() => handleClick(Dashboard.REDEMPTION_PER_DEI)}>
+                <InfoWrapper>
+                  <p>Redemption per DEI</p>
+                  <ItemWrapper>
+                    <ItemValue>
+                      ${showLoader ? <Loader /> : redeemTranche.USDRatio}
+                      <span>in USDC</span>
+                    </ItemValue>
+                    <ItemValue>
+                      ${showLoader ? <Loader /> : redeemTranche.deusRatio}
+                      <span>in vDEUS</span>
+                    </ItemValue>
+                  </ItemWrapper>
+                </InfoWrapper>
+              </div>
+            </Container>
+            <Container>
+              <Heading>DEI Bonds stats</Heading>
+              <div onClick={() => handleClick(Dashboard.TOTAL_DEI_BONDED)}>
+                <InfoWrapper>
+                  <p>Total DEI Bonded</p>
+                  {deiBonded == 0 ? <Loader /> : <ItemValue>{formatAmount(deiBonded)}</ItemValue>}
+                </InfoWrapper>
+              </div>
+              <div onClick={() => handleClick(Dashboard.TOTAL_BDEI_STAKED)}>
+                <InfoWrapper>
+                  <p>Total bDEI Staked</p>
+                  {totalDeposited == 0 ? <Loader /> : <ItemValue>{formatAmount(totalDeposited)}</ItemValue>}
+                </InfoWrapper>
+              </div>
+              <div onClick={() => handleClick(Dashboard.BDEI_STAKING_APR)}>
+                <InfoWrapper>
+                  <p>bDEI Staking APR</p>
+                  {bDeiSingleStakingAPR == 0 ? <Loader /> : <ItemValue>{bDeiSingleStakingAPR.toFixed(2)}%</ItemValue>}
+                </InfoWrapper>
+              </div>
+              <div onClick={() => handleClick(Dashboard.DEI_BOND_MATURITY)}>
+                <InfoWrapper>
+                  <p>Current Bond maturity</p>
+                  {redeemTime == 0 ? <Loader /> : <ItemValue>~ {roundedDays} days</ItemValue>}
+                </InfoWrapper>
+              </div>
+            </Container>
+          </StatsWrapper>
+        </TopWrapper>
+      </Wrapper>
+      <StatsModal currentStat={currentStat} />
+    </>
   )
 }

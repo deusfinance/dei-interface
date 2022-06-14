@@ -74,20 +74,20 @@ const InfoWrapper = styled(RowBetween)<{
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 0.75rem 1rem;
     width: 90%;
-    min-width: 265px;
+    min-width: 250px;
   `}
 
   ${({ secondary }) =>
     secondary &&
     `
-    min-width: 265px;
+    min-width: 250px;
   `}
 `
 
 const Container = styled.div`
   display: flex;
   flex-flow: column nowrap;
-  align-self: center;
+  align-self: start;
   background-color: #2f2f2f;
   border: 1px solid #0d0d0d;
   border-radius: 15px;
@@ -161,6 +161,9 @@ export enum Dashboard {
   REDEMPTION_PER_DEI = 'Redemption per DEI',
   TOTAL_BDEI_STAKED = 'Total bDEI Staked',
   BDEI_STAKING_APR = 'bDEI Staking APR',
+  BDEI_LIQUIDITY = 'bDEI Liquidity in bDEI-DEI Pool',
+  DEI_LIQUIDITY = 'DEI Liquidity in bDEI-DEI Pool',
+  BDEI_DEI_LIQUIDITY = 'Total Liquidity in bDEI-DEI Pool',
   DEI_BOND_MATURITY = 'Current DEI Bond Maturity',
 }
 
@@ -186,7 +189,15 @@ export default function DeiStats() {
   const { pid } = StakingPools[0] //bDEI single staking pool
   const bDeiSingleStakingAPR = useGetApy(pid)
 
-  const { totalSupply, totalProtocolHoldings, circulatingSupply, totalUSDCReserves } = useDeiStats()
+  const {
+    totalSupply,
+    totalProtocolHoldings,
+    circulatingSupply,
+    totalUSDCReserves,
+    sPoolDEILiquidity,
+    sPoolbDEILiquidity,
+    sPoolLiquidity,
+  } = useDeiStats()
 
   const usdcBackingPerDei = useMemo(() => {
     return totalUSDCReserves / circulatingSupply
@@ -320,6 +331,36 @@ export default function DeiStats() {
                   {bDeiSingleStakingAPR == 0 ? <Loader /> : <ItemValue>{bDeiSingleStakingAPR.toFixed(2)}%</ItemValue>}
                 </InfoWrapper>
               </div>
+              <Container>
+                <SubWrapper>
+                  <div onClick={() => handleClick(Dashboard.BDEI_LIQUIDITY)}>
+                    <InfoWrapper secondary={true}>
+                      <p>bDEI Liqudity</p>
+                      {sPoolbDEILiquidity === null ? (
+                        <Loader />
+                      ) : (
+                        <ItemValue>{formatAmount(sPoolbDEILiquidity, 2)}</ItemValue>
+                      )}
+                    </InfoWrapper>
+                  </div>
+                  <div onClick={() => handleClick(Dashboard.DEI_LIQUIDITY)}>
+                    <InfoWrapper secondary={true}>
+                      <p>DEI Liquidity</p>
+                      {sPoolDEILiquidity == 0 ? (
+                        <Loader />
+                      ) : (
+                        <ItemValue>{formatAmount(sPoolDEILiquidity, 2)}</ItemValue>
+                      )}
+                    </InfoWrapper>
+                  </div>
+                </SubWrapper>
+                <div onClick={() => handleClick(Dashboard.BDEI_DEI_LIQUIDITY)}>
+                  <InfoWrapper>
+                    <p>Total bDEI-DEI Liquidity</p>
+                    {sPoolLiquidity === null ? <Loader /> : <ItemValue>{formatAmount(sPoolLiquidity, 2)}</ItemValue>}
+                  </InfoWrapper>
+                </div>
+              </Container>
               <div onClick={() => handleClick(Dashboard.DEI_BOND_MATURITY)}>
                 <InfoWrapper>
                   <p>Current Bond maturity</p>

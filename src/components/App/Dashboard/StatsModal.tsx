@@ -18,6 +18,7 @@ import styled from 'styled-components'
 import { formatDollarAmount, formatAmount } from 'utils/numbers'
 import { getRemainingTime } from 'utils/time'
 import { Dashboard } from './DeiStats'
+import Link from 'next/link'
 
 const ModalWrapper = styled.div`
   display: flex;
@@ -116,6 +117,9 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
     usdcReserves1,
     usdcReserves2,
     totalUSDCReserves,
+    sPoolDEILiquidity,
+    sPoolbDEILiquidity,
+    sPoolLiquidity,
   } = useDeiStats()
 
   const usdcBackingPerDei = useMemo(() => {
@@ -321,7 +325,13 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
       case Dashboard.GLOBAL_DEI_BORROWED:
         return (
           <ModalWrapper>
-            <div>Total DEI Borrowed from the Solidex LP pools.</div>
+            <div>Total DEI Borrowed from the DEI Money markets</div>
+            <div>
+              Link to Borrow :{' '}
+              <Link href="/borrow" passHref>
+                DEI Money Markets
+              </Link>
+            </div>
             <ModalInfoWrapper>
               <p>Global DEI Borrowed</p>
               {borrowedElastic === null ? (
@@ -421,6 +431,78 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
             <ModalInfoWrapper>
               <p>bDEI Staking APR</p>
               {bDeiSingleStakingAPR == 0 ? <Loader /> : <ItemValue>{bDeiSingleStakingAPR.toFixed(2)}%</ItemValue>}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.DEI_LIQUIDITY:
+        return (
+          <ModalWrapper>
+            <div>DEI Liqudity in bDEI-DEI Pool</div>
+            <div>
+              Contract Address :{' '}
+              <a
+                href="https://ftmscan.com/address/0x9cac3ce5d8327aa5af54b1b4e99785f991885bf3"
+                target={'_blank'}
+                rel={'noreferrer'}
+              >
+                bDEI-DEI Liqudity Pool
+              </a>
+            </div>
+            <ModalInfoWrapper>
+              <a
+                href="https://ftmscan.com/token/0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3?a=0x9cac3ce5d8327aa5af54b1b4e99785f991885bf3"
+                target={'_blank'}
+                rel={'noreferrer'}
+              >
+                DEI Liquidity
+              </a>
+              {sPoolDEILiquidity == 0 ? <Loader /> : <ItemValue>{formatAmount(sPoolDEILiquidity)}</ItemValue>}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.BDEI_LIQUIDITY:
+        return (
+          <ModalWrapper>
+            <div>bDEI Liqudity in bDEI-DEI Pool</div>
+            <div>
+              Contract Address :{' '}
+              <a
+                href="https://ftmscan.com/address/0x9cac3ce5d8327aa5af54b1b4e99785f991885bf3"
+                target={'_blank'}
+                rel={'noreferrer'}
+              >
+                bDEI-DEI Liqudity Pool
+              </a>
+            </div>
+            <ModalInfoWrapper>
+              <a
+                href="https://ftmscan.com/token/0x05f6ea7f80bdc07f6e0728bbbbabebea4e142ee8?a=0x9cac3ce5d8327aa5af54b1b4e99785f991885bf3"
+                target={'_blank'}
+                rel={'noreferrer'}
+              >
+                bDEI Liquidity
+              </a>
+              {sPoolbDEILiquidity == 0 ? <Loader /> : <ItemValue>{formatAmount(sPoolbDEILiquidity)}</ItemValue>}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.BDEI_DEI_LIQUIDITY:
+        return (
+          <ModalWrapper>
+            <div>Total Liqudity in bDEI-DEI Pool</div>
+            <div>
+              Contract Address :{' '}
+              <a
+                href="https://ftmscan.com/address/0x9cac3ce5d8327aa5af54b1b4e99785f991885bf3"
+                target={'_blank'}
+                rel={'noreferrer'}
+              >
+                bDEI-DEI Liqudity Pool
+              </a>
+            </div>
+            <ModalInfoWrapper>
+              <p>Total Liquidity</p>
+              {sPoolLiquidity == 0 ? <Loader /> : <ItemValue>{formatAmount(sPoolLiquidity)}</ItemValue>}
             </ModalInfoWrapper>
           </ModalWrapper>
         )

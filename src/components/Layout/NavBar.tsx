@@ -125,16 +125,29 @@ const NavLink = styled.div<{
   ${({ active, theme }) =>
     active &&
     `
-    pointer-events: none;
-    border-radius: 6px;
-    background-color: ${theme.warning};
-    font-weight: 900;;
+    // pointer-events: none;
+    // border-radius: 6px;
+    // background-color: ${theme.warning};
+    font-weight: 900;
+    color: ${theme.warning};
 `};
 
   &:hover {
     cursor: pointer;
-    color: ${({ theme }) => theme.primary1};
+    color: ${({ theme }) => theme.warning};
   }
+`
+
+const TitleSpan = styled.span<{ active: boolean }>`
+  ${({ active, theme }) =>
+    active &&
+    `
+    // background-color: ${theme.warning};
+    // padding: 5px 7px;
+    // border-radius: 6px;
+    font-weight: 900;
+    color: ${theme.warning};
+`};
 `
 
 export default function NavBar() {
@@ -150,6 +163,13 @@ export default function NavBar() {
     )
   }
 
+  function isSubItemChosen(item: Array<any>) {
+    for (let i = 0; i < item.length; i++) {
+      if (item[i].path === router.route) return true
+    }
+    return false
+  }
+
   function getDefaultContent() {
     return (
       <DefaultWrapper>
@@ -157,12 +177,12 @@ export default function NavBar() {
         <Routes>
           {routes.map((item) => {
             return item.children ? (
-              <NavbarContentWrap>
-                <span>{item.text}</span>
+              <NavbarContentWrap key={item.id}>
+                <TitleSpan active={isSubItemChosen(item.children)}>{item.text}</TitleSpan>
                 <SubNavbarContentWrap>
-                  {item.children.map((subItem, subIndex) => (
-                    <li key={subIndex}>
-                      <Link key={subItem.id} href={subItem.path} passHref>
+                  {item.children.map((subItem) => (
+                    <li key={subItem.id}>
+                      <Link href={subItem.path} passHref>
                         <NavLink active={router.route === subItem.path}>{subItem.text}</NavLink>
                       </Link>
                     </li>
@@ -170,8 +190,8 @@ export default function NavBar() {
                 </SubNavbarContentWrap>
               </NavbarContentWrap>
             ) : (
-              <SimpleLinkWrapper>
-                <Link key={item.id} href={item.path} passHref>
+              <SimpleLinkWrapper key={item.id}>
+                <Link href={item.path} passHref>
                   <NavLink active={router.route === item.path}>{item.text}</NavLink>
                 </Link>
               </SimpleLinkWrapper>

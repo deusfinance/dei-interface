@@ -30,6 +30,10 @@ export function useNetworkModalToggle(): () => void {
   return useToggleModal(ApplicationModal.NETWORK)
 }
 
+export function useDashboardModalToggle(): () => void {
+  return useToggleModal(ApplicationModal.DASHBOARD)
+}
+
 export function useAddPopup(): (content: PopupContent, key?: string, removeAfterMs?: number) => void {
   const dispatch = useAppDispatch()
   const { chainId } = useWeb3React()

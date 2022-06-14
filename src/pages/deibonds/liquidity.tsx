@@ -24,6 +24,7 @@ import useDebounce from 'hooks/useDebounce'
 import { ArrowDown } from 'react-feather'
 import { StakingPools } from 'constants/stakings'
 import Staking from 'components/App/deiPool/Staking'
+import useApproveCallbacks from 'hooks/useApproveCallbacks'
 
 const Container = styled.div`
   display: flex;
@@ -140,7 +141,7 @@ export default function Liquidity() {
     pool,
     debouncedArrayMemo.length > 1 ? [...debouncedArrayMemo] : ['', '']
   ).toString()
-  console.log({ debouncedArray, amountOut, amountOut2 })
+  // console.log({ debouncedArray, amountOut, amountOut2 })
 
   // const deiAmount = useMemo(() => {
   //   return tryParseAmount(amountIn, deiCurrency || undefined)
@@ -186,6 +187,11 @@ export default function Liquidity() {
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState<boolean>(false)
   const spender = useMemo(() => (chainId ? pool.swapFlashLoan : undefined), [chainId, pool])
+
+  // console.log({ spender })
+
+  // const [approvalStates, approveCallbacks] = useApproveCallbacks(inputTokens[selected] ?? undefined, spender)
+  const [approvalStates] = useApproveCallbacks(inputTokens[selected] ?? undefined, spender)
 
   const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {

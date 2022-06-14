@@ -133,8 +133,13 @@ const NavLink = styled.div<{
 `};
 
   &:hover {
-    cursor: pointer;
-    color: ${({ theme }) => theme.warning};
+    cursor: default;
+    ${({ active, theme }) =>
+      !active &&
+      `
+      cursor: pointer;
+      color: ${theme.warning};
+  `};
   }
 `
 

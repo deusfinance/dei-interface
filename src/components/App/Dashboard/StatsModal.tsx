@@ -2,14 +2,13 @@ import { Loader } from 'components/Icons'
 import { Modal, ModalHeader } from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { StakingPools } from 'constants/stakings'
-import { useTokenPerBlock } from 'hooks/useBdeiStakingPage'
 import { useBonderData, useGetRedeemTime } from 'hooks/useBondsPage'
 import { useDeiPrice } from 'hooks/useCoingeckoPrice'
 import useDebounce from 'hooks/useDebounce'
 import { useDeiStats } from 'hooks/useDeiStats'
 import { useGlobalDEIBorrowed } from 'hooks/usePoolData'
 import { useRedeemData } from 'hooks/useRedemptionPage'
-import { useGetApy } from 'hooks/useStakingInfo'
+import { useGetApy, usePoolInfo } from 'hooks/useStakingInfo'
 import { useMemo } from 'react'
 import { useModalOpen, useDashboardModalToggle } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/reducer'
@@ -95,7 +94,6 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
   const { redeemTranche, deiBurned } = useRedeemData()
 
   const { deiBonded } = useBonderData()
-  const { totalDeposited } = useTokenPerBlock()
 
   const pools = useBorrowPools()
   const { borrowedElastic } = useGlobalDEIBorrowed(pools)
@@ -106,6 +104,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
   const roundedDays = day + (hours > 12 ? 1 : 0) //adds 1 more day if remained hours is above 12 hours.
 
   const { pid } = StakingPools[0] //bDEI single staking pool
+  const { totalDeposited } = usePoolInfo(pid)
   const bDeiSingleStakingAPR = useGetApy(pid)
 
   const {

@@ -78,27 +78,6 @@ export function useIsTransactionPending(transactionHash?: string): boolean {
   return !transactions[transactionHash].receipt
 }
 
-export function useHasPendingApproval(tokenAddress: string | null | undefined, spender: string | null | undefined) {
-  const allTransactions = useAllTransactions()
-  return useMemo(
-    () =>
-      typeof tokenAddress === 'string' &&
-      typeof spender === 'string' &&
-      Object.keys(allTransactions).some((hash) => {
-        const tx = allTransactions[hash]
-        if (!tx) return false
-        if (tx.receipt) {
-          return false
-        } else {
-          const approval = tx.approval
-          if (!approval) return false
-          return approval.spender === spender && approval.tokenAddress === tokenAddress && isTransactionRecent(tx)
-        }
-      }),
-    [allTransactions, spender, tokenAddress]
-  )
-}
-
 export function usePendingApprovalList(currenciesAddress: string[], spender: string | null | undefined) {
   const allTransactions = useAllTransactions()
   return useMemo(
@@ -122,6 +101,11 @@ export function usePendingApprovalList(currenciesAddress: string[], spender: str
       }),
     [allTransactions, spender, currenciesAddress]
   )
+}
+
+export function useHasPendingApproval(tokenAddress: string | null | undefined, spender: string | null | undefined) {
+  if (!tokenAddress || !spender) return false
+  return usePendingApprovalList([tokenAddress], spender)
 }
 
 export function useHasPendingVest(hash: string | null | undefined) {

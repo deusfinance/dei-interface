@@ -12,10 +12,9 @@ import { useBorrowPools } from 'state/borrow/hooks'
 import { getRemainingTime } from 'utils/time'
 import useDebounce from 'hooks/useDebounce'
 import { useDeiPrice } from 'hooks/useCoingeckoPrice'
-import { useTokenPerBlock } from 'hooks/useBdeiStakingPage'
 import { useDeiStats } from 'hooks/useDeiStats'
 import { StakingPools } from 'constants/stakings'
-import { useGetApy } from 'hooks/useStakingInfo'
+import { useGetApy, usePoolInfo } from 'hooks/useStakingInfo'
 import { useDashboardModalToggle } from 'state/application/hooks'
 import StatsModal from './StatsModal'
 
@@ -176,7 +175,6 @@ export default function DeiStats() {
   const { redeemTranche, deiBurned } = useRedeemData()
 
   const { deiBonded } = useBonderData()
-  const { totalDeposited } = useTokenPerBlock()
 
   const pools = useBorrowPools()
   const { borrowedElastic } = useGlobalDEIBorrowed(pools)
@@ -187,6 +185,7 @@ export default function DeiStats() {
   const roundedDays = day + (hours > 12 ? 1 : 0) //adds 1 more day if remained hours is above 12 hours.
 
   const { pid } = StakingPools[0] //bDEI single staking pool
+  const { totalDeposited } = usePoolInfo(pid)
   const bDeiSingleStakingAPR = useGetApy(pid)
 
   const {

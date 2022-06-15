@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { isMobileOnly as isMobile } from 'react-device-detect'
 
 import { Z_INDEX } from 'theme'
+import routes from 'constants/routes.json'
 
 import Web3Network from 'components/Web3Network'
 import Web3Status from 'components/Web3Status'
@@ -47,7 +48,7 @@ const Routes = styled.div`
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
-  gap: 5px;
+  gap: 15px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     & > * {
@@ -69,14 +70,48 @@ const Routes = styled.div`
   `};
 `
 
+export const NavbarContentWrap = styled.div`
+  list-style: none;
+  margin: auto;
+  margin-left: 12px;
+  margin-right: 12px;
+  cursor: pointer;
+  padding: 10px 0;
+
+  &:hover {
+    display: block;
+    & > ul {
+      display: block;
+    }
+  }
+`
+
+export const SubNavbarContentWrap = styled.ul`
+  display: none;
+  padding: 12px 0 12px 0px;
+  background: ${({ theme }) => theme.bg2};
+  border-radius: 10px;
+  list-style: none;
+  position: absolute;
+  top: 50px;
+  margin-top: -10px;
+
+  & > li > div {
+    border-radius: 0;
+    padding: 0.45rem 1rem;
+    min-width: 150px;
+  }
+`
+
+const SimpleLinkWrapper = styled.div`
+  margin-top: 6px;
+`
+
 const Items = styled.div`
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-end;
   gap: 5px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  `}
 `
 
 const NavLink = styled.div<{
@@ -90,16 +125,34 @@ const NavLink = styled.div<{
   ${({ active, theme }) =>
     active &&
     `
-    pointer-events: none;
-    text-decoration: underline;
-    text-decoration-color: ${theme.primary2};
-    text-underline-offset: 6px;
-  `};
+    // pointer-events: none;
+    // border-radius: 6px;
+    // background-color: ${theme.warning};
+    font-weight: 900;
+    color: ${theme.warning};
+`};
 
   &:hover {
-    cursor: pointer;
-    color: ${({ theme }) => theme.primary1};
+    cursor: default;
+    ${({ active, theme }) =>
+      !active &&
+      `
+      cursor: pointer;
+      color: ${theme.warning};
+  `};
   }
+`
+
+const TitleSpan = styled.span<{ active: boolean }>`
+  ${({ active, theme }) =>
+    active &&
+    `
+    // background-color: ${theme.warning};
+    // padding: 5px 7px;
+    // border-radius: 6px;
+    font-weight: 900;
+    color: ${theme.warning};
+`};
 `
 
 export default function NavBar() {
@@ -115,36 +168,40 @@ export default function NavBar() {
     )
   }
 
+  function isSubItemChosen(item: Array<any>) {
+    for (let i = 0; i < item.length; i++) {
+      if (item[i].path === router.route) return true
+    }
+    return false
+  }
+
   function getDefaultContent() {
     return (
       <DefaultWrapper>
         <NavLogo />
         <Routes>
-          <Link href="/redemption" passHref>
-            <NavLink active={router.route === '/redemption'}>Redemption</NavLink>
-          </Link>
-          <Link href="/deibonds" passHref>
-            <NavLink active={router.route === '/deibonds'}>DeiBonds</NavLink>
-          </Link>
-          <Link href="/deibonds/pools" passHref>
-            <NavLink active={router.route === '/deibonds/pools'}>Pools</NavLink>
-          </Link>
-          <Link href="/deibonds/liquidity" passHref>
-            <NavLink active={router.route === '/deibonds/liquidity'}>Liquidity</NavLink>
-          </Link>
-          <Link href="/borrow" passHref>
-            <NavLink active={router.route === '/borrow'}>Borrow</NavLink>
-          </Link>
-          <Link href="/vest" passHref>
-            <NavLink active={router.route === '/vest'}>Vest</NavLink>
-          </Link>
-          <Link href="/rewards" passHref>
-            <NavLink active={router.route === '/rewards'}>Rewards</NavLink>
-          </Link>
-
-          {/* <Link href="/liquidity" passHref>
-            <NavLink active={router.route === '/liquidity'}>Liquidity</NavLink>
-          </Link> */}
+          {routes.map((item) => {
+            return item.children ? (
+              <NavbarContentWrap key={item.id}>
+                <TitleSpan active={isSubItemChosen(item.children)}>{item.text}</TitleSpan>
+                <SubNavbarContentWrap>
+                  {item.children.map((subItem) => (
+                    <li key={subItem.id}>
+                      <Link href={subItem.path} passHref>
+                        <NavLink active={router.route === subItem.path}>{subItem.text}</NavLink>
+                      </Link>
+                    </li>
+                  ))}
+                </SubNavbarContentWrap>
+              </NavbarContentWrap>
+            ) : (
+              <SimpleLinkWrapper key={item.id}>
+                <Link href={item.path} passHref>
+                  <NavLink active={router.route === item.path}>{item.text}</NavLink>
+                </Link>
+              </SimpleLinkWrapper>
+            )
+          })}
         </Routes>
         <Items>
           <Web3Network />

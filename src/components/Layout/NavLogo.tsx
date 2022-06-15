@@ -1,10 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import Link from 'next/link'
 import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
 
 import { useIsDarkMode } from 'state/user/hooks'
+import { ExternalLink } from 'components/Link'
 
 const Container = styled.div`
   margin-right: auto;
@@ -34,7 +34,7 @@ export default function NavLogo() {
 
   return (
     <Container>
-      <Link href="/borrow" passHref>
+      <ExternalLink href="https://dei.finance" target="_self" passHref>
         <Wrapper>
           <div>
             <Image src={'/static/images/DeiLogo.svg'} alt="App Logo" width={30} height={30} />
@@ -50,7 +50,7 @@ export default function NavLogo() {
             </div>
           )}
         </Wrapper>
-      </Link>
+      </ExternalLink>
     </Container>
   )
 }

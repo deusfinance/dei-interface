@@ -106,3 +106,27 @@ export const SwapFlashLoan: AddressMap = {
 export const MasterChefV2: AddressMap = {
   [SupportedChainId.FANTOM]: '0x67932809213AFd6bac5ECD2e4e214Fe18209c419',
 }
+
+/* =====================================
+                PROTOCOL HOLDINGS ADDRESS
+===================================== */
+
+export const ProtocolHoldings1: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x0b99207afbb08ec101b5691e7d5c6faadd09a89b',
+}
+
+export const ProtocolHoldings2: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x68c102aba11f5e086c999d99620c78f5bc30ecd8',
+}
+
+/* =====================================
+                USDC RESERVES ADDRESS
+===================================== */
+
+export const USDCReserves1: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x083dee8e5ca1e100a9c9ec0744f461b3507e9376',
+}
+
+export const USDCReserves2: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xfd74e924dc96c72ba52439e28ce780908a630d13',
+}

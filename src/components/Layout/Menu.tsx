@@ -14,9 +14,10 @@ import {
   Twitter as TwitterIcon,
   Github as GithubIcon,
   Lock as LockIcon,
-  Droplet as DropletIcon,
   Redeem as RedeemIcon,
   Gift as GiftIcon,
+  Portfolio as PortfolioIcon,
+  Trade as TradeIcon,
 } from 'components/Icons'
 import { Card } from 'components/Card'
 import { NavButton } from 'components/Button'
@@ -55,10 +56,10 @@ const Row = styled.div<{
     color: ${({ theme }) => theme.text1};
   }
 
-  ${({ active }) =>
+  ${({ active, theme }) =>
     active &&
-    `
-    pointer-events: none;
+    ` color: ${theme.text1};
+      pointer-events: none;
   `};
 `
 
@@ -78,11 +79,43 @@ export default function Menu() {
       </NavButton>
       <div>
         <InlineModal isOpen={isOpen}>
+          <Link href="/dashboard" passHref>
+            <Row active={router.route === '/dashboard'}>
+              <div>Dashboard</div>
+              <IconWrapper>
+                <CreditCardIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <Link href="/redemption" passHref>
             <Row active={router.route === '/redemption'}>
               <div>Redemption</div>
               <IconWrapper>
                 <RedeemIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/deibonds" passHref>
+            <Row active={router.route === '/deibonds'}>
+              <div>DeiBonds</div>
+              <IconWrapper>
+                <TradeIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/deibonds/pools" passHref>
+            <Row active={router.route === '/deibonds/pools'}>
+              <div>Pools</div>
+              <IconWrapper>
+                <PortfolioIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/deibonds/liquidity" passHref>
+            <Row active={router.route === '/deibonds/liquidity'}>
+              <div>Liquidity</div>
+              <IconWrapper>
+                <PortfolioIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
@@ -107,14 +140,6 @@ export default function Menu() {
               <div>Rewards</div>
               <IconWrapper>
                 <GiftIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
-          <Link href="/liquidity" passHref>
-            <Row active={router.route === '/liquidity'}>
-              <div>Liquidity</div>
-              <IconWrapper>
-                <DropletIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>

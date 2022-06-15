@@ -1,13 +1,11 @@
 import { useCallback, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/providers'
 import { MaxUint256 } from '@ethersproject/constants'
-import { Currency, Token } from '@sushiswap/core-sdk'
+import { Token } from '@sushiswap/core-sdk'
 
 import useWeb3React from './useWeb3'
-import { useERC20Contract } from './useContract'
-import useERC20Allowance from './useERC20Allowance'
 
-import { useTransactionAdder, useHasPendingApproval } from 'state/transactions/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils/web3'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 import ERC20_ABI from 'constants/abi/ERC20.json'
@@ -28,11 +26,8 @@ export default function useApproveCallbacks(
   const { library, account, chainId } = useWeb3React()
 
   const addTransaction = useTransactionAdder()
-
-  //   const token = currency?.isToken ? currency : undefined
+  //   TODO: add pending approval
   // const pendingApproval = useHasPendingApproval(token?.address, spender)
-  //   const currentAllowance = useERC20Allowance(token, spender)
-  //   const TokenContract = useERC20Contract(token?.address)
 
   const contracts = currencies.map((currency) => currency.address)
   const allowances = useMultipleContractSingleData(contracts, new Interface(ERC20_ABI), 'allowance', [
@@ -49,27 +44,20 @@ export default function useApproveCallbacks(
       if (currency.isNative) return ApprovalState.APPROVED
       if (!currencyResult?.length) return ApprovalState.UNKNOWN
 
-      //   TODO: add pending approval
       return currencyResult[0].gt(0) ? ApprovalState.APPROVED : ApprovalState.NOT_APPROVED
     })
   }, [currencies, spender, allowances])
 
-  // const toApprove = useMultipleContractSingleData(contracts, new Interface(ERC20_ABI), 'approve', [spender, MaxUint256])
-  console.log({ allowances, approvalStates })
-
-  // const tt = []
-  // const tokenContracts = currencies.map((currency) => useERC20Contract(currency.address))
-  // for (let index = 0; index < currencies.length; index++) {
-  //   tt.push(useERC20Contract(currencies[index].address))
-  // }
-
-  const approve = useCallback(
+  const handleApproveByIndex = useCallback(
     async (index) => {
       const approvalState = approvalStates[index]
       const token = currencies[index]
-      // TODO: handle pending approval
+
       // if (approvalState === ApprovalState.APPROVED || approvalState === ApprovalState.PENDING) {
-      if (!library) return
+      if (!library) {
+        console.error('library is null')
+        return
+      }
 
       const TokenContract = getContract(token.address, ERC20_ABI, library, account ? account : undefined)
 
@@ -115,5 +103,5 @@ export default function useApproveCallbacks(
     [currencies, spender, addTransaction, chainId, account, library, approvalStates]
   )
 
-  return [approvalStates, approve]
+  return [approvalStates, handleApproveByIndex]
 }

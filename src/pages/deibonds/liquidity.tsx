@@ -5,6 +5,8 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { ApprovalState } from 'hooks/useApproveCallbacks'
+import { useCurrencyBalances } from 'state/wallet/hooks'
+import { tryParseAmount } from 'utils/parse'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
@@ -90,20 +92,8 @@ const ToggleState = styled.div`
   width: clamp(250px, 90%, 500px);
 `
 
-const StateButton = styled.div`
-  width: 50%;
-  text-align: center;
-  padding: 12px;
-  cursor: pointer;
-`
-
 const DepositButton = styled(PrimaryButton)`
   border-radius: 15px;
-`
-
-const LeftTitle = styled.span`
-  font-size: 24px;
-  font-weight: 500;
 `
 
 export default function Liquidity() {
@@ -130,12 +120,6 @@ export default function Liquidity() {
     debouncedArrayMemo.length > 1 ? [...debouncedArrayMemo] : ['', '']
   ).toString()
 
-  // TODO: handle insufficient balance for input tokens
-  // const insufficientBalance = useMemo(() => {
-  //   if (!deiAmount || !bdeiAmount) return false
-  //   return deiCurrencyBalance?.lessThan(deiAmount) && bdeiCurrencyBalance?.lessThan(bdeiAmount)
-  // }, [deiCurrencyBalance, bdeiCurrencyBalance, deiAmount, bdeiAmount])
-
   const {
     state: liquidityCallbackState,
     callback: liquidityCallback,
@@ -157,6 +141,8 @@ export default function Liquidity() {
     [pool]
   )
 
+  const currencyBalances = useCurrencyBalances(account ?? undefined, inputTokens[selected])
+
   // amountOut = [] // TODO: refresh these to switch fast without showing the numbers
 
   useEffect(() => {
@@ -173,14 +159,22 @@ export default function Liquidity() {
       const approvalState = approvalStates[index]
       const amountIn = amountInArray[index]
 
-      // TODO: handle pending approvals
-      if (approvalState !== ApprovalState.APPROVED && !!amountIn) {
-        const isPending = approvalState === ApprovalState.PENDING
-        return [true, isPending, index]
-      }
+      if (approvalState !== ApprovalState.APPROVED && !!amountIn)
+        return [true, approvalState === ApprovalState.PENDING, index]
     }
     return [false, false, -1]
   }, [approvalStates, amountInArray])
+
+  const insufficientBalance = useMemo(() => {
+    for (let index = 0; index < inputTokens[selected].length; index++) {
+      const amountIn = tryParseAmount(amountInArray[index], inputTokens[selected][index] || undefined)
+      const balance = currencyBalances[index]
+      if (amountIn && balance && balance.lessThan(amountIn)) return true
+    }
+    return false
+  }, [inputTokens, selected, amountInArray, account])
+
+  // console.log({ insufficientBalance })
 
   const handleApprove = async (index: number) => {
     setAwaitingApproveConfirmation(true)
@@ -225,9 +219,7 @@ export default function Liquidity() {
         </DepositButton>
       )
     }
-    if (showApprove && tokenIndex >= 0) {
-      console.log({ tokenIndex })
-
+    if (showApprove) {
       return (
         <DepositButton onClick={() => handleApprove(tokenIndex)}>
           Allow us to spend {inputTokens[selected][tokenIndex]?.symbol}
@@ -242,11 +234,10 @@ export default function Liquidity() {
       return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
     }
     if (showApprove) return null
-    // TODO: should i add  && tokenIndex >= 0 ?
 
-    // if (insufficientBalance) {
-    //   return <DepositButton disabled>Insufficient {deiCurrency?.symbol} Balance</DepositButton>
-    // }
+    if (insufficientBalance) {
+      return <DepositButton disabled>Insufficient {inputTokens[selected][tokenIndex]?.symbol} Balance</DepositButton>
+    }
 
     if (awaitingLiquidityConfirmation) {
       return (

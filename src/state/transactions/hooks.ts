@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from 'state'
+import { Token } from '@sushiswap/core-sdk'
 
 import useWeb3React from 'hooks/useWeb3'
 import { addTransaction } from './actions'
@@ -95,6 +96,31 @@ export function useHasPendingApproval(tokenAddress: string | null | undefined, s
         }
       }),
     [allTransactions, spender, tokenAddress]
+  )
+}
+
+export function usePendingApprovalList(currenciesAddress: string[], spender: string | null | undefined) {
+  const allTransactions = useAllTransactions()
+  return useMemo(
+    () =>
+      typeof spender === 'string' &&
+      Object.keys(allTransactions).some((hash) => {
+        const tx = allTransactions[hash]
+        if (!tx) return false
+        if (tx.receipt) {
+          return false
+        } else {
+          const approval = tx.approval
+          if (!approval) return false
+          return (
+            approval.spender === spender &&
+            approval.tokenAddress &&
+            currenciesAddress?.includes(approval.tokenAddress) &&
+            isTransactionRecent(tx)
+          )
+        }
+      }),
+    [allTransactions, spender, currenciesAddress]
   )
 }
 

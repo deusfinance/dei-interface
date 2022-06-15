@@ -5,7 +5,7 @@ import { Token } from '@sushiswap/core-sdk'
 
 import useWeb3React from './useWeb3'
 
-import { useTransactionAdder } from 'state/transactions/hooks'
+import { useHasPendingApproval, usePendingApprovalList, useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils/web3'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 import ERC20_ABI from 'constants/abi/ERC20.json'
@@ -26,8 +26,9 @@ export default function useApproveCallbacks(
   const { library, account, chainId } = useWeb3React()
 
   const addTransaction = useTransactionAdder()
-  //   TODO: add pending approval
-  // const pendingApproval = useHasPendingApproval(token?.address, spender)
+
+  const currenciesAddress = useMemo(() => currencies.map((currency) => currency.address), [currencies])
+  const pendingApproval = usePendingApprovalList(currenciesAddress, spender)
 
   const contracts = currencies.map((currency) => currency.address)
   const allowances = useMultipleContractSingleData(contracts, new Interface(ERC20_ABI), 'allowance', [
@@ -44,7 +45,11 @@ export default function useApproveCallbacks(
       if (currency.isNative) return ApprovalState.APPROVED
       if (!currencyResult?.length) return ApprovalState.UNKNOWN
 
-      return currencyResult[0].gt(0) ? ApprovalState.APPROVED : ApprovalState.NOT_APPROVED
+      return currencyResult[0].gt(0)
+        ? ApprovalState.APPROVED
+        : pendingApproval
+        ? ApprovalState.PENDING
+        : ApprovalState.NOT_APPROVED
     })
   }, [currencies, spender, allowances])
 

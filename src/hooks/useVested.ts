@@ -50,8 +50,8 @@ export function useVestedInformation(nftId: number): {
   )
 }
 
-const DEUS_EMISSION_PER_WEEK = 5000
-const CIRCULATING_SUPPLY = 95702
+const DEUS_EMISSION_PER_WEEK = 2500
+const CIRCULATING_SUPPLY = 95445
 const WEEKLY_ACCRUED_DEI_FEES = '1'
 
 export function useVestedAPY(

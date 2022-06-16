@@ -114,8 +114,8 @@ export default function Liquidity() {
     return debouncedArray.length >= 1 ? [...debouncedArray] : ['', '']
   }, [debouncedArray])
 
-  let amountOut = useRemoveLiquidity(pool, debouncedArrayMemo.length && isRemove ? debouncedArrayMemo[0] : '')
-  const amountOut2 = useAddLiquidity(
+  const RemoveAmountOut = useRemoveLiquidity(pool, debouncedArrayMemo.length && isRemove ? debouncedArrayMemo[0] : '')
+  const addAmountOut = useAddLiquidity(
     pool,
     debouncedArrayMemo.length > 1 ? [...debouncedArrayMemo] : ['', '']
   ).toString()
@@ -125,8 +125,8 @@ export default function Liquidity() {
     callback: liquidityCallback,
     error: liquidityCallbackError,
   } = useManageLiquidity(
-    isRemove ? amountOut : debouncedArray,
-    isRemove ? debouncedArray[0] : amountOut2,
+    isRemove ? RemoveAmountOut : debouncedArray,
+    isRemove ? debouncedArray[0] : addAmountOut,
     pool,
     slippage,
     20,
@@ -271,7 +271,7 @@ export default function Liquidity() {
             <ArrowDown style={{ cursor: 'pointer' }} />
             <InputBox
               currency={deiCurrency}
-              value={amountOut[0]?.toString()}
+              value={RemoveAmountOut[0]?.toString()}
               onChange={() => console.debug('')}
               title={'To'}
               disabled
@@ -279,7 +279,7 @@ export default function Liquidity() {
             <div style={{ marginTop: '20px' }}></div>
             <InputBox
               currency={bdeiCurrency}
-              value={amountOut[1]?.toString()}
+              value={RemoveAmountOut[1]?.toString()}
               onChange={() => console.debug('')}
               title={'To'}
               disabled

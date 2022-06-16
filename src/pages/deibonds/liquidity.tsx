@@ -114,7 +114,7 @@ export default function Liquidity() {
     return debouncedArray.length >= 1 ? [...debouncedArray] : ['', '']
   }, [debouncedArray])
 
-  const amountOut = useRemoveLiquidity(pool, debouncedArrayMemo.length ? debouncedArrayMemo[0] : '')
+  let amountOut = useRemoveLiquidity(pool, debouncedArrayMemo.length && isRemove ? debouncedArrayMemo[0] : '')
   const amountOut2 = useAddLiquidity(
     pool,
     debouncedArrayMemo.length > 1 ? [...debouncedArrayMemo] : ['', '']
@@ -142,8 +142,6 @@ export default function Liquidity() {
   )
 
   const currencyBalances = useCurrencyBalances(account ?? undefined, inputTokens[selected])
-
-  // amountOut = [] // TODO: refresh these to switch fast without showing the numbers
 
   useEffect(() => {
     setAmountInArray(inputTokens[selected].map(() => ''))
@@ -173,8 +171,6 @@ export default function Liquidity() {
     }
     return false
   }, [inputTokens, selected, amountInArray, account])
-
-  // console.log({ insufficientBalance })
 
   const handleApprove = async (index: number) => {
     setAwaitingApproveConfirmation(true)

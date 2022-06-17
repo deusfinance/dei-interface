@@ -11,6 +11,7 @@ import { useVDeusStats } from 'hooks/useVDeusStats'
 import StatsModal from './StatsModal'
 import { Dashboard } from './DeiStats'
 import { useDashboardModalToggle } from 'state/application/hooks'
+import useWeb3React from 'hooks/useWeb3'
 
 const Wrapper = styled.div`
   display: flex;
@@ -119,6 +120,7 @@ const Heading = styled.div`
 `
 
 export default function DeusStats() {
+  const { account } = useWeb3React()
   const { lockedVeDEUS } = useVestedAPY(undefined, getMaximumDate())
   const deusPrice = useDeusPrice()
   const { numberOfVouchers } = useVDeusStats()
@@ -149,15 +151,17 @@ export default function DeusStats() {
             </InfoWrapper>
           </div>
         </Container>
-        <Container>
-          <Heading>vDEUS stats</Heading>
-          <div onClick={() => handleClick(Dashboard.VDEUS_NFTS)}>
-            <InfoWrapper>
-              <p>Total vDEUS Vouchers</p>
-              {numberOfVouchers === null ? <Loader /> : <ItemValue>{numberOfVouchers}</ItemValue>}
-            </InfoWrapper>
-          </div>
-        </Container>
+        {!account && (
+          <Container>
+            <Heading>vDEUS stats</Heading>
+            <div onClick={() => handleClick(Dashboard.VDEUS_NFTS)}>
+              <InfoWrapper>
+                <p>Total vDEUS Vouchers</p>
+                {numberOfVouchers === null ? <Loader /> : <ItemValue>{numberOfVouchers}</ItemValue>}
+              </InfoWrapper>
+            </div>
+          </Container>
+        )}
       </TopWrapper>
       <StatsModal currentStat={currentStat} />
     </Wrapper>

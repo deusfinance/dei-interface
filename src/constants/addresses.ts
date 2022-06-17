@@ -130,3 +130,11 @@ export const USDCReserves1: AddressMap = {
 export const USDCReserves2: AddressMap = {
   [SupportedChainId.FANTOM]: '0xfd74e924dc96c72ba52439e28ce780908a630d13',
 }
+
+/* =====================================
+                vDEUS ADDRESS
+===================================== */
+
+export const vDeus: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x980c39133a1a4e83e41d652619adf8aa18b95c8b',
+}

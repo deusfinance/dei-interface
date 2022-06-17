@@ -165,6 +165,9 @@ export enum Dashboard {
   DEI_LIQUIDITY = 'DEI Liquidity in bDEI-DEI Pool',
   BDEI_DEI_LIQUIDITY = 'Total Liquidity in bDEI-DEI Pool',
   DEI_BOND_MATURITY = 'Current DEI Bond Maturity',
+  DEUS_PRICE = 'DEUS Price',
+  VE_DEUS_LOCKED = 'veDEUS Locked',
+  VDEUS_NFTS = 'vDEUS NFTs',
 }
 
 export default function DeiStats() {
@@ -206,7 +209,6 @@ export default function DeiStats() {
   const showLoader = redeemTranche.trancheId == null ? true : false
 
   function handleClick(flag: Dashboard) {
-    console.log('clicked')
     setCurrentStat(flag)
     toggleDashboardModal()
   }

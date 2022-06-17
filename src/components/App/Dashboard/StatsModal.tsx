@@ -4,7 +4,7 @@ import { RowBetween } from 'components/Row'
 import { StakingPools } from 'constants/stakings'
 import { useTokenPerBlock } from 'hooks/useBdeiStakingPage'
 import { useBonderData, useGetRedeemTime } from 'hooks/useBondsPage'
-import { useDeiPrice } from 'hooks/useCoingeckoPrice'
+import { useDeiPrice, useDeusPrice } from 'hooks/useCoingeckoPrice'
 import useDebounce from 'hooks/useDebounce'
 import { useDeiStats } from 'hooks/useDeiStats'
 import { useGlobalDEIBorrowed } from 'hooks/usePoolData'
@@ -19,6 +19,9 @@ import { formatDollarAmount, formatAmount } from 'utils/numbers'
 import { getRemainingTime } from 'utils/time'
 import { Dashboard } from './DeiStats'
 import Link from 'next/link'
+import { getMaximumDate } from 'utils/vest'
+import { useVestedAPY } from 'hooks/useVested'
+import { useVDeusStats } from 'hooks/useVDeusStats'
 
 const ModalWrapper = styled.div`
   display: flex;
@@ -127,6 +130,10 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
   }, [totalUSDCReserves, circulatingSupply])
 
   const showLoader = redeemTranche.trancheId == null ? true : false
+
+  const { lockedVeDEUS } = useVestedAPY(undefined, getMaximumDate())
+  const deusPrice = useDeusPrice()
+  const { numberOfVouchers, listOfVouchers } = useVDeusStats()
 
   function getModalBody() {
     switch (currentStat) {
@@ -535,6 +542,74 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
               <p>Current Bond maturity</p>
               {redeemTime == 0 ? <Loader /> : <ItemValue>~ {roundedDays} days</ItemValue>}
             </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.DEUS_PRICE:
+        return (
+          <ModalWrapper>
+            <div>
+              Price as sourced by :{' '}
+              <a href="https://www.coingecko.com/en/coins/deus-finance" target={'_blank'} rel={'noreferrer'}>
+                Coingecko
+              </a>
+            </div>
+            <ModalInfoWrapper>
+              <p>Price</p>
+              {deusPrice === null ? (
+                <Loader />
+              ) : (
+                <ModalItemValue>{formatDollarAmount(parseFloat(deusPrice), 2)}</ModalItemValue>
+              )}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.VE_DEUS_LOCKED:
+        return (
+          <ModalWrapper>
+            <div>
+              Total locked DEUS :{' '}
+              <a
+                href="https://ftmscan.com/address/0x8b42c6cb07c8dd5fe5db3ac03693867afd11353d"
+                target={'_blank'}
+                rel={'noreferrer'}
+              >
+                veDEUS Contract
+              </a>
+            </div>
+            <ModalInfoWrapper>
+              <p>Total veDEUS Locked</p>
+              {lockedVeDEUS === null ? <Loader /> : <ItemValue>{formatAmount(parseFloat(lockedVeDEUS), 0)}</ItemValue>}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.VDEUS_NFTS:
+        return (
+          <ModalWrapper>
+            <ModalInfoWrapper>
+              <p>Total vDEUS Vouchers</p>
+              {numberOfVouchers === null ? <Loader /> : <ItemValue>{numberOfVouchers}</ItemValue>}
+            </ModalInfoWrapper>
+            <div>List of vDEUS Vouchers:</div>
+            {listOfVouchers &&
+              listOfVouchers.length > 0 &&
+              listOfVouchers.map((voucher: number, index) => (
+                <ModalInfoWrapper key={index}>
+                  <p>vDEUS Voucher #{voucher}</p>
+
+                  <a
+                    href={`https://ftmscan.com/token/0x980c39133a1a4e83e41d652619adf8aa18b95c8b?a=${voucher}`}
+                    target={'_blank'}
+                    rel={'noreferrer'}
+                  >
+                    <ItemValue>Link to FTMScan</ItemValue>
+                  </a>
+                </ModalInfoWrapper>
+              ))}
+            {listOfVouchers && listOfVouchers.length == 0 && (
+              <ModalInfoWrapper>
+                <ItemValue>You donot own any vDEUS vouchers</ItemValue>
+              </ModalInfoWrapper>
+            )}
           </ModalWrapper>
         )
     }

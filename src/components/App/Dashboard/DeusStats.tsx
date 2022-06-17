@@ -12,6 +12,7 @@ import StatsModal from './StatsModal'
 import { Dashboard } from './DeiStats'
 import { useDashboardModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
+import { ContextError, InvalidContext, useInvalidContext } from 'components/InvalidContext'
 
 const Wrapper = styled.div`
   display: flex;
@@ -128,6 +129,8 @@ export default function DeusStats() {
   const toggleDashboardModal = useDashboardModalToggle()
   const [currentStat, setCurrentStat] = useState(Dashboard.EMPTY)
 
+  const invalidContext = useInvalidContext()
+
   function handleClick(flag: Dashboard) {
     setCurrentStat(flag)
     toggleDashboardModal()
@@ -151,7 +154,9 @@ export default function DeusStats() {
             </InfoWrapper>
           </div>
         </Container>
-        {!account && (
+        {invalidContext !== ContextError.VALID ? (
+          <InvalidContext connectText="Connect your wallet to view your vDEUS vouchers" />
+        ) : (
           <Container>
             <Heading>vDEUS stats</Heading>
             <div onClick={() => handleClick(Dashboard.VDEUS_NFTS)}>

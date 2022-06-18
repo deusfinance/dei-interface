@@ -77,6 +77,7 @@ export const NavbarContentWrap = styled.div`
   margin-right: 12px;
   cursor: pointer;
   padding: 10px 0;
+  position: relative;
 
   &:hover {
     display: block;
@@ -93,6 +94,8 @@ export const SubNavbarContentWrap = styled.ul`
   border-radius: 10px;
   list-style: none;
   position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   top: 50px;
   margin-top: -10px;
 

@@ -11,6 +11,7 @@ import Web3Network from 'components/Web3Network'
 import Web3Status from 'components/Web3Status'
 import Menu from './Menu'
 import NavLogo from './NavLogo'
+import { ChevronDown } from 'components/Icons'
 
 const Wrapper = styled.div`
   padding: 0px 2rem;
@@ -73,8 +74,8 @@ const Routes = styled.div`
 export const NavbarContentWrap = styled.div`
   list-style: none;
   margin: auto;
-  margin-left: 12px;
-  margin-right: 12px;
+  margin-left: 15px;
+  margin-right: 15px;
   cursor: pointer;
   padding: 10px 0;
   position: relative;
@@ -128,9 +129,6 @@ const NavLink = styled.div<{
   ${({ active, theme }) =>
     active &&
     `
-    // pointer-events: none;
-    // border-radius: 6px;
-    // background-color: ${theme.warning};
     font-weight: 900;
     color: ${theme.warning};
 `};
@@ -150,9 +148,6 @@ const TitleSpan = styled.span<{ active: boolean }>`
   ${({ active, theme }) =>
     active &&
     `
-    // background-color: ${theme.warning};
-    // padding: 5px 7px;
-    // border-radius: 6px;
     font-weight: 900;
     color: ${theme.warning};
 `};
@@ -186,7 +181,14 @@ export default function NavBar() {
           {routes.map((item) => {
             return item.children ? (
               <NavbarContentWrap key={item.id}>
-                <TitleSpan active={isSubItemChosen(item.children)}>{item.text}</TitleSpan>
+                <TitleSpan active={isSubItemChosen(item.children)}>
+                  {item.text}
+                  <ChevronDown
+                    color={isSubItemChosen(item.children) ? '#FF8F00' : 'white'}
+                    disable
+                    style={{ position: 'absolute' }}
+                  />
+                </TitleSpan>
                 <SubNavbarContentWrap>
                   {item.children.map((subItem) => (
                     <li key={subItem.id}>

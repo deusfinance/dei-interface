@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { RowBetween } from 'components/Row'
@@ -13,6 +13,11 @@ import { Dashboard } from './DeiStats'
 import { useDashboardModalToggle, useVoucherModalToggle } from 'state/application/hooks'
 import { ContextError, InvalidContext, useInvalidContext } from 'components/InvalidContext'
 import VoucherModal from './VoucherModal'
+import { getApolloClient } from 'apollo/client/vdeus'
+import { ALL_VOUCHERS, Voucher } from 'apollo/queries'
+import useWeb3React from 'hooks/useWeb3'
+import { FALLBACK_CHAIN_ID } from 'constants/chains'
+import { formatEther } from '@ethersproject/units'
 
 const Wrapper = styled.div`
   display: flex;
@@ -32,7 +37,7 @@ const TopWrapper = styled.div`
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
-  max-width: 900px;
+  max-width: 750px;
   gap: 2rem;
   justify-content: start;
   margin: 0 auto;
@@ -71,7 +76,7 @@ const InfoWrapper = styled(RowBetween)<{
   ${({ secondary }) =>
     secondary &&
     `
-    min-width: 250px;
+    min-width: 350px;
   `}
 `
 
@@ -128,6 +133,8 @@ const VoucherWrapper = styled.div`
 `
 
 export default function DeusStats() {
+  const { chainId } = useWeb3React()
+
   const { lockedVeDEUS } = useVestedAPY(undefined, getMaximumDate())
   const deusPrice = useDeusPrice()
   const { numberOfVouchers, listOfVouchers } = useVDeusStats()
@@ -140,6 +147,8 @@ export default function DeusStats() {
 
   const invalidContext = useInvalidContext()
 
+  const [allVouchers, setAllVouchers] = useState<Voucher[] | null>(null)
+
   function handleClick(flag: Dashboard) {
     setCurrentStat(flag)
     toggleDashboardModal()
@@ -149,6 +158,55 @@ export default function DeusStats() {
     setCurrentVoucher(flag)
     toggleVoucherModal()
   }
+
+  const fetchAllVouchers = useCallback(async () => {
+    const DEFAULT_RETURN: Voucher[] | null = null
+    try {
+      const client = getApolloClient(chainId ?? FALLBACK_CHAIN_ID)
+      if (!client) return DEFAULT_RETURN
+
+      const { data } = await client.query({
+        query: ALL_VOUCHERS,
+        variables: { ids: [...listOfVouchers] },
+        fetchPolicy: 'no-cache',
+      })
+
+      return data.redeems as Voucher[]
+    } catch (error) {
+      console.log('Unable to fetch voucher details from The Graph Network')
+      console.error(error)
+      return []
+    }
+  }, [chainId, listOfVouchers])
+
+  useEffect(() => {
+    const getAllVouchers = async () => {
+      const result = await fetchAllVouchers()
+      setAllVouchers(result)
+    }
+    getAllVouchers()
+  }, [fetchAllVouchers])
+
+  const {
+    totalDeiBurned = null,
+    totalUsdcRedeemed = null,
+    totalDeusRedeemable = null,
+  } = useMemo(() => {
+    let deiBurn = 0
+    let usdcRedeem = 0
+    let deusRedeemable = 0
+    allVouchers?.map((voucher: Voucher) => {
+      deiBurn = deiBurn + Number(formatEther(voucher?.amount || '0'))
+      usdcRedeem = usdcRedeem + Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0')
+      deusRedeemable = deusRedeemable + Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0') * 7
+    })
+
+    return {
+      totalDeiBurned: deiBurn,
+      totalUsdcRedeemed: usdcRedeem,
+      totalDeusRedeemable: deusRedeemable,
+    }
+  }, [allVouchers])
 
   return (
     <Wrapper>
@@ -179,6 +237,22 @@ export default function DeusStats() {
                 {numberOfVouchers === null ? <Loader /> : <ItemValue>{numberOfVouchers}</ItemValue>}
               </InfoWrapper>
             </div>
+            <InfoWrapper>
+              <p>Total DEI Burned</p>
+              {totalDeiBurned === null ? <Loader /> : <ItemValue>{formatDollarAmount(totalDeiBurned)}</ItemValue>}
+            </InfoWrapper>
+            <InfoWrapper>
+              <p>Total USDC Redeemed</p>
+              {totalUsdcRedeemed === null ? <Loader /> : <ItemValue>{formatDollarAmount(totalUsdcRedeemed)}</ItemValue>}
+            </InfoWrapper>
+            <InfoWrapper>
+              <p>Total DEUS Redeemable</p>
+              {totalDeusRedeemable === null ? (
+                <Loader />
+              ) : (
+                <ItemValue>{formatDollarAmount(totalDeusRedeemable)}</ItemValue>
+              )}
+            </InfoWrapper>
             {listOfVouchers && listOfVouchers.length > 0 && <Heading>Vouchers:</Heading>}
             <VoucherWrapper>
               {listOfVouchers &&

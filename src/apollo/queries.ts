@@ -38,6 +38,18 @@ export const VOUCHER_DETAILS = gql`
   }
 `
 
+export const ALL_VOUCHERS = gql`
+  query getAllVoucherDetails($ids: [BigInt!]!) {
+    redeems(first: 1000, where: { currentTokenId_in: $ids }, orderBy: timestamp, orderDirection: asc) {
+      amount
+      currentTokenId
+      totalBurned
+      y
+      timestamp
+    }
+  }
+`
+
 export const SOLIDLY_PAIRS = gql`
   query getSolidlyPairs {
     pairs(first: 1000, orderBy: createdAt, orderDirection: desc) {

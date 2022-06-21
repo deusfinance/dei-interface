@@ -3,7 +3,7 @@ import { Modal, ModalHeader } from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { StakingPools } from 'constants/stakings'
 import { useBonderData, useGetRedeemTime } from 'hooks/useBondsPage'
-import { useDeiPrice } from 'hooks/useCoingeckoPrice'
+import { useDeiPrice, useDeusPrice } from 'hooks/useCoingeckoPrice'
 import useDebounce from 'hooks/useDebounce'
 import { useDeiStats } from 'hooks/useDeiStats'
 import { useGlobalDEIBorrowed } from 'hooks/usePoolData'
@@ -18,6 +18,9 @@ import { formatDollarAmount, formatAmount } from 'utils/numbers'
 import { getRemainingTime } from 'utils/time'
 import { Dashboard } from './DeiStats'
 import Link from 'next/link'
+import { getMaximumDate } from 'utils/vest'
+import { useVestedAPY } from 'hooks/useVested'
+import { useVDeusStats } from 'hooks/useVDeusStats'
 
 const ModalWrapper = styled.div`
   display: flex;
@@ -36,7 +39,9 @@ const ModalWrapper = styled.div`
   }
 `
 
-const ModalInfoWrapper = styled(RowBetween)`
+const ModalInfoWrapper = styled(RowBetween)<{
+  active?: boolean
+}>`
   align-items: center;
   margin-top: 1px;
   white-space: nowrap;
@@ -54,6 +59,11 @@ const ModalInfoWrapper = styled(RowBetween)`
       width: 90%;
       min-width: 265px;
     `}
+  ${({ theme, active }) =>
+    active &&
+    `
+    border: 1px solid ${theme.text1};
+  `}
 `
 
 const ModalItemValue = styled.div`
@@ -86,7 +96,7 @@ const ItemWrapper = styled.div`
   gap: 0.25rem;
 `
 
-export default function StatsModal({ currentStat }: { currentStat: Dashboard }) {
+export default function StatsModal({ stat }: { stat: Dashboard }) {
   const dashboardModalOpen = useModalOpen(ApplicationModal.DASHBOARD)
   const toggleDashboardModal = useDashboardModalToggle()
 
@@ -127,8 +137,12 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
 
   const showLoader = redeemTranche.trancheId == null ? true : false
 
+  const { lockedVeDEUS } = useVestedAPY(undefined, getMaximumDate())
+  const deusPrice = useDeusPrice()
+  const { numberOfVouchers, listOfVouchers } = useVDeusStats()
+
   function getModalBody() {
-    switch (currentStat) {
+    switch (stat) {
       case Dashboard.EMPTY:
         return null
       case Dashboard.DEI_PRICE:
@@ -202,7 +216,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
                 <ModalItemValue>{formatAmount(deiProtocolHoldings2, 2)}</ModalItemValue>
               )}
             </ModalInfoWrapper>
-            <ModalInfoWrapper>
+            <ModalInfoWrapper active>
               <p>Total holdings</p>
               {totalProtocolHoldings === null ? (
                 <Loader />
@@ -253,7 +267,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
               <p>Total DEI Bonded</p>
               {deiBonded == 0 ? <Loader /> : <ItemValue>{formatAmount(deiBonded)}</ItemValue>}
             </ModalInfoWrapper>
-            <ModalInfoWrapper>
+            <ModalInfoWrapper active>
               <p>Circulating Supply</p>
               {circulatingSupply === null ? <Loader /> : <ItemValue>{formatAmount(circulatingSupply, 2)}</ItemValue>}
             </ModalInfoWrapper>
@@ -284,7 +298,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
               </a>
               {usdcReserves2 === null ? <Loader /> : <ModalItemValue>{formatAmount(usdcReserves2, 2)}</ModalItemValue>}
             </ModalInfoWrapper>
-            <ModalInfoWrapper>
+            <ModalInfoWrapper active>
               <p>Total USDC Reserves</p>
               {totalUSDCReserves === null ? (
                 <Loader />
@@ -311,7 +325,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
               <p>Circulating Supply</p>
               {circulatingSupply === null ? <Loader /> : <ItemValue>{formatAmount(circulatingSupply, 2)}</ItemValue>}
             </ModalInfoWrapper>
-            <ModalInfoWrapper>
+            <ModalInfoWrapper active>
               <p>Backing Per DEI</p>
               {usdcBackingPerDei === null ? (
                 <Loader />
@@ -536,13 +550,81 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
             </ModalInfoWrapper>
           </ModalWrapper>
         )
+      case Dashboard.DEUS_PRICE:
+        return (
+          <ModalWrapper>
+            <div>
+              Price as sourced by :{' '}
+              <a href="https://www.coingecko.com/en/coins/deus-finance" target={'_blank'} rel={'noreferrer'}>
+                Coingecko
+              </a>
+            </div>
+            <ModalInfoWrapper>
+              <p>Price</p>
+              {deusPrice === null ? (
+                <Loader />
+              ) : (
+                <ModalItemValue>{formatDollarAmount(parseFloat(deusPrice), 2)}</ModalItemValue>
+              )}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.VE_DEUS_LOCKED:
+        return (
+          <ModalWrapper>
+            <div>
+              Total locked DEUS :{' '}
+              <a
+                href="https://ftmscan.com/address/0x8b42c6cb07c8dd5fe5db3ac03693867afd11353d"
+                target={'_blank'}
+                rel={'noreferrer'}
+              >
+                veDEUS Contract
+              </a>
+            </div>
+            <ModalInfoWrapper>
+              <p>Total veDEUS Locked</p>
+              {lockedVeDEUS === null ? <Loader /> : <ItemValue>{formatAmount(parseFloat(lockedVeDEUS), 0)}</ItemValue>}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.VDEUS_NFTS:
+        return (
+          <ModalWrapper>
+            <ModalInfoWrapper active>
+              <p>Total vDEUS Vouchers</p>
+              {numberOfVouchers === null ? <Loader /> : <ItemValue>{numberOfVouchers}</ItemValue>}
+            </ModalInfoWrapper>
+            <div>List of vDEUS Vouchers:</div>
+            {listOfVouchers &&
+              listOfVouchers.length > 0 &&
+              listOfVouchers.map((voucher: number, index) => (
+                <ModalInfoWrapper key={index}>
+                  <p>vDEUS Voucher #{voucher}</p>
+
+                  <a
+                    href={`https://ftmscan.com/token/0x980c39133a1a4e83e41d652619adf8aa18b95c8b?a=${voucher}`}
+                    target={'_blank'}
+                    rel={'noreferrer'}
+                  >
+                    <ItemValue>Link to FTMScan</ItemValue>
+                  </a>
+                </ModalInfoWrapper>
+              ))}
+            {listOfVouchers && listOfVouchers.length == 0 && (
+              <ModalInfoWrapper>
+                <ItemValue>You donot own any vDEUS vouchers</ItemValue>
+              </ModalInfoWrapper>
+            )}
+          </ModalWrapper>
+        )
     }
   }
 
   function getModalContent() {
     return (
       <>
-        <ModalHeader title={currentStat} onClose={toggleDashboardModal} />
+        <ModalHeader title={stat} onClose={toggleDashboardModal} />
         {getModalBody()}
       </>
     )

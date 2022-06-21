@@ -34,6 +34,10 @@ export function useDashboardModalToggle(): () => void {
   return useToggleModal(ApplicationModal.DASHBOARD)
 }
 
+export function useVoucherModalToggle(): () => void {
+  return useToggleModal(ApplicationModal.VOUCHER)
+}
+
 export function useAddPopup(): (content: PopupContent, key?: string, removeAfterMs?: number) => void {
   const dispatch = useAppDispatch()
   const { chainId } = useWeb3React()

@@ -40,7 +40,9 @@ const ModalWrapper = styled.div`
   }
 `
 
-const ModalInfoWrapper = styled(RowBetween)`
+const ModalInfoWrapper = styled(RowBetween)<{
+  active?: boolean
+}>`
   align-items: center;
   margin-top: 1px;
   white-space: nowrap;
@@ -58,6 +60,11 @@ const ModalInfoWrapper = styled(RowBetween)`
       width: 90%;
       min-width: 265px;
     `}
+  ${({ theme, active }) =>
+    active &&
+    `
+    border: 1px solid ${theme.text1};
+  `}
 `
 
 const ModalItemValue = styled.div`
@@ -90,7 +97,7 @@ const ItemWrapper = styled.div`
   gap: 0.25rem;
 `
 
-export default function StatsModal({ currentStat }: { currentStat: Dashboard }) {
+export default function StatsModal({ stat }: { stat: Dashboard }) {
   const dashboardModalOpen = useModalOpen(ApplicationModal.DASHBOARD)
   const toggleDashboardModal = useDashboardModalToggle()
 
@@ -136,7 +143,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
   const { numberOfVouchers, listOfVouchers } = useVDeusStats()
 
   function getModalBody() {
-    switch (currentStat) {
+    switch (stat) {
       case Dashboard.EMPTY:
         return null
       case Dashboard.DEI_PRICE:
@@ -210,7 +217,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
                 <ModalItemValue>{formatAmount(deiProtocolHoldings2, 2)}</ModalItemValue>
               )}
             </ModalInfoWrapper>
-            <ModalInfoWrapper>
+            <ModalInfoWrapper active>
               <p>Total holdings</p>
               {totalProtocolHoldings === null ? (
                 <Loader />
@@ -261,7 +268,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
               <p>Total DEI Bonded</p>
               {deiBonded == 0 ? <Loader /> : <ItemValue>{formatAmount(deiBonded)}</ItemValue>}
             </ModalInfoWrapper>
-            <ModalInfoWrapper>
+            <ModalInfoWrapper active>
               <p>Circulating Supply</p>
               {circulatingSupply === null ? <Loader /> : <ItemValue>{formatAmount(circulatingSupply, 2)}</ItemValue>}
             </ModalInfoWrapper>
@@ -292,7 +299,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
               </a>
               {usdcReserves2 === null ? <Loader /> : <ModalItemValue>{formatAmount(usdcReserves2, 2)}</ModalItemValue>}
             </ModalInfoWrapper>
-            <ModalInfoWrapper>
+            <ModalInfoWrapper active>
               <p>Total USDC Reserves</p>
               {totalUSDCReserves === null ? (
                 <Loader />
@@ -319,7 +326,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
               <p>Circulating Supply</p>
               {circulatingSupply === null ? <Loader /> : <ItemValue>{formatAmount(circulatingSupply, 2)}</ItemValue>}
             </ModalInfoWrapper>
-            <ModalInfoWrapper>
+            <ModalInfoWrapper active>
               <p>Backing Per DEI</p>
               {usdcBackingPerDei === null ? (
                 <Loader />
@@ -585,7 +592,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
       case Dashboard.VDEUS_NFTS:
         return (
           <ModalWrapper>
-            <ModalInfoWrapper>
+            <ModalInfoWrapper active>
               <p>Total vDEUS Vouchers</p>
               {numberOfVouchers === null ? <Loader /> : <ItemValue>{numberOfVouchers}</ItemValue>}
             </ModalInfoWrapper>
@@ -618,7 +625,7 @@ export default function StatsModal({ currentStat }: { currentStat: Dashboard }) 
   function getModalContent() {
     return (
       <>
-        <ModalHeader title={currentStat} onClose={toggleDashboardModal} />
+        <ModalHeader title={stat} onClose={toggleDashboardModal} />
         {getModalBody()}
       </>
     )

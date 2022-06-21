@@ -373,7 +373,7 @@ export default function DeiStats() {
           </StatsWrapper>
         </TopWrapper>
       </Wrapper>
-      <StatsModal currentStat={currentStat} />
+      <StatsModal stat={currentStat} />
     </>
   )
 }

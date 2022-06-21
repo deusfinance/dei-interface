@@ -18,6 +18,26 @@ export interface SolidlyPair {
   token1: SolidlyToken
 }
 
+export interface Voucher {
+  amount: string
+  currentTokenId: string
+  totalBurned: string
+  y: string
+  timestamp: string
+}
+
+export const VOUCHER_DETAILS = gql`
+  query getVoucherDetails($currentTokenId: BigInt!) {
+    redeems(where: { currentTokenId: $currentTokenId }, orderBy: timestamp, orderDirection: desc) {
+      amount
+      currentTokenId
+      totalBurned
+      y
+      timestamp
+    }
+  }
+`
+
 export const SOLIDLY_PAIRS = gql`
   query getSolidlyPairs {
     pairs(first: 1000, orderBy: createdAt, orderDirection: desc) {

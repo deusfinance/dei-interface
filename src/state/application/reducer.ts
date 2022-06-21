@@ -14,6 +14,7 @@ export enum ApplicationModal {
   WALLET = 'WALLET',
   NETWORK = 'NETWORK',
   DASHBOARD = 'DASHBOARD',
+  VOUCHER = 'VOUCHER',
 }
 
 export type PopupContent = {

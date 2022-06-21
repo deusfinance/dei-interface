@@ -10,9 +10,9 @@ import { useDeusPrice } from 'hooks/useCoingeckoPrice'
 import { useVDeusStats } from 'hooks/useVDeusStats'
 import StatsModal from './StatsModal'
 import { Dashboard } from './DeiStats'
-import { useDashboardModalToggle } from 'state/application/hooks'
-import useWeb3React from 'hooks/useWeb3'
+import { useDashboardModalToggle, useVoucherModalToggle } from 'state/application/hooks'
 import { ContextError, InvalidContext, useInvalidContext } from 'components/InvalidContext'
+import VoucherModal from './VoucherModal'
 
 const Wrapper = styled.div`
   display: flex;
@@ -32,7 +32,7 @@ const TopWrapper = styled.div`
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
-  max-width: 1200px;
+  max-width: 900px;
   gap: 2rem;
   justify-content: start;
   margin: 0 auto;
@@ -120,20 +120,34 @@ const Heading = styled.div`
   `}
 `
 
+const VoucherWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-evenly;
+`
+
 export default function DeusStats() {
-  const { account } = useWeb3React()
   const { lockedVeDEUS } = useVestedAPY(undefined, getMaximumDate())
   const deusPrice = useDeusPrice()
-  const { numberOfVouchers } = useVDeusStats()
+  const { numberOfVouchers, listOfVouchers } = useVDeusStats()
 
   const toggleDashboardModal = useDashboardModalToggle()
   const [currentStat, setCurrentStat] = useState(Dashboard.EMPTY)
+
+  const toggleVoucherModal = useVoucherModalToggle()
+  const [currentVoucher, setCurrentVoucher] = useState<number>()
 
   const invalidContext = useInvalidContext()
 
   function handleClick(flag: Dashboard) {
     setCurrentStat(flag)
     toggleDashboardModal()
+  }
+
+  function handleVoucherClick(flag: number) {
+    setCurrentVoucher(flag)
+    toggleVoucherModal()
   }
 
   return (
@@ -165,10 +179,23 @@ export default function DeusStats() {
                 {numberOfVouchers === null ? <Loader /> : <ItemValue>{numberOfVouchers}</ItemValue>}
               </InfoWrapper>
             </div>
+            {listOfVouchers && listOfVouchers.length > 0 && <Heading>Vouchers:</Heading>}
+            <VoucherWrapper>
+              {listOfVouchers &&
+                listOfVouchers.length > 0 &&
+                listOfVouchers.map((voucher: number, index) => (
+                  <div key={index} onClick={() => handleVoucherClick(voucher)}>
+                    <InfoWrapper secondary>
+                      <ItemValue style={{ margin: 'auto' }}>vDEUS Voucher #{voucher}</ItemValue>
+                    </InfoWrapper>
+                  </div>
+                ))}
+            </VoucherWrapper>
           </Container>
         )}
       </TopWrapper>
-      <StatsModal currentStat={currentStat} />
+      <StatsModal stat={currentStat} />
+      <VoucherModal voucherId={currentVoucher} />
     </Wrapper>
   )
 }

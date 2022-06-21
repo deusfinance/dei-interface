@@ -15,6 +15,7 @@ import LENDER_MANAGER_ABI from 'constants/abi/LENDER_MANAGER.json'
 import LENDER_ORACLE_ABI from 'constants/abi/LENDER_ORACLE.json'
 import SOLIDEX_LP_DEPOSITOR_ABI from 'constants/abi/SOLIDEX_LP_DEPOSITOR.json'
 import VEDEUS_ABI from 'constants/abi/VEDEUS.json'
+import VDEUS_ABI from 'constants/abi/VDEUS.json'
 import VE_DIST_ABI from 'constants/abi/VE_DIST.json'
 import REIMBURSE_ABI from 'constants/abi/REIMBURSE.json'
 import BASE_V1_FACTORY_ABI from 'constants/abi/BASE_V1_FACTORY.json'
@@ -44,6 +45,7 @@ import {
   veDist,
   SwapFlashLoan,
   MasterChefV2,
+  vDeus,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -151,6 +153,12 @@ export function useVeDeusContract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? veDEUS[chainId] : undefined), [chainId])
   return useContract(address, VEDEUS_ABI)
+}
+
+export function useVDeusContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? vDeus[chainId] : undefined), [chainId])
+  return useContract(address, VDEUS_ABI)
 }
 
 export function useVeDistContract() {

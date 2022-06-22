@@ -5,6 +5,8 @@ import { toBN } from 'utils/numbers'
 import { useVDeusContract } from './useContract'
 import useWeb3React from './useWeb3'
 
+export const VDEUS_USDC_FACTOR = 6
+
 export function useVDeusStats(): {
   numberOfVouchers: number
   listOfVouchers: Array<number>

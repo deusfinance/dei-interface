@@ -7,7 +7,7 @@ import { formatAmount, formatDollarAmount } from 'utils/numbers'
 import { useVestedAPY } from 'hooks/useVested'
 import { getMaximumDate } from 'utils/vest'
 import { useDeusPrice } from 'hooks/useCoingeckoPrice'
-import { useVDeusStats } from 'hooks/useVDeusStats'
+import { useVDeusStats, VDEUS_USDC_FACTOR } from 'hooks/useVDeusStats'
 import StatsModal from './StatsModal'
 import { Dashboard } from './DeiStats'
 import { useDashboardModalToggle, useVoucherModalToggle } from 'state/application/hooks'
@@ -198,7 +198,8 @@ export default function DeusStats() {
     allVouchers?.map((voucher: Voucher) => {
       deiBurn = deiBurn + Number(formatEther(voucher?.amount || '0'))
       usdcRedeem = usdcRedeem + Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0')
-      deusRedeemable = deusRedeemable + Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0') * 7
+      deusRedeemable =
+        deusRedeemable + Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0') * VDEUS_USDC_FACTOR
     })
 
     return {

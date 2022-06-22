@@ -5,6 +5,7 @@ import Loader from 'components/Icons/Loader'
 import { Modal, ModalHeader } from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { FALLBACK_CHAIN_ID } from 'constants/chains'
+import { VDEUS_USDC_FACTOR } from 'hooks/useVDeusStats'
 import useWeb3React from 'hooks/useWeb3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useModalOpen, useVoucherModalToggle } from 'state/application/hooks'
@@ -113,7 +114,7 @@ export default function VoucherModal({ voucherId }: { voucherId: number | undefi
     return {
       deiBurned: Number(formatEther(voucher?.amount || '0')), // dei burned to get the voucher
       usdcRedeemed: Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0'), // y is the usdc per dei from the formula
-      deusRedeemable: Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0') * 7, // deus value = usdcRedeemed * 7 (for all tranches)
+      deusRedeemable: Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0') * VDEUS_USDC_FACTOR, // deus value = usdcRedeemed * VDEUS_USDC_FACTOR (for all tranches)
     }
   }, [voucher])
 

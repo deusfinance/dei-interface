@@ -119,8 +119,7 @@ export default function VoucherModal({ voucherId }: { voucherId: number | undefi
         adjustedUsdcPerDei(parseFloat(voucher?.y || '0'), voucher?.currentTokenId || '-1'), // y is the usdc per dei from the formula
       deusRedeemable:
         Number(formatEther(voucher?.amount || '0')) *
-        adjustedDeusPerDei(parseFloat(voucher?.y || '0'), voucher?.currentTokenId || '-1') *
-        VDEUS_USDC_FACTOR, // deus value = usdcRedeemed * VDEUS_USDC_FACTOR (for all tranches)
+        adjustedDeusPerDei(parseFloat(voucher?.y || '0') * VDEUS_USDC_FACTOR, voucher?.currentTokenId || '-1'),
     }
   }, [voucher])
 

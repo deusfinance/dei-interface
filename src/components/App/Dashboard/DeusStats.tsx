@@ -220,8 +220,7 @@ export default function DeusStats() {
       deusRedeemable =
         deusRedeemable +
         Number(formatEther(voucher?.amount || '0')) *
-          adjustedDeusPerDei(parseFloat(voucher?.y || '0'), voucher.currentTokenId) *
-          VDEUS_USDC_FACTOR
+          adjustedDeusPerDei(parseFloat(voucher?.y || '0') * VDEUS_USDC_FACTOR, voucher.currentTokenId)
     })
 
     return {

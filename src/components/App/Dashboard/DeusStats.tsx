@@ -142,6 +142,12 @@ export function adjustedUsdcPerDei(y: number, currentTokenId: string) {
   return 0
 }
 
+// a utility function to adjust deus redeemed per dei for pre era based on voucher number
+export function adjustedDeusPerDei(y: number, currentTokenId: string) {
+  if (parseInt(currentTokenId) > 453) return y //post dynamic era, so the original math applies
+  return 2.1 - adjustedUsdcPerDei(y, currentTokenId) // pre dynamic, adjusted their vdeus to offset usdc
+}
+
 export default function DeusStats() {
   const { chainId } = useWeb3React()
 
@@ -212,7 +218,10 @@ export default function DeusStats() {
         Number(formatEther(voucher?.amount || '0')) *
           adjustedUsdcPerDei(parseFloat(voucher?.y || '0'), voucher.currentTokenId)
       deusRedeemable =
-        deusRedeemable + Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0') * VDEUS_USDC_FACTOR
+        deusRedeemable +
+        Number(formatEther(voucher?.amount || '0')) *
+          adjustedDeusPerDei(parseFloat(voucher?.y || '0'), voucher.currentTokenId) *
+          VDEUS_USDC_FACTOR
     })
 
     return {

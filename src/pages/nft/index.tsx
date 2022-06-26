@@ -23,13 +23,22 @@ const Container = styled.div`
   margin: 0 auto;
 `
 
-const Wrapper = styled(Container)`
-  /* background: red; */
+const TopWrapper = styled.div`
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-flow: row nowrap;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    display: flex;
+    flex-flow: column nowrap;
+  `}
+`
+
+const Wrapper = styled(Container)`
+  /* border: ${({ theme }) => `1px solid ${theme.text3}`}; */
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
   margin-top: 50px;
-  /* width: clamp(250px, 90%, 500px); */
   padding: 20px 15px;
   border-radius: 15px;
 
@@ -87,6 +96,7 @@ const DepositWrapper = styled(BoxWrapper)`
 `
 
 const WithdrawWrapper = styled(BoxWrapper)`
+  align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -97,7 +107,6 @@ const ClaimWrapper = styled(BoxWrapper)`
 `
 
 const RewardSpan = styled.span`
-  /* background: red; */
   margin-left: 36px;
   margin-top: 20px;
   font-size: 1.4rem;
@@ -115,7 +124,22 @@ const TokensWrapper = styled.div`
 
 const TokenPreview = styled.span`
   color: ${({ theme }) => theme.warning};
+  cursor: pointer;
   margin: 10px 0;
+`
+
+const TitleInfo = styled.div`
+  padding: 20px;
+  padding-top: 0;
+  display: flex;
+  justify-content: space-between;
+  /* border-bottom: 2px solid; */
+  border-bottom: ${({ theme }) => `2px solid ${theme.warning}`};
+`
+
+const TimeTitle = styled.span`
+  color: ${({ theme }) => theme.warning};
+  font-size: 1.25rem;
 `
 
 export default function NFT() {
@@ -229,46 +253,65 @@ export default function NFT() {
     return <DepositButton onClick={() => console.log('hello mali from claim')}>Claim All</DepositButton>
   }
 
+  function getEachPeriod(time: number, apr: number): JSX.Element | null {
+    return (
+      <>
+        <Wrapper>
+          <TitleInfo>
+            <TimeTitle> {time} Month </TimeTitle>
+            <span> Apr: {apr}% </span>
+          </TitleInfo>
+          <DepositWrapper>
+            <span>Select the desired NFT:</span>
+            <UpperRow>
+              {/* <SearchField searchProps={searchProps} /> */}
+              <Dropdown
+                options={dropdownOptions}
+                placeholder="Select Token ID"
+                defaultValue={dropDownDefaultValue}
+                onSelect={(v) => dropdownOnSelect(v)}
+                width="260px"
+              />
+            </UpperRow>
+            <div style={{ marginTop: '20px' }}></div>
+            {getApproveButton()}
+            {getDepositButton()}
+          </DepositWrapper>
+
+          <WithdrawWrapper>
+            <span> Locked NFTs: </span>
+            <TokensWrapper>
+              {availableNFTs.map((token, index) => {
+                return (
+                  <TokenPreview onClick={() => console.log(token.Value)} key={index}>
+                    {token.label}
+                  </TokenPreview>
+                )
+              })}
+            </TokensWrapper>
+            {/* {getWithdrawButton()} */}
+          </WithdrawWrapper>
+
+          <ClaimWrapper>
+            <RewardSpan> Deus reward: 12.3 </RewardSpan>
+            {getClaimButton()}
+          </ClaimWrapper>
+        </Wrapper>
+      </>
+    )
+  }
+
   return (
     <Container>
       <Hero>
         <span>vDEUS</span>
         <HeroSubtext>Deposit, withdraw and claim your reward for your NFTs.</HeroSubtext>
       </Hero>
-      <Wrapper>
-        <DepositWrapper>
-          <span>Select the desired NFT:</span>
-          <UpperRow>
-            {/* <SearchField searchProps={searchProps} /> */}
-            <Dropdown
-              options={dropdownOptions}
-              placeholder="Select Token ID"
-              defaultValue={dropDownDefaultValue}
-              onSelect={(v) => dropdownOnSelect(v)}
-              width="260px"
-            />
-          </UpperRow>
-          <div style={{ marginTop: '20px' }}></div>
-          {getApproveButton()}
-          {getDepositButton()}
-        </DepositWrapper>
-
-        <WithdrawWrapper>
-          <span> Locked NFTs: </span>
-          <TokensWrapper>
-            {availableNFTs.map((token, index) => {
-              return <TokenPreview key={index}>{token.label}</TokenPreview>
-            })}
-          </TokensWrapper>
-          {/* {getWithdrawButton()} */}
-        </WithdrawWrapper>
-
-        <ClaimWrapper>
-          <RewardSpan> Deus reward: 12.3 </RewardSpan>
-          {getClaimButton()}
-        </ClaimWrapper>
-      </Wrapper>
-
+      <TopWrapper>
+        {getEachPeriod(3, 73)}
+        {getEachPeriod(6, 21)}
+        {getEachPeriod(12, 102)}
+      </TopWrapper>
       <Disclaimer />
     </Container>
   )

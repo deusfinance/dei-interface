@@ -1,21 +1,20 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 
-import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import { tryParseAmount } from 'utils/parse'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-import Hero from 'components/Hero'
+import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 
-import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
+import { DEI_TOKEN } from 'constants/tokens'
 import Dropdown from 'components/DropDown'
-import { RowBetween, RowCenter } from 'components/Row'
+import { RowCenter } from 'components/Row'
+import { vDeus } from 'constants/addresses'
 
 const Container = styled.div`
   display: flex;
@@ -25,31 +24,31 @@ const Container = styled.div`
 `
 
 const Wrapper = styled(Container)`
+  /* background: red; */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   margin-top: 50px;
-  width: clamp(250px, 90%, 500px);
-  background-color: rgb(13 13 13);
+  /* width: clamp(250px, 90%, 500px); */
   padding: 20px 15px;
-  border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
-  /* border-bottom-right-radius: 0; */
-  /* border-bottom-left-radius: 0; */
-  /* & > * {
-    &:nth-child(2) {
-      margin: 15px auto;
-    }
-  } */
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  `}
 `
 
 const UpperRow = styled(RowCenter)`
   gap: 10px;
-  margin: 0 auto;
+  margin: 20px auto;
   height: 50px;
-  background: green;
   ${({ theme }) => theme.mediaWidth.upToMedium`
-      display: flex;
-      justify-content:center;
-      flex-direction:column;
-    `}
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  `}
   & > * {
     height: 100%;
     max-width: fit-content;
@@ -60,72 +59,63 @@ const UpperRow = styled(RowCenter)`
   }
 `
 
-const TopWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  width: 100%;
-  max-width: 1200px;
-  margin 0 auto;
-`
-
-const FarmWrapper = styled(Wrapper)`
+const DepositButton = styled(PrimaryButton)`
+  margin-top: 20px;
   border-radius: 15px;
-  padding: 0;
-  & > * {
-    &:nth-child(1) {
-      padding: 0;
-      border: 0;
-      padding-bottom: 20px;
-    }
-  }
 `
 
-const LiquidityWrapper = styled.div`
+const BoxWrapper = styled.div`
+  border: ${({ theme }) => `0.5px solid ${theme.text2}`};
+  border-radius: 8px;
+  background-color: rgb(13 13 13);
+  margin: 20px;
+  width: 350px;
+  padding: 20px 15px;
+  border-radius: 15px;
   display: flex;
   flex-direction: column;
-  width: 50%;
+  justify-content: space-between;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 100%;
-    margin: 0 auto;
+    margin: 8px;
+    width: 290px;
   `}
 `
 
-const ToggleState = styled.div`
+const DepositWrapper = styled(BoxWrapper)`
+  align-items: center;
+`
+
+const WithdrawWrapper = styled(BoxWrapper)`
   display: flex;
-  justify-content: space-between;
-  background-color: rgb(13 13 13);
-  border-radius: 15px;
-  margin: 0 auto;
-  margin-top: 50px;
-  margin-bottom: -45px;
-  width: clamp(250px, 90%, 500px);
+  flex-direction: column;
+  justify-content: flex-start;
 `
 
-const StateButton = styled.div`
-  width: 50%;
-  text-align: center;
-  padding: 12px;
-  cursor: pointer;
+const ClaimWrapper = styled(BoxWrapper)`
+  /* background: red; */
 `
 
-const DepositButton = styled(PrimaryButton)`
-  border-radius: 15px;
+const RewardSpan = styled.span`
+  /* background: red; */
+  margin-left: 36px;
+  margin-top: 20px;
+  font-size: 1.4rem;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size: 1.1rem;
+  `}
 `
 
-const LeftTitle = styled.span`
-  font-size: 24px;
-  font-weight: 500;
+const TokensWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
 `
 
-const DepositWrapper = styled.div``
-
-const WithdrawWrapper = styled.div`
-  background: blue;
-`
-const ClaimWrapper = styled.div`
-  background: yellow;
+const TokenPreview = styled.span`
+  color: ${({ theme }) => theme.warning};
+  margin: 10px 0;
 `
 
 export default function NFT() {
@@ -133,25 +123,121 @@ export default function NFT() {
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
   const [dropDownDefaultValue, setDropDownDefaultValue] = useState('0')
+  const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
+  const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState<boolean>(false)
+  const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
 
   const dropdownOnSelect = useCallback((val: string) => {
-    console.log('drow down on select', { val })
+    console.log('draw down on select', { val })
     return
   }, [])
 
   const dropdownOptions = [
-    { value: '1', label: '1 dep' },
-    { value: '2', label: '2' },
-    { value: '3', label: '3' },
+    { label: 'NFT #1', Value: '1' },
+    { label: 'NFT #2', Value: '2' },
+    { label: 'NFT #3', Value: '3' },
   ]
+
+  const availableNFTs = [
+    { label: 'NFT #1', Value: '1' },
+    { label: 'NFT #2', Value: '2' },
+    { label: 'NFT #3', Value: '3' },
+  ]
+
+  const deiCurrency = DEI_TOKEN
+  const spender = useMemo(() => (chainId ? vDeus[chainId] : undefined), [chainId])
+
+  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
+  const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
+  const [showApprove, showApproveLoader] = useMemo(() => {
+    const show = deiCurrency && approvalState !== ApprovalState.APPROVED
+    return [show, show && approvalState === ApprovalState.PENDING]
+  }, [deiCurrency, approvalState])
+
+  const handleApprove = async () => {
+    setAwaitingApproveConfirmation(true)
+    await approveCallback()
+    setAwaitingApproveConfirmation(false)
+  }
+
+  function getApproveButton(): JSX.Element | null {
+    if (!isSupportedChainId || !account) {
+      return null
+    }
+    if (awaitingApproveConfirmation) {
+      return (
+        <DepositButton active>
+          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+        </DepositButton>
+      )
+    }
+    if (showApproveLoader) {
+      return (
+        <DepositButton active>
+          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+        </DepositButton>
+      )
+    }
+    if (showApprove) {
+      return <DepositButton onClick={handleApprove}>Allow us to spend {deiCurrency?.symbol}</DepositButton>
+    }
+    return null
+  }
+
+  function getDepositButton(): JSX.Element | null {
+    if (!chainId || !account) {
+      return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
+    }
+    if (showApprove) {
+      return null
+    }
+    if (awaitingDepositConfirmation) {
+      return (
+        <DepositButton>
+          Depositing DEI <DotFlashing style={{ marginLeft: '10px' }} />
+        </DepositButton>
+      )
+    }
+    return <DepositButton onClick={() => console.log('hello mali')}>Deposit your NFT</DepositButton>
+  }
+
+  // function getWithdrawButton(): JSX.Element | null {
+  //   if (!chainId || !account) {
+  //     return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
+  //   }
+  //   if (awaitingWithdrawConfirmation) {
+  //     return (
+  //       <DepositButton>
+  //         Withdrawing DEI <DotFlashing style={{ marginLeft: '10px' }} />
+  //       </DepositButton>
+  //     )
+  //   }
+  //   return <DepositButton onClick={() => console.log('hello mali from withdraw')}>Withdraw All</DepositButton>
+  // }
+
+  function getClaimButton(): JSX.Element | null {
+    if (!chainId || !account) {
+      return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
+    }
+    if (awaitingClaimConfirmation) {
+      return (
+        <DepositButton>
+          Claiming DEI <DotFlashing style={{ marginLeft: '10px' }} />
+        </DepositButton>
+      )
+    }
+    return <DepositButton onClick={() => console.log('hello mali from claim')}>Claim All</DepositButton>
+  }
 
   return (
     <Container>
       <Hero>
-        <div>NFT</div>
+        <span>vDEUS</span>
+        <HeroSubtext>Deposit, withdraw and claim your reward for your NFTs.</HeroSubtext>
       </Hero>
       <Wrapper>
         <DepositWrapper>
+          <span>Select the desired NFT:</span>
           <UpperRow>
             {/* <SearchField searchProps={searchProps} /> */}
             <Dropdown
@@ -159,13 +245,28 @@ export default function NFT() {
               placeholder="Select Token ID"
               defaultValue={dropDownDefaultValue}
               onSelect={(v) => dropdownOnSelect(v)}
-              width="200px"
+              width="260px"
             />
           </UpperRow>
+          <div style={{ marginTop: '20px' }}></div>
+          {getApproveButton()}
+          {getDepositButton()}
         </DepositWrapper>
 
-        <WithdrawWrapper>Hello</WithdrawWrapper>
-        <ClaimWrapper>Heu</ClaimWrapper>
+        <WithdrawWrapper>
+          <span> Locked NFTs: </span>
+          <TokensWrapper>
+            {availableNFTs.map((token, index) => {
+              return <TokenPreview key={index}>{token.label}</TokenPreview>
+            })}
+          </TokensWrapper>
+          {/* {getWithdrawButton()} */}
+        </WithdrawWrapper>
+
+        <ClaimWrapper>
+          <RewardSpan> Deus reward: 12.3 </RewardSpan>
+          {getClaimButton()}
+        </ClaimWrapper>
       </Wrapper>
 
       <Disclaimer />

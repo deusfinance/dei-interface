@@ -13,6 +13,7 @@ const Wrapper = styled.div<{
   overflow: hidden;
   color: ${({ theme }) => theme.text3};
   width: ${({ width }) => width};
+  margin: 4px auto;
 `
 
 const Header = styled(Box)<{
@@ -119,7 +120,7 @@ export default function Dropdown({
       onSelect(value)
       setSelectedOption(value)
     }
-  }, [options, defaultValue])
+  }, [options, defaultValue, onSelect])
 
   const header: JSX.Element | string = useMemo(() => {
     const option: Option | undefined = find(options, (obj) => obj.value == selectedOption)

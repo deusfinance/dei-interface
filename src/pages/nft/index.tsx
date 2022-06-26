@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useVoucherModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
@@ -15,6 +15,8 @@ import { DEI_TOKEN } from 'constants/tokens'
 import Dropdown from 'components/DropDown'
 import { RowCenter } from 'components/Row'
 import { vDeus } from 'constants/addresses'
+import { useVDeusStats } from 'hooks/useVDeusStats'
+import VoucherModal from 'components/App/NFT/VoucherModal'
 
 const Container = styled.div`
   display: flex;
@@ -162,11 +164,14 @@ export default function NFT() {
     { label: 'NFT #3', Value: '3' },
   ]
 
-  const availableNFTs = [
-    { label: 'NFT #1', Value: '1' },
-    { label: 'NFT #2', Value: '2' },
-    { label: 'NFT #3', Value: '3' },
-  ]
+  const { numberOfVouchers, listOfVouchers } = useVDeusStats()
+  const [currentVoucher, setCurrentVoucher] = useState<number>()
+  const toggleVoucherModal = useVoucherModalToggle()
+
+  function handleVoucherClick(flag: number) {
+    setCurrentVoucher(flag)
+    toggleVoucherModal()
+  }
 
   const deiCurrency = DEI_TOKEN
   const spender = useMemo(() => (chainId ? vDeus[chainId] : undefined), [chainId])
@@ -281,13 +286,15 @@ export default function NFT() {
           <WithdrawWrapper>
             <span> Locked NFTs: </span>
             <TokensWrapper>
-              {availableNFTs.map((token, index) => {
-                return (
-                  <TokenPreview onClick={() => console.log(token.Value)} key={index}>
-                    {token.label}
-                  </TokenPreview>
-                )
-              })}
+              {listOfVouchers &&
+                listOfVouchers.length > 0 &&
+                listOfVouchers.map((voucher: number, index) => {
+                  return (
+                    <TokenPreview onClick={() => handleVoucherClick(voucher)} key={index}>
+                      vDEUS Voucher #{voucher}
+                    </TokenPreview>
+                  )
+                })}
             </TokensWrapper>
             {/* {getWithdrawButton()} */}
           </WithdrawWrapper>
@@ -312,6 +319,7 @@ export default function NFT() {
         {getEachPeriod(6, 21)}
         {getEachPeriod(12, 102)}
       </TopWrapper>
+      <VoucherModal voucherId={currentVoucher} />
       <Disclaimer />
     </Container>
   )

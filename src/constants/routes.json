@@ -33,5 +33,11 @@
       { "id": "51", "text": "Lock", "path": "/vest" },
       { "id": "52", "text": "Rewards", "path": "/rewards" }
     ]
+  },
+  {
+    "id": "6",
+    "text": "NFT",
+    "path": "/nft",
+    "exact": true
   }
 ]

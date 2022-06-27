@@ -99,7 +99,7 @@ export function useUserLockedNfts(): number[][] | null {
     : vDeusStakingPools.map((pool) => ({ methodName: 'userNfts', callInputs: [pool.pid, account] }))
 
   const result = useSingleContractMultipleMethods(stakingContract, calls)
-  console.log(result)
+  console.log({ result })
 
   return useMemo(() => {
     if (!result || !result.length) return null
@@ -114,6 +114,8 @@ export function useUserPendingTokens(): number[] {
     ? []
     : vDeusStakingPools.map((pool) => ({ methodName: 'pendingTokens', callInputs: [pool.pid, account] }))
   const pendingTokens = useSingleContractMultipleMethods(contract, calls)
+
+  console.log({ pendingTokens, calls })
 
   return useMemo(
     () => pendingTokens.map((pt) => (pt?.result ? toBN(formatUnits(pt.result[0], 18)).toNumber() : 0)),

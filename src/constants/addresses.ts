@@ -144,9 +144,9 @@ export const MasterChefV2: AddressMap = {
 }
 
 export const vDeusMasterChefV2: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x4e8A53B9cB54af8E0B3183816A4A15369DF5eBD8',
+  [SupportedChainId.FANTOM]: '0x407d7143d73CaC0679Ec612D92fd8B280d16FDeB',
 }
 
 export const vDeusStaking: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x2d42caCeDbc68052772557318AAaB6187D351D7c',
+  [SupportedChainId.FANTOM]: '0xbCf79C909C7E9eeeE84420f9810AF875e92831D6',
 }

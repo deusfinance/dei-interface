@@ -4,17 +4,16 @@ import styled from 'styled-components'
 import { useVoucherModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
+import { ApprovalState } from 'hooks/useApproveCallback'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 
-import { DEI_TOKEN } from 'constants/tokens'
 import Dropdown from 'components/DropDown'
-import { RowCenter } from 'components/Row'
-import { vDeusStaking } from 'constants/addresses'
+import { Row, RowCenter } from 'components/Row'
+import { vDeus, vDeusStaking } from 'constants/addresses'
 import { DefaultHandlerError } from 'utils/parseError'
 import { useTransactionAdder } from 'state/transactions/hooks'
 
@@ -23,6 +22,10 @@ import VoucherModal from 'components/App/NFT/VoucherModal'
 import { vDeusStakingPools, vDeusStakingType } from 'constants/stakings'
 import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
 import { toast } from 'react-hot-toast'
+import useApproveNftCallback from 'hooks/useApproveNftCallback'
+import ImageWithFallback from 'components/ImageWithFallback'
+import useCurrencyLogo from 'hooks/useCurrencyLogo'
+import { DEUS_TOKEN } from 'constants/tokens'
 
 const Container = styled.div`
   display: flex;
@@ -33,12 +36,10 @@ const Container = styled.div`
     &:nth-child(2) {
       border-top-left-radius: 15px;
       border-top-right-radius: 15px;
-      /* background-color: red; */
     }
     &:last-child {
       border-bottom-left-radius: 15px;
       border-bottom-right-radius: 15px;
-      /* background-color: blue; */
     }
   }
 `
@@ -55,13 +56,13 @@ const TopWrapper = styled.div`
 `
 
 const Wrapper = styled(Container)`
-  /* border: ${({ theme }) => `1px solid ${theme.text3}`}; */
   display: flex;
   justify-content: center;
   flex-direction: column;
   margin-top: 50px;
   padding: 20px 15px;
   border-radius: 15px;
+  /* background: red; */
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     display: flex;
@@ -90,8 +91,11 @@ const UpperRow = styled(RowCenter)`
 `
 
 const DepositButton = styled(PrimaryButton)`
-  margin-top: 20px;
-  border-radius: 15px;
+  margin-top: 12px;
+  margin-bottom: 16px;
+  border-radius: 5px;
+  width: 220px;
+  height: 50px;
 `
 
 const BoxWrapper = styled.div`
@@ -102,37 +106,42 @@ const BoxWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin: 8px;
     width: 290px;
   `}
 `
 
-const DepositWrapper = styled(BoxWrapper)`
-  align-items: center;
-`
+const DepositWrapper = styled(BoxWrapper)``
 
 const WithdrawWrapper = styled(BoxWrapper)`
-  align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
 `
 
-const ClaimWrapper = styled(BoxWrapper)`
-  /* background: red; */
-`
+const ClaimWrapper = styled(BoxWrapper)``
 
 const RewardSpan = styled.span`
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 20px;
-  font-size: 1.4rem;
+  margin-bottom: 20px;
+  /* font-size: 1.4rem; */
+  /* gap: 10px; */
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     font-size: 1.1rem;
   `}
+`
+
+const RewardData = styled.div`
+  display: flex;
+  flex-direction: row nowrap;
+  justify-content: space-between;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin: 0 auto;
+  width: 125px;
+  font-size: 1.4rem;
 `
 
 const TokensWrapper = styled.div`
@@ -140,6 +149,8 @@ const TokensWrapper = styled.div`
   flex-wrap: wrap;
   margin-top: 20px;
 `
+
+const TokenWrapper = styled.div``
 
 const TokenPreview = styled.span`
   color: ${({ theme }) => theme.warning};
@@ -158,8 +169,6 @@ const TitleInfo = styled.div`
   padding-top: 0;
   display: flex;
   justify-content: space-between;
-  /* border-bottom: 2px solid; */
-  /* border-bottom: ${({ theme }) => `2px solid ${theme.warning}`}; */
 `
 
 const TimeTitle = styled.span`
@@ -167,23 +176,37 @@ const TimeTitle = styled.span`
   font-size: 1.25rem;
 `
 
+const RewardTitle = styled.span``
+
 export default function NFT() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
   const [selectedNftId, setSelectedNftId] = useState('0')
+  const [dropDownDefaultValue, setDropDownDefaultValue] = useState('0')
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
   const addTransaction = useTransactionAdder()
+  const logo = useCurrencyLogo(DEUS_TOKEN.address)
 
   const dropdownOnSelect = useCallback((val: string) => {
     setSelectedNftId(val)
+    setDropDownDefaultValue(val)
     console.log('draw down on select', { val })
     return
   }, [])
 
-  const { listOfVouchers, numberOfVouchers } = useVDeusStats()
-  // console.log({ listOfVouchers, numberOfVouchers })
+  const { listOfVouchers } = useVDeusStats()
+
+  // const dropdownOptions = useMemo(() => {
+  //   return listOfVouchers.map((tokenId: number) => {
+  //     return {
+  //       label: `vDEUS #${tokenId}`,
+  //       value: `${tokenId}`,
+  //     }
+  //   })
+  // }, [listOfVouchers])
+
   const dropdownOptions = listOfVouchers.map((tokenId: number) => ({
     label: `vDEUS #${tokenId}`,
     value: `${tokenId}`,
@@ -192,6 +215,7 @@ export default function NFT() {
   const [currentVoucher, setCurrentVoucher] = useState<number | undefined>()
   const toggleVoucherModal = useVoucherModalToggle()
 
+  // console.log({ currentVoucher, selectedNftId, dropDownDefaultValue })
   function handleVoucherClick(flag: number) {
     setCurrentVoucher(flag)
     toggleVoucherModal()
@@ -201,15 +225,20 @@ export default function NFT() {
   const lockedNFTs = useUserLockedNfts()
   const rewards = useUserPendingTokens()
 
-  const deiCurrency = DEI_TOKEN
   const spender = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
+
+  const [approvalState, approveCallback] = useApproveNftCallback(
+    selectedNftId,
+    chainId ? vDeus[chainId] : undefined,
+    spender
+  )
+
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = currentVoucher && approvalState !== ApprovalState.APPROVED
+    const show = selectedNftId && approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [currentVoucher, approvalState])
+  }, [selectedNftId, approvalState])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -242,7 +271,7 @@ export default function NFT() {
         if (!stakingContract || !account || !isSupportedChainId) return
         setAwaitingDepositConfirmation(true)
         const response = await stakingContract.deposit(pid, selectedNftId, account)
-        addTransaction(response, { summary: `Deposit vDEUS # ${selectedNftId}`, vest: { hash: response.hash } })
+        addTransaction(response, { summary: `Deposit vDEUS #${selectedNftId}` })
         setAwaitingDepositConfirmation(false)
         // setPendingTxHash(response.hash)
       } catch (err) {
@@ -274,7 +303,7 @@ export default function NFT() {
       )
     }
     if (showApprove) {
-      return <DepositButton onClick={handleApprove}>Allow us to spend {deiCurrency?.symbol}</DepositButton>
+      return <DepositButton onClick={handleApprove}>Allow us to spend vDEUS #{selectedNftId}</DepositButton>
     }
     return null
   }
@@ -289,7 +318,7 @@ export default function NFT() {
     if (awaitingDepositConfirmation) {
       return (
         <DepositButton>
-          Depositing DEI <DotFlashing style={{ marginLeft: '10px' }} />
+          Depositing <DotFlashing style={{ marginLeft: '10px' }} />
         </DepositButton>
       )
     }
@@ -303,19 +332,19 @@ export default function NFT() {
     if (awaitingClaimConfirmation) {
       return (
         <DepositButton>
-          Claiming DEI <DotFlashing style={{ marginLeft: '10px' }} />
+          Claiming <DotFlashing style={{ marginLeft: '10px' }} />
         </DepositButton>
       )
     }
     return <DepositButton onClick={() => onClaimReward(pool.pid)}>Claim All</DepositButton>
   }
-
+  // console.log({ lockedNFTs })
   function getEachPeriod(pool: vDeusStakingType): JSX.Element | null {
     return (
       <Wrapper key={pool.name}>
         <TitleInfo>
-          <TimeTitle> {pool.name} </TimeTitle>
-          <span> Apr: {pool.apr}% </span>
+          <TimeTitle>{pool.name}</TimeTitle>
+          <span>Apr: {pool.apr}%</span>
         </TitleInfo>
         <DepositWrapper>
           <span>Select the desired NFT:</span>
@@ -323,9 +352,9 @@ export default function NFT() {
             <Dropdown
               options={dropdownOptions}
               placeholder="Select Token ID"
-              defaultValue={'0'}
+              defaultValue={dropDownDefaultValue}
               onSelect={(v) => dropdownOnSelect(v)}
-              width="200px"
+              width="250px"
             />
           </UpperRow>
           <div style={{ marginTop: '20px' }}></div>
@@ -333,26 +362,36 @@ export default function NFT() {
           {getDepositButton(pool.pid)}
         </DepositWrapper>
 
-        <WithdrawWrapper>
-          <span> Locked NFTs: </span>
-          <TokensWrapper>
-            {lockedNFTs &&
-              lockedNFTs[pool.id] &&
-              lockedNFTs[pool.id].length > 0 &&
-              lockedNFTs[pool.id].map((voucher: number, index) => {
-                return (
-                  <TokenPreview onClick={() => handleVoucherClick(voucher)} key={index}>
-                    #{voucher}
-                  </TokenPreview>
-                )
-              })}
-          </TokensWrapper>
-          {(!lockedNFTs || !lockedNFTs[pool.id].length) && '-nothing-'}
-          {/* {getWithdrawButton()} */}
-        </WithdrawWrapper>
+        {!lockedNFTs || lockedNFTs[pool.id].length ? (
+          <WithdrawWrapper>
+            <span> Locked NFTs: </span>
+            <TokensWrapper>
+              {lockedNFTs &&
+                lockedNFTs[pool.id] &&
+                lockedNFTs[pool.id].length > 0 &&
+                lockedNFTs[pool.id].map((voucher: number, index) => {
+                  return (
+                    <TokenPreview onClick={() => handleVoucherClick(voucher)} key={index}>
+                      #{voucher}
+                    </TokenPreview>
+                  )
+                })}
+            </TokensWrapper>
+            {/* {getWithdrawButton()} */}
+          </WithdrawWrapper>
+        ) : (
+          <></>
+        )}
 
         <ClaimWrapper>
-          <RewardSpan>Rewards: {rewards[pool.id]} Deus </RewardSpan>
+          <span>Reward</span>
+          <RewardData>
+            <span>{rewards[pool.id]}</span>
+            <Row style={{ marginLeft: '20px' }}>
+              <ImageWithFallback src={logo} width={22} height={22} alt={'Logo'} round />
+              {DEUS_TOKEN.symbol}
+            </Row>
+          </RewardData>
           {getClaimButton(pool)}
         </ClaimWrapper>
       </Wrapper>

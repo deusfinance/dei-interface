@@ -29,7 +29,6 @@ export default function useApproveNftCallback(
 
   const pendingApproval = useHasPendingApproval(tokenAddress, spender)
   const TokenContract = useContract(tokenAddress, VDEUS_ABI)
-  console.log({ TokenContract })
 
   useEffect(() => {
     const fn = async () => {

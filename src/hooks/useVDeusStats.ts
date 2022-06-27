@@ -66,12 +66,11 @@ export function useUserLockedNfts(): UserDeposit[] | null {
   const calls = !account ? [] : [{ methodName: 'userNftDeposits', callInputs: [account] }]
 
   const [result] = useSingleContractMultipleMethods(stakingContract, calls)
-  console.log({ result })
 
-  const userNFTs = useMemo(() => {
+  const userNFTs: UserDeposit[] | null = useMemo(() => {
     if (!result || !result.result || !result.result.length) return null
-    return result.result.map(
-      (nft) =>
+    return result.result[0].map(
+      (nft: any) =>
         ({
           nftId: toBN(nft.nftId.toString()).toNumber(),
           amount: toBN(nft.amount.toString()).toNumber(),
@@ -86,18 +85,20 @@ export function useUserLockedNfts(): UserDeposit[] | null {
     : userNFTs.map((nft) => ({ methodName: 'nftPool', callInputs: [nft.nftId] }))
 
   const nftPoolResult = useSingleContractMultipleMethods(stakingContract, nftPoolCalls)
-  console.log({ nftPoolResult })
+
+  const nftPools: number[] | null = useMemo(() => {
+    if (!nftPoolResult || !nftPoolResult.length || !userNFTs) return null
+    return nftPoolResult.map((nftPool: any) =>
+      nftPool.result?.length ? toBN(nftPool.result[0].toString()).toNumber() : 0
+    )
+  }, [nftPoolResult, userNFTs])
 
   return useMemo(() => {
-    if (!nftPoolResult || !nftPoolResult.length || !userNFTs) return userNFTs
-    return userNFTs.map(
-      (nft, index: number) =>
-        ({
-          ...nft,
-          poolId: nftPoolResult.length ? toBN(nftPoolResult[index]?.result.toString()).toNumber() : 0,
-        } as UserDeposit)
-    )
-  }, [userNFTs, nftPoolResult])
+    if (!userNFTs || !nftPools) return null
+    return userNFTs.map((nft, index: number) => {
+      return { ...nft, poolId: nftPools[index] } as UserDeposit
+    })
+  }, [userNFTs, nftPools])
 }
 
 export function useUserPendingTokens(): number[] {

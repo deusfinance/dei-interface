@@ -230,8 +230,9 @@ export default function NFT() {
   }
   const stakingContract = useVDeusStakingContract()
   const masterChefContract = useVDeusMasterChefV2Contract()
-  // const lockedNFTs = useUserLockedNfts()
+  const lockedNFTs = useUserLockedNfts()
   const rewards = useUserPendingTokens()
+  console.log({ lockedNFTs })
 
   const spender = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
 

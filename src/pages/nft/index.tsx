@@ -355,7 +355,7 @@ export default function NFT() {
           <YieldTitle>Apr: {pool.apr}%</YieldTitle>
         </TitleInfo>
         <DepositWrapper>
-          <span>Select the desired NFT:</span>
+          <span>Select your desired NFT:</span>
           <UpperRow>
             <Dropdown
               options={dropdownOptions}

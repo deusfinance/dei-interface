@@ -310,7 +310,7 @@ export default function VDeusStaking({ staking }: { staking: vDeusStakingType })
           <span> Apr: {apr}% </span>
         </TitleInfo>
         <DepositWrapper>
-          <span>Select the desired NFT:</span>
+          <span>Select your desired NFT:</span>
           <UpperRow>
             <Dropdown
               options={dropdownOptions}

@@ -3,11 +3,12 @@ import { useCallback, useEffect, useState } from 'react'
 import useWeb3React from './useWeb3'
 
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
-import { Contract } from '@ethersproject/contracts'
-import { BigNumber } from '@ethersproject/bignumber'
+import BigNumber from 'bignumber.js'
 import { AddressZero } from '@ethersproject/constants/src.ts/addresses'
 import { calculateGasMargin } from 'utils/web3'
 import { TransactionResponse } from '@ethersproject/providers'
+import { useContract } from './useContract'
+import VDEUS_ABI from 'constants/abi/VDEUS.json'
 
 export enum ApprovalState {
   UNKNOWN = 'UNKNOWN',
@@ -17,9 +18,8 @@ export enum ApprovalState {
 }
 
 export default function useApproveNftCallback(
-  tokenId: BigNumber,
+  tokenId: BigNumber.Value,
   tokenAddress: string | null | undefined,
-  TokenContract: Contract | null,
   spender: string | null | undefined
 ): [ApprovalState, () => Promise<void>] {
   const { chainId, account } = useWeb3React()
@@ -27,44 +27,33 @@ export default function useApproveNftCallback(
   const [approvalState, setApprovalState] = useState<ApprovalState>(ApprovalState.UNKNOWN)
   const [approvedAll, setApprovedAll] = useState(false)
 
-  const currentAllowance = BigNumber.from(0)
   const pendingApproval = useHasPendingApproval(tokenAddress, spender)
+  const TokenContract = useContract(tokenAddress, VDEUS_ABI)
+  console.log({ TokenContract })
 
   useEffect(() => {
-    let mounted = true
     const fn = async () => {
       if (!spender || !TokenContract) return
       const approvedAll = await TokenContract.isApprovedForAll(account, spender)
-      if (mounted) {
-        setApprovedAll(approvedAll)
-      }
+      setApprovedAll(approvedAll)
     }
     fn()
-    return () => {
-      mounted = false
-    }
-  }, [spender, currentAllowance, pendingApproval, TokenContract, tokenId, account])
+  }, [spender, pendingApproval, TokenContract, tokenId, account])
 
   useEffect(() => {
-    let mounted = true
     const fn = async () => {
       if (!spender || !TokenContract) return
       const approvedAddress = await TokenContract.getApproved(tokenId)
-      if (mounted) {
-        if (approvedAddress === spender || (approvedAddress === AddressZero && approvedAll)) {
-          setApprovalState(ApprovalState.APPROVED)
-        } else {
-          setApprovalState(pendingApproval ? ApprovalState.PENDING : ApprovalState.NOT_APPROVED)
-        }
+      if (approvedAddress === spender || (approvedAddress === AddressZero && approvedAll)) {
+        setApprovalState(ApprovalState.APPROVED)
+      } else {
+        setApprovalState(pendingApproval ? ApprovalState.PENDING : ApprovalState.NOT_APPROVED)
       }
     }
     fn()
-    return () => {
-      mounted = false
-    }
-  }, [spender, currentAllowance, pendingApproval, TokenContract, tokenId, account, approvedAll])
+  }, [spender, pendingApproval, TokenContract, tokenId, account, approvedAll])
 
-  const approve = useCallback(async () => {
+  const approveCallback = useCallback(async () => {
     if (approvalState === ApprovalState.APPROVED || approvalState === ApprovalState.PENDING) {
       console.error('approve was called unnecessarily')
       return
@@ -109,5 +98,5 @@ export default function useApproveNftCallback(
       })
   }, [approvalState, chainId, TokenContract, tokenAddress, account, spender, tokenId, addTransaction])
 
-  return [approvalState, approve]
+  return [approvalState, approveCallback]
 }

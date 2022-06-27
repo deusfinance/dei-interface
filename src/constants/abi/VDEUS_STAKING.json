@@ -1,378 +1,72 @@
 [
   {
     "inputs": [
-      { "internalType": "address", "name": "nft_", "type": "address" },
-      { "internalType": "address", "name": "nftValueCalculator_", "type": "address" },
-      { "internalType": "address", "name": "masterChef_", "type": "address" },
-      { "internalType": "address", "name": "setter", "type": "address" },
-      { "internalType": "address", "name": "poolManager", "type": "address" },
-      { "internalType": "address", "name": "admin", "type": "address" }
+      { "internalType": "address", "name": "_logic", "type": "address" },
+      { "internalType": "address", "name": "admin_", "type": "address" },
+      { "internalType": "bytes", "name": "_data", "type": "bytes" }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "constructor"
   },
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": false, "internalType": "address", "name": "sender", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "indexed": false, "internalType": "uint256", "name": "nftId", "type": "uint256" },
-      { "indexed": false, "internalType": "address", "name": "to", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+      { "indexed": false, "internalType": "address", "name": "previousAdmin", "type": "address" },
+      { "indexed": false, "internalType": "address", "name": "newAdmin", "type": "address" }
     ],
-    "name": "Deposit",
+    "name": "AdminChanged",
     "type": "event"
   },
   {
     "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "address", "name": "sender", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "indexed": false, "internalType": "address", "name": "to", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
-    ],
-    "name": "EmergencyWithdraw",
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "beacon", "type": "address" }],
+    "name": "BeaconUpgraded",
     "type": "event"
   },
   {
     "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "indexed": true, "internalType": "bytes32", "name": "previousAdminRole", "type": "bytes32" },
-      { "indexed": true, "internalType": "bytes32", "name": "newAdminRole", "type": "bytes32" }
-    ],
-    "name": "RoleAdminChanged",
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "implementation", "type": "address" }],
+    "name": "Upgraded",
     "type": "event"
   },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
-      { "indexed": true, "internalType": "address", "name": "sender", "type": "address" }
-    ],
-    "name": "RoleGranted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
-      { "indexed": true, "internalType": "address", "name": "sender", "type": "address" }
-    ],
-    "name": "RoleRevoked",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "address", "name": "oldMasterChef", "type": "address" },
-      { "indexed": false, "internalType": "address", "name": "newMasterChef", "type": "address" }
-    ],
-    "name": "SetMasterChef",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "address", "name": "oldNft", "type": "address" },
-      { "indexed": false, "internalType": "address", "name": "newNft", "type": "address" }
-    ],
-    "name": "SetNft",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "address", "name": "oldNftValueCalculator", "type": "address" },
-      { "indexed": false, "internalType": "address", "name": "newNftValueCalculator", "type": "address" }
-    ],
-    "name": "SetNftValueCalculator",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "indexed": false, "internalType": "uint256", "name": "lockDuration", "type": "uint256" },
-      { "indexed": false, "internalType": "address", "name": "token", "type": "address" }
-    ],
-    "name": "SetPool",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [{ "indexed": false, "internalType": "bool", "name": "isEmergency", "type": "bool" }],
-    "name": "ToggleEmergency",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "address", "name": "sender", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "indexed": false, "internalType": "uint256", "name": "nftId", "type": "uint256" },
-      { "indexed": false, "internalType": "address", "name": "user", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
-    ],
-    "name": "WithdrawFor",
-    "type": "event"
-  },
+  { "stateMutability": "payable", "type": "fallback" },
   {
     "inputs": [],
-    "name": "DEFAULT_ADMIN_ROLE",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "stateMutability": "view",
+    "name": "admin",
+    "outputs": [{ "internalType": "address", "name": "admin_", "type": "address" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "newAdmin", "type": "address" }],
+    "name": "changeAdmin",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "POOL_MANAGER_ROLE",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "stateMutability": "view",
+    "name": "implementation",
+    "outputs": [{ "internalType": "address", "name": "implementation_", "type": "address" }],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "SETTER_ROLE",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
-    ],
-    "name": "approve",
+    "inputs": [{ "internalType": "address", "name": "newImplementation", "type": "address" }],
+    "name": "upgradeTo",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "internalType": "uint256", "name": "nftId", "type": "uint256" },
-      { "internalType": "address", "name": "to", "type": "address" }
+      { "internalType": "address", "name": "newImplementation", "type": "address" },
+      { "internalType": "bytes", "name": "data", "type": "bytes" }
     ],
-    "name": "deposit",
+    "name": "upgradeToAndCall",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "internalType": "address", "name": "to", "type": "address" }
-    ],
-    "name": "emergencyWithdraw",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "address", "name": "to", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
-    ],
-    "name": "emergencyWithdrawERC20",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
-      { "internalType": "address", "name": "to", "type": "address" }
-    ],
-    "name": "emergencyWithdrawERC721",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "uint256", "name": "nftId", "type": "uint256" }],
-    "name": "getNftValue",
-    "outputs": [{ "internalType": "uint256", "name": "value", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }],
-    "name": "getRoleAdmin",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
-    ],
-    "name": "grantRole",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
-    ],
-    "name": "hasRole",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "masterChef",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "nft",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "nftValueCalculator",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "name": "pools",
-    "outputs": [
-      { "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "uint256", "name": "lockDuration", "type": "uint256" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
-    ],
-    "name": "renounceRole",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
-    ],
-    "name": "revokeRole",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "masterChef_", "type": "address" }],
-    "name": "setMasterChef",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "nft_", "type": "address" }],
-    "name": "setNft",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "nftValueCalculator_", "type": "address" }],
-    "name": "setNftValueCalculator",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "uint256", "name": "lockDuration", "type": "uint256" }
-    ],
-    "name": "setPool",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }],
-    "name": "supportsInterface",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  { "inputs": [], "name": "toggleEmergency", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" },
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "name": "userDeposits",
-    "outputs": [
-      { "internalType": "uint256", "name": "nftId", "type": "uint256" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "uint256", "name": "depositTimestamp", "type": "uint256" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "internalType": "address", "name": "user", "type": "address" }
-    ],
-    "name": "userNfts",
-    "outputs": [{ "internalType": "uint256[]", "name": "nfts", "type": "uint256[]" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" },
-      { "internalType": "address", "name": "", "type": "address" }
-    ],
-    "name": "validUserDepositIndex",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "internalType": "address", "name": "user", "type": "address" },
-      { "internalType": "uint256", "name": "maxWithdraw", "type": "uint256" }
-    ],
-    "name": "withdrawAllFor",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "poolId", "type": "uint256" },
-      { "internalType": "address", "name": "user", "type": "address" }
-    ],
-    "name": "withdrawFor",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
+  { "stateMutability": "payable", "type": "receive" }
 ]

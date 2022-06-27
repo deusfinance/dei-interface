@@ -139,11 +139,10 @@ const RewardSpan = styled.span`
 const RewardData = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   padding-top: 20px;
   padding-bottom: 20px;
   margin: 0 auto;
-  width: 185px;
   font-size: 1.4rem;
 `
 

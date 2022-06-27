@@ -60,18 +60,44 @@ export function useVDeusStats(): {
   }
 }
 
-export function useUserLockedNfts(): UserDeposit {
+export function useUserLockedNfts(): UserDeposit[] | null {
   const { account } = useWeb3React()
   const stakingContract = useVDeusStakingContract()
   const calls = !account ? [] : [{ methodName: 'userNftDeposits', callInputs: [account] }]
 
-  const result = useSingleContractMultipleMethods(stakingContract, calls)
+  const [result] = useSingleContractMultipleMethods(stakingContract, calls)
   console.log({ result })
 
-  return useMemo(() => {
-    if (!result || !result.length) return null
-    return result.map((res) => res?.result?.nfts ?? [])
+  const userNFTs = useMemo(() => {
+    if (!result || !result.result || !result.result.length) return null
+    return result.result.map(
+      (nft) =>
+        ({
+          nftId: toBN(nft.nftId.toString()).toNumber(),
+          amount: toBN(nft.amount.toString()).toNumber(),
+          depositTimestamp: toBN(nft.depositTimestamp.toString()).toNumber(),
+          isWithdrawn: nft.isWithdrawn,
+        } as UserDeposit)
+    )
   }, [result])
+
+  const nftPoolCalls = !userNFTs?.length
+    ? []
+    : userNFTs.map((nft) => ({ methodName: 'nftPool', callInputs: [nft.nftId] }))
+
+  const nftPoolResult = useSingleContractMultipleMethods(stakingContract, nftPoolCalls)
+  console.log({ nftPoolResult })
+
+  return useMemo(() => {
+    if (!nftPoolResult || !nftPoolResult.length || !userNFTs) return userNFTs
+    return userNFTs.map(
+      (nft, index: number) =>
+        ({
+          ...nft,
+          poolId: nftPoolResult.length ? toBN(nftPoolResult[index]?.result.toString()).toNumber() : 0,
+        } as UserDeposit)
+    )
+  }, [userNFTs, nftPoolResult])
 }
 
 export function useUserPendingTokens(): number[] {

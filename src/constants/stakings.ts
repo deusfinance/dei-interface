@@ -8,6 +8,15 @@ export type StakingType = {
   provideLink?: string
 }
 
+export type vDeusStakingType = {
+  id: number
+  name: string
+  pid: number
+  apr: number
+  lockDuration: number
+  provideLink?: string
+}
+
 export const StakingPools: StakingType[] = [
   {
     name: 'bDEI',
@@ -20,5 +29,32 @@ export const StakingPools: StakingType[] = [
     pid: 1,
     token: DEI_BDEI_LP_TOKEN,
     provideLink: '/deibonds',
+  },
+]
+
+export const vDeusStakingPools: vDeusStakingType[] = [
+  {
+    id: 0,
+    name: '3 Months',
+    pid: 0,
+    apr: 20,
+    lockDuration: 180,
+    provideLink: '/redeem',
+  },
+  {
+    id: 1,
+    name: '6 Months',
+    pid: 1,
+    apr: 40,
+    lockDuration: 360,
+    provideLink: '/redeem',
+  },
+  {
+    id: 2,
+    name: '1 Year',
+    pid: 2,
+    apr: 80,
+    lockDuration: 720,
+    provideLink: '/redeem',
   },
 ]

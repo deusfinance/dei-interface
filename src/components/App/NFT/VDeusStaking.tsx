@@ -14,11 +14,11 @@ import Disclaimer from 'components/Disclaimer'
 import { DEI_TOKEN } from 'constants/tokens'
 import Dropdown from 'components/DropDown'
 import { RowCenter } from 'components/Row'
-import { vDeusStaking } from 'constants/addresses'
+import { vDeus, vDeusStaking } from 'constants/addresses'
 import { DefaultHandlerError } from 'utils/parseError'
 import { useTransactionAdder } from 'state/transactions/hooks'
 
-import { useUserLockedNfts, useUserPendingTokens, useVDeusStats } from 'hooks/useVDeusStats'
+import { useUserLockedNfts, useUserLockedNFTs, useVDeusStats } from 'hooks/useVDeusStats'
 import VoucherModal from 'components/App/NFT/VoucherModal'
 import { vDeusStakingPools, vDeusStakingType } from 'constants/stakings'
 import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
@@ -123,8 +123,7 @@ const ClaimWrapper = styled(BoxWrapper)`
 `
 
 const RewardSpan = styled.span`
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 36px;
   margin-top: 20px;
   font-size: 1.4rem;
 
@@ -165,17 +164,16 @@ const TimeTitle = styled.span`
   font-size: 1.25rem;
 `
 
-export default function NFT() {
+export default function VDeusStaking({ staking }: { staking: vDeusStakingType }) {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
-  const [selectedNftId, setSelectedNftId] = useState('0')
+  const [dropDownDefaultValue, setDropDownDefaultValue] = useState('0')
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
   const addTransaction = useTransactionAdder()
 
   const dropdownOnSelect = useCallback((val: string) => {
-    setSelectedNftId(val)
     console.log('draw down on select', { val })
     return
   }, [])
@@ -195,9 +193,6 @@ export default function NFT() {
   }
   const stakingContract = useVDeusStakingContract()
   const masterChefContract = useVDeusMasterChefV2Contract()
-  const lockedNFTs = useUserLockedNfts()
-  const rewards = useUserPendingTokens()
-
   const deiCurrency = DEI_TOKEN
   const spender = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
 
@@ -234,12 +229,12 @@ export default function NFT() {
   )
 
   const onDeposit = useCallback(
-    async (pid: number) => {
+    async (pid: number, nftId: number) => {
       try {
         if (!stakingContract || !account || !isSupportedChainId) return
         setAwaitingDepositConfirmation(true)
-        const response = await stakingContract.deposit(pid, selectedNftId, account)
-        addTransaction(response, { summary: `Deposit vDEUS # ${selectedNftId}`, vest: { hash: response.hash } })
+        const response = await stakingContract.deposit(pid, nftId, account)
+        addTransaction(response, { summary: `Deposit vDEUS # ${nftId}`, vest: { hash: response.hash } })
         setAwaitingDepositConfirmation(false)
         // setPendingTxHash(response.hash)
       } catch (err) {
@@ -249,7 +244,7 @@ export default function NFT() {
         // setPendingTxHash('')
       }
     },
-    [stakingContract, addTransaction, account, selectedNftId, isSupportedChainId]
+    [stakingContract, addTransaction, account, isSupportedChainId]
   )
 
   function getApproveButton(): JSX.Element | null {
@@ -276,7 +271,7 @@ export default function NFT() {
     return null
   }
 
-  function getDepositButton(pid: number): JSX.Element | null {
+  function getDepositButton(): JSX.Element | null {
     if (!chainId || !account) {
       return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
     }
@@ -290,10 +285,10 @@ export default function NFT() {
         </DepositButton>
       )
     }
-    return <DepositButton onClick={() => onDeposit(pid)}>Deposit your NFT</DepositButton>
+    return <DepositButton onClick={() => console.log('hello mali')}>Deposit your NFT</DepositButton>
   }
 
-  function getClaimButton(pool: vDeusStakingType): JSX.Element | null {
+  function getClaimButton(): JSX.Element | null {
     if (!chainId || !account) {
       return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
     }
@@ -304,15 +299,15 @@ export default function NFT() {
         </DepositButton>
       )
     }
-    return <DepositButton onClick={() => onClaimReward(pool.pid)}>Claim All</DepositButton>
+    return <DepositButton onClick={() => console.log('hello mali from claim')}>Claim All</DepositButton>
   }
 
-  function getEachPeriod(pool: vDeusStakingType): JSX.Element | null {
+  function getEachPeriod(name: string, apr: number): JSX.Element | null {
     return (
-      <Wrapper key={pool.name}>
+      <Wrapper key={name}>
         <TitleInfo>
-          <TimeTitle> {pool.name} </TimeTitle>
-          <span> Apr: {pool.apr}% </span>
+          <TimeTitle> {name} </TimeTitle>
+          <span> Apr: {apr}% </span>
         </TitleInfo>
         <DepositWrapper>
           <span>Select the desired NFT:</span>
@@ -320,23 +315,22 @@ export default function NFT() {
             <Dropdown
               options={dropdownOptions}
               placeholder="Select Token ID"
-              defaultValue={'0'}
+              defaultValue={dropDownDefaultValue}
               onSelect={(v) => dropdownOnSelect(v)}
               width="200px"
             />
           </UpperRow>
           <div style={{ marginTop: '20px' }}></div>
           {getApproveButton()}
-          {getDepositButton(pool.pid)}
+          {getDepositButton()}
         </DepositWrapper>
 
         <WithdrawWrapper>
           <span> Locked NFTs: </span>
           <TokensWrapper>
-            {lockedNFTs &&
-              lockedNFTs[pool.id] &&
-              lockedNFTs[pool.id].length > 0 &&
-              lockedNFTs[pool.id].map((voucher: number, index) => {
+            {listOfVouchers &&
+              listOfVouchers.length > 0 &&
+              listOfVouchers.map((voucher: number, index) => {
                 return (
                   <TokenPreview onClick={() => handleVoucherClick(voucher)} key={index}>
                     #{voucher}
@@ -344,13 +338,12 @@ export default function NFT() {
                 )
               })}
           </TokensWrapper>
-          {(!lockedNFTs || !lockedNFTs[pool.id].length) && '-nothing-'}
           {/* {getWithdrawButton()} */}
         </WithdrawWrapper>
 
         <ClaimWrapper>
-          <RewardSpan>Rewards: {rewards[pool.id]} Deus </RewardSpan>
-          {getClaimButton(pool)}
+          <RewardSpan> Deus reward: 12.3 </RewardSpan>
+          {getClaimButton()}
         </ClaimWrapper>
       </Wrapper>
     )
@@ -362,7 +355,7 @@ export default function NFT() {
         <span>vDEUS Staking</span>
         <HeroSubtext>deposit your DEUS voucher and earn.</HeroSubtext>
       </Hero>
-      <TopWrapper>{vDeusStakingPools.map((pool) => getEachPeriod(pool))}</TopWrapper>
+      <TopWrapper>{vDeusStakingPools.map((pool) => getEachPeriod(pool.name, pool.apr))}</TopWrapper>
       <VoucherModal voucherId={currentVoucher} />
       <Disclaimer />
     </Container>

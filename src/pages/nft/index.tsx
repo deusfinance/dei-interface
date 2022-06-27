@@ -33,10 +33,12 @@ const Container = styled.div`
     &:nth-child(2) {
       border-top-left-radius: 15px;
       border-top-right-radius: 15px;
+      /* background-color: red; */
     }
     &:last-child {
       border-bottom-left-radius: 15px;
       border-bottom-right-radius: 15px;
+      /* background-color: blue; */
     }
   }
 `
@@ -180,13 +182,14 @@ export default function NFT() {
     return
   }, [])
 
-  const { listOfVouchers } = useVDeusStats()
+  const { listOfVouchers, numberOfVouchers } = useVDeusStats()
+  // console.log({ listOfVouchers, numberOfVouchers })
   const dropdownOptions = listOfVouchers.map((tokenId: number) => ({
     label: `vDEUS #${tokenId}`,
     value: `${tokenId}`,
   }))
 
-  const [currentVoucher, setCurrentVoucher] = useState<number>()
+  const [currentVoucher, setCurrentVoucher] = useState<number | undefined>()
   const toggleVoucherModal = useVoucherModalToggle()
 
   function handleVoucherClick(flag: number) {
@@ -204,9 +207,9 @@ export default function NFT() {
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = deiCurrency && approvalState !== ApprovalState.APPROVED
+    const show = currentVoucher && approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [deiCurrency, approvalState])
+  }, [currentVoucher, approvalState])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)

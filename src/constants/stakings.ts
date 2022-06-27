@@ -32,6 +32,15 @@ export const StakingPools: StakingType[] = [
   },
 ]
 
+export type UserDeposit = {
+  nftId: number
+  poolId: number
+  amount: number
+  depositTimestamp: number
+  isWithdrawn: boolean
+  isExited: boolean
+}
+
 export const vDeusStakingPools: vDeusStakingType[] = [
   {
     id: 0,

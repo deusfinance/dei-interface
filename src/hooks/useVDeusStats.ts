@@ -4,7 +4,7 @@ import { useSingleContractMultipleData, useSingleContractMultipleMethods } from 
 import { toBN } from 'utils/numbers'
 import { useVDeusContract, useVDeusStakingContract } from './useContract'
 import useWeb3React from './useWeb3'
-import { vDeusStakingPools } from 'constants/stakings'
+import { vDeusStakingPools, UserDeposit } from 'constants/stakings'
 import { useVDeusMasterChefV2Contract } from 'hooks/useContract'
 
 export const VDEUS_USDC_FACTOR = 6
@@ -60,43 +60,10 @@ export function useVDeusStats(): {
   }
 }
 
-export function useUserDeposits(
-  tokenId: number,
-  pid: number
-): {
-  nftId: number
-  amount: number
-  depositTimestamp: number
-} | null {
+export function useUserLockedNfts(): UserDeposit {
   const { account } = useWeb3React()
   const stakingContract = useVDeusStakingContract()
-  const calls = !account
-    ? []
-    : [
-        {
-          methodName: 'userDeposits',
-          callInputs: [tokenId, account, pid],
-        },
-      ]
-
-  const [result] = useSingleContractMultipleMethods(stakingContract, calls)
-  return useMemo(() => {
-    if (!result || !result.result || !result.result.length) return null
-
-    return {
-      nftId: toBN(result.result[0].toString()).toNumber(),
-      amount: toBN(result.result[1].toString()).toNumber(),
-      depositTimestamp: toBN(result.result[2].toString()).toNumber(),
-    }
-  }, [result])
-}
-
-export function useUserLockedNfts(): number[][] | null {
-  const { account } = useWeb3React()
-  const stakingContract = useVDeusStakingContract()
-  const calls = !account
-    ? []
-    : vDeusStakingPools.map((pool) => ({ methodName: 'userNfts', callInputs: [pool.pid, account] }))
+  const calls = !account ? [] : [{ methodName: 'userNftDeposits', callInputs: [account] }]
 
   const result = useSingleContractMultipleMethods(stakingContract, calls)
   console.log({ result })

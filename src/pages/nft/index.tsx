@@ -62,13 +62,16 @@ const Wrapper = styled(Container)`
   margin-top: 50px;
   padding: 20px 15px;
   border-radius: 15px;
-  /* background: red; */
+  /* border: ${({ theme }) => `1px solid ${theme.bg1}`}; */
+  background: ${({ theme }) => theme.bg0};
+  margin-left: 10px;
+  margin-right: 10px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     display: flex;
     justify-content: center;
     flex-direction: column;
-  `}
+  `};
 `
 
 const UpperRow = styled(RowCenter)`
@@ -94,8 +97,8 @@ const DepositButton = styled(PrimaryButton)`
   margin-top: 12px;
   margin-bottom: 16px;
   border-radius: 5px;
-  width: 220px;
-  height: 50px;
+  width: 255px;
+  height: 55px;
 `
 
 const BoxWrapper = styled.div`
@@ -164,6 +167,11 @@ const TokenPreview = styled.span`
   }
 `
 
+const YieldTitle = styled.div`
+  color: ${({ theme }) => theme.warning};
+  font-size: 1.25rem;
+`
+
 const TitleInfo = styled.div`
   padding: 20px;
   padding-top: 0;
@@ -172,7 +180,7 @@ const TitleInfo = styled.div`
 `
 
 const TimeTitle = styled.span`
-  color: ${({ theme }) => theme.warning};
+  /* color: ${({ theme }) => theme.warning}; */
   font-size: 1.25rem;
 `
 
@@ -222,7 +230,7 @@ export default function NFT() {
   }
   const stakingContract = useVDeusStakingContract()
   const masterChefContract = useVDeusMasterChefV2Contract()
-  const lockedNFTs = useUserLockedNfts()
+  // const lockedNFTs = useUserLockedNfts()
   const rewards = useUserPendingTokens()
 
   const spender = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
@@ -338,13 +346,13 @@ export default function NFT() {
     }
     return <DepositButton onClick={() => onClaimReward(pool.pid)}>Claim All</DepositButton>
   }
-  // console.log({ lockedNFTs })
+
   function getEachPeriod(pool: vDeusStakingType): JSX.Element | null {
     return (
       <Wrapper key={pool.name}>
         <TitleInfo>
           <TimeTitle>{pool.name}</TimeTitle>
-          <span>Apr: {pool.apr}%</span>
+          <YieldTitle>Apr: {pool.apr}%</YieldTitle>
         </TitleInfo>
         <DepositWrapper>
           <span>Select the desired NFT:</span>
@@ -362,7 +370,7 @@ export default function NFT() {
           {getDepositButton(pool.pid)}
         </DepositWrapper>
 
-        {!lockedNFTs || lockedNFTs[pool.id].length ? (
+        {/* {!lockedNFTs || lockedNFTs[pool.id].length ? (
           <WithdrawWrapper>
             <span> Locked NFTs: </span>
             <TokensWrapper>
@@ -377,19 +385,18 @@ export default function NFT() {
                   )
                 })}
             </TokensWrapper>
-            {/* {getWithdrawButton()} */}
           </WithdrawWrapper>
         ) : (
           <></>
-        )}
+        )} */}
 
         <ClaimWrapper>
           <span>Reward</span>
           <RewardData>
             <span>{rewards[pool.id]}</span>
-            <Row style={{ marginLeft: '20px' }}>
+            <Row style={{ marginLeft: '25px' }}>
               <ImageWithFallback src={logo} width={22} height={22} alt={'Logo'} round />
-              {DEUS_TOKEN.symbol}
+              <span style={{ marginLeft: '6px' }}>{DEUS_TOKEN.symbol}</span>
             </Row>
           </RewardData>
           {getClaimButton(pool)}

@@ -118,7 +118,6 @@ const ClaimButton = styled(PrimaryButton)`
         -webkit-text-fill-color: black;
         font-weight: 900;
         color: ${({ theme }) => theme.text2};
-        /* -webkit-text-fill-color: unset; */
       }
     }
   }

@@ -5,16 +5,10 @@ import useWeb3React from 'hooks/useWeb3'
 import { useERC20Contract, useVDeusMasterChefV2Contract } from 'hooks/useContract'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
-import { useDeiPrice, useDeusPrice } from './useCoingeckoPrice'
+import { useDeusPrice } from './useCoingeckoPrice'
 import { vDeusMasterChefV2 } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
-
-const pids = [0, 1, 2]
-const stakingTokens: { [pid: number]: string } = {
-  [pids[0]]: '0x24651a470D08009832d62d702d1387962A2E5d60',
-  [pids[1]]: '0x65875f75d5CDEf890ea97ADC43E216D3f0c2b2D8',
-  [pids[2]]: '0xCf18eCa0EaC101eb47828BFd460D1922000213db',
-}
+import { vDeusStakingPools } from 'constants/stakings'
 
 export function useGlobalMasterChefData(): {
   tokenPerSecond: number
@@ -63,7 +57,7 @@ export function usePoolInfo(pid: number): {
   totalDeposited: number
 } {
   const contract = useVDeusMasterChefV2Contract()
-  const tokenAddress = stakingTokens[pid]
+  const tokenAddress = vDeusStakingPools[pid].lpToken
   const ERC20Contract = useERC20Contract(tokenAddress)
 
   const calls = [

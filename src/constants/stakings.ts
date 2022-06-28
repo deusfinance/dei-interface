@@ -14,6 +14,7 @@ export type vDeusStakingType = {
   pid: number
   apr: number
   lockDuration: number
+  lpToken: string
   provideLink?: string
 }
 
@@ -46,7 +47,8 @@ export const vDeusStakingPools: vDeusStakingType[] = [
     id: 0,
     name: '3 Months',
     pid: 0,
-    apr: 20,
+    apr: 10,
+    lpToken: '0x24651a470D08009832d62d702d1387962A2E5d60',
     lockDuration: 180,
     provideLink: '/redeem',
   },
@@ -54,7 +56,8 @@ export const vDeusStakingPools: vDeusStakingType[] = [
     id: 1,
     name: '6 Months',
     pid: 1,
-    apr: 40,
+    lpToken: '0x65875f75d5CDEf890ea97ADC43E216D3f0c2b2D8',
+    apr: 20,
     lockDuration: 360,
     provideLink: '/redeem',
   },
@@ -62,7 +65,8 @@ export const vDeusStakingPools: vDeusStakingType[] = [
     id: 2,
     name: '1 Year',
     pid: 2,
-    apr: 80,
+    lpToken: '0xCf18eCa0EaC101eb47828BFd460D1922000213db',
+    apr: 40,
     lockDuration: 720,
     provideLink: '/redeem',
   },

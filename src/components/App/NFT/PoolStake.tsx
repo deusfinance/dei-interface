@@ -102,7 +102,7 @@ const DepositButton = styled(PrimaryButton)`
 `
 
 const BoxWrapper = styled.div`
-  border: ${({ theme }) => `0.5px solid ${theme.text2}`};
+  border: ${({ theme }) => `2px solid ${theme.bg2}`};
   background-color: rgb(13 13 13);
   width: 350px;
   padding: 20px 15px;
@@ -348,17 +348,17 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     <Wrapper>
       <TitleInfo>
         <TimeTitle>{pool.name}</TimeTitle>
-        <YieldTitle>Apr: {apr}%</YieldTitle>
+        <YieldTitle>APR: {apr}%</YieldTitle>
       </TitleInfo>
       <DepositWrapper>
-        <span>Select your desired NFT:</span>
+        <span style={{ color: '#979797' }}>Select your desired NFT:</span>
         <UpperRow>
           <Dropdown
             options={dropdownOptions}
             placeholder="Select Token ID"
             defaultValue={dropDownDefaultValue}
             onSelect={(v) => dropdownOnSelect(v)}
-            width="250px"
+            width="255px"
           />
         </UpperRow>
         <div style={{ marginTop: '20px' }}></div>

@@ -27,6 +27,8 @@ const Header = styled(Box)<{
   padding: 0 0.8rem;
   align-items: center;
   height: 100%;
+  background: ${({ theme }) => theme.bg1};
+  color: ${({ theme }) => theme.text1};
 
   &:hover {
     cursor: ${({ noHover }) => (noHover ? 'default' : 'pointer')};

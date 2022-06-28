@@ -28,21 +28,21 @@ export default function useApproveNftCallback(
   const [approvedAll, setApprovedAll] = useState(false)
 
   const pendingApproval = useHasPendingApproval(tokenAddress, spender)
-  const TokenContract = useContract(tokenAddress, VDEUS_ABI)
+  const ERC721Contract = useContract(tokenAddress, VDEUS_ABI)
 
   useEffect(() => {
     const fn = async () => {
-      if (!spender || !TokenContract) return
-      const approvedAll = await TokenContract.isApprovedForAll(account, spender)
+      if (!spender || !ERC721Contract) return
+      const approvedAll = await ERC721Contract.isApprovedForAll(account, spender)
       setApprovedAll(approvedAll)
     }
     fn()
-  }, [spender, pendingApproval, TokenContract, tokenId, account])
+  }, [spender, pendingApproval, ERC721Contract, tokenId, account])
 
   useEffect(() => {
     const fn = async () => {
-      if (!spender || !TokenContract) return
-      const approvedAddress = await TokenContract.getApproved(tokenId)
+      if (!spender || !ERC721Contract) return
+      const approvedAddress = await ERC721Contract.getApproved(tokenId)
       if (approvedAddress === spender || (approvedAddress === AddressZero && approvedAll)) {
         setApprovalState(ApprovalState.APPROVED)
       } else {
@@ -50,7 +50,7 @@ export default function useApproveNftCallback(
       }
     }
     fn()
-  }, [spender, pendingApproval, TokenContract, tokenId, account, approvedAll])
+  }, [spender, pendingApproval, ERC721Contract, tokenId, account, approvedAll])
 
   const approveCallback = useCallback(async () => {
     if (approvalState === ApprovalState.APPROVED || approvalState === ApprovalState.PENDING) {
@@ -63,8 +63,8 @@ export default function useApproveNftCallback(
       return
     }
 
-    if (!TokenContract) {
-      console.error('TokenContract is null')
+    if (!ERC721Contract) {
+      console.error('NFT Contract is null')
       return
     }
 
@@ -82,8 +82,8 @@ export default function useApproveNftCallback(
       console.error('no spender')
       return
     }
-    const estimatedGas = await TokenContract.estimateGas.approve(spender, tokenId)
-    return TokenContract.approve(spender, tokenId, {
+    const estimatedGas = await ERC721Contract.estimateGas.approve(spender, tokenId)
+    return ERC721Contract.approve(spender, tokenId, {
       gasLimit: calculateGasMargin(estimatedGas),
     })
       .then((response: TransactionResponse) => {
@@ -95,7 +95,7 @@ export default function useApproveNftCallback(
       .catch((error: Error) => {
         console.error('Failed to approve token for an unknown reason', error)
       })
-  }, [approvalState, chainId, TokenContract, tokenAddress, account, spender, tokenId, addTransaction])
+  }, [approvalState, chainId, ERC721Contract, tokenAddress, account, spender, tokenId, addTransaction])
 
   return [approvalState, approveCallback]
 }

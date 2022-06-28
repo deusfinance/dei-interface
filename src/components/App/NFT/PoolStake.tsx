@@ -6,10 +6,9 @@ import { useVoucherModalToggle, useWalletModalToggle } from 'state/application/h
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { ApprovalState } from 'hooks/useApproveCallback'
 import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
+import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
 import { useVDeusStats } from 'hooks/useVDeusStats'
-import useApproveNftCallback from 'hooks/useApproveNftCallback'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useGetApr, useUserInfo } from 'hooks/useVDeusStaking'
 
@@ -224,16 +223,9 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
 
-  const [approvalState, approveCallback] = useApproveNftCallback(
-    selectedNftId,
-    chainId ? vDeus[chainId] : undefined,
-    spender
-  )
+  const [approvalState, approveCallback] = useERC721ApproveAllCallback(chainId ? vDeus[chainId] : undefined, spender)
 
-  const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = selectedNftId && approvalState !== ApprovalState.APPROVED
-    return [show, show && approvalState === ApprovalState.PENDING]
-  }, [selectedNftId, approvalState])
+  const showApprove = useMemo(() => approvalState !== ApprovalState.APPROVED, [approvalState])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -282,11 +274,18 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     },
     [stakingContract, addTransaction, account, selectedNftId, isSupportedChainId]
   )
-
+  console.log('====================================')
+  console.log({ selectedNftId })
+  console.log('====================================')
   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
       return null
     }
+
+    if (selectedNftId == '0') {
+      return <DepositButton disabled={true}>Select an NFT</DepositButton>
+    }
+
     if (awaitingApproveConfirmation) {
       return (
         <DepositButton active>
@@ -294,18 +293,9 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
         </DepositButton>
       )
     }
-    // if (showApproveLoader) {
-    //   return (
-    //     <DepositButton active>
-    //       Approving <DotFlashing style={{ marginLeft: '10px' }} />
-    //     </DepositButton>
-    //   )
-    // }
-    if (numberOfVouchers === 0) {
-      return <DepositButton disabled>Deposit</DepositButton>
-    }
+
     if (showApprove) {
-      return <DepositButton onClick={handleApprove}>Approve vDEUS #{selectedNftId}</DepositButton>
+      return <DepositButton onClick={handleApprove}>Approve vDEUS</DepositButton>
     }
     return null
   }
@@ -355,7 +345,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
         <UpperRow>
           <Dropdown
             options={dropdownOptions}
-            placeholder="Select Token ID"
+            placeholder="select an NFT"
             defaultValue={dropDownDefaultValue}
             onSelect={(v) => dropdownOnSelect(v)}
             width="250px"
@@ -372,25 +362,6 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
           <span style={{ marginTop: '15px' }}>${depositAmount}</span>
         </WithdrawWrapper>
       )}
-      {/* {!lockedNFTs || lockedNFTs[pool.id].length ? (
-          <WithdrawWrapper>
-            <span> Locked NFTs: </span>
-            <TokensWrapper>
-              {lockedNFTs &&
-                lockedNFTs[pool.id] &&
-                lockedNFTs[pool.id].length > 0 &&
-                lockedNFTs[pool.id].map((voucher: number, index) => {
-                  return (
-                    <TokenPreview onClick={() => handleVoucherClick(voucher)} key={index}>
-                      #{voucher}
-                    </TokenPreview>
-                  )
-                })}
-            </TokensWrapper>
-          </WithdrawWrapper>
-        ) : (
-          <></>
-        )} */}
 
       <ClaimWrapper>
         <span>Reward</span>

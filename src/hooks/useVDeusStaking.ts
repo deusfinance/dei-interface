@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
-import { useERC20Contract, useMasterChefV2Contract, useVDeusMasterChefV2Contract } from 'hooks/useContract'
+import { formatUnits } from '@ethersproject/units'
+
+import useWeb3React from 'hooks/useWeb3'
+import { useERC20Contract, useVDeusMasterChefV2Contract } from 'hooks/useContract'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
-import { formatUnits } from '@ethersproject/units'
-import { useDeusPrice } from './useCoingeckoPrice'
+import { useDeiPrice, useDeusPrice } from './useCoingeckoPrice'
 import { vDeusMasterChefV2 } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
 
@@ -98,6 +100,46 @@ export function usePoolInfo(pid: number): {
     lastRewardBlock,
     allocPoint,
     totalDeposited,
+  }
+}
+
+//TODO: depositAmount should consider decimals of token
+export function useUserInfo(pid: number): {
+  depositAmount: number
+  rewardsAmount: number
+} {
+  const contract = useVDeusMasterChefV2Contract()
+  const { account } = useWeb3React()
+  const deiPrice = useDeiPrice()
+
+  const calls = !account
+    ? []
+    : [
+        {
+          methodName: 'userInfo',
+          callInputs: [pid, account],
+        },
+        {
+          methodName: 'pendingTokens',
+          callInputs: [pid, account],
+        },
+      ]
+
+  const [userInfo, pendingTokens] = useSingleContractMultipleMethods(contract, calls)
+
+  const { depositedValue, reward } = useMemo(() => {
+    return {
+      depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0], 18)).toNumber() : 0,
+      reward:
+        pendingTokens?.result && deiPrice
+          ? toBN(formatUnits(pendingTokens.result[0], 18)).times(deiPrice).toNumber()
+          : 0,
+    }
+  }, [userInfo, pendingTokens, deiPrice])
+
+  return {
+    depositAmount: depositedValue,
+    rewardsAmount: reward,
   }
 }
 

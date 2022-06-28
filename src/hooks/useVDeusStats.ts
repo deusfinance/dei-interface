@@ -4,8 +4,7 @@ import { useSingleContractMultipleData, useSingleContractMultipleMethods } from 
 import { toBN } from 'utils/numbers'
 import { useVDeusContract, useVDeusStakingContract } from './useContract'
 import useWeb3React from './useWeb3'
-import { vDeusStakingPools, UserDeposit } from 'constants/stakings'
-import { useVDeusMasterChefV2Contract } from 'hooks/useContract'
+import { UserDeposit } from 'constants/stakings'
 
 export const VDEUS_USDC_FACTOR = 6
 
@@ -99,18 +98,4 @@ export function useUserLockedNfts(): UserDeposit[] | null {
       return { ...nft, poolId: nftPools[index] } as UserDeposit
     })
   }, [userNFTs, nftPools])
-}
-
-export function useUserPendingTokens(): number[] {
-  const contract = useVDeusMasterChefV2Contract()
-  const { account } = useWeb3React()
-  const calls = !account
-    ? []
-    : vDeusStakingPools.map((pool) => ({ methodName: 'pendingTokens', callInputs: [pool.pid, account] }))
-  const pendingTokens = useSingleContractMultipleMethods(contract, calls)
-
-  return useMemo(
-    () => pendingTokens.map((pt) => (pt?.result ? toBN(formatUnits(pt.result[0], 18)).toNumber() : 0)),
-    [pendingTokens]
-  )
 }

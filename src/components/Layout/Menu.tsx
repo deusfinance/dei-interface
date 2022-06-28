@@ -119,6 +119,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          <Link href="/vdeus" passHref>
+            <Row active={router.route === '/vdeus'}>
+              <div>vDEUS</div>
+              <IconWrapper>
+                <GiftIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <Link href="/borrow" passHref>
             <Row active={router.route === '/borrow'}>
               <div>Borrow</div>

@@ -17,7 +17,6 @@ export const USDC_ADDRESS = {
   [SupportedChainId.FANTOM]: '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
   [SupportedChainId.BSC]: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
 }
-
 /* =====================================
                 DEI ADDRESS
 ===================================== */
@@ -47,9 +46,45 @@ export const BDEI_ADDRESS: AddressMap = {
   [SupportedChainId.FANTOM]: '0x05f6ea7F80BDC07f6E0728BbBBAbebEA4E142eE8',
 }
 
+/* =====================================
+                veDEUS ADDRESS (ERC721)
+===================================== */
 export const veDEUS: AddressMap = {
   [SupportedChainId.FANTOM]: '0x8b42c6cb07c8dd5fe5db3ac03693867afd11353d',
 }
+
+/* =====================================
+                vDEUS ADDRESS (ERC721)
+===================================== */
+export const vDeus: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x980c39133a1a4e83e41d652619adf8aa18b95c8b',
+}
+
+/* =====================================
+                PROTOCOL HOLDINGS ADDRESS
+===================================== */
+export const ProtocolHoldings1: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x0b99207afbb08ec101b5691e7d5c6faadd09a89b',
+}
+
+export const ProtocolHoldings2: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x68c102aba11f5e086c999d99620c78f5bc30ecd8',
+}
+
+/* =====================================
+                USDC RESERVES ADDRESS
+===================================== */
+export const USDCReserves1: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x083dee8e5ca1e100a9c9ec0744f461b3507e9376',
+}
+
+export const USDCReserves2: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xfd74e924dc96c72ba52439e28ce780908a630d13',
+}
+
+/* =====================================
+                DAPP CONTRACTS ADDRESS
+===================================== */
 
 export const Multicall2: AddressMap = {
   [SupportedChainId.FANTOM]: '0x22D4cF72C45F8198CfbF4B568dBdB5A85e8DC0B5',
@@ -107,34 +142,10 @@ export const MasterChefV2: AddressMap = {
   [SupportedChainId.FANTOM]: '0x67932809213AFd6bac5ECD2e4e214Fe18209c419',
 }
 
-/* =====================================
-                PROTOCOL HOLDINGS ADDRESS
-===================================== */
-
-export const ProtocolHoldings1: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x0b99207afbb08ec101b5691e7d5c6faadd09a89b',
+export const vDeusMasterChefV2: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x120FF9821817eA2bbB700e1131e5c856ccC20d1b',
 }
 
-export const ProtocolHoldings2: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x68c102aba11f5e086c999d99620c78f5bc30ecd8',
-}
-
-/* =====================================
-                USDC RESERVES ADDRESS
-===================================== */
-
-export const USDCReserves1: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x083dee8e5ca1e100a9c9ec0744f461b3507e9376',
-}
-
-export const USDCReserves2: AddressMap = {
-  [SupportedChainId.FANTOM]: '0xfd74e924dc96c72ba52439e28ce780908a630d13',
-}
-
-/* =====================================
-                vDEUS ADDRESS
-===================================== */
-
-export const vDeus: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x980c39133a1a4e83e41d652619adf8aa18b95c8b',
+export const vDeusStaking: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x978b5d59DeE843C99B205A81ca82F66F35B1Ba35',
 }

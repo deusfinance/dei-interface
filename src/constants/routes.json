@@ -17,8 +17,7 @@
     "children": [
       { "id": "31", "text": "Bonds", "path": "/deibonds" },
       { "id": "32", "text": "Pools", "path": "/deibonds/pools" },
-      { "id": "33", "text": "Liquidity", "path": "/deibonds/liquidity" },
-      { "id": "34", "text": "vDEUS", "path": "/deibonds/vdeus" }
+      { "id": "33", "text": "Liquidity", "path": "/deibonds/liquidity" }
     ]
   },
   {
@@ -26,7 +25,6 @@
     "text": "Money Markets",
     "children": [{ "id": "41", "text": "Borrow", "path": "/borrow" }]
   },
-
   {
     "id": "5",
     "text": "veDEUS",
@@ -34,5 +32,11 @@
       { "id": "51", "text": "Lock", "path": "/vest" },
       { "id": "52", "text": "Rewards", "path": "/rewards" }
     ]
+  },
+  {
+    "id": "6",
+    "text": "vDEUS",
+    "path": "/vdeus",
+    "exact": true
   }
 ]

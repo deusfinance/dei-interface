@@ -28,6 +28,7 @@ const TopWrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
   max-width: 1200px;
+  align-items: flex-start;
   margin: auto;
   ${({ theme }) => theme.mediaWidth.upToLarge`
     display: flex;

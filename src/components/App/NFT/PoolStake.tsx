@@ -1,31 +1,31 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
+import { toast } from 'react-hot-toast'
 
 import { useVoucherModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { ApprovalState } from 'hooks/useApproveCallback'
+import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
+import { useVDeusStats } from 'hooks/useVDeusStats'
+import useApproveNftCallback from 'hooks/useApproveNftCallback'
+import useCurrencyLogo from 'hooks/useCurrencyLogo'
+import { useGetApr, useUserInfo } from 'hooks/useVDeusStaking'
 
+import { DefaultHandlerError } from 'utils/parseError'
+import { vDeusStakingType } from 'constants/stakings'
+import { vDeus, vDeusStaking } from 'constants/addresses'
+import { DEUS_TOKEN } from 'constants/tokens'
+
+import ImageWithFallback from 'components/ImageWithFallback'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-
 import Dropdown from 'components/DropDown'
 import { Row, RowCenter } from 'components/Row'
-import { vDeus, vDeusStaking } from 'constants/addresses'
-import { DefaultHandlerError } from 'utils/parseError'
-import { useTransactionAdder } from 'state/transactions/hooks'
 
-import { useVDeusStats } from 'hooks/useVDeusStats'
-import VoucherModal from 'components/App/NFT/VoucherModal'
-import { vDeusStakingType } from 'constants/stakings'
-import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
-import { toast } from 'react-hot-toast'
-import useApproveNftCallback from 'hooks/useApproveNftCallback'
-import ImageWithFallback from 'components/ImageWithFallback'
-import useCurrencyLogo from 'hooks/useCurrencyLogo'
-import { DEUS_TOKEN } from 'constants/tokens'
-import { useGetApr, useUserInfo } from 'hooks/useVDeusStaking'
-import { formatDollarAmount } from 'utils/numbers'
+// import VoucherModal from 'components/App/NFT/VoucherModal'
+// import { formatDollarAmount } from 'utils/numbers'
 
 const Container = styled.div`
   display: flex;
@@ -148,26 +148,6 @@ const RewardData = styled.div`
   font-size: 1.4rem;
 `
 
-const TokensWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 20px;
-`
-
-const TokenWrapper = styled.div``
-
-const TokenPreview = styled.span`
-  color: ${({ theme }) => theme.warning};
-  cursor: pointer;
-  margin: 10px 5px;
-  padding: 5px;
-  border-radius: 6px;
-  border: ${({ theme }) => `1px solid ${theme.warning}`};
-  &:hover {
-    background-color: ${({ theme }) => `${theme.bg1}`};
-  }
-`
-
 const YieldTitle = styled.div`
   color: ${({ theme }) => theme.warning};
   font-size: 1.25rem;
@@ -184,8 +164,6 @@ const TimeTitle = styled.span`
   /* color: ${({ theme }) => theme.warning}; */
   font-size: 1.25rem;
 `
-
-const RewardTitle = styled.span``
 
 export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   const { chainId, account } = useWeb3React()
@@ -240,9 +218,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   const masterChefContract = useVDeusMasterChefV2Contract()
   // const lockedNFTs = useUserLockedNfts()
   const { depositAmount, rewardsAmount } = useUserInfo(pool.pid)
-  console.log('====================================')
-  console.log({ depositAmount, rewardsAmount })
-  console.log('====================================')
+
   const apr = useGetApr(pool.pid)
   const spender = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
 
@@ -362,11 +338,10 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
         </DepositButton>
       )
     }
-    return (
-      <DepositButton disabled={rewardsAmount <= 0} onClick={() => onClaimReward(pool.pid)}>
-        Claim All
-      </DepositButton>
-    )
+    if (rewardsAmount <= 0) {
+      return <DepositButton disabled={true}>Claim</DepositButton>
+    }
+    return <DepositButton onClick={() => onClaimReward(pool.pid)}>Claim</DepositButton>
   }
 
   return (
@@ -393,7 +368,8 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
       {depositAmount > 0 && (
         <WithdrawWrapper>
           <span> Total Deposited: </span>
-          <span style={{ marginTop: '15px' }}>{formatDollarAmount(depositAmount)}</span>
+          {/* <span style={{ marginTop: '15px' }}>{formatDollarAmount(depositAmount)}</span> */}
+          <span style={{ marginTop: '15px' }}>${depositAmount}</span>
         </WithdrawWrapper>
       )}
       {/* {!lockedNFTs || lockedNFTs[pool.id].length ? (

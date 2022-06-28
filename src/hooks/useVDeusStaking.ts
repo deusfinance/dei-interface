@@ -40,8 +40,6 @@ export function useGlobalMasterChefData(): {
 
   const [tokenPerSecond, totalAllocPoint, poolLength] = useSingleContractMultipleMethods(contract, calls)
 
-  console.log({ tokenPerSecond, totalAllocPoint, poolLength })
-
   const { tokenPerSecondValue, totalAllocPointValue, poolLengthValue } = useMemo(() => {
     return {
       tokenPerSecondValue: tokenPerSecond?.result ? toBN(formatUnits(tokenPerSecond.result[0], 18)).toNumber() : 0,
@@ -84,7 +82,6 @@ export function usePoolInfo(pid: number): {
 
   const [poolInfo] = useSingleContractMultipleMethods(contract, calls)
   const [tokenBalance] = useSingleContractMultipleMethods(ERC20Contract, balanceCall)
-  console.log({ tokenBalance, poolInfo })
 
   const { accTokensPerShare, lastRewardBlock, allocPoint, totalDeposited } = useMemo(() => {
     return {
@@ -127,19 +124,17 @@ export function useUserInfo(pid: number): {
 
   const [userInfo, pendingTokens] = useSingleContractMultipleMethods(contract, calls)
 
-  const { depositedValue, reward } = useMemo(() => {
+  const { depositedValue, rewardValue } = useMemo(() => {
     return {
-      depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0], 18)).toNumber() : 0,
-      reward:
-        pendingTokens?.result && deiPrice
-          ? toBN(formatUnits(pendingTokens.result[0], 18)).times(deiPrice).toNumber()
-          : 0,
+      depositedValue:
+        userInfo?.result && deiPrice ? toBN(formatUnits(userInfo.result[0], 18)).times(deiPrice).toNumber() : 0,
+      rewardValue: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0,
     }
   }, [userInfo, pendingTokens, deiPrice])
 
   return {
     depositAmount: depositedValue,
-    rewardsAmount: reward,
+    rewardsAmount: rewardValue,
   }
 }
 

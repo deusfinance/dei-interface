@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 
 import { useVoucherModalToggle, useWalletModalToggle } from 'state/application/hooks'
@@ -191,7 +191,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
   const [selectedNftId, setSelectedNftId] = useState('0')
-  const [dropDownDefaultValue, setDropDownDefaultValue] = useState('0')
+  const [dropDownDefaultValue, setDropDownDefaultValue] = useState<string | undefined>('0')
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
   const addTransaction = useTransactionAdder()
@@ -204,7 +204,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     return
   }, [])
 
-  const { listOfVouchers } = useVDeusStats()
+  const { listOfVouchers, numberOfVouchers } = useVDeusStats()
 
   // const dropdownOptions = useMemo(() => {
   //   return listOfVouchers.map((tokenId: number) => {
@@ -219,6 +219,13 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     label: `vDEUS #${tokenId}`,
     value: `${tokenId}`,
   }))
+
+  //   const dropDownOpDefa = useMemo(() => {
+  //     console.log('drop down optionnns')
+  //     if (dropdownOptions.length && selectedNftId !== dropdownOptions[0].value) return selectedNftId
+  //     if (dropdownOptions.length) return dropdownOptions[0].value
+  //     return null
+  //   }, [dropdownOptions, selectedNftId])
 
   const [currentVoucher, setCurrentVoucher] = useState<number | undefined>()
   const toggleVoucherModal = useVoucherModalToggle()
@@ -256,10 +263,14 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     setAwaitingApproveConfirmation(false)
   }
 
+  useEffect(() => {
+    setDropDownDefaultValue(undefined)
+  }, [])
+
   const onClaimReward = useCallback(
     async (pid: number) => {
       try {
-        if (!masterChefContract || !account || !isSupportedChainId) return
+        if (!masterChefContract || !account || !isSupportedChainId || !rewards[pool.id]) return
         setAwaitingClaimConfirmation(true)
         const response = await masterChefContract.harvest(pid, account)
         addTransaction(response, { summary: `Claim Rewards`, vest: { hash: response.hash } })
@@ -272,7 +283,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
         // setPendingTxHash('')
       }
     },
-    [masterChefContract, addTransaction, account, isSupportedChainId]
+    [masterChefContract, account, isSupportedChainId, rewards, pool.id, addTransaction]
   )
 
   const onDeposit = useCallback(
@@ -305,12 +316,15 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
         </DepositButton>
       )
     }
-    if (showApproveLoader) {
-      return (
-        <DepositButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
-        </DepositButton>
-      )
+    // if (showApproveLoader) {
+    //   return (
+    //     <DepositButton active>
+    //       Approving <DotFlashing style={{ marginLeft: '10px' }} />
+    //     </DepositButton>
+    //   )
+    // }
+    if (numberOfVouchers === 0) {
+      return <DepositButton disabled>Deposit</DepositButton>
     }
     if (showApprove) {
       return <DepositButton onClick={handleApprove}>Allow us to spend vDEUS #{selectedNftId}</DepositButton>
@@ -346,7 +360,11 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
         </DepositButton>
       )
     }
-    return <DepositButton onClick={() => onClaimReward(pool.pid)}>Claim All</DepositButton>
+    return (
+      <DepositButton disabled={rewards[pool.id] <= 0} onClick={() => onClaimReward(pool.pid)}>
+        Claim All
+      </DepositButton>
+    )
   }
 
   return (

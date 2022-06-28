@@ -119,8 +119,8 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/deibonds/vdeus" passHref>
-            <Row active={router.route === '/deibonds/vdeus'}>
+          <Link href="/vdeus" passHref>
+            <Row active={router.route === '/vdeus'}>
               <div>vDEUS</div>
               <IconWrapper>
                 <GiftIcon size={20} />

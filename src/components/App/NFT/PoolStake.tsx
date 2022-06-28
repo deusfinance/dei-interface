@@ -9,7 +9,7 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
 import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
 import { useVDeusStats } from 'hooks/useVDeusStats'
-import useCurrencyLogo from 'hooks/useCurrencyLogo'
+// import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useGetApr, useUserInfo, usePoolInfo } from 'hooks/useVDeusStaking'
 
 import { DefaultHandlerError } from 'utils/parseError'
@@ -198,6 +198,9 @@ const TimeTitle = styled.span`
 `
 
 const TitleNFTSpan = styled.span`
+  margin: 0 auto;
+  text-align: center;
+  max-width: 250px;
   color: #979797;
 `
 
@@ -216,7 +219,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
   const addTransaction = useTransactionAdder()
-  const logo = useCurrencyLogo(DEUS_TOKEN.address)
+  // const logo = useCurrencyLogo(DEUS_TOKEN.address)
 
   const dropdownOnSelect = useCallback((val: string) => {
     setSelectedNftId(val)
@@ -241,17 +244,9 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     value: `${tokenId}`,
   }))
 
-  //   const dropDownOpDefa = useMemo(() => {
-  //     console.log('drop down optionnns')
-  //     if (dropdownOptions.length && selectedNftId !== dropdownOptions[0].value) return selectedNftId
-  //     if (dropdownOptions.length) return dropdownOptions[0].value
-  //     return null
-  //   }, [dropdownOptions, selectedNftId])
-
   const [currentVoucher, setCurrentVoucher] = useState<number | undefined>()
   const toggleVoucherModal = useVoucherModalToggle()
 
-  // console.log({ currentVoucher, selectedNftId, dropDownDefaultValue })
   function handleVoucherClick(flag: number) {
     setCurrentVoucher(flag)
     toggleVoucherModal()
@@ -398,16 +393,20 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
       </TitleInfo>
 
       <DepositWrapper>
-        {/* <TitleNFTSpan>Select your desired NFT:</TitleNFTSpan> */}
-        <UpperRow>
-          <Dropdown
-            options={dropdownOptions}
-            placeholder="select an NFT"
-            defaultValue={dropDownDefaultValue}
-            onSelect={(v) => dropdownOnSelect(v)}
-            width="300px"
-          />
-        </UpperRow>
+        {!chainId || !account ? (
+          <TitleNFTSpan>Connect your wallet to select DEUS voucher NFT</TitleNFTSpan>
+        ) : (
+          <UpperRow>
+            <Dropdown
+              options={dropdownOptions}
+              placeholder="select an NFT"
+              defaultValue={dropDownDefaultValue}
+              onSelect={(v) => dropdownOnSelect(v)}
+              width="300px"
+            />
+          </UpperRow>
+        )}
+
         <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getDepositButton(pool.pid)}
@@ -423,7 +422,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
       {totalDeposited > 0 && (
         <WithdrawWrapper>
           <span> Total Deposited: </span>
-          <span style={{ color: '#FDB572' }}>{formatDollarAmount(depositAmount)}</span>
+          <span style={{ color: '#FDB572' }}>{formatDollarAmount(totalDeposited)}</span>
         </WithdrawWrapper>
       )}
 

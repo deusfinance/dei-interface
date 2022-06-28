@@ -3,15 +3,15 @@ import { useERC20Contract, useMasterChefV2Contract, useVDeusMasterChefV2Contract
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
 import { formatUnits } from '@ethersproject/units'
-import { useDeiPrice, useDeusPrice } from './useCoingeckoPrice'
-import { MasterChefV2 } from 'constants/addresses'
+import { useDeusPrice } from './useCoingeckoPrice'
+import { vDeusMasterChefV2 } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
 
 const pids = [0, 1, 2]
 const stakingTokens: { [pid: number]: string } = {
-  [pids[0]]: ' 0x1A7a9D0E5e498C254Ae9F83948AEd1Cfc884A0b2',
-  [pids[1]]: '  0xD3548819079854D165B148D03B08D389112889c5',
-  [pids[2]]: '   0x633F3Fa8c0F1C7D8795EBCEd92B32fADFBc9753D',
+  [pids[0]]: '0x24651a470D08009832d62d702d1387962A2E5d60',
+  [pids[1]]: '0x65875f75d5CDEf890ea97ADC43E216D3f0c2b2D8',
+  [pids[2]]: '0xCf18eCa0EaC101eb47828BFd460D1922000213db',
 }
 
 export function useGlobalMasterChefData(): {
@@ -38,6 +38,8 @@ export function useGlobalMasterChefData(): {
 
   const [tokenPerSecond, totalAllocPoint, poolLength] = useSingleContractMultipleMethods(contract, calls)
 
+  console.log({ tokenPerSecond, totalAllocPoint, poolLength })
+
   const { tokenPerSecondValue, totalAllocPointValue, poolLengthValue } = useMemo(() => {
     return {
       tokenPerSecondValue: tokenPerSecond?.result ? toBN(formatUnits(tokenPerSecond.result[0], 18)).toNumber() : 0,
@@ -60,8 +62,9 @@ export function usePoolInfo(pid: number): {
   allocPoint: number
   totalDeposited: number
 } {
-  const contract = useMasterChefV2Contract()
+  const contract = useVDeusMasterChefV2Contract()
   const tokenAddress = stakingTokens[pid]
+
   const ERC20Contract = useERC20Contract(tokenAddress)
   const calls = [
     {
@@ -73,12 +76,14 @@ export function usePoolInfo(pid: number): {
   const balanceCall = [
     {
       methodName: 'balanceOf',
-      callInputs: [MasterChefV2[SupportedChainId.FANTOM]],
+      callInputs: [vDeusMasterChefV2[SupportedChainId.FANTOM]],
     },
   ]
 
   const [poolInfo] = useSingleContractMultipleMethods(contract, calls)
   const [tokenBalance] = useSingleContractMultipleMethods(ERC20Contract, balanceCall)
+  console.log({ tokenBalance, poolInfo })
+
   const { accTokensPerShare, lastRewardBlock, allocPoint, totalDeposited } = useMemo(() => {
     return {
       accTokensPerShare: poolInfo?.result ? toBN(poolInfo.result[0].toString()).toNumber() : 0,
@@ -99,8 +104,9 @@ export function usePoolInfo(pid: number): {
 export function useGetApr(pid: number): number {
   const { tokenPerSecond, totalAllocPoint } = useGlobalMasterChefData()
   const { totalDeposited, allocPoint } = usePoolInfo(pid)
+
   const deusPrice = useDeusPrice()
-  if (totalDeposited === 0) return 0
+  if (totalDeposited === 0 || totalAllocPoint === 0) return 0
   return (
     (tokenPerSecond * (allocPoint / totalAllocPoint) * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) /
     totalDeposited

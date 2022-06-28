@@ -17,7 +17,6 @@ export const USDC_ADDRESS = {
   [SupportedChainId.FANTOM]: '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
   [SupportedChainId.BSC]: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
 }
-
 /* =====================================
                 DEI ADDRESS
 ===================================== */
@@ -144,9 +143,9 @@ export const MasterChefV2: AddressMap = {
 }
 
 export const vDeusMasterChefV2: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x56c307b500823E145514124929F12eFFC90e6cEd',
+  [SupportedChainId.FANTOM]: '0x120FF9821817eA2bbB700e1131e5c856ccC20d1b',
 }
 
 export const vDeusStaking: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x81B3f8fa9D921C01751B1317c7CE4aE1d2e5C5B9',
+  [SupportedChainId.FANTOM]: '0x978b5d59DeE843C99B205A81ca82F66F35B1Ba35',
 }

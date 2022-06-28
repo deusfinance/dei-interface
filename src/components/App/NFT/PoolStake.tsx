@@ -15,7 +15,7 @@ import { vDeus, vDeusStaking } from 'constants/addresses'
 import { DefaultHandlerError } from 'utils/parseError'
 import { useTransactionAdder } from 'state/transactions/hooks'
 
-import { useUserPendingTokens, useVDeusStats } from 'hooks/useVDeusStats'
+import { useUserLockedNfts, useUserPendingTokens, useVDeusStats } from 'hooks/useVDeusStats'
 import VoucherModal from 'components/App/NFT/VoucherModal'
 import { vDeusStakingType } from 'constants/stakings'
 import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
@@ -24,6 +24,7 @@ import useApproveNftCallback from 'hooks/useApproveNftCallback'
 import ImageWithFallback from 'components/ImageWithFallback'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { DEUS_TOKEN } from 'constants/tokens'
+import { useGetApr, usePoolInfo } from 'hooks/useVDeusStaking'
 
 const Container = styled.div`
   display: flex;
@@ -199,7 +200,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   const dropdownOnSelect = useCallback((val: string) => {
     setSelectedNftId(val)
     setDropDownDefaultValue(val)
-    console.log('draw down on select', { val })
+    // console.log('draw down on select', { val })
     return
   }, [])
 
@@ -229,8 +230,10 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   }
   const stakingContract = useVDeusStakingContract()
   const masterChefContract = useVDeusMasterChefV2Contract()
-  // const lockedNFTs = useUserLockedNfts()
+  const lockedNFTs = useUserLockedNfts()
   const rewards = useUserPendingTokens()
+  // const rewards = [0, 0, 0]
+  const apr = useGetApr(pool.pid)
 
   const spender = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
 
@@ -350,7 +353,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     <Wrapper>
       <TitleInfo>
         <TimeTitle>{pool.name}</TimeTitle>
-        <YieldTitle>Apr: {pool.apr}%</YieldTitle>
+        <YieldTitle>Apr: {apr}%</YieldTitle>
       </TitleInfo>
       <DepositWrapper>
         <span>Select your desired NFT:</span>
@@ -399,7 +402,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
         </RewardData>
         {getClaimButton(pool)}
       </ClaimWrapper>
-      <VoucherModal voucherId={currentVoucher} />
+      {/* <VoucherModal voucherId={currentVoucher} /> */}
     </Wrapper>
   )
 }

@@ -12,7 +12,8 @@ const Wrapper = styled.div<{
   display: block;
   overflow: hidden;
   color: ${({ theme }) => theme.text3};
-  width: ${({ width }) => width};
+  max-width: ${({ width }) => width};
+  width: 100%;
   margin: 4px auto;
 `
 
@@ -65,7 +66,8 @@ const List = styled.ul<{
   overflow: hidden;
   position: absolute;
   z-index: 999;
-  width: ${({ width }) => width};
+  width: 100%;
+  max-width: ${({ width }) => width};
 
   & > * {
     &:not(:last-child) {

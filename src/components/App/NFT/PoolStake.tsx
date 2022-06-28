@@ -73,9 +73,15 @@ const UpperRow = styled(RowCenter)`
   & > * {
     height: 100%;
     max-width: fit-content;
+
     &:first-child {
-      max-width: 400px;
-      margin-right: auto;
+      max-width: 300px;
+
+      ul {
+        ${({ theme }) => theme.mediaWidth.upToSmall`
+            max-width: 256px;
+          `}
+      }
     }
   }
 `
@@ -125,7 +131,10 @@ const BoxWrapper = styled.div`
   border-top: ${({ theme }) => `2px solid ${theme.bg2}`};
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 290px;
+    max-width: 350px;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    max-width: 300px;
   `}
 `
 
@@ -394,7 +403,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
             placeholder="select an NFT"
             defaultValue={dropDownDefaultValue}
             onSelect={(v) => dropdownOnSelect(v)}
-            width="312px"
+            width="300px"
           />
         </UpperRow>
         <div style={{ marginTop: '20px' }}></div>

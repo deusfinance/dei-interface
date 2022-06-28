@@ -22,6 +22,7 @@ import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import Dropdown from 'components/DropDown'
 import { Row, RowCenter } from 'components/Row'
+import { formatDollarAmount } from 'utils/numbers'
 
 // import VoucherModal from 'components/App/NFT/VoucherModal'
 // import { formatDollarAmount } from 'utils/numbers'
@@ -114,8 +115,10 @@ const ClaimButton = styled(PrimaryButton)`
   &:hover {
     & > * {
       &:first-child {
+        -webkit-text-fill-color: black;
+        font-weight: 900;
         color: ${({ theme }) => theme.text2};
-        -webkit-text-fill-color: unset;
+        /* -webkit-text-fill-color: unset; */
       }
     }
   }
@@ -392,7 +395,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     <Wrapper>
       <TitleInfo>
         <TimeTitle>{pool.name}</TimeTitle>
-        <YieldTitle>APR: {apr}%</YieldTitle>
+        <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
       </TitleInfo>
 
       <DepositWrapper>
@@ -414,16 +417,14 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
       {depositAmount > 0 && (
         <WithdrawWrapper>
           <span>Your Deposit: </span>
-          {/* <span style={{ marginTop: '15px' }}>{formatDollarAmount(depositAmount)}</span> */}
-          <span style={{ color: '#FDB572' }}>${depositAmount}</span>
+          <span style={{ color: '#FDB572' }}>{formatDollarAmount(depositAmount)}</span>
         </WithdrawWrapper>
       )}
 
       {totalDeposited > 0 && (
         <WithdrawWrapper>
           <span> Total Deposited: </span>
-          {/* <span style={{ marginTop: '15px' }}>{formatDollarAmount(depositAmount)}</span> */}
-          <span style={{ color: '#FDB572' }}>${totalDeposited}</span>
+          <span style={{ color: '#FDB572' }}>{formatDollarAmount(depositAmount)}</span>
         </WithdrawWrapper>
       )}
 

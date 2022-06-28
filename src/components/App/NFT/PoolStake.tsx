@@ -115,10 +115,9 @@ const ClaimButton = styled(PrimaryButton)`
   &:hover {
     & > * {
       &:first-child {
+        color: ${({ theme }) => theme.text2};
         -webkit-text-fill-color: black;
         font-weight: 900;
-        color: ${({ theme }) => theme.text2};
-        /* -webkit-text-fill-color: unset; */
       }
     }
   }

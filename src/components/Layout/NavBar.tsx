@@ -11,6 +11,7 @@ import Web3Network from 'components/Web3Network'
 import Web3Status from 'components/Web3Status'
 import Menu from './Menu'
 import NavLogo from './NavLogo'
+import { ChevronDown } from 'components/Icons'
 
 const Wrapper = styled.div`
   padding: 0px 2rem;
@@ -73,10 +74,11 @@ const Routes = styled.div`
 export const NavbarContentWrap = styled.div`
   list-style: none;
   margin: auto;
-  margin-left: 12px;
-  margin-right: 12px;
+  margin-left: 15px;
+  margin-right: 15px;
   cursor: pointer;
   padding: 10px 0;
+  position: relative;
 
   &:hover {
     display: block;
@@ -95,6 +97,8 @@ export const SubNavbarContentWrap = styled.ul`
   position: absolute;
   top: 50px;
   margin-top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
 
   & > li > div {
     border-radius: 0;
@@ -183,7 +187,14 @@ export default function NavBar() {
           {routes.map((item) => {
             return item.children ? (
               <NavbarContentWrap key={item.id}>
-                <TitleSpan active={isSubItemChosen(item.children)}>{item.text}</TitleSpan>
+                <TitleSpan active={isSubItemChosen(item.children)}>
+                  {item.text}
+                  <ChevronDown
+                    color={isSubItemChosen(item.children) ? '#FF8F00' : 'white'}
+                    disable
+                    style={{ position: 'absolute' }}
+                  />
+                </TitleSpan>
                 <SubNavbarContentWrap>
                   {item.children.map((subItem) => (
                     <li key={subItem.id}>

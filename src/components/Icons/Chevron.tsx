@@ -17,11 +17,12 @@ export const ChevronLeft = styled(ChevronLeftIcon)<{
 
 export const ChevronDown = styled(ChevronDownIcon)<{
   color?: string
+  disable?: boolean
 }>`
   color: ${({ theme, color }) => color ?? theme.text2};
   &:hover {
     cursor: pointer;
-    opacity: 0.6;
+    opacity: ${({ disable }) => (disable ? '1' : '0.6')};
   }
 `
 

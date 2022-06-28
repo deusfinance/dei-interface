@@ -17,7 +17,8 @@
     "children": [
       { "id": "31", "text": "Bonds", "path": "/deibonds" },
       { "id": "32", "text": "Pools", "path": "/deibonds/pools" },
-      { "id": "33", "text": "Liquidity", "path": "/deibonds/liquidity" }
+      { "id": "33", "text": "Liquidity", "path": "/deibonds/liquidity" },
+      { "id": "34", "text": "vDEUS", "path": "/deibonds/vdeus" }
     ]
   },
   {
@@ -33,11 +34,5 @@
       { "id": "51", "text": "Lock", "path": "/vest" },
       { "id": "52", "text": "Rewards", "path": "/rewards" }
     ]
-  },
-  {
-    "id": "6",
-    "text": "vDEUS",
-    "path": "/nft",
-    "exact": true
   }
 ]

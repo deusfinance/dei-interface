@@ -17,7 +17,7 @@ import { vDeusStakingType } from 'constants/stakings'
 import { vDeus, vDeusStaking } from 'constants/addresses'
 import { DEUS_TOKEN } from 'constants/tokens'
 
-import ImageWithFallback from 'components/ImageWithFallback'
+// import ImageWithFallback from 'components/ImageWithFallback'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import Dropdown from 'components/DropDown'
@@ -43,28 +43,15 @@ const Container = styled.div`
   }
 `
 
-const TopWrapper = styled.div`
-  display: flex;
-  flex-flow: row nowrap;
-  max-width: 1200px;
-  margin: auto;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    display: flex;
-    flex-flow: column nowrap;
-  `}
-`
-
 const Wrapper = styled(Container)`
   display: flex;
   justify-content: flex-start;
+  border: ${({ theme }) => `2px solid ${theme.bg2}`};
   flex-direction: column;
-  margin-top: 50px;
-  padding: 20px 15px;
+  margin: 50px 10px 0 10px;
+  padding-top: 20px;
   border-radius: 15px;
-  /* border: ${({ theme }) => `1px solid ${theme.bg1}`}; */
   background: ${({ theme }) => theme.bg0};
-  margin-left: 10px;
-  margin-right: 10px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     display: flex;
@@ -74,9 +61,10 @@ const Wrapper = styled(Container)`
 `
 
 const UpperRow = styled(RowCenter)`
-  gap: 10px;
-  margin: 20px auto;
+  margin: 0 auto;
+  margin-top: 15px;
   height: 50px;
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
     display: flex;
     justify-content: center;
@@ -94,62 +82,84 @@ const UpperRow = styled(RowCenter)`
 
 const DepositButton = styled(PrimaryButton)`
   margin-top: 12px;
-  margin-bottom: 16px;
-  border-radius: 5px;
-  width: 255px;
+  margin-bottom: 4px;
+  border-radius: 12px;
+  width: 312px;
   height: 55px;
 `
 
+const ClaimButtonWrapper = styled.div`
+  background: ${({ theme }) => theme.primary1};
+
+  padding: 1px;
+  border-radius: 8px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  height: 40px;
+`
+
+const ClaimButton = styled(PrimaryButton)`
+  border-radius: 8px;
+  background: ${({ theme }) => theme.bg0};
+  height: 100%;
+  width: unset;
+  white-space: nowrap;
+`
+
 const BoxWrapper = styled.div`
-  border: ${({ theme }) => `0.5px solid ${theme.text2}`};
-  background-color: rgb(13 13 13);
   width: 350px;
-  padding: 20px 15px;
+  padding: 14px 22px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  border-top: ${({ theme }) => `2px solid ${theme.bg2}`};
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 290px;
   `}
 `
 
-const DepositWrapper = styled(BoxWrapper)``
+const DepositWrapper = styled(BoxWrapper)`
+  margin-top: 30px;
+  border: none;
+`
 
 const WithdrawWrapper = styled(BoxWrapper)`
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  flex-direction: row;
+  font-size: 12px;
 `
 
 const ClaimWrapper = styled(BoxWrapper)`
   margin: 0 auto;
-`
-
-const RewardSpan = styled.span`
-  margin-bottom: 20px;
-  /* font-size: 1.4rem; */
-  /* gap: 10px; */
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    font-size: 1.1rem;
-  `}
+  display: flex;
+  flex-direction: row;
+  padding-top: 0;
+  padding-bottom: 0;
 `
 
 const RewardData = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 6px;
+  padding-bottom: 8px;
   margin: 0 auto;
-  font-size: 1.4rem;
+  font-size: 12px;
+  background: -webkit-linear-gradient(90deg, #0badf4 0%, #30efe4 93.4%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 `
 
 const YieldTitle = styled.div`
-  color: ${({ theme }) => theme.warning};
-  font-size: 1.25rem;
+  background: -webkit-linear-gradient(90deg, #e29c53 0%, #ce4c7a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  font-size: 24px;
+  font-family: 'IBM Plex Mono';
+  word-spacing: -12px;
 `
 
 const TitleInfo = styled.div`
@@ -157,11 +167,24 @@ const TitleInfo = styled.div`
   padding-top: 0;
   display: flex;
   justify-content: space-between;
+  font-family: 'IBM Plex Mono';
 `
 
 const TimeTitle = styled.span`
-  /* color: ${({ theme }) => theme.warning}; */
-  font-size: 1.25rem;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono';
+  word-spacing: -10px;
+`
+
+const TitleNFTSpan = styled.span`
+  color: #979797;
+`
+
+const ButtonText = styled.span`
+  background: -webkit-linear-gradient(90deg, #e29c53 0%, #ce4c7a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 `
 
 export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
@@ -319,60 +342,87 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
 
   function getClaimButton(pool: vDeusStakingType): JSX.Element | null {
     if (!chainId || !account) {
-      return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
+      return <ClaimButton onClick={toggleWalletModal}>Connect Wallet</ClaimButton>
     }
     if (awaitingClaimConfirmation) {
       return (
-        <DepositButton>
-          Claiming <DotFlashing style={{ marginLeft: '10px' }} />
-        </DepositButton>
+        <>
+          <ClaimButtonWrapper>
+            <ClaimButton disabled={true}>
+              <ButtonText>
+                Claim
+                <DotFlashing style={{ marginLeft: '10px' }} />
+              </ButtonText>
+            </ClaimButton>
+          </ClaimButtonWrapper>
+        </>
       )
     }
     if (rewardsAmount <= 0) {
-      return <DepositButton disabled={true}>Claim</DepositButton>
+      return (
+        <>
+          <ClaimButtonWrapper>
+            <ClaimButton disabled={true}>
+              <ButtonText>Claim</ButtonText>
+            </ClaimButton>
+          </ClaimButtonWrapper>
+        </>
+      )
     }
-    return <DepositButton onClick={() => onClaimReward(pool.pid)}>Claim</DepositButton>
+    return (
+      <>
+        <ClaimButtonWrapper>
+          <ClaimButton onClick={() => onClaimReward(pool.pid)}>
+            <ButtonText>Claim</ButtonText>
+          </ClaimButton>
+        </ClaimButtonWrapper>
+      </>
+    )
   }
 
   return (
     <Wrapper>
       <TitleInfo>
         <TimeTitle>{pool.name}</TimeTitle>
-        <YieldTitle>Apr: {apr}%</YieldTitle>
+        <YieldTitle>APR: {apr}%</YieldTitle>
       </TitleInfo>
+
       <DepositWrapper>
-        <span>Select your desired NFT:</span>
+        <TitleNFTSpan>Select your desired NFT:</TitleNFTSpan>
         <UpperRow>
           <Dropdown
             options={dropdownOptions}
             placeholder="select an NFT"
             defaultValue={dropDownDefaultValue}
             onSelect={(v) => dropdownOnSelect(v)}
-            width="250px"
+            width="312px"
           />
         </UpperRow>
         <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getDepositButton(pool.pid)}
       </DepositWrapper>
+
       {depositAmount > 0 && (
         <WithdrawWrapper>
           <span> Total Deposited: </span>
           {/* <span style={{ marginTop: '15px' }}>{formatDollarAmount(depositAmount)}</span> */}
-          <span style={{ marginTop: '15px' }}>${depositAmount}</span>
+          <span style={{ color: '#FDB572' }}>${depositAmount}</span>
         </WithdrawWrapper>
       )}
 
       <ClaimWrapper>
-        <span>Reward</span>
-        <RewardData>
-          <span>{rewardsAmount && rewardsAmount?.toFixed(2)}</span>
-          <Row style={{ marginLeft: '25px' }}>
-            <ImageWithFallback src={logo} width={22} height={22} alt={'Logo'} round />
-            <span style={{ marginLeft: '6px' }}>{DEUS_TOKEN.symbol}</span>
-          </Row>
-        </RewardData>
-        {getClaimButton(pool)}
+        <div>
+          <span style={{ fontSize: '12px' }}>Reward:</span>
+          <RewardData>
+            <span>{rewardsAmount && rewardsAmount?.toFixed(3)}</span>
+            <Row style={{ marginLeft: '10px' }}>
+              {/* <ImageWithFallback src={logo} width={22} height={22} alt={'Logo'} round /> */}
+              <span>{DEUS_TOKEN.symbol}</span>
+            </Row>
+          </RewardData>
+        </div>
+        <div>{getClaimButton(pool)}</div>
       </ClaimWrapper>
       {/* <VoucherModal voucherId={currentVoucher} /> */}
     </Wrapper>

@@ -13,6 +13,8 @@ import useRedemptionCallback from 'hooks/useRedemptionCallback'
 import { useRedeemAmountsOut, useRedeemData } from 'hooks/useRedemptionPage'
 import { tryParseAmount } from 'utils/parse'
 import { getRemainingTime } from 'utils/time'
+import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
+import { DynamicRedeemer } from 'constants/addresses'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing, Info } from 'components/Icons'
@@ -21,9 +23,6 @@ import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
 import RedemptionInfoBox from 'components/App/Redemption/RedemptionInfoBox'
-import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
-import { DynamicRedeemer } from 'constants/addresses'
-import { ExternalLink } from 'components/Link'
 
 const Container = styled.div`
   display: flex;
@@ -233,18 +232,8 @@ export default function Redemption() {
         />
         {
           <Row mt={'8px'}>
-            {/* <ToolTip id="id" /> */}
             <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
-            <Description>
-              you will get an NFT {`"DEUS voucher"`} that will let you {` `}
-              <ExternalLink
-                style={{ textDecoration: 'underline' }}
-                href="https://lafayettetabor.medium.com/dynamic-redemption-tranches-fedc69df4e3"
-              >
-                claim DEUS later
-              </ExternalLink>
-              .
-            </Description>
+            <Description>you will get an NFT {`"DEUS voucher"`} that will let you claim DEUS later .</Description>
           </Row>
         }
         <div style={{ marginTop: '20px' }}></div>

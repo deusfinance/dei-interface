@@ -104,6 +104,14 @@ const ClaimButton = styled(PrimaryButton)`
   height: 100%;
   width: unset;
   white-space: nowrap;
+  &:hover {
+    & > * {
+      &:first-child {
+        color: ${({ theme }) => theme.text2};
+        -webkit-text-fill-color: unset;
+      }
+    }
+  }
 `
 
 const BoxWrapper = styled.div`
@@ -276,7 +284,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
         // setPendingTxHash('')
       }
     },
-    [masterChefContract, account, isSupportedChainId, rewardsAmount, pool.id, addTransaction]
+    [masterChefContract, account, isSupportedChainId, rewardsAmount, addTransaction]
   )
 
   const onDeposit = useCallback(
@@ -297,16 +305,9 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     },
     [stakingContract, addTransaction, account, selectedNftId, isSupportedChainId]
   )
-  console.log('====================================')
-  console.log({ selectedNftId })
-  console.log('====================================')
   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
       return null
-    }
-
-    if (selectedNftId == '0') {
-      return <DepositButton disabled={true}>Select an NFT</DepositButton>
     }
 
     if (awaitingApproveConfirmation) {
@@ -341,9 +342,6 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   }
 
   function getClaimButton(pool: vDeusStakingType): JSX.Element | null {
-    if (!chainId || !account) {
-      return <ClaimButton onClick={toggleWalletModal}>Connect Wallet</ClaimButton>
-    }
     if (awaitingClaimConfirmation) {
       return (
         <>

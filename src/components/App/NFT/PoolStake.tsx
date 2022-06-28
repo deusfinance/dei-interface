@@ -10,7 +10,7 @@ import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/use
 import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
 import { useVDeusStats } from 'hooks/useVDeusStats'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
-import { useGetApr, useUserInfo } from 'hooks/useVDeusStaking'
+import { useGetApr, useUserInfo, usePoolInfo } from 'hooks/useVDeusStaking'
 
 import { DefaultHandlerError } from 'utils/parseError'
 import { vDeusStakingType } from 'constants/stakings'
@@ -84,7 +84,8 @@ const DepositButton = styled(PrimaryButton)`
   margin-top: 12px;
   margin-bottom: 4px;
   border-radius: 12px;
-  width: 312px;
+  max-width: 312px;
+  width: 100%;
   height: 55px;
 `
 
@@ -172,7 +173,7 @@ const YieldTitle = styled.div`
 
 const TitleInfo = styled.div`
   padding: 20px;
-  padding-top: 0;
+  padding-top: 5px;
   display: flex;
   justify-content: space-between;
   font-family: 'IBM Plex Mono';
@@ -248,7 +249,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   const masterChefContract = useVDeusMasterChefV2Contract()
   // const lockedNFTs = useUserLockedNfts()
   const { depositAmount, rewardsAmount } = useUserInfo(pool.pid)
-
+  const { totalDeposited } = usePoolInfo(pool.pid)
   const apr = useGetApr(pool.pid)
   const spender = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
 
@@ -386,7 +387,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
       </TitleInfo>
 
       <DepositWrapper>
-        <TitleNFTSpan>Select your desired NFT:</TitleNFTSpan>
+        {/* <TitleNFTSpan>Select your desired NFT:</TitleNFTSpan> */}
         <UpperRow>
           <Dropdown
             options={dropdownOptions}
@@ -403,9 +404,17 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
 
       {depositAmount > 0 && (
         <WithdrawWrapper>
-          <span> Total Deposited: </span>
+          <span>Your Deposit: </span>
           {/* <span style={{ marginTop: '15px' }}>{formatDollarAmount(depositAmount)}</span> */}
           <span style={{ color: '#FDB572' }}>${depositAmount}</span>
+        </WithdrawWrapper>
+      )}
+
+      {totalDeposited > 0 && (
+        <WithdrawWrapper>
+          <span> Total Deposited: </span>
+          {/* <span style={{ marginTop: '15px' }}>{formatDollarAmount(depositAmount)}</span> */}
+          <span style={{ color: '#FDB572' }}>${totalDeposited}</span>
         </WithdrawWrapper>
       )}
 

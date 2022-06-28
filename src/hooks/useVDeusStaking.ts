@@ -60,12 +60,14 @@ export function usePoolInfo(pid: number): {
   accTokensPerShare: number
   lastRewardBlock: number
   allocPoint: number
+  exactTotalDeposited: number
   totalDeposited: number
 } {
   const contract = useVDeusMasterChefV2Contract()
   const tokenAddress = stakingTokens[pid]
-
   const ERC20Contract = useERC20Contract(tokenAddress)
+  const deiPrice = useDeiPrice()
+
   const calls = [
     {
       methodName: 'poolInfo',
@@ -83,19 +85,22 @@ export function usePoolInfo(pid: number): {
   const [poolInfo] = useSingleContractMultipleMethods(contract, calls)
   const [tokenBalance] = useSingleContractMultipleMethods(ERC20Contract, balanceCall)
 
-  const { accTokensPerShare, lastRewardBlock, allocPoint, totalDeposited } = useMemo(() => {
+  const { accTokensPerShare, lastRewardBlock, allocPoint, exactTotalDeposited, totalDeposited } = useMemo(() => {
     return {
       accTokensPerShare: poolInfo?.result ? toBN(poolInfo.result[0].toString()).toNumber() : 0,
       lastRewardBlock: poolInfo?.result ? toBN(poolInfo.result[1].toString()).toNumber() : 0,
       allocPoint: poolInfo?.result ? toBN(poolInfo.result[2].toString()).toNumber() : 0,
-      totalDeposited: tokenBalance?.result ? toBN(formatUnits(tokenBalance.result[0], 18)).toNumber() : 0,
+      exactTotalDeposited: tokenBalance?.result ? toBN(formatUnits(tokenBalance.result[0], 18)).toNumber() : 0,
+      totalDeposited:
+        tokenBalance?.result && deiPrice ? toBN(formatUnits(tokenBalance.result[0], 18)).times(deiPrice).toNumber() : 0,
     }
-  }, [poolInfo, tokenBalance])
+  }, [poolInfo, deiPrice, tokenBalance])
 
   return {
     accTokensPerShare,
     lastRewardBlock,
     allocPoint,
+    exactTotalDeposited,
     totalDeposited,
   }
 }
@@ -140,12 +145,12 @@ export function useUserInfo(pid: number): {
 
 export function useGetApr(pid: number): number {
   const { tokenPerSecond, totalAllocPoint } = useGlobalMasterChefData()
-  const { totalDeposited, allocPoint } = usePoolInfo(pid)
+  const { exactTotalDeposited, allocPoint } = usePoolInfo(pid)
 
   const deusPrice = useDeusPrice()
-  if (totalDeposited === 0 || totalAllocPoint === 0) return 0
+  if (exactTotalDeposited === 0 || totalAllocPoint === 0) return 0
   return (
     (tokenPerSecond * (allocPoint / totalAllocPoint) * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) /
-    totalDeposited
+    exactTotalDeposited
   )
 }

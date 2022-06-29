@@ -9,23 +9,18 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
 import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
 import { useVDeusStats } from 'hooks/useVDeusStats'
-// import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useGetApr, useUserInfo, usePoolInfo } from 'hooks/useVDeusStaking'
 
 import { DefaultHandlerError } from 'utils/parseError'
+import { formatAmount } from 'utils/numbers'
 import { vDeusStakingType } from 'constants/stakings'
 import { vDeus, vDeusStaking } from 'constants/addresses'
 import { DEUS_TOKEN } from 'constants/tokens'
 
-// import ImageWithFallback from 'components/ImageWithFallback'
-import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
 import Dropdown from 'components/DropDown'
 import { Row, RowCenter } from 'components/Row'
-import { formatDollarAmount } from 'utils/numbers'
-
-// import VoucherModal from 'components/App/NFT/VoucherModal'
-// import { formatDollarAmount } from 'utils/numbers'
+import { PrimaryButton } from 'components/Button'
+import { DotFlashing } from 'components/Icons'
 
 const Container = styled.div`
   display: flex;
@@ -414,15 +409,15 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
 
       {depositAmount > 0 && (
         <WithdrawWrapper>
-          <span>Your Deposit: </span>
-          <span style={{ color: '#FDB572' }}>{formatDollarAmount(depositAmount)}</span>
+          <span>Your redemption stake: </span>
+          <span style={{ color: '#FDB572' }}>{formatAmount(depositAmount)} DEI</span>
         </WithdrawWrapper>
       )}
 
       {totalDeposited > 0 && (
         <WithdrawWrapper>
-          <span> Total Deposited: </span>
-          <span style={{ color: '#FDB572' }}>{formatDollarAmount(totalDeposited)}</span>
+          <span> Total redemption staked: </span>
+          <span style={{ color: '#FDB572' }}>{formatAmount(totalDeposited)} DEI</span>
         </WithdrawWrapper>
       )}
 

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { RowBetween } from 'components/Row'
 import { Loader } from 'components/Icons'
-import { formatAmount, formatDollarAmount } from 'utils/numbers'
+import { formatAmount, formatDollarAmount, toBN } from 'utils/numbers'
 import { useVestedAPY } from 'hooks/useVested'
 import { getMaximumDate } from 'utils/vest'
 import { useDeusPrice } from 'hooks/useCoingeckoPrice'
@@ -17,7 +17,7 @@ import { getApolloClient } from 'apollo/client/vdeus'
 import { ALL_VOUCHERS, Voucher } from 'apollo/queries'
 import useWeb3React from 'hooks/useWeb3'
 import { FALLBACK_CHAIN_ID } from 'constants/chains'
-import { formatEther } from '@ethersproject/units'
+import { formatEther, formatUnits } from '@ethersproject/units'
 
 const Wrapper = styled.div`
   display: flex;
@@ -213,14 +213,11 @@ export default function DeusStats() {
     let deusRedeemable = 0
     allVouchers?.map((voucher: Voucher) => {
       deiBurn = deiBurn + Number(formatEther(voucher?.amount || '0'))
-      usdcRedeem =
-        usdcRedeem +
-        Number(formatEther(voucher?.amount || '0')) *
-          adjustedUsdcPerDei(parseFloat(voucher?.y || '0'), voucher.currentTokenId)
+      usdcRedeem = usdcRedeem + Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.usdcRedeemed || '0')
       deusRedeemable =
         deusRedeemable +
         Number(formatEther(voucher?.amount || '0')) *
-          adjustedDeusPerDei(parseFloat(voucher?.y || '0') * VDEUS_USDC_FACTOR, voucher.currentTokenId)
+          adjustedDeusPerDei(parseFloat(voucher?.usdcRedeemed || '0') * VDEUS_USDC_FACTOR, voucher.currentTokenId)
     })
 
     return {

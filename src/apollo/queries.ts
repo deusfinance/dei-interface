@@ -22,7 +22,8 @@ export interface Voucher {
   amount: string
   currentTokenId: string
   totalBurned: string
-  y: string
+  usdcRedeemed: string
+  deusRedeemable: string
   timestamp: string
 }
 
@@ -32,7 +33,8 @@ export const VOUCHER_DETAILS = gql`
       amount
       currentTokenId
       totalBurned
-      y
+      usdcRedeemed
+      deusRedeemable
       timestamp
     }
   }
@@ -44,7 +46,8 @@ export const ALL_VOUCHERS = gql`
       amount
       currentTokenId
       totalBurned
-      y
+      usdcRedeemed
+      deusRedeemable
       timestamp
     }
   }

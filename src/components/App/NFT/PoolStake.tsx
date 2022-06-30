@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import { toast } from 'react-hot-toast'
 
-import { useVoucherModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
@@ -219,7 +219,6 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
   const { listOfVouchers, numberOfVouchers } = useVDeusStats()
-  // console.log(numberOfVouchers, numberOfVouchers === -1)
 
   const addTransaction = useTransactionAdder()
   const router = useRouter()
@@ -383,7 +382,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
       <DepositWrapper>
         {!chainId || !account ? (
           <TitleNFTSpan>Connect your wallet to select DEUS voucher NFT</TitleNFTSpan>
-        ) : numberOfVouchers > 0 || numberOfVouchers === -1 ? (
+        ) : numberOfVouchers > 0 ? (
           <UpperRow>
             <Dropdown
               options={dropdownOptions}

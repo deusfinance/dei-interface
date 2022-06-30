@@ -15,6 +15,7 @@ export function useVDeusStats(): {
   const { account } = useWeb3React()
 
   const vDeusContract = useVDeusContract()
+  // let numberOfVouchers = -1
 
   const calls = !account
     ? []
@@ -27,13 +28,12 @@ export function useVDeusStats(): {
 
   const [vDeusBalance] = useSingleContractMultipleMethods(vDeusContract, calls)
 
-  const { numberOfVouchers } = useMemo(() => {
-    return {
-      numberOfVouchers: vDeusBalance?.result ? toBN(formatUnits(vDeusBalance.result[0], 0)).toNumber() : 0,
-    }
+  const numberOfVouchers = useMemo(() => {
+    const value = vDeusBalance?.result ? toBN(formatUnits(vDeusBalance.result[0], 0)).toNumber() : -1
+    return value
   }, [vDeusBalance])
 
-  const idMapping = Array.from(Array(numberOfVouchers).keys())
+  const idMapping = Array.from(Array(numberOfVouchers >= 0 ? numberOfVouchers : 0).keys())
 
   const callInputs = useMemo(() => {
     return !account ? [] : idMapping.map((id) => [account, id])

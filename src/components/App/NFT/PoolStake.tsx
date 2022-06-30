@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import { toast } from 'react-hot-toast'
 
-import { useVoucherModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
@@ -21,6 +21,7 @@ import Dropdown from 'components/DropDown'
 import { Row, RowCenter } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
+import { useRouter } from 'next/router'
 
 const Container = styled.div`
   display: flex;
@@ -205,6 +206,10 @@ const ButtonText = styled.span`
   -webkit-text-fill-color: transparent;
 `
 
+const AmountSpan = styled.span`
+  color: #fdb572;
+`
+
 export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -213,8 +218,10 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   const [dropDownDefaultValue, setDropDownDefaultValue] = useState<string | undefined>('0')
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
+  const { listOfVouchers, numberOfVouchers } = useVDeusStats()
+
   const addTransaction = useTransactionAdder()
-  // const logo = useCurrencyLogo(DEUS_TOKEN.address)
+  const router = useRouter()
 
   const dropdownOnSelect = useCallback((val: string) => {
     setSelectedNftId(val)
@@ -223,29 +230,14 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     return
   }, [])
 
-  const { listOfVouchers, numberOfVouchers } = useVDeusStats()
-
-  // const dropdownOptions = useMemo(() => {
-  //   return listOfVouchers.map((tokenId: number) => {
-  //     return {
-  //       label: `vDEUS #${tokenId}`,
-  //       value: `${tokenId}`,
-  //     }
-  //   })
-  // }, [listOfVouchers])
-
   const dropdownOptions = listOfVouchers.map((tokenId: number) => ({
     label: `vDEUS #${tokenId}`,
     value: `${tokenId}`,
   }))
 
-  const [currentVoucher, setCurrentVoucher] = useState<number | undefined>()
-  const toggleVoucherModal = useVoucherModalToggle()
+  // const [currentVoucher, setCurrentVoucher] = useState<number | undefined>()
+  // const toggleVoucherModal = useVoucherModalToggle()
 
-  function handleVoucherClick(flag: number) {
-    setCurrentVoucher(flag)
-    toggleVoucherModal()
-  }
   const stakingContract = useVDeusStakingContract()
   const masterChefContract = useVDeusMasterChefV2Contract()
   // const lockedNFTs = useUserLockedNfts()
@@ -308,7 +300,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     [stakingContract, addTransaction, account, selectedNftId, isSupportedChainId]
   )
   function getApproveButton(): JSX.Element | null {
-    if (!isSupportedChainId || !account) {
+    if (!isSupportedChainId || !account || numberOfVouchers <= 0) {
       return null
     }
 
@@ -390,7 +382,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
       <DepositWrapper>
         {!chainId || !account ? (
           <TitleNFTSpan>Connect your wallet to select DEUS voucher NFT</TitleNFTSpan>
-        ) : (
+        ) : numberOfVouchers > 0 ? (
           <UpperRow>
             <Dropdown
               options={dropdownOptions}
@@ -400,6 +392,8 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
               width="300px"
             />
           </UpperRow>
+        ) : (
+          <DepositButton onClick={() => router.push('/redemption')}>GET vDEUS</DepositButton>
         )}
 
         <div style={{ marginTop: '20px' }}></div>
@@ -410,14 +404,14 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
       {depositAmount > 0 && (
         <WithdrawWrapper>
           <span>Your redemption stake: </span>
-          <span style={{ color: '#FDB572' }}>{formatAmount(depositAmount)} DEI</span>
+          <AmountSpan>{formatAmount(depositAmount)} DEI</AmountSpan>
         </WithdrawWrapper>
       )}
 
       {totalDeposited > 0 && (
         <WithdrawWrapper>
           <span> Total redemption staked: </span>
-          <span style={{ color: '#FDB572' }}>{formatAmount(totalDeposited)} DEI</span>
+          <AmountSpan>{formatAmount(totalDeposited)} DEI</AmountSpan>
         </WithdrawWrapper>
       )}
 
@@ -427,7 +421,6 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
           <RewardData>
             <span>{rewardsAmount && rewardsAmount?.toFixed(3)}</span>
             <Row style={{ marginLeft: '10px' }}>
-              {/* <ImageWithFallback src={logo} width={22} height={22} alt={'Logo'} round /> */}
               <span>{DEUS_TOKEN.symbol}</span>
             </Row>
           </RewardData>

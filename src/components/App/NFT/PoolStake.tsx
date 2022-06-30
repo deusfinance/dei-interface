@@ -12,16 +12,15 @@ import { useVDeusStats } from 'hooks/useVDeusStats'
 import { useGetApr, useUserInfo, usePoolInfo } from 'hooks/useVDeusStaking'
 
 import { DefaultHandlerError } from 'utils/parseError'
+import { formatAmount } from 'utils/numbers'
 import { vDeusStakingType } from 'constants/stakings'
 import { vDeus, vDeusStaking } from 'constants/addresses'
 import { DEUS_TOKEN } from 'constants/tokens'
 
-import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
 import Dropdown from 'components/DropDown'
 import { Row, RowCenter } from 'components/Row'
-import { formatDollarAmount } from 'utils/numbers'
-import { useRouter } from 'next/router'
+import { PrimaryButton } from 'components/Button'
+import { DotFlashing } from 'components/Icons'
 
 const Container = styled.div`
   display: flex;
@@ -402,15 +401,15 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
 
       {depositAmount > 0 && (
         <WithdrawWrapper>
-          <span>Your Deposit: </span>
-          <AmountSpan>{formatDollarAmount(depositAmount)}</AmountSpan>
+          <span>Your redemption stake: </span>
+          <span style={{ color: '#FDB572' }}>{formatAmount(depositAmount)} DEI</span>
         </WithdrawWrapper>
       )}
 
       {totalDeposited > 0 && (
         <WithdrawWrapper>
-          <span> Total Deposited: </span>
-          <AmountSpan>{formatDollarAmount(totalDeposited)}</AmountSpan>
+          <span> Total redemption staked: </span>
+          <span style={{ color: '#FDB572' }}>{formatAmount(totalDeposited)} DEI</span>
         </WithdrawWrapper>
       )}
 

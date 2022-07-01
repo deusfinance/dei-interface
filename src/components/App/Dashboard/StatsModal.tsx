@@ -115,8 +115,11 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
   const { day, hours } = getRemainingTime(redeemTime)
   const roundedDays = day + (hours > 12 ? 1 : 0) //adds 1 more day if remained hours is above 12 hours.
 
-  const { pid } = StakingPools[0] //bDEI single staking pool
-  const bDeiSingleStakingAPR = useGetApy(pid)
+  const { pid: deiPID } = StakingPools[0] //bDEI single staking pool
+  const bDeiSingleStakingAPR = useGetApy(deiPID)
+
+  const { pid: deibDeiPID } = StakingPools[1] //bDEI-DEI staking pool
+  const bDeiDeiStakingAPR = useGetApy(deibDeiPID)
 
   const {
     totalSupply,
@@ -517,6 +520,26 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
             <ModalInfoWrapper>
               <p>Total Liquidity</p>
               {sPoolLiquidity == 0 ? <Loader /> : <ItemValue>{formatAmount(sPoolLiquidity)}</ItemValue>}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.BDEI_DEI_STAKING_APR:
+        return (
+          <ModalWrapper>
+            <div>bDEI-DEI LP Staking APR where rewards are paid out in DEUS</div>
+            <div>
+              Contract Address :{' '}
+              <a
+                href="https://ftmscan.com/token/0xDce9EC1eB454829B6fe0f54F504FEF3c3C0642Fc"
+                target={'_blank'}
+                rel={'noreferrer'}
+              >
+                bDEI-DEI LP Staking Contract
+              </a>
+            </div>
+            <ModalInfoWrapper>
+              <p>bDEI-DEI LP Staking APR</p>
+              {bDeiDeiStakingAPR == 0 ? <Loader /> : <ItemValue>{bDeiDeiStakingAPR.toFixed(2)}%</ItemValue>}
             </ModalInfoWrapper>
           </ModalWrapper>
         )

@@ -164,6 +164,7 @@ export enum Dashboard {
   BDEI_LIQUIDITY = 'bDEI Liquidity in bDEI-DEI Pool',
   DEI_LIQUIDITY = 'DEI Liquidity in bDEI-DEI Pool',
   BDEI_DEI_LIQUIDITY = 'Total Liquidity in bDEI-DEI Pool',
+  BDEI_DEI_STAKING_APR = 'bDEI-DEI Staking APR',
   DEI_BOND_MATURITY = 'Current DEI Bond Maturity',
   DEUS_PRICE = 'DEUS Price',
   VE_DEUS_LOCKED = 'veDEUS Locked',
@@ -365,7 +366,7 @@ export default function DeiStats() {
                     {sPoolLiquidity === null ? <Loader /> : <ItemValue>{formatAmount(sPoolLiquidity, 2)}</ItemValue>}
                   </InfoWrapper>
                 </div>
-                <div onClick={() => handleClick(Dashboard.BDEI_STAKING_APR)}>
+                <div onClick={() => handleClick(Dashboard.BDEI_DEI_STAKING_APR)}>
                   <InfoWrapper>
                     <p>DEI-bDEI Staking APR</p>
                     {bDeiDeiStakingAPR == 0 ? <Loader /> : <ItemValue>{bDeiDeiStakingAPR.toFixed(2)}%</ItemValue>}

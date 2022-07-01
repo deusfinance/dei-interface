@@ -114,13 +114,10 @@ export default function VoucherModal({ voucherId }: { voucherId: number | undefi
   } = useMemo(() => {
     return {
       deiBurned: Number(formatEther(voucher?.amount || '0')), // dei burned to get the voucher
-      usdcRedeemed: Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.usdcRedeemed || '0'),
+      usdcRedeemed: Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0'),
       deusRedeemable:
         Number(formatEther(voucher?.amount || '0')) *
-        adjustedDeusPerDei(
-          parseFloat(voucher?.usdcRedeemed || '0') * VDEUS_USDC_FACTOR,
-          voucher?.currentTokenId || '-1'
-        ),
+        adjustedDeusPerDei(parseFloat(voucher?.y || '0') * VDEUS_USDC_FACTOR, voucher?.currentTokenId || '-1'),
     }
   }, [voucher])
 

@@ -18,28 +18,23 @@ import { ALL_VOUCHERS, Voucher } from 'apollo/queries'
 import useWeb3React from 'hooks/useWeb3'
 import { FALLBACK_CHAIN_ID } from 'constants/chains'
 import { formatEther, formatUnits } from '@ethersproject/units'
+import { vDeusStakingPools } from 'constants/stakings'
+import { usePoolInfo } from 'hooks/useVDeusStaking'
 
 const Wrapper = styled.div`
   display: flex;
   flex-flow: column nowrap;
   gap: 1rem;
   margin-top: 50px;
-  min-width: 750px;
-  align-self: center;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    min-width: 0;
-    width: 100%;
-  `}
 `
 
 const TopWrapper = styled.div`
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: row nowrap;
   width: 100%;
-  max-width: 750px;
+  max-width: 1200px;
   gap: 2rem;
-  justify-content: start;
+  justify-content: center;
   margin: 0 auto;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -47,8 +42,21 @@ const TopWrapper = styled.div`
   `}
 `
 
+const StatsWrapper = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 2rem;
+  width: 50%;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 100%;
+    margin: 0 auto;
+  `}
+`
+
 const InfoWrapper = styled(RowBetween)<{
   secondary?: boolean
+  active?: boolean
 }>`
   align-items: center;
   margin-top: 1px;
@@ -76,7 +84,13 @@ const InfoWrapper = styled(RowBetween)<{
   ${({ secondary }) =>
     secondary &&
     `
-    min-width: 350px;
+    min-width: 250px;
+  `}
+
+  ${({ theme, active }) =>
+    active &&
+    `
+    border: 1px solid ${theme.text1};
   `}
 `
 
@@ -132,6 +146,10 @@ const VoucherWrapper = styled.div`
   justify-content: space-evenly;
 `
 
+const SecondaryLabel = styled.span`
+  color: ${({ theme }) => theme.yellow3};
+`
+
 // TODO: Subgraphs should read NFT creation tx and send the respective usdc redeemed. until then, this is a ugly fix
 // a utility function to adjust usdc redeemed per dei for pre and post dynamic era based on voucher number
 export function adjustedUsdcPerDei(y: number, currentTokenId: string) {
@@ -164,6 +182,19 @@ export default function DeusStats() {
   const invalidContext = useInvalidContext()
 
   const [allVouchers, setAllVouchers] = useState<Voucher[] | null>(null)
+
+  const vDEUS3MonthsPool = vDeusStakingPools[0] // vDEUS staked for 3 Months
+  const { totalDeposited: totalDepositedFor3Months } = usePoolInfo(vDEUS3MonthsPool.pid)
+
+  const vDEUS6MonthsPool = vDeusStakingPools[1] // vDEUS staked for 3 Months
+  const { totalDeposited: totalDepositedFor6Months } = usePoolInfo(vDEUS6MonthsPool.pid)
+
+  const vDEUS12MonthsPool = vDeusStakingPools[2] // vDEUS staked for 12 Months
+  const { totalDeposited: totalDepositedFor12Months } = usePoolInfo(vDEUS12MonthsPool.pid)
+
+  const totalvDeusStaked = useMemo(() => {
+    return totalDepositedFor3Months + totalDepositedFor6Months + totalDepositedFor12Months
+  }, [totalDepositedFor3Months, totalDepositedFor6Months, totalDepositedFor12Months])
 
   function handleClick(flag: Dashboard) {
     setCurrentStat(flag)
@@ -213,11 +244,11 @@ export default function DeusStats() {
     let deusRedeemable = 0
     allVouchers?.map((voucher: Voucher) => {
       deiBurn = deiBurn + Number(formatEther(voucher?.amount || '0'))
-      usdcRedeem = usdcRedeem + Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.usdcRedeemed || '0')
+      usdcRedeem = usdcRedeem + Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0')
       deusRedeemable =
         deusRedeemable +
         Number(formatEther(voucher?.amount || '0')) *
-          adjustedDeusPerDei(parseFloat(voucher?.usdcRedeemed || '0') * VDEUS_USDC_FACTOR, voucher.currentTokenId)
+          adjustedDeusPerDei(parseFloat(voucher?.y || '0') * VDEUS_USDC_FACTOR, voucher.currentTokenId)
     })
 
     return {
@@ -230,61 +261,123 @@ export default function DeusStats() {
   return (
     <Wrapper>
       <TopWrapper>
-        <Container>
-          <Heading>DEUS stats</Heading>
-          <div onClick={() => handleClick(Dashboard.DEUS_PRICE)}>
-            <InfoWrapper>
-              <p>DEUS Price</p>
-              {deusPrice === null ? <Loader /> : <ItemValue>{formatDollarAmount(parseFloat(deusPrice), 2)}</ItemValue>}
-            </InfoWrapper>
-          </div>
-          <div onClick={() => handleClick(Dashboard.VE_DEUS_LOCKED)}>
-            <InfoWrapper>
-              <p>Total veDEUS Locked</p>
-              {lockedVeDEUS === null ? <Loader /> : <ItemValue>{formatAmount(parseFloat(lockedVeDEUS), 0)}</ItemValue>}
-            </InfoWrapper>
-          </div>
-        </Container>
-        {invalidContext !== ContextError.VALID ? (
-          <InvalidContext connectText="Connect your wallet to view your vDEUS vouchers" />
-        ) : (
+        <StatsWrapper>
           <Container>
-            <Heading>vDEUS stats</Heading>
-            <div onClick={() => handleClick(Dashboard.VDEUS_NFTS)}>
+            <Heading>DEUS stats</Heading>
+            <div onClick={() => handleClick(Dashboard.DEUS_PRICE)}>
               <InfoWrapper>
-                <p>Total vDEUS Vouchers</p>
-                {numberOfVouchers === null ? <Loader /> : <ItemValue>{numberOfVouchers}</ItemValue>}
+                <p>DEUS Price</p>
+                {deusPrice === null ? (
+                  <Loader />
+                ) : (
+                  <ItemValue>{formatDollarAmount(parseFloat(deusPrice), 2)}</ItemValue>
+                )}
               </InfoWrapper>
             </div>
-            <InfoWrapper>
-              <p>Total DEI Burned</p>
-              {totalDeiBurned === null ? <Loader /> : <ItemValue>{formatDollarAmount(totalDeiBurned)}</ItemValue>}
-            </InfoWrapper>
-            <InfoWrapper>
-              <p>Total USDC Redeemed</p>
-              {totalUsdcRedeemed === null ? <Loader /> : <ItemValue>{formatDollarAmount(totalUsdcRedeemed)}</ItemValue>}
-            </InfoWrapper>
-            <InfoWrapper>
-              <p>Total DEUS Redeemable</p>
-              {totalDeusRedeemable === null ? (
-                <Loader />
-              ) : (
-                <ItemValue>{formatDollarAmount(totalDeusRedeemable)}</ItemValue>
-              )}
-            </InfoWrapper>
-            {listOfVouchers && listOfVouchers.length > 0 && <Heading>Vouchers:</Heading>}
-            <VoucherWrapper>
-              {listOfVouchers &&
-                listOfVouchers.length > 0 &&
-                listOfVouchers.map((voucher: number, index) => (
-                  <div key={index} onClick={() => handleVoucherClick(voucher)}>
-                    <InfoWrapper secondary>
-                      <ItemValue style={{ margin: 'auto' }}>vDEUS Voucher #{voucher}</ItemValue>
-                    </InfoWrapper>
-                  </div>
-                ))}
-            </VoucherWrapper>
+            <div onClick={() => handleClick(Dashboard.VE_DEUS_LOCKED)}>
+              <InfoWrapper>
+                <p>Total veDEUS Locked</p>
+                {lockedVeDEUS === null ? (
+                  <Loader />
+                ) : (
+                  <ItemValue>{formatAmount(parseFloat(lockedVeDEUS), 0)}</ItemValue>
+                )}
+              </InfoWrapper>
+            </div>
           </Container>
+          <Container>
+            <Heading>vDEUS stats</Heading>
+            <div onClick={() => handleClick(Dashboard.DEUS_PRICE)}>
+              <InfoWrapper active>
+                <p>Total vDEUS staked</p>
+                {totalvDeusStaked === null ? <Loader /> : <ItemValue>{formatAmount(totalvDeusStaked)}</ItemValue>}
+              </InfoWrapper>
+            </div>
+            <div onClick={() => handleClick(Dashboard.DEUS_PRICE)}>
+              <InfoWrapper>
+                <p>
+                  Total vDEUS staked for <SecondaryLabel>12 months</SecondaryLabel>
+                </p>
+                {totalDepositedFor12Months === null ? (
+                  <Loader />
+                ) : (
+                  <ItemValue>{formatAmount(totalDepositedFor12Months)}</ItemValue>
+                )}
+              </InfoWrapper>
+            </div>
+            <div onClick={() => handleClick(Dashboard.VE_DEUS_LOCKED)}>
+              <InfoWrapper>
+                <p>
+                  Total vDEUS staked for <SecondaryLabel>6 months</SecondaryLabel>
+                </p>
+                {totalDepositedFor6Months === null ? (
+                  <Loader />
+                ) : (
+                  <ItemValue>{formatAmount(totalDepositedFor6Months)}</ItemValue>
+                )}
+              </InfoWrapper>
+            </div>
+            <div onClick={() => handleClick(Dashboard.VE_DEUS_LOCKED)}>
+              <InfoWrapper>
+                <p>
+                  Total vDEUS staked for <SecondaryLabel>3 months</SecondaryLabel>
+                </p>
+                {totalDepositedFor3Months === null ? (
+                  <Loader />
+                ) : (
+                  <ItemValue>{formatAmount(totalDepositedFor3Months)}</ItemValue>
+                )}
+              </InfoWrapper>
+            </div>
+          </Container>
+          {invalidContext !== ContextError.VALID && (
+            <InvalidContext connectText="Connect your wallet to view your vDEUS vouchers" />
+          )}
+        </StatsWrapper>
+        {invalidContext === ContextError.VALID && (
+          <StatsWrapper>
+            <Container>
+              <Heading>Your vDEUS Voucher stats</Heading>
+              <div onClick={() => handleClick(Dashboard.VDEUS_NFTS)}>
+                <InfoWrapper>
+                  <p>Total vDEUS Vouchers</p>
+                  {numberOfVouchers === null ? <Loader /> : <ItemValue>{numberOfVouchers}</ItemValue>}
+                </InfoWrapper>
+              </div>
+              <InfoWrapper>
+                <p>Total DEI Burned</p>
+                {totalDeiBurned === null ? <Loader /> : <ItemValue>{formatDollarAmount(totalDeiBurned)}</ItemValue>}
+              </InfoWrapper>
+              <InfoWrapper>
+                <p>Total USDC Redeemed</p>
+                {totalUsdcRedeemed === null ? (
+                  <Loader />
+                ) : (
+                  <ItemValue>{formatDollarAmount(totalUsdcRedeemed)}</ItemValue>
+                )}
+              </InfoWrapper>
+              <InfoWrapper>
+                <p>Total DEUS Redeemable</p>
+                {totalDeusRedeemable === null ? (
+                  <Loader />
+                ) : (
+                  <ItemValue>{formatDollarAmount(totalDeusRedeemable)}</ItemValue>
+                )}
+              </InfoWrapper>
+              {listOfVouchers && listOfVouchers.length > 0 && <Heading>Vouchers:</Heading>}
+              <VoucherWrapper>
+                {listOfVouchers &&
+                  listOfVouchers.length > 0 &&
+                  listOfVouchers.map((voucher: number, index) => (
+                    <div key={index} onClick={() => handleVoucherClick(voucher)}>
+                      <InfoWrapper secondary>
+                        <ItemValue style={{ margin: 'auto' }}>vDEUS Voucher #{voucher}</ItemValue>
+                      </InfoWrapper>
+                    </div>
+                  ))}
+              </VoucherWrapper>
+            </Container>
+          </StatsWrapper>
         )}
       </TopWrapper>
       <StatsModal stat={currentStat} />

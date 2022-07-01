@@ -164,10 +164,15 @@ export enum Dashboard {
   BDEI_LIQUIDITY = 'bDEI Liquidity in bDEI-DEI Pool',
   DEI_LIQUIDITY = 'DEI Liquidity in bDEI-DEI Pool',
   BDEI_DEI_LIQUIDITY = 'Total Liquidity in bDEI-DEI Pool',
+  BDEI_DEI_STAKING_APR = 'bDEI-DEI Staking APR',
   DEI_BOND_MATURITY = 'Current DEI Bond Maturity',
   DEUS_PRICE = 'DEUS Price',
   VE_DEUS_LOCKED = 'veDEUS Locked',
   VDEUS_NFTS = 'vDEUS NFTs',
+  TOTAL_VDEUS_STAKED = 'Total vDEUS Staked',
+  VDEUS_STAKED_3MONTHS = 'Total vDEUS Staked for 3 Months',
+  VDEUS_STAKED_6MONTHS = 'Total vDEUS Staked for 6 Months',
+  VDEUS_STAKED_12MONTHS = 'Total vDEUS Staked for 12 Months',
 }
 
 export default function DeiStats() {
@@ -189,8 +194,11 @@ export default function DeiStats() {
   const { day, hours } = getRemainingTime(redeemTime)
   const roundedDays = day + (hours > 12 ? 1 : 0) //adds 1 more day if remained hours is above 12 hours.
 
-  const { pid } = StakingPools[0] //bDEI single staking pool
-  const bDeiSingleStakingAPR = useGetApy(pid)
+  const { pid: deiPID } = StakingPools[0] //bDEI single staking pool
+  const bDeiSingleStakingAPR = useGetApy(deiPID)
+
+  const { pid: deibDeiPID } = StakingPools[1] //bDEI-DEI staking pool
+  const bDeiDeiStakingAPR = useGetApy(deibDeiPID)
 
   const {
     totalSupply,
@@ -360,6 +368,12 @@ export default function DeiStats() {
                   <InfoWrapper>
                     <p>Total bDEI-DEI Liquidity</p>
                     {sPoolLiquidity === null ? <Loader /> : <ItemValue>{formatAmount(sPoolLiquidity, 2)}</ItemValue>}
+                  </InfoWrapper>
+                </div>
+                <div onClick={() => handleClick(Dashboard.BDEI_DEI_STAKING_APR)}>
+                  <InfoWrapper>
+                    <p>DEI-bDEI Staking APR</p>
+                    {bDeiDeiStakingAPR == 0 ? <Loader /> : <ItemValue>{bDeiDeiStakingAPR.toFixed(2)}%</ItemValue>}
                   </InfoWrapper>
                 </div>
               </Container>

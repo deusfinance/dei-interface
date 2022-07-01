@@ -235,9 +235,6 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     value: `${tokenId}`,
   }))
 
-  // const [currentVoucher, setCurrentVoucher] = useState<number | undefined>()
-  // const toggleVoucherModal = useVoucherModalToggle()
-
   const stakingContract = useVDeusStakingContract()
   const masterChefContract = useVDeusMasterChefV2Contract()
   // const lockedNFTs = useUserLockedNfts()
@@ -427,7 +424,6 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
         </div>
         <div>{getClaimButton(pool)}</div>
       </ClaimWrapper>
-      {/* <VoucherModal voucherId={currentVoucher} /> */}
     </Wrapper>
   )
 }

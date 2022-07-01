@@ -12,7 +12,7 @@ import { useModalOpen, useVoucherModalToggle } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/reducer'
 import styled from 'styled-components'
 import { formatDollarAmount } from 'utils/numbers'
-import { adjustedDeusPerDei, adjustedUsdcPerDei } from './DeusStats'
+import { adjustedDeusPerDei } from './DeusStats'
 
 const ModalWrapper = styled.div`
   display: flex;
@@ -68,6 +68,8 @@ export const DEFAULT_VOUCHER: Voucher = {
   currentTokenId: '',
   totalBurned: '',
   y: '',
+  usdcRedeemed: '',
+  deusRedeemable: '',
   timestamp: '',
 }
 
@@ -114,9 +116,7 @@ export default function VoucherModal({ voucherId }: { voucherId: number | undefi
   } = useMemo(() => {
     return {
       deiBurned: Number(formatEther(voucher?.amount || '0')), // dei burned to get the voucher
-      usdcRedeemed:
-        Number(formatEther(voucher?.amount || '0')) *
-        adjustedUsdcPerDei(parseFloat(voucher?.y || '0'), voucher?.currentTokenId || '-1'), // y is the usdc per dei from the formula
+      usdcRedeemed: Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0'),
       deusRedeemable:
         Number(formatEther(voucher?.amount || '0')) *
         adjustedDeusPerDei(parseFloat(voucher?.y || '0') * VDEUS_USDC_FACTOR, voucher?.currentTokenId || '-1'),

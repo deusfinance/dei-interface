@@ -189,8 +189,11 @@ export default function DeiStats() {
   const { day, hours } = getRemainingTime(redeemTime)
   const roundedDays = day + (hours > 12 ? 1 : 0) //adds 1 more day if remained hours is above 12 hours.
 
-  const { pid } = StakingPools[0] //bDEI single staking pool
-  const bDeiSingleStakingAPR = useGetApy(pid)
+  const { pid: deiPID } = StakingPools[0] //bDEI single staking pool
+  const bDeiSingleStakingAPR = useGetApy(deiPID)
+
+  const { pid: deibDeiPID } = StakingPools[1] //bDEI-DEI staking pool
+  const bDeiDeiStakingAPR = useGetApy(deibDeiPID)
 
   const {
     totalSupply,
@@ -360,6 +363,12 @@ export default function DeiStats() {
                   <InfoWrapper>
                     <p>Total bDEI-DEI Liquidity</p>
                     {sPoolLiquidity === null ? <Loader /> : <ItemValue>{formatAmount(sPoolLiquidity, 2)}</ItemValue>}
+                  </InfoWrapper>
+                </div>
+                <div onClick={() => handleClick(Dashboard.BDEI_STAKING_APR)}>
+                  <InfoWrapper>
+                    <p>DEI-bDEI Staking APR</p>
+                    {bDeiDeiStakingAPR == 0 ? <Loader /> : <ItemValue>{bDeiDeiStakingAPR.toFixed(2)}%</ItemValue>}
                   </InfoWrapper>
                 </div>
               </Container>

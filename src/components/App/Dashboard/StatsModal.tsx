@@ -9,7 +9,6 @@ import useDebounce from 'hooks/useDebounce'
 import { useDeiStats } from 'hooks/useDeiStats'
 import { useGlobalDEIBorrowed } from 'hooks/usePoolData'
 import { useRedeemData } from 'hooks/useRedemptionPage'
-import { useGetApy } from 'hooks/useStakingInfo'
 import { useMemo } from 'react'
 import { useModalOpen, useDashboardModalToggle } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/reducer'
@@ -22,7 +21,8 @@ import Link from 'next/link'
 import { getMaximumDate } from 'utils/vest'
 import { useVestedAPY } from 'hooks/useVested'
 import { useVDeusStats } from 'hooks/useVDeusStats'
-import { usePoolInfo } from 'hooks/useVDeusStaking'
+import { useGetApr, usePoolInfo } from 'hooks/useVDeusStaking'
+import { useGetApy } from 'hooks/useStakingInfo'
 
 const ModalWrapper = styled.div`
   display: flex;
@@ -152,15 +152,15 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
 
   const vDEUS3MonthsPool = vDeusStakingPools[0] // vDEUS staked for 3 Months
   const { totalDeposited: totalDepositedFor3Months } = usePoolInfo(vDEUS3MonthsPool.pid)
-  const apr3Month = useGetApy(vDEUS3MonthsPool.pid)
+  const apr3Month = useGetApr(vDEUS3MonthsPool.pid)
 
   const vDEUS6MonthsPool = vDeusStakingPools[1] // vDEUS staked for 6 Months
   const { totalDeposited: totalDepositedFor6Months } = usePoolInfo(vDEUS6MonthsPool.pid)
-  const apr6Month = useGetApy(vDEUS6MonthsPool.pid)
+  const apr6Month = useGetApr(vDEUS6MonthsPool.pid)
 
   const vDEUS12MonthsPool = vDeusStakingPools[2] // vDEUS staked for 12 Months
   const { totalDeposited: totalDepositedFor12Months } = usePoolInfo(vDEUS12MonthsPool.pid)
-  const apr12Month = useGetApy(vDEUS12MonthsPool.pid)
+  const apr12Month = useGetApr(vDEUS12MonthsPool.pid)
 
   const totalvDeusStaked = useMemo(() => {
     return totalDepositedFor3Months + totalDepositedFor6Months + totalDepositedFor12Months
@@ -677,19 +677,19 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
               <p>
                 APR for <SecondaryLabel>12 Months</SecondaryLabel> Lockup
               </p>
-              {apr12Month === null ? <Loader /> : <ItemValue>{apr12Month}%</ItemValue>}
+              {apr12Month === null ? <Loader /> : <ItemValue>{apr12Month.toFixed(2)}%</ItemValue>}
             </ModalInfoWrapper>
             <ModalInfoWrapper>
               <p>
                 APR for <SecondaryLabel>6 Months</SecondaryLabel> Lockup
               </p>
-              {apr6Month === null ? <Loader /> : <ItemValue>{apr6Month}%</ItemValue>}
+              {apr6Month === null ? <Loader /> : <ItemValue>{apr6Month.toFixed(2)}%</ItemValue>}
             </ModalInfoWrapper>
             <ModalInfoWrapper>
               <p>
                 APR for <SecondaryLabel>3 Months</SecondaryLabel> Lockup
               </p>
-              {apr3Month === null ? <Loader /> : <ItemValue>{apr3Month}%</ItemValue>}
+              {apr3Month === null ? <Loader /> : <ItemValue>{apr3Month.toFixed(2)}%</ItemValue>}
             </ModalInfoWrapper>
           </ModalWrapper>
         )
@@ -698,7 +698,7 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
           <ModalWrapper>
             <div>
               Total vDEUS that is staked for <SecondaryLabel>12 Months</SecondaryLabel> for a APR of{' '}
-              <SecondaryLabel>{apr12Month}%</SecondaryLabel>
+              <SecondaryLabel>{apr12Month.toFixed(2)}%</SecondaryLabel>
             </div>
             <div>The rewards are paid out in DEUS</div>
             <ModalInfoWrapper>
@@ -716,7 +716,7 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
           <ModalWrapper>
             <div>
               Total vDEUS that is staked for <SecondaryLabel>6 Months</SecondaryLabel> for a APR of{' '}
-              <SecondaryLabel>{apr6Month}%</SecondaryLabel>
+              <SecondaryLabel>{apr6Month.toFixed(2)}%</SecondaryLabel>
             </div>
             <div>The rewards are paid out in DEUS</div>
             <ModalInfoWrapper>
@@ -734,7 +734,7 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
           <ModalWrapper>
             <div>
               Total vDEUS that is staked for <SecondaryLabel>3 Months</SecondaryLabel> for a APR of{' '}
-              <SecondaryLabel>{apr3Month}%</SecondaryLabel>
+              <SecondaryLabel>{apr3Month.toFixed(2)}%</SecondaryLabel>
             </div>
             <div>The rewards are paid out in DEUS</div>
             <ModalInfoWrapper>

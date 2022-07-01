@@ -2,14 +2,13 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import { toast } from 'react-hot-toast'
 
-import { useVoucherModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
 import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
 import { useVDeusStats } from 'hooks/useVDeusStats'
-// import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import { useGetApr, useUserInfo, usePoolInfo } from 'hooks/useVDeusStaking'
 
 import { DefaultHandlerError } from 'utils/parseError'
@@ -17,15 +16,11 @@ import { vDeusStakingType } from 'constants/stakings'
 import { vDeus, vDeusStaking } from 'constants/addresses'
 import { DEUS_TOKEN } from 'constants/tokens'
 
-// import ImageWithFallback from 'components/ImageWithFallback'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import Dropdown from 'components/DropDown'
 import { Row, RowCenter } from 'components/Row'
 import { formatDollarAmount } from 'utils/numbers'
-
-// import VoucherModal from 'components/App/NFT/VoucherModal'
-// import { formatDollarAmount } from 'utils/numbers'
 
 const Container = styled.div`
   display: flex;
@@ -228,7 +223,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     return
   }, [])
 
-  const { listOfVouchers, numberOfVouchers } = useVDeusStats()
+  const { listOfVouchers } = useVDeusStats()
 
   // const dropdownOptions = useMemo(() => {
   //   return listOfVouchers.map((tokenId: number) => {
@@ -244,13 +239,6 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
     value: `${tokenId}`,
   }))
 
-  const [currentVoucher, setCurrentVoucher] = useState<number | undefined>()
-  const toggleVoucherModal = useVoucherModalToggle()
-
-  function handleVoucherClick(flag: number) {
-    setCurrentVoucher(flag)
-    toggleVoucherModal()
-  }
   const stakingContract = useVDeusStakingContract()
   const masterChefContract = useVDeusMasterChefV2Contract()
   // const lockedNFTs = useUserLockedNfts()
@@ -439,7 +427,6 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
         </div>
         <div>{getClaimButton(pool)}</div>
       </ClaimWrapper>
-      {/* <VoucherModal voucherId={currentVoucher} /> */}
     </Wrapper>
   )
 }

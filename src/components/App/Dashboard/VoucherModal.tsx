@@ -68,6 +68,8 @@ export const DEFAULT_VOUCHER: Voucher = {
   currentTokenId: '',
   totalBurned: '',
   y: '',
+  usdcRedeemed: '',
+  deusRedeemable: '',
   timestamp: '',
 }
 

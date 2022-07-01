@@ -12,7 +12,7 @@ import { useModalOpen, useVoucherModalToggle } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/reducer'
 import styled from 'styled-components'
 import { formatDollarAmount } from 'utils/numbers'
-import { adjustedDeusPerDei, adjustedUsdcPerDei } from './DeusStats'
+import { adjustedDeusPerDei } from './DeusStats'
 
 const ModalWrapper = styled.div`
   display: flex;

@@ -169,6 +169,10 @@ export enum Dashboard {
   DEUS_PRICE = 'DEUS Price',
   VE_DEUS_LOCKED = 'veDEUS Locked',
   VDEUS_NFTS = 'vDEUS NFTs',
+  TOTAL_VDEUS_STAKED = 'Total vDEUS Staked',
+  VDEUS_STAKED_3MONTHS = 'Total vDEUS Staked for 3 Months',
+  VDEUS_STAKED_6MONTHS = 'Total vDEUS Staked for 6 Months',
+  VDEUS_STAKED_12MONTHS = 'Total vDEUS Staked for 12 Months',
 }
 
 export default function DeiStats() {

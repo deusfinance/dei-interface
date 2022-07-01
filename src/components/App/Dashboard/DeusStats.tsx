@@ -287,13 +287,13 @@ export default function DeusStats() {
           </Container>
           <Container>
             <Heading>vDEUS stats</Heading>
-            <div onClick={() => handleClick(Dashboard.DEUS_PRICE)}>
+            <div onClick={() => handleClick(Dashboard.TOTAL_VDEUS_STAKED)}>
               <InfoWrapper active>
                 <p>Total vDEUS staked</p>
                 {totalvDeusStaked === null ? <Loader /> : <ItemValue>{formatAmount(totalvDeusStaked)}</ItemValue>}
               </InfoWrapper>
             </div>
-            <div onClick={() => handleClick(Dashboard.DEUS_PRICE)}>
+            <div onClick={() => handleClick(Dashboard.VDEUS_STAKED_12MONTHS)}>
               <InfoWrapper>
                 <p>
                   Total vDEUS staked for <SecondaryLabel>12 months</SecondaryLabel>
@@ -305,7 +305,7 @@ export default function DeusStats() {
                 )}
               </InfoWrapper>
             </div>
-            <div onClick={() => handleClick(Dashboard.VE_DEUS_LOCKED)}>
+            <div onClick={() => handleClick(Dashboard.VDEUS_STAKED_6MONTHS)}>
               <InfoWrapper>
                 <p>
                   Total vDEUS staked for <SecondaryLabel>6 months</SecondaryLabel>
@@ -317,7 +317,7 @@ export default function DeusStats() {
                 )}
               </InfoWrapper>
             </div>
-            <div onClick={() => handleClick(Dashboard.VE_DEUS_LOCKED)}>
+            <div onClick={() => handleClick(Dashboard.VDEUS_STAKED_3MONTHS)}>
               <InfoWrapper>
                 <p>
                   Total vDEUS staked for <SecondaryLabel>3 months</SecondaryLabel>

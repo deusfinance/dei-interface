@@ -1,7 +1,7 @@
 import { Loader } from 'components/Icons'
 import { Modal, ModalHeader } from 'components/Modal'
 import { RowBetween } from 'components/Row'
-import { StakingPools } from 'constants/stakings'
+import { StakingPools, vDeusStakingPools } from 'constants/stakings'
 import { useTokenPerBlock } from 'hooks/useBdeiStakingPage'
 import { useBonderData, useGetRedeemTime } from 'hooks/useBondsPage'
 import { useDeiPrice, useDeusPrice } from 'hooks/useCoingeckoPrice'
@@ -22,6 +22,7 @@ import Link from 'next/link'
 import { getMaximumDate } from 'utils/vest'
 import { useVestedAPY } from 'hooks/useVested'
 import { useVDeusStats } from 'hooks/useVDeusStats'
+import { usePoolInfo } from 'hooks/useVDeusStaking'
 
 const ModalWrapper = styled.div`
   display: flex;
@@ -97,6 +98,10 @@ const ItemWrapper = styled.div`
   gap: 0.25rem;
 `
 
+const SecondaryLabel = styled.span`
+  color: ${({ theme }) => theme.yellow3};
+`
+
 export default function StatsModal({ stat }: { stat: Dashboard }) {
   const dashboardModalOpen = useModalOpen(ApplicationModal.DASHBOARD)
   const toggleDashboardModal = useDashboardModalToggle()
@@ -144,6 +149,22 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
   const { lockedVeDEUS } = useVestedAPY(undefined, getMaximumDate())
   const deusPrice = useDeusPrice()
   const { numberOfVouchers, listOfVouchers } = useVDeusStats()
+
+  const vDEUS3MonthsPool = vDeusStakingPools[0] // vDEUS staked for 3 Months
+  const { totalDeposited: totalDepositedFor3Months } = usePoolInfo(vDEUS3MonthsPool.pid)
+  const apr3Month = useGetApy(vDEUS3MonthsPool.pid)
+
+  const vDEUS6MonthsPool = vDeusStakingPools[1] // vDEUS staked for 6 Months
+  const { totalDeposited: totalDepositedFor6Months } = usePoolInfo(vDEUS6MonthsPool.pid)
+  const apr6Month = useGetApy(vDEUS6MonthsPool.pid)
+
+  const vDEUS12MonthsPool = vDeusStakingPools[2] // vDEUS staked for 12 Months
+  const { totalDeposited: totalDepositedFor12Months } = usePoolInfo(vDEUS12MonthsPool.pid)
+  const apr12Month = useGetApy(vDEUS12MonthsPool.pid)
+
+  const totalvDeusStaked = useMemo(() => {
+    return totalDepositedFor3Months + totalDepositedFor6Months + totalDepositedFor12Months
+  }, [totalDepositedFor3Months, totalDepositedFor6Months, totalDepositedFor12Months])
 
   function getModalBody() {
     switch (stat) {
@@ -640,6 +661,90 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
                 <ItemValue>You donot own any vDEUS vouchers</ItemValue>
               </ModalInfoWrapper>
             )}
+          </ModalWrapper>
+        )
+      case Dashboard.TOTAL_VDEUS_STAKED:
+        return (
+          <ModalWrapper>
+            <div>Total vDEUS that is staked for different periods to yeild respective yeilds.</div>
+            <div>Amount denominated under a given vDEUS voucher is the amount of DEI redeemed for the same.</div>
+            <div>APR is calculated considering the amount of DEI redeemed for a voucher and considering DEI at $1.</div>
+            <ModalInfoWrapper active>
+              <p>Total vDEUS staked</p>
+              {totalvDeusStaked === null ? <Loader /> : <ItemValue>{formatAmount(totalvDeusStaked)}</ItemValue>}
+            </ModalInfoWrapper>
+            <ModalInfoWrapper>
+              <p>
+                APR for <SecondaryLabel>12 Months</SecondaryLabel> Lockup
+              </p>
+              {apr12Month === null ? <Loader /> : <ItemValue>{apr12Month}%</ItemValue>}
+            </ModalInfoWrapper>
+            <ModalInfoWrapper>
+              <p>
+                APR for <SecondaryLabel>6 Months</SecondaryLabel> Lockup
+              </p>
+              {apr6Month === null ? <Loader /> : <ItemValue>{apr6Month}%</ItemValue>}
+            </ModalInfoWrapper>
+            <ModalInfoWrapper>
+              <p>
+                APR for <SecondaryLabel>3 Months</SecondaryLabel> Lockup
+              </p>
+              {apr3Month === null ? <Loader /> : <ItemValue>{apr3Month}%</ItemValue>}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.VDEUS_STAKED_12MONTHS:
+        return (
+          <ModalWrapper>
+            <div>
+              Total vDEUS that is staked for <SecondaryLabel>12 Months</SecondaryLabel> for a APR of{' '}
+              <SecondaryLabel>{apr12Month}%</SecondaryLabel>
+            </div>
+            <div>The rewards are paid out in DEUS</div>
+            <ModalInfoWrapper>
+              <p>Total vDEUS staked for 12 Months</p>
+              {totalDepositedFor12Months === null ? (
+                <Loader />
+              ) : (
+                <ItemValue>{formatAmount(totalDepositedFor12Months)}</ItemValue>
+              )}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.VDEUS_STAKED_6MONTHS:
+        return (
+          <ModalWrapper>
+            <div>
+              Total vDEUS that is staked for <SecondaryLabel>6 Months</SecondaryLabel> for a APR of{' '}
+              <SecondaryLabel>{apr6Month}%</SecondaryLabel>
+            </div>
+            <div>The rewards are paid out in DEUS</div>
+            <ModalInfoWrapper>
+              <p>Total vDEUS staked for 6 Months</p>
+              {totalDepositedFor6Months === null ? (
+                <Loader />
+              ) : (
+                <ItemValue>{formatAmount(totalDepositedFor6Months)}</ItemValue>
+              )}
+            </ModalInfoWrapper>
+          </ModalWrapper>
+        )
+      case Dashboard.VDEUS_STAKED_3MONTHS:
+        return (
+          <ModalWrapper>
+            <div>
+              Total vDEUS that is staked for <SecondaryLabel>3 Months</SecondaryLabel> for a APR of{' '}
+              <SecondaryLabel>{apr3Month}%</SecondaryLabel>
+            </div>
+            <div>The rewards are paid out in DEUS</div>
+            <ModalInfoWrapper>
+              <p>Total vDEUS staked for 3 Months</p>
+              {totalDepositedFor3Months === null ? (
+                <Loader />
+              ) : (
+                <ItemValue>{formatAmount(totalDepositedFor3Months)}</ItemValue>
+              )}
+            </ModalInfoWrapper>
           </ModalWrapper>
         )
     }

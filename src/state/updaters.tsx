@@ -3,6 +3,7 @@ import BorrowUpdater from './borrow/updater'
 import MulticallUpdater from './multicall/updater'
 import TransactionUpdater from './transactions/updater'
 import UserUpdater from './user/updater'
+import DashboardUpdater from './dashboard/updater'
 
 export default function Updaters() {
   return (
@@ -12,6 +13,7 @@ export default function Updaters() {
       <MulticallUpdater />
       <TransactionUpdater />
       <UserUpdater />
+      <DashboardUpdater />
     </>
   )
 }

@@ -18,6 +18,8 @@ import LockManager from 'components/App/Vest/LockManager'
 import APYManager from 'components/App/Vest/APYManager'
 import { RowEnd } from 'components/Row'
 import Box from 'components/Box'
+import { Info } from 'components/Icons'
+import { ToolTip } from 'components/ToolTip'
 
 const Container = styled.div`
   display: flex;
@@ -78,6 +80,29 @@ const UpperRow = styled(RowEnd)`
   }
 `
 
+const InfoIcon = styled(Info)`
+  color: ${({ theme }) => theme.yellow2};
+`
+const CustomTooltip = styled(ToolTip)`
+  max-width: 380px !important;
+`
+
+const AprWrapper = styled.a`
+  align-items: center;
+  text-decoration: none;
+  justify-content: center;
+  color: ${({ theme }) => theme.text2};
+  display: flex;
+  :hover {
+    opacity: 0.7;
+    text-decoration: underline;
+    color: ${({ theme }) => theme.yellow2};
+  }
+  :focus {
+    outline: none;
+  }
+`
+
 export default function Vest() {
   const { chainId, account } = useWeb3React()
   const [showLockManager, setShowLockManager] = useState(false)
@@ -117,7 +142,12 @@ export default function Vest() {
           </Link>
           <Box>DEUS Price: {formatDollarAmount(parseFloat(deusPrice), 2)}</Box>
           <Box>veDEUS Locked: {formatAmount(parseFloat(lockedVeDEUS), 0)}</Box>
-          {/* <Box>Max APR: {formatAmount(parseFloat(globalAPY), 0)}%</Box> */}
+          <Box data-for="id" data-tip={'veDEUS rewards are fully accruing in the Background'}>
+            <CustomTooltip id="id" />
+            <AprWrapper target={'target'} href={'https://lafayettetabor.medium.com/vedeus-dynamics-40a4a5489ae1'}>
+              <p style={{ marginRight: '10px' }}>APR</p> <InfoIcon size={15} />
+            </AprWrapper>
+          </Box>
         </UpperRow>
         <Table nftIds={nftIds} toggleLockManager={toggleLockManager} toggleAPYManager={toggleAPYManager} />
       </Wrapper>

@@ -14,7 +14,7 @@ import ImageWithFallback from 'components/ImageWithFallback'
 import { RowCenter } from 'components/Row'
 import Column from 'components/Column'
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing, Info } from 'components/Icons'
+import { DotFlashing } from 'components/Icons'
 
 import DEUS_LOGO from '/public/static/images/tokens/deus.svg'
 import { formatAmount } from 'utils/numbers'
@@ -63,8 +63,7 @@ const Cell = styled.td<{
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     :nth-child(3),
-    :nth-child(4),
-    :nth-child(5) {
+    :nth-child(4) {
       display: none;
     }
   `}
@@ -132,7 +131,7 @@ export default function Table({
               <Cell>Vest Amount</Cell>
               <Cell>Vest Value</Cell>
               <Cell>Vest Expiration</Cell>
-              <Cell>APR</Cell>
+              {/* <Cell>APR</Cell> */}
               <Cell>Actions</Cell>
             </tr>
           </Head>
@@ -229,12 +228,12 @@ function TableRow({
       <Cell>{deusAmount} DEUS</Cell>
       <Cell>{formatAmount(parseFloat(veDEUSAmount))} veDEUS</Cell>
       <Cell style={{ padding: '5px 10px' }}>{getExpirationCell()}</Cell>
-      <Cell>
+      {/* <Cell>
         <CellRow>
           {formatAmount(parseFloat(userAPY), 0)}%
           <Info onClick={() => toggleAPYManager(nftId)} />
         </CellRow>
-      </Cell>
+      </Cell> */}
       <Cell style={{ padding: '5px 10px' }}>
         <PrimaryButton onClick={() => toggleLockManager(nftId)}>Update Lock</PrimaryButton>
       </Cell>

@@ -84,7 +84,7 @@ export default function Vest() {
   const [showAPYManager, setShowAPYManager] = useState(false)
   const [nftId, setNftId] = useState(0)
   const nftIds = useOwnedNfts()
-  const { lockedVeDEUS, globalAPY } = useVestedAPY(undefined, getMaximumDate())
+  const { lockedVeDEUS } = useVestedAPY(undefined, getMaximumDate())
   const deusPrice = useDeusPrice()
 
   useEffect(() => {
@@ -117,7 +117,7 @@ export default function Vest() {
           </Link>
           <Box>DEUS Price: {formatDollarAmount(parseFloat(deusPrice), 2)}</Box>
           <Box>veDEUS Locked: {formatAmount(parseFloat(lockedVeDEUS), 0)}</Box>
-          <Box>Max APR: {formatAmount(parseFloat(globalAPY), 0)}%</Box>
+          {/* <Box>Max APR: {formatAmount(parseFloat(globalAPY), 0)}%</Box> */}
         </UpperRow>
         <Table nftIds={nftIds} toggleLockManager={toggleLockManager} toggleAPYManager={toggleAPYManager} />
       </Wrapper>

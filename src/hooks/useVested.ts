@@ -9,7 +9,6 @@ import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { useSupportedChainId } from './useSupportedChainId'
 import { useVeDeusContract } from './useContract'
 import { useDeusPrice } from './useCoingeckoPrice'
-import { BN_ZERO } from 'utils/numbers'
 
 dayjs.extend(utc)
 
@@ -51,7 +50,7 @@ export function useVestedInformation(nftId: number): {
     [calls, balanceResult, lockedResult]
   )
 }
-
+const CIRCULATING_SUPPLY = 102000
 const DEUS_EMISSION_PER_WEEK = 2500
 const WEEKLY_ACCRUED_DEI_FEES = '1'
 
@@ -104,8 +103,7 @@ export function useVestedAPY(
   const { deusCirculatingSupply } = useDeusMetrics()
 
   const annualUSDEmissionToVeDEUS: BigNumber = useMemo(() => {
-    const lockedAntiDilutiveShare =
-      deusCirculatingSupply > 0 ? new BigNumber(lockedVeDEUS).div(deusCirculatingSupply) : BN_ZERO
+    const lockedAntiDilutiveShare = new BigNumber(lockedVeDEUS).div(deusCirculatingSupply || CIRCULATING_SUPPLY)
     const annualDEUSEmissionToVeDEUS = lockedAntiDilutiveShare.times(DEUS_EMISSION_PER_WEEK).div(7).times(365)
     return annualDEUSEmissionToVeDEUS.times(deusPrice)
   }, [lockedVeDEUS, deusPrice, deusCirculatingSupply])

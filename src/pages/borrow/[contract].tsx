@@ -97,7 +97,7 @@ export default function BorrowDEI() {
   const router = useRouter()
   const pool = useBorrowPoolFromURL()
   const { collateralCurrency, borrowCurrency } = useCurrenciesFromPool(pool ?? undefined)
-  const [selectedAction, setSelectedAction] = useState<BorrowAction>(BorrowAction.BORROW)
+  const [selectedAction, setSelectedAction] = useState<BorrowAction>(BorrowAction.REPAY)
   const isSupportedChainId = useSupportedChainId()
   const toggleWalletModal = useWalletModalToggle()
   const rpcChangerCallback = useRpcChangerCallback()

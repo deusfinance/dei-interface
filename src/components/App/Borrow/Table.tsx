@@ -156,7 +156,7 @@ function TableRow({
         {formatAmount(parseFloat(balance1))} SEX
       </Cel>
       <Cel style={{ padding: '5px 10px' }}>
-        <PrimaryButton onClick={() => onMintClick(pool.contract.address, pool.version)}>Borrow</PrimaryButton>
+        <PrimaryButton onClick={() => onMintClick(pool.contract.address, pool.version)}>Repay</PrimaryButton>
       </Cel>
     </Row>
   )

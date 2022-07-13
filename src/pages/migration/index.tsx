@@ -213,14 +213,14 @@ export default function Migration() {
           currency={deiCurrency}
           value={amountIn}
           onChange={(value: string) => setAmountIn(value)}
-          title={'From'}
+          type={'From'}
         />
         <ArrowDown color={'#d87466'} />
         <InputBox
           currency={deiv2Currency}
           value={amountOut1}
           onChange={(value: string) => console.log(value)}
-          title={'To'}
+          type={'To'}
           disabled={true}
         />
         <div style={{ marginTop: '20px' }}></div>

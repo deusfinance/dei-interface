@@ -10,7 +10,6 @@ import { maxAmountSpend } from 'utils/currency'
 
 import ImageWithFallback from 'components/ImageWithFallback'
 import { NumericalInput } from 'components/Input'
-import { RowBetween, RowEnd } from '../../Row/index'
 
 const Wrapper = styled.div`
   background: rgb(28 28 28);

@@ -20,6 +20,8 @@ export interface Colors {
   bg1: Color
   bg2: Color
   bg3: Color
+  bg4: Color
+  bg5: Color
 
   // borders
   border1: Color
@@ -32,6 +34,7 @@ export interface Colors {
   primary1: Color
   primary2: Color
   primary3: Color
+  primary4: Color
 
   primaryText1: Color
 

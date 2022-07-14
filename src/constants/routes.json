@@ -38,5 +38,13 @@
     "text": "vDEUS",
     "path": "/vdeus",
     "exact": true
+  },
+  {
+    "id": "7",
+    "text": "DEIv2",
+    "children": [
+      { "id": "71", "text": "Migrator", "path": "/migration" },
+      { "id": "72", "text": "Mint", "path": "/mint" }
+    ]
   }
 ]

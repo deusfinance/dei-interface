@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -48,13 +48,56 @@ const Wrapper = styled(Container)`
   }
 `
 
+export const StyleSwapBase = css`
+  background-color: rgb(13 13 13);
+  border-radius: 15px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  text-align: center;
+  margin: auto;
+  width: 100%;
+  max-width: 500px;
+`
+
+export const StyleTitles = css`
+  .inner-title {
+    font-size: 0.8rem;
+    /* opacity: 0.75; */
+  }
+`
+
+export const FlexCenter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+export const flexCenter = css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+const SlippageWrapper = styled(FlexCenter)`
+  ${StyleSwapBase}
+  ${StyleTitles}
+  justify-content: space-between;
+  padding: 10px 20px;
+  width: clamp(250px, 90%, 500px);
+
+  &::first-child {
+    position: absolute;
+    left: 20px;
+  }
+`
+
 const TopWrapper = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   width: 100%;
   max-width: 1200px;
-  margin 0 auto;
+  margin: 0 auto;
 `
 
 const FarmWrapper = styled(Wrapper)`
@@ -350,7 +393,9 @@ export default function Liquidity() {
           </ToggleState>
 
           {getAppComponent()}
-          <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
+          <SlippageWrapper>
+            <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
+          </SlippageWrapper>
         </LiquidityWrapper>
 
         <FarmWrapper>

@@ -109,6 +109,7 @@ function colors(themeName: SupportedThemes): Colors {
       yellow1: '#E3A507',
       yellow2: '#FF8F00',
       yellow3: '#F3B71E',
+      yellow4: '#FFBA93',
       blue1: '#0068FC',
       blue2: '#0068FC',
 
@@ -166,6 +167,7 @@ function colors(themeName: SupportedThemes): Colors {
       yellow1: '#E3A507',
       yellow2: '#FF8F00',
       yellow3: '#F3B71E',
+      yellow4: '#FFBA93',
       blue1: '#2172E5',
       blue2: '#5199FF',
 
@@ -333,5 +335,14 @@ export const ThemedGlobalStyle = createGlobalStyle`
   }
   *::-webkit-scrollbar {
     display: none; /* for Chrome, Safari, and Opera */
+  }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  /* Firefox */
+  input[type=number] {
+    -moz-appearance: textfield;
   }
 `

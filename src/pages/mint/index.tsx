@@ -16,12 +16,13 @@ import { DynamicRedeemer } from 'constants/addresses'
 import Mint_IMG from '../../../public/static/images/pages/migration/TableauBackground.svg'
 
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
+import { DotFlashing, Loader } from 'components/Icons'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Migration/InputBox'
-import { RowEnd } from 'components/Row'
+import { RowBetween, RowEnd } from 'components/Row'
 import Image from 'next/image'
+import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 
 const Container = styled.div`
   display: flex;
@@ -78,6 +79,25 @@ const TitleIMGWrap = styled(RowEnd)`
   border-radius: 15px;
 `
 
+const InfoWrapper = styled(RowBetween)`
+  align-items: center;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  margin-top: 6px;
+  height: 30px;
+  width: 97%;
+`
+
+const ItemValue = styled.div`
+  color: ${({ theme }) => theme.yellow4};
+`
+
+const SlippageWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+`
+
 export default function Migration() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -87,6 +107,8 @@ export default function Migration() {
   const deiv2Currency = DEIv2_TOKEN
   const usdcCurrency = USDC_TOKEN
   const usdcCurrencyBalance = useCurrencyBalance(account ?? undefined, usdcCurrency)
+
+  const [slippage, setSlippage] = useState(0.5)
 
   const { amountOut1, amountOut2 } = useRedeemAmountsOut(debouncedAmountIn, usdcCurrency)
 
@@ -214,6 +236,20 @@ export default function Migration() {
         <div style={{ marginTop: '30px' }}></div>
         {getApproveButton()}
         {getActionButton()}
+
+        <SlippageWrapper>
+          <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
+        </SlippageWrapper>
+
+        <InfoWrapper>
+          <p>Minter Contract</p>
+          <ItemValue> Proxy </ItemValue>
+        </InfoWrapper>
+
+        <InfoWrapper>
+          <p>Minting Fee</p>
+          {false ? <Loader /> : <ItemValue> Zero </ItemValue>}
+        </InfoWrapper>
       </Wrapper>
       <Disclaimer />
     </Container>

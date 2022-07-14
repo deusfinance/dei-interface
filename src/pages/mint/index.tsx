@@ -11,17 +11,18 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useRedemptionCallback from 'hooks/useRedemptionCallback'
 import { useRedeemAmountsOut } from 'hooks/useRedemptionPage'
 import { tryParseAmount } from 'utils/parse'
-import { DEI_TOKEN, DEIv2_TOKEN, USDC_TOKEN } from 'constants/tokens'
+import { DEIv2_TOKEN, USDC_TOKEN } from 'constants/tokens'
 import { DynamicRedeemer } from 'constants/addresses'
-import Migration_IMG from '../../../public/static/images/pages/migration/TableauBackground.svg'
+import Mint_IMG from '../../../public/static/images/pages/migration/TableauBackground.svg'
 
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
+import { DotFlashing, Loader } from 'components/Icons'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Migration/InputBox'
-import { RowEnd } from 'components/Row'
+import { RowBetween, RowEnd } from 'components/Row'
 import Image from 'next/image'
+import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 
 const Container = styled.div`
   display: flex;
@@ -78,46 +79,62 @@ const TitleIMGWrap = styled(RowEnd)`
   border-radius: 15px;
 `
 
+const InfoWrapper = styled(RowBetween)`
+  align-items: center;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  margin-top: 6px;
+  height: 30px;
+  width: 97%;
+`
+
+const ItemValue = styled.div`
+  color: ${({ theme }) => theme.yellow4};
+`
+
+const SlippageWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+`
+
 export default function Migration() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const debouncedAmountIn = useDebounce(amountIn, 500)
-  const deiCurrency = DEI_TOKEN
   const deiv2Currency = DEIv2_TOKEN
   const usdcCurrency = USDC_TOKEN
-  const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
+  const usdcCurrencyBalance = useCurrencyBalance(account ?? undefined, usdcCurrency)
 
-  const { amountOut1, amountOut2 } = useRedeemAmountsOut(debouncedAmountIn, deiCurrency)
+  const [slippage, setSlippage] = useState(0.5)
 
-  const deiAmount = useMemo(() => {
-    return tryParseAmount(amountIn, deiCurrency || undefined)
-  }, [amountIn, deiCurrency])
-
-  const insufficientBalance = useMemo(() => {
-    if (!deiAmount) return false
-    return deiCurrencyBalance?.lessThan(deiAmount)
-  }, [deiCurrencyBalance, deiAmount])
+  const { amountOut1, amountOut2 } = useRedeemAmountsOut(debouncedAmountIn, usdcCurrency)
 
   const usdcAmount = useMemo(() => {
-    return tryParseAmount(amountOut1, usdcCurrency || undefined)
-  }, [amountOut1, usdcCurrency])
+    return tryParseAmount(amountIn, usdcCurrency || undefined)
+  }, [amountIn, usdcCurrency])
+
+  const insufficientBalance = useMemo(() => {
+    if (!usdcAmount) return false
+    return usdcCurrencyBalance?.lessThan(usdcAmount)
+  }, [usdcCurrencyBalance, usdcAmount])
 
   const {
     state: redeemCallbackState,
     callback: redeemCallback,
     error: redeemCallbackError,
-  } = useRedemptionCallback(deiCurrency, usdcCurrency, deiAmount, usdcAmount, amountOut2)
+  } = useRedemptionCallback(usdcCurrency, usdcCurrency, usdcAmount, usdcAmount, amountOut2)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
   const spender = useMemo(() => (chainId ? DynamicRedeemer[chainId] : undefined), [chainId])
-  const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
+  const [approvalState, approveCallback] = useApproveCallback(usdcCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
+    const show = usdcCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [deiCurrency, approvalState, amountIn])
+  }, [usdcCurrency, approvalState, amountIn])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -125,8 +142,8 @@ export default function Migration() {
     setAwaitingApproveConfirmation(false)
   }
 
-  const handleMigrate = useCallback(async () => {
-    console.log('called handleMigrate')
+  const handleMint = useCallback(async () => {
+    console.log('called handleMint')
     console.log(redeemCallbackState, redeemCallback, redeemCallbackError)
     if (!redeemCallback) return
 
@@ -164,7 +181,7 @@ export default function Migration() {
       )
     }
     if (showApprove)
-      return <MigrationButton onClick={handleApprove}>Allow us to spend {deiCurrency?.symbol}</MigrationButton>
+      return <MigrationButton onClick={handleApprove}>Allow us to spend {usdcCurrency?.symbol}</MigrationButton>
 
     return null
   }
@@ -175,7 +192,7 @@ export default function Migration() {
     if (showApprove) return null
 
     if (insufficientBalance)
-      return <MigrationButton disabled>Insufficient {deiCurrency?.symbol} Balance</MigrationButton>
+      return <MigrationButton disabled>Insufficient {usdcCurrency?.symbol} Balance</MigrationButton>
 
     if (awaitingRedeemConfirmation) {
       return (
@@ -184,26 +201,26 @@ export default function Migration() {
         </MigrationButton>
       )
     }
-    return <MigrationButton onClick={() => handleMigrate()}>Migrate to {deiv2Currency?.symbol}</MigrationButton>
+    return <MigrationButton onClick={() => handleMint()}>Mint {deiv2Currency?.symbol}</MigrationButton>
   }
 
   return (
     <Container>
       <Hero>
-        <div>Migrate to DEIv2</div>
-        <HeroSubtext>Turn your DEI to the next generation</HeroSubtext>
+        <div>Mint DEIv2</div>
+        <HeroSubtext>Happy mint, Happy mint, Happy mint</HeroSubtext>
       </Hero>
 
       <TopTableau>
         <TitleIMGWrap>
-          <Image src={Migration_IMG} height={'90px'} alt="nft" />
+          <Image src={Mint_IMG} height={'90px'} alt="nft" />
         </TitleIMGWrap>
 
-        <TableauTitle>Migration</TableauTitle>
+        <TableauTitle>Mint</TableauTitle>
       </TopTableau>
       <Wrapper>
         <InputBox
-          currency={deiCurrency}
+          currency={usdcCurrency}
           value={amountIn}
           onChange={(value: string) => setAmountIn(value)}
           type={'from'}
@@ -219,6 +236,20 @@ export default function Migration() {
         <div style={{ marginTop: '30px' }}></div>
         {getApproveButton()}
         {getActionButton()}
+
+        <SlippageWrapper>
+          <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
+        </SlippageWrapper>
+
+        <InfoWrapper>
+          <p>Minter Contract</p>
+          <ItemValue> Proxy </ItemValue>
+        </InfoWrapper>
+
+        <InfoWrapper>
+          <p>Minting Fee</p>
+          {false ? <Loader /> : <ItemValue> Zero </ItemValue>}
+        </InfoWrapper>
       </Wrapper>
       <Disclaimer />
     </Container>

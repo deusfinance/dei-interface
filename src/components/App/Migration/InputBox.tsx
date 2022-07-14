@@ -26,15 +26,17 @@ const Wrapper = styled.div<{ isOutput?: boolean }>`
   vertical-align: middle;
   display: flex;
   flex-direction: row;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-
-  `}
 `
 
 const InputWrapper = styled.div`
   padding-top: 8px;
   padding-right: 16px;
+  position: absolute;
+  right: 10px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    right: 0;
+  `}
 `
 
 const Row = styled.div`
@@ -44,6 +46,7 @@ const Row = styled.div`
   gap: 10px;
   font-size: 1.5rem;
   align-items: center;
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
     gap: 3px;
   `}
@@ -64,6 +67,7 @@ const RightWrapper = styled.div`
   border-left: 1px solid #444444;
   padding: 6px;
   height: 100%;
+  position: relative;
 `
 
 const InfoWrapper = styled.div`
@@ -182,7 +186,7 @@ export default function InputBox({
                 <RightWrapper>
                   <InfoWrapper>
                     <CurrencySymbol>{currency?.symbol}</CurrencySymbol>
-                    <Balance onClick={handleClick} isOutput={isOutput}>
+                    <Balance onClick={handleClick} isOutput={!isOutput}>
                       balance: {balanceDisplay ? balanceDisplay : '0.00'}
                       {!disabled && <span>MAX</span>}
                     </Balance>
@@ -205,7 +209,7 @@ export default function InputBox({
           <RightWrapper>
             <InfoWrapper>
               <CurrencySymbol>{currency?.symbol}</CurrencySymbol>
-              <Balance onClick={handleClick} isOutput={isOutput}>
+              <Balance onClick={handleClick} isOutput={!isOutput}>
                 balance: {balanceDisplay ? balanceDisplay : '0.00'}
                 {!disabled && <span>MAX</span>}
               </Balance>

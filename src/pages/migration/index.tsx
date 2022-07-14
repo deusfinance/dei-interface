@@ -174,15 +174,13 @@ export default function Migration() {
   }
 
   function getActionButton(): JSX.Element | null {
-    if (!chainId || !account) {
-      return <MigrationButton onClick={toggleWalletModal}>Connect Wallet</MigrationButton>
-    }
-    if (showApprove) {
-      return null
-    }
-    if (insufficientBalance) {
+    if (!chainId || !account) return <MigrationButton onClick={toggleWalletModal}>Connect Wallet</MigrationButton>
+
+    if (showApprove) return null
+
+    if (insufficientBalance)
       return <MigrationButton disabled>Insufficient {deiCurrency?.symbol} Balance</MigrationButton>
-    }
+
     if (awaitingRedeemConfirmation) {
       return (
         <MigrationButton>
@@ -190,7 +188,6 @@ export default function Migration() {
         </MigrationButton>
       )
     }
-
     return <MigrationButton onClick={() => handleRedeem()}>Migrate to {deiv2Currency?.symbol}</MigrationButton>
   }
 
@@ -213,14 +210,14 @@ export default function Migration() {
           currency={deiCurrency}
           value={amountIn}
           onChange={(value: string) => setAmountIn(value)}
-          type={'From'}
+          type={'from'}
         />
         <ArrowDown color={'#d87466'} />
         <InputBox
           currency={deiv2Currency}
           value={amountOut1}
           onChange={(value: string) => console.log(value)}
-          type={'To'}
+          type={'to'}
           disabled={true}
         />
         <div style={{ marginTop: '20px' }}></div>

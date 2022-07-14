@@ -75,6 +75,8 @@ function colors(themeName: SupportedThemes): Colors {
       bg1: '#F5F6FC',
       bg2: '#F0F0F7',
       bg3: '#E9E9F3',
+      bg4: '#232323',
+      bg5: '#181818',
 
       // borders
       border1: '#B8B8BE',
@@ -90,6 +92,7 @@ function colors(themeName: SupportedThemes): Colors {
       primary1: 'linear-gradient(90deg, #FFBA35 1.54%, #FFB463 98.9%)',
       primary2: 'linear-gradient(90deg, #FFBA35 1.54%, #FFA76A 50%)',
       primary3: '#FFBA35',
+      primary4: 'linear-gradient(92.33deg, #DE4A7B -10.26%, #E29D52 80%)',
 
       // color text
       primaryText1: '#FFB463', // TODO check if we want these values
@@ -131,6 +134,8 @@ function colors(themeName: SupportedThemes): Colors {
       bg1: 'rgba(20, 20, 20, 0.9)',
       bg2: '#2F2F2F',
       bg3: '#262B35',
+      bg4: '#232323',
+      bg5: '#181818',
 
       // borders
       border1: '#545454',
@@ -144,6 +149,7 @@ function colors(themeName: SupportedThemes): Colors {
       primary1: 'linear-gradient(92.33deg, #E29D52 -10.26%, #CE4A7B 144.81%)',
       primary2: 'linear-gradient(92.33deg, #E29D52 -10.26%, #DE4A7B 80%)',
       primary3: '#FFBA35',
+      primary4: 'linear-gradient(92.33deg, #DE4A7B -10.26%, #E29D52 80%)',
 
       // color text
       primaryText1: '#1749FA', // TODO check if we want these values

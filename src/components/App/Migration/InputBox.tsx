@@ -11,22 +11,24 @@ import { maxAmountSpend } from 'utils/currency'
 import ImageWithFallback from 'components/ImageWithFallback'
 import { NumericalInput } from 'components/Input'
 
-const Wrapper = styled.div`
-  background: rgb(28 28 28);
+const Wrapper = styled.div<{ isOutput?: boolean }>`
+  background: ${({ theme, isOutput }) => (isOutput ? theme.bg5 : theme.bg4)};
   border-radius: 12px;
   color: ${({ theme }) => theme.text2};
   white-space: nowrap;
   height: 80px;
   gap: 10px;
-  /* padding: 0.6rem; */
   border: 1px solid #444444;
+  border-color: ${({ theme, isOutput }) => (isOutput ? '#E29D52' : theme.text2)};
+  border-right-color: unset;
+
   align-items: center;
   vertical-align: middle;
   display: flex;
   flex-direction: row;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    // padding: 0.5rem;
+
   `}
 `
 
@@ -70,17 +72,21 @@ const InfoWrapper = styled.div`
   justify-content: space-around;
 `
 
-const LogoWrapper = styled.div`
+const LogoWrapper = styled.div<{ isOutput?: boolean }>`
+  height: 100%;
   padding-left: 10px;
+  display: flex;
+  align-items: center;
+  min-width: 38px;
 `
 
-const Balance = styled(Row)`
+const Balance = styled(Row)<{ isOutput?: boolean }>`
   font-size: 0.7rem;
   text-align: center;
   margin-top: 5px;
   margin-left: 4px;
   gap: 5px;
-  color: ${({ theme }) => theme.text2};
+  color: ${({ theme, isOutput }) => (isOutput ? '#FFBA93' : theme.text2)};
 
   font-family: 'IBM Plex Mono';
   font-weight: 500;
@@ -106,6 +112,23 @@ const Balance = styled(Row)`
   &:hover {
     cursor: pointer;
   }
+`
+
+const TopBorderWrap = styled.div`
+  background: ${({ theme }) => theme.primary4};
+  padding: 1px;
+  border-radius: 0px 12px 12px 0px;
+  height: 80px;
+  width: 100%;
+`
+
+const TopBorder = styled.div`
+  border-radius: 0px 12px 12px 0px;
+  background: ${({ theme }) => theme.bg0};
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 `
 
 export default function InputBox({
@@ -138,10 +161,12 @@ export default function InputBox({
     return isMobile ? 35 : 38
   }
 
+  const isOutput = useMemo(() => type === 'to', [type])
+
   return (
     <>
-      <Wrapper>
-        <LogoWrapper>
+      <Wrapper isOutput={isOutput}>
+        <LogoWrapper isOutput={isOutput}>
           <ImageWithFallback
             src={logo}
             width={getImageSize()}
@@ -150,28 +175,53 @@ export default function InputBox({
             round
           />
         </LogoWrapper>
-        <RightWrapper>
-          <InfoWrapper>
-            <CurrencySymbol>{currency?.symbol}</CurrencySymbol>
-            {currency?.symbol != 'DEUS' ? (
-              <Balance onClick={handleClick}>
-                balance:
-                {balanceDisplay ? balanceDisplay : '0.00'}
+        {isOutput ? (
+          <>
+            <TopBorderWrap>
+              <TopBorder>
+                <RightWrapper>
+                  <InfoWrapper>
+                    <CurrencySymbol>{currency?.symbol}</CurrencySymbol>
+                    <Balance onClick={handleClick} isOutput={isOutput}>
+                      balance: {balanceDisplay ? balanceDisplay : '0.00'}
+                      {!disabled && <span>MAX</span>}
+                    </Balance>
+                  </InfoWrapper>
+                  <InputWrapper>
+                    <NumericalInput
+                      value={value || ''}
+                      onUserInput={onChange}
+                      placeholder="0.0"
+                      autoFocus
+                      disabled={disabled}
+                      style={{ textAlign: 'right', height: '50px', fontSize: '1.3rem' }}
+                    />
+                  </InputWrapper>
+                </RightWrapper>
+              </TopBorder>
+            </TopBorderWrap>
+          </>
+        ) : (
+          <RightWrapper>
+            <InfoWrapper>
+              <CurrencySymbol>{currency?.symbol}</CurrencySymbol>
+              <Balance onClick={handleClick} isOutput={isOutput}>
+                balance: {balanceDisplay ? balanceDisplay : '0.00'}
                 {!disabled && <span>MAX</span>}
               </Balance>
-            ) : null}
-          </InfoWrapper>
-          <InputWrapper>
-            <NumericalInput
-              value={value || ''}
-              onUserInput={onChange}
-              placeholder="0.0"
-              autoFocus
-              disabled={disabled}
-              style={{ textAlign: 'right', height: '50px', fontSize: '1.3rem' }}
-            />
-          </InputWrapper>
-        </RightWrapper>
+            </InfoWrapper>
+            <InputWrapper>
+              <NumericalInput
+                value={value || ''}
+                onUserInput={onChange}
+                placeholder="0.0"
+                autoFocus
+                disabled={disabled}
+                style={{ textAlign: 'right', height: '50px', fontSize: '1.3rem' }}
+              />
+            </InputWrapper>
+          </RightWrapper>
+        )}
       </Wrapper>
     </>
   )

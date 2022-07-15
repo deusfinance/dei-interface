@@ -205,6 +205,7 @@ export function useRedeemAmountsOut(
   amountOut2: string
 } {
   const amountInBN = amountIn ? toBN(amountIn).times(BN_TEN.pow(tokenIn.decimals)).toFixed(0) : ''
+
   const contract = useDynamicRedeemerContract()
 
   const amountOutCall = useMemo(
@@ -230,7 +231,7 @@ export function useRedeemAmountsOut(
     !usdRedeem || !usdRedeem.result ? '' : toBN(formatUnits(usdRedeem.result[0].toString(), 6)).toString()
 
   const amountOut2 =
-    !deusRedeem || !deusRedeem.result ? '' : toBN(formatUnits(deusRedeem.result[0].toString(), 6)).toString()
+    !deusRedeem || !deusRedeem.result ? '' : toBN(formatUnits(deusRedeem.result[0].toString(), 24)).toString()
 
   return {
     amountOut1,

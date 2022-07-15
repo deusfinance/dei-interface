@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { darken } from 'polished'
-import { ArrowDown, Plus } from 'react-feather'
+import { ArrowDown } from 'react-feather'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -55,14 +55,14 @@ const Description = styled.div`
   color: ${({ theme }) => darken(0.4, theme.text1)};
 `
 
-const PlusIcon = styled(Plus)`
-  margin: -14px auto;
-  z-index: 1000;
-  padding: 3px;
-  border: 1px solid black;
-  border-radius: 15px;
-  background-color: rgb(0 0 0);
-`
+// const PlusIcon = styled(Plus)`
+//   margin: -14px auto;
+//   z-index: 1000;
+//   padding: 3px;
+//   border: 1px solid black;
+//   border-radius: 15px;
+//   background-color: rgb(0 0 0);
+// `
 
 const RedeemButton = styled(PrimaryButton)`
   border-radius: 15px;
@@ -215,14 +215,14 @@ export default function Redemption() {
         />
         <ArrowDown />
 
-        <InputBox
+        {/* <InputBox
           currency={usdcCurrency}
           value={amountOut1}
           onChange={(value: string) => console.log(value)}
           title={'To'}
           disabled={true}
         />
-        <PlusIcon size={'30px'} />
+        <PlusIcon size={'30px'} /> */}
         <InputBox
           currency={deusCurrency}
           value={amountOut2}

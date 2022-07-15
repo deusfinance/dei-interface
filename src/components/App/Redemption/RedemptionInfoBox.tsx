@@ -5,7 +5,7 @@ import { useRedeemData } from 'hooks/useRedemptionPage'
 // import { formatAmount } from 'utils/numbers'
 // import { getRemainingTime } from 'utils/time'
 
-import { RowBetween, RowEnd, RowStart } from 'components/Row'
+import { RowBetween } from 'components/Row'
 // import { CountDown } from 'components/App/Redemption/CountDown'
 import { Loader } from 'components/Icons'
 import { formatAmount } from 'utils/numbers'
@@ -56,26 +56,22 @@ export default function RedemptionInfoBox() {
         )}
       </RedeemInfoWrapper> */}
 
-      <RedeemInfoWrapper>
+      {/* <RedeemInfoWrapper>
         <RowStart>
           USDC Ratio:<ItemValue>{showLoader ? <Loader /> : redeemTranche.USDRatio}</ItemValue>
         </RowStart>
         <RowEnd>
           DEUS Ratio:<ItemValue>{showLoader ? <Loader /> : redeemTranche.deusRatio}</ItemValue>
         </RowEnd>
+      </RedeemInfoWrapper> */}
+      <RedeemInfoWrapper>
+        <p>DEUS Ratio</p>
+        {showLoader ? <Loader /> : <ItemValue>{redeemTranche.deusRatio}</ItemValue>}
       </RedeemInfoWrapper>
       <RedeemInfoWrapper>
         <p>Total DEI Redeemed</p>
         {showLoader ? <Loader /> : <ItemValue>{formatAmount(deiBurned)}</ItemValue>}
       </RedeemInfoWrapper>
-      {/* <RedeemInfoWrapper>
-        <p>Remaining USDC Amount</p>
-        {showLoader ? <Loader /> : <ItemValue>{formatAmount(redeemTranche.amountRemaining)}</ItemValue>}
-      </RedeemInfoWrapper> */}
-      {/* <RedeemInfoWrapper>
-        <p>Redemption Fee</p>
-        {showLoader ? <Loader /> : <ItemValue>{redemptionFee || 'Zero'}</ItemValue>}
-      </RedeemInfoWrapper> */}
     </>
   )
 }

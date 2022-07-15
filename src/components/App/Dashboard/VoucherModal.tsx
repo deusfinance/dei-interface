@@ -198,19 +198,6 @@ export default function VoucherModal({ voucherId }: { voucherId: number | undefi
           <p>DEUS to be redeemed</p>
           {deusRedeemable != null ? <ItemValue>{formatDollarAmount(deusRedeemable)}</ItemValue> : <Loader />}
         </ModalInfoWrapper>
-        <div>Tranche Details: </div>
-        <ModalInfoWrapper>
-          <p>DEI Burned bracket</p>
-          {burnBracket === null ? <Loader /> : <ItemValue>{burnBracket}</ItemValue>}
-        </ModalInfoWrapper>
-        <ModalInfoWrapper>
-          <p>vDEUS Cliff Period</p>
-          {cliffPeriod === null ? <Loader /> : <ItemValue>{cliffPeriod}</ItemValue>}
-        </ModalInfoWrapper>
-        <ModalInfoWrapper>
-          <p>vDEUS Vesting Period</p>
-          {vestingPeriod === null ? <Loader /> : <ItemValue>{vestingPeriod}</ItemValue>}
-        </ModalInfoWrapper>
       </ModalWrapper>
     )
   }

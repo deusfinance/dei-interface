@@ -18,7 +18,6 @@ import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import { SwapFlashLoan } from 'constants/addresses'
 import { BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
-import { NavigationTypes } from 'components/StableCoin'
 
 const Container = styled.div`
   display: flex;
@@ -56,39 +55,40 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
   const [amountIn, setAmountIn] = useState('')
   const [slippage, setSlippage] = useState(0.5)
   const debouncedAmountIn = useDebounce(amountIn, 500)
-  const deiCurrency = DEI_TOKEN
-  const bdeiCurrency = BDEI_TOKEN
-  const bDeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
-  const { amountOut } = useSwapAmountsOut(debouncedAmountIn, deiCurrency)
+  const [inputCurrency, setInputCurrency] = useState(BDEI_TOKEN)
+  const [outputCurrency, setOutputCurrency] = useState(DEI_TOKEN)
+
+  const inputBalance = useCurrencyBalance(account ?? undefined, inputCurrency)
+  const { amountOut } = useSwapAmountsOut(debouncedAmountIn, outputCurrency)
 
   // Amount typed in either fields
-  const bdeiAmount = useMemo(() => {
-    return tryParseAmount(amountIn, bdeiCurrency || undefined)
-  }, [amountIn, bdeiCurrency])
+  const inputAmount = useMemo(() => {
+    return tryParseAmount(amountIn, inputCurrency || undefined)
+  }, [amountIn, inputCurrency])
 
-  const deiAmount = useMemo(() => {
-    return tryParseAmount(amountOut, deiCurrency || undefined)
-  }, [amountOut, deiCurrency])
+  const outputAmount = useMemo(() => {
+    return tryParseAmount(amountOut, outputCurrency || undefined)
+  }, [amountOut, outputCurrency])
 
   const insufficientBalance = useMemo(() => {
-    if (!bdeiAmount) return false
-    return bDeiCurrencyBalance?.lessThan(bdeiAmount)
-  }, [bDeiCurrencyBalance, bdeiAmount])
+    if (!inputAmount) return false
+    return inputBalance?.lessThan(inputAmount)
+  }, [inputBalance, inputAmount])
 
   const {
     state: swapCallbackState,
     callback: swapCallback,
     error: swapCallbackError,
-  } = useSwapCallback(bdeiCurrency, deiCurrency, bdeiAmount, deiAmount, slippage, 20)
+  } = useSwapCallback(inputCurrency, outputCurrency, inputAmount, outputAmount, slippage, 20)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
   const spender = useMemo(() => (chainId ? SwapFlashLoan[chainId] : undefined), [chainId])
-  const [approvalState, approveCallback] = useApproveCallback(bdeiCurrency ?? undefined, spender)
+  const [approvalState, approveCallback] = useApproveCallback(inputCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = bdeiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
+    const show = inputCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [bdeiCurrency, approvalState, amountIn])
+  }, [inputCurrency, approvalState, amountIn])
 
   // const { diff } = getRemainingTime(swapTranche.endTime)
 
@@ -139,7 +139,7 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
       )
     }
     if (showApprove) {
-      return <RedeemButton onClick={handleApprove}>Allow us to spend {deiCurrency?.symbol}</RedeemButton>
+      return <RedeemButton onClick={handleApprove}>Allow us to spend {inputCurrency?.symbol}</RedeemButton>
     }
     return null
   }
@@ -152,7 +152,7 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
       return null
     }
     if (insufficientBalance) {
-      return <RedeemButton disabled>Insufficient {bdeiCurrency?.symbol} Balance</RedeemButton>
+      return <RedeemButton disabled>Insufficient {inputCurrency?.symbol} Balance</RedeemButton>
     }
     if (awaitingRedeemConfirmation) {
       return (
@@ -169,15 +169,21 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
     <>
       <Wrapper>
         <InputBox
-          currency={bdeiCurrency}
+          currency={inputCurrency}
           value={amountIn}
           onChange={(value: string) => setAmountIn(value)}
           title={'From'}
         />
-        <ArrowDown style={{ cursor: 'pointer' }} onClick={() => onSwitch(NavigationTypes.MINT)} />
+        <ArrowDown
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            setInputCurrency(outputCurrency)
+            setOutputCurrency(inputCurrency)
+          }}
+        />
 
         <InputBox
-          currency={deiCurrency}
+          currency={outputCurrency}
           value={amountOut}
           onChange={(value: string) => console.log(value)}
           title={'To'}

@@ -17,10 +17,10 @@ export enum RedeemCallbackState {
 }
 
 export default function useSwapCallback(
-  bdeiCurrency: Currency,
-  deiCurrency: Currency,
-  bdeiAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
-  deiAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+  inputCurrency: Currency,
+  outputCurrency: Currency,
+  inputAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+  outputAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
   slippage: number,
   deadline: number
 ): {
@@ -35,17 +35,19 @@ export default function useSwapCallback(
 
   const constructCall = useCallback(() => {
     try {
-      if (!account || !library || !swapContract || !deiAmount || !bdeiAmount) {
+      if (!account || !library || !swapContract || !outputAmount || !inputAmount) {
         throw new Error('Missing dependencies.')
       }
 
       const methodName = 'swap'
 
-      const subtractSlippage = toBN(toHex(deiAmount.quotient))
+      const subtractSlippage = toBN(toHex(outputAmount.quotient))
         .multipliedBy((100 - Number(slippage)) / 100)
         .toFixed(0, 1)
 
-      const args = [1, 0, toHex(bdeiAmount.quotient), subtractSlippage, deadlineValue]
+      const positions = inputCurrency?.symbol === 'DEI' ? [0, 1] : [1, 0]
+
+      const args = [...positions, toHex(inputAmount.quotient), subtractSlippage, deadlineValue]
       console.log({ args })
 
       return {
@@ -58,17 +60,17 @@ export default function useSwapCallback(
         error,
       }
     }
-  }, [account, library, swapContract, deiAmount, bdeiAmount, slippage, deadlineValue])
+  }, [account, library, swapContract, outputAmount, inputCurrency, inputAmount, slippage, deadlineValue])
 
   return useMemo(() => {
-    if (!account || !chainId || !library || !swapContract || !bdeiCurrency || !deiCurrency || !deiAmount) {
+    if (!account || !chainId || !library || !swapContract || !inputCurrency || !outputCurrency || !outputAmount) {
       return {
         state: RedeemCallbackState.INVALID,
         callback: null,
         error: 'Missing dependencies',
       }
     }
-    if (!bdeiAmount || !deiAmount) {
+    if (!inputAmount || !outputAmount) {
       return {
         state: RedeemCallbackState.INVALID,
         callback: null,
@@ -132,7 +134,9 @@ export default function useSwapCallback(
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const summary = `Swap ${bdeiAmount?.toSignificant()} bDEI for ${deiAmount?.toSignificant()} DEI`
+            const summary = `Swap ${inputAmount?.toSignificant()} ${
+              inputCurrency?.symbol
+            } for ${outputAmount?.toSignificant()} ${outputCurrency?.symbol}`
             addTransaction(response, { summary })
 
             return response.hash
@@ -156,9 +160,9 @@ export default function useSwapCallback(
     addTransaction,
     constructCall,
     swapContract,
-    bdeiCurrency,
-    deiCurrency,
-    bdeiAmount,
-    deiAmount,
+    inputCurrency,
+    outputCurrency,
+    inputAmount,
+    outputAmount,
   ])
 }

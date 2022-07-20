@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
-import { ArrowDown, Plus } from 'react-feather'
-import Image from 'next/image'
+import { darken } from 'polished'
+import { ArrowDown } from 'react-feather'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -12,16 +12,17 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useBondsCallback from 'hooks/useBondsCallback'
 import { useBondsAmountsOut, useBonderData } from 'hooks/useBondsPage'
 import { tryParseAmount } from 'utils/parse'
-import NFT_IMG from '/public/static/images/pages/bonds/TR-NFT.svg'
 
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
-import { RowEnd } from 'components/Row'
+import { Row } from 'components/Row'
+import { DotFlashing, Info } from 'components/Icons'
+
 import InputBox from 'components/App/Redemption/InputBox'
 import { DeiBonder } from 'constants/addresses'
 import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
 import InfoBox from 'components/App/Bonds/InfoBox'
 import { NavigationTypes } from 'components/StableCoin'
+import { ExternalLink } from 'components/Link'
 
 const Container = styled.div`
   display: flex;
@@ -47,52 +48,15 @@ const Wrapper = styled(Container)`
   }
 `
 
-const NftText = styled.div`
-  white-space: nowrap;
-  font-size: 0.85rem;
-  position: absolute;
-  margin-left: 10px;
-  left: 0;
-  top: 20px;
-  z-index: 10;
-  color: #f36c6c;
-  padding: 2px;
-  background: #0d0d0d;
-  border-radius: 2px;
-`
-const NftTextDescription = styled.a`
-  font-size: 0.7rem;
-  white-space: nowrap;
-  position: absolute;
-  margin-left: 12px;
-  border-radius: 2px;
-  left: 0;
-  top: 45px;
-  z-index: 10;
-  color: #ffffff;
-  background: #0d0d0d;
-  padding: 2px;
-  /* text-decoration: underline;
-  cursor: pointer; */
-`
-
-const PlusIcon = styled(Plus)`
-  margin: -14px auto;
-  z-index: 1000;
-  padding: 3px;
-  border: 1px solid black;
-  border-radius: 15px;
-  background-color: rgb(0 0 0);
-`
-
 const RedeemButton = styled(PrimaryButton)`
   border-radius: 15px;
 `
-const NftWrap = styled(RowEnd)`
-  position: relative;
-  border: 1px solid #1c1c1c;
-  height: 90px;
-  border-radius: 15px;
+
+const Description = styled.div`
+  font-size: 0.85rem;
+  line-height: 1.25rem;
+  margin-left: 10px;
+  color: ${({ theme }) => darken(0.4, theme.text1)};
 `
 
 export default function Mint({ onSwitch }: { onSwitch: any }) {
@@ -184,6 +148,8 @@ export default function Mint({ onSwitch }: { onSwitch: any }) {
   }
 
   function getActionButton(): JSX.Element | null {
+    return <RedeemButton disabled>Bonding is closed</RedeemButton>
+
     if (!chainId || !account) {
       return <RedeemButton onClick={toggleWalletModal}>Connect Wallet</RedeemButton>
     }
@@ -227,17 +193,21 @@ export default function Mint({ onSwitch }: { onSwitch: any }) {
           title={'To'}
           disabled={true}
         />
-        <PlusIcon size={'30px'} />
-        <NftWrap>
-          <>
-            <NftText>Time Reduction NFT</NftText>
-            <NftTextDescription>
-              This NFT reduces the maturity
-              <br /> time on your DEI bonds
-            </NftTextDescription>
-          </>
-          <Image src={NFT_IMG} height={'90px'} alt="nft" />
-        </NftWrap>
+        {
+          <Row mt={'8px'}>
+            <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
+            <Description>
+              DEI Bonds are currently paused, read more about it{' '}
+              <ExternalLink
+                style={{ 'text-decoration': 'underline' }}
+                href="https://lafayettetabor.medium.com/deiv2-how-to-clear-old-debt-d48002965e1a"
+              >
+                here
+              </ExternalLink>
+              {'.'}
+            </Description>
+          </Row>
+        }
         <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getActionButton()}

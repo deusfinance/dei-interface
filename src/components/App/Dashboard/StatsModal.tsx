@@ -275,7 +275,8 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
         return (
           <ModalWrapper>
             <div>DEI Circulating Supply is calculated as below: </div>
-            <ItemValue>Circulating Supply = Total Supply - Protocol Holdings - Total DEI Bonded</ItemValue>
+            <ItemValue>Circulating Supply = Total Supply - Protocol Holdings</ItemValue>
+            <div>Note: This Circulating Supply includes Bonded DEI(bDEI) as well.</div>
             <ModalInfoWrapper>
               <p>Total Supply</p>
               {totalSupply === null ? <Loader /> : <ItemValue>{formatAmount(totalSupply, 2)}</ItemValue>}
@@ -287,10 +288,6 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
               ) : (
                 <ItemValue>{formatAmount(totalProtocolHoldings, 2)}</ItemValue>
               )}
-            </ModalInfoWrapper>
-            <ModalInfoWrapper>
-              <p>Total DEI Bonded</p>
-              {deiBonded == 0 ? <Loader /> : <ItemValue>{formatAmount(deiBonded)}</ItemValue>}
             </ModalInfoWrapper>
             <ModalInfoWrapper active>
               <p>Circulating Supply</p>

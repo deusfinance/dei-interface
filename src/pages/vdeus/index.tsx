@@ -5,6 +5,8 @@ import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import { vDeusStakingPools } from 'constants/stakings'
 import PoolStake from 'components/App/NFT/PoolStake'
+import { PrimaryButton } from 'components/Button'
+import { ExternalLink } from 'components/Link'
 
 const Container = styled.div`
   display: flex;
@@ -25,6 +27,14 @@ const Container = styled.div`
 
 const TopWrapper = styled.div`
   display: flex;
+  flex-flow: column nowrap;
+  max-width: 1200px;
+  align-items: flex-start;
+  margin: auto;
+`
+
+const StakeWrapper = styled.div`
+  display: flex;
   flex-flow: row nowrap;
   max-width: 1200px;
   align-items: flex-start;
@@ -32,8 +42,28 @@ const TopWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     display: flex;
     flex-flow: column nowrap;
-  `}
+`}
 `
+
+const WarningWrapper = styled.div`
+  background: ${({ theme }) => theme.primary1};
+  padding: 1px;
+  border-radius: 8px;
+  margin: 12px;
+`
+
+const WarningContainer = styled(PrimaryButton)`
+  border-radius: 8px;
+  background: ${({ theme }) => theme.bg0};
+  height: 100%;
+  &:hover {
+    cursor: default;
+    background: ${({ theme }) => theme.bg0};
+    color: ${({ theme }) => theme.text1};
+  }
+`
+
+export const DISPLAY_WARNING = true
 
 export default function NFT() {
   return (
@@ -43,9 +73,26 @@ export default function NFT() {
         <HeroSubtext>deposit your DEUS voucher and earn.</HeroSubtext>
       </Hero>
       <TopWrapper>
-        {vDeusStakingPools.map((pool) => (
-          <PoolStake key={pool.name} pool={pool}></PoolStake>
-        ))}
+        {DISPLAY_WARNING && (
+          <WarningWrapper>
+            <WarningContainer>
+              <div>
+                Based on recent events and the communities decision to potentially alter the vDEUS staking, we have
+                decided to set them to ZERO until a decision for how to move forward was made. <br />
+                For more info, please follow #vdeus-staking channel in{' '}
+                <ExternalLink style={{ 'text-decoration': 'underline' }} href="https://discord.gg/deusfinance">
+                  Discord
+                </ExternalLink>
+                {'.'}
+              </div>
+            </WarningContainer>
+          </WarningWrapper>
+        )}
+        <StakeWrapper>
+          {vDeusStakingPools.map((pool) => (
+            <PoolStake key={pool.name} pool={pool}></PoolStake>
+          ))}
+        </StakeWrapper>
       </TopWrapper>
       <Disclaimer />
     </Container>

@@ -63,7 +63,7 @@ const WarningContainer = styled(PrimaryButton)`
   }
 `
 
-export const DISPLAY_WARNING = true
+export const DISPLAY_WARNING = false
 
 export default function NFT() {
   return (

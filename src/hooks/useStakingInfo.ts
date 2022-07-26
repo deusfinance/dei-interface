@@ -142,6 +142,6 @@ export function useGetApy(pid: number): number {
   if (totalDeposited === 0) return 0
   return (
     (tokenPerBlock * (allocPoint / totalAllocPoint) * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) /
-    (totalDeposited * parseFloat(deiPrice))
+    (totalDeposited * parseFloat(pid === 0 ? '1' : deiPrice))
   )
 }

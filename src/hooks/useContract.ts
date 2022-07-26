@@ -50,6 +50,7 @@ import {
   vDeus,
   vDeusStaking,
   vDeusMasterChefV2,
+  vDeusMasterChefV2ReadOnly,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -216,9 +217,13 @@ export function useMasterChefV2Contract() {
   const address = useMemo(() => (chainId ? MasterChefV2[chainId] : undefined), [chainId])
   return useContract(address, MasterChefV2_ABI)
 }
-export function useVDeusMasterChefV2Contract() {
+
+export function useVDeusMasterChefV2Contract(nodo = false) {
   const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? vDeusMasterChefV2[chainId] : undefined), [chainId])
+  const address = useMemo(
+    () => (chainId ? (nodo ? vDeusMasterChefV2ReadOnly[chainId] : vDeusMasterChefV2[chainId]) : undefined),
+    [chainId, nodo]
+  )
   return useContract(address, VDeusMasterChefV2_ABI)
 }
 

@@ -6,16 +6,14 @@ import { useERC20Contract, useVDeusMasterChefV2Contract } from 'hooks/useContrac
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
 import { useDeusPrice } from './useCoingeckoPrice'
-import { vDeusMasterChefV2 } from 'constants/addresses'
-import { SupportedChainId } from 'constants/chains'
 import { vDeusStakingPools } from 'constants/stakings'
 
-export function useGlobalMasterChefData(): {
+export function useGlobalMasterChefData(nodo = false): {
   tokenPerSecond: number
   totalAllocPoint: number
   poolLength: number
 } {
-  const contract = useVDeusMasterChefV2Contract()
+  const contract = useVDeusMasterChefV2Contract(nodo)
 
   const calls = [
     {
@@ -50,14 +48,17 @@ export function useGlobalMasterChefData(): {
 }
 
 //TODO: totalDeposited should consider decimals of token
-export function usePoolInfo(pid: number): {
+export function usePoolInfo(
+  pid: number,
+  nodo = false
+): {
   accTokensPerShare: number
   lastRewardBlock: number
   allocPoint: number
   totalDeposited: number
 } {
-  const contract = useVDeusMasterChefV2Contract()
-  const tokenAddress = vDeusStakingPools[pid].lpToken
+  const contract = useVDeusMasterChefV2Contract(nodo)
+  const tokenAddress = nodo ? '0x72D049879BE3257F0Ca7bB02B7F8B557b4ecF638' : vDeusStakingPools[pid].lpToken
   const ERC20Contract = useERC20Contract(tokenAddress)
 
   const calls = [
@@ -70,7 +71,7 @@ export function usePoolInfo(pid: number): {
   const balanceCall = [
     {
       methodName: 'balanceOf',
-      callInputs: [vDeusMasterChefV2[SupportedChainId.FANTOM]],
+      callInputs: [contract?.address],
     },
   ]
 
@@ -95,11 +96,14 @@ export function usePoolInfo(pid: number): {
 }
 
 //TODO: depositAmount should consider decimals of token
-export function useUserInfo(pid: number): {
+export function useUserInfo(
+  pid: number,
+  nodo = false
+): {
   depositAmount: number
   rewardsAmount: number
 } {
-  const contract = useVDeusMasterChefV2Contract()
+  const contract = useVDeusMasterChefV2Contract(nodo)
   const { account } = useWeb3React()
 
   const calls = !account
@@ -130,9 +134,9 @@ export function useUserInfo(pid: number): {
   }
 }
 
-export function useGetApr(pid: number): number {
-  const { tokenPerSecond, totalAllocPoint } = useGlobalMasterChefData()
-  const { totalDeposited, allocPoint } = usePoolInfo(pid)
+export function useGetApr(pid: number, nodo = false): number {
+  const { tokenPerSecond, totalAllocPoint } = useGlobalMasterChefData(nodo)
+  const { totalDeposited, allocPoint } = usePoolInfo(pid, nodo)
 
   const deusPrice = useDeusPrice()
   if (totalDeposited === 0 || totalAllocPoint === 0) return 0

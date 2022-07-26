@@ -4,7 +4,7 @@ import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
 import useWeb3React from './useWeb3'
 import { formatUnits } from '@ethersproject/units'
-import { useDeiPrice, useDeusPrice } from './useCoingeckoPrice'
+import { useDeusPrice } from './useCoingeckoPrice'
 import { MasterChefV2 } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
 
@@ -136,12 +136,11 @@ export function useGetApy(pid: number): number {
   const { tokenPerBlock, totalAllocPoint } = useGlobalMasterChefData()
   const { totalDeposited, allocPoint } = usePoolInfo(pid)
   // console.log(tokenPerBlock, totalDeposited)
-  const deiPrice = useDeiPrice()
+  // const deiPrice = useDeiPrice()
   const deusPrice = useDeusPrice()
   // console.log({ allocPoint, totalAllocPoint, pid })
   if (totalDeposited === 0) return 0
   return (
-    (tokenPerBlock * (allocPoint / totalAllocPoint) * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) /
-    (totalDeposited * parseFloat(deiPrice))
+    (tokenPerBlock * (allocPoint / totalAllocPoint) * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) / totalDeposited
   )
 }

@@ -210,7 +210,7 @@ const AmountSpan = styled.span`
   color: #fdb572;
 `
 
-export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
+export default function PoolStake({ pool, nodo = false }: { pool: vDeusStakingType; nodo: boolean }) {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
@@ -236,11 +236,12 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
   }))
 
   const stakingContract = useVDeusStakingContract()
-  const masterChefContract = useVDeusMasterChefV2Contract()
+  const masterChefContract = useVDeusMasterChefV2Contract(nodo)
+  const pid = useMemo(() => (nodo ? 0 : pool.pid), [nodo, pool])
   // const lockedNFTs = useUserLockedNfts()
-  const { depositAmount, rewardsAmount } = useUserInfo(pool.pid)
-  const { totalDeposited } = usePoolInfo(pool.pid)
-  const apr = useGetApr(pool.pid)
+  const { depositAmount, rewardsAmount } = useUserInfo(pid, nodo)
+  const { totalDeposited } = usePoolInfo(pid, nodo)
+  const apr = useGetApr(pid, nodo)
   const spender = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
@@ -422,7 +423,7 @@ export default function PoolStake({ pool }: { pool: vDeusStakingType }) {
             </Row>
           </RewardData>
         </div>
-        <div>{getClaimButton(pool)}</div>
+        {!nodo && <div>{getClaimButton(pool)}</div>}
       </ClaimWrapper>
     </Wrapper>
   )

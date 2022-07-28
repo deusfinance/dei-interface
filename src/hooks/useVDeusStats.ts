@@ -59,6 +59,57 @@ export function useVDeusStats(): {
   }
 }
 
+export function useStakedVDeusStats(): {
+  numberOfStakedVouchers: number
+  listOfStakedVouchers: Array<number>
+} {
+  const { account } = useWeb3React()
+
+  const vDeusStakingContract = useVDeusStakingContract()
+
+  const calls = !account
+    ? []
+    : [
+        {
+          methodName: 'userNftIndex',
+          callInputs: [account],
+        },
+      ]
+
+  const [stakedVDeusVouchers] = useSingleContractMultipleMethods(vDeusStakingContract, calls)
+
+  const { numberOfStakedVouchers } = useMemo(() => {
+    return {
+      numberOfStakedVouchers: stakedVDeusVouchers?.result ? stakedVDeusVouchers.result[0].toNumber() : 0,
+    }
+  }, [stakedVDeusVouchers])
+
+  const idMapping = Array.from(Array(numberOfStakedVouchers).keys())
+
+  const callInputs = useMemo(() => {
+    return !account ? [] : idMapping.map((id) => [account, id])
+  }, [account, idMapping])
+
+  const results = useSingleContractMultipleData(vDeusStakingContract, 'userNfts', callInputs)
+
+  const listOfStakedVouchers = useMemo(() => {
+    return results
+      .reduce((acc: number[], value) => {
+        if (!value.result) return acc
+        const result = value.result[0].toString()
+        if (!result) return acc
+        acc.push(parseInt(result))
+        return acc
+      }, [])
+      .sort((a: number, b: number) => (a > b ? 1 : -1))
+  }, [results])
+
+  return {
+    numberOfStakedVouchers,
+    listOfStakedVouchers,
+  }
+}
+
 export function useUserLockedNfts(): UserDeposit[] | null {
   const { account } = useWeb3React()
   const stakingContract = useVDeusStakingContract()

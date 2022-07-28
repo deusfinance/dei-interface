@@ -7,7 +7,7 @@ import { formatAmount, formatDollarAmount } from 'utils/numbers'
 import { useVestedAPY } from 'hooks/useVested'
 import { getMaximumDate } from 'utils/vest'
 import { useDeusPrice } from 'hooks/useCoingeckoPrice'
-import { useVDeusStats, VDEUS_USDC_FACTOR } from 'hooks/useVDeusStats'
+import { useStakedVDeusStats, useVDeusStats, VDEUS_USDC_FACTOR } from 'hooks/useVDeusStats'
 import StatsModal from './StatsModal'
 import { Dashboard } from './DeiStats'
 import { useDashboardModalToggle, useVoucherModalToggle } from 'state/application/hooks'
@@ -172,6 +172,7 @@ export default function DeusStats() {
   const { lockedVeDEUS } = useVestedAPY(undefined, getMaximumDate())
   const deusPrice = useDeusPrice()
   const { numberOfVouchers, listOfVouchers } = useVDeusStats()
+  const { numberOfStakedVouchers, listOfStakedVouchers } = useStakedVDeusStats()
 
   const toggleDashboardModal = useDashboardModalToggle()
   const [currentStat, setCurrentStat] = useState(Dashboard.EMPTY)
@@ -214,7 +215,7 @@ export default function DeusStats() {
 
       const { data } = await client.query({
         query: ALL_VOUCHERS,
-        variables: { ids: [...listOfVouchers] },
+        variables: { ids: [...listOfVouchers, ...listOfStakedVouchers] },
         fetchPolicy: 'no-cache',
       })
 
@@ -224,7 +225,7 @@ export default function DeusStats() {
       console.error(error)
       return []
     }
-  }, [chainId, listOfVouchers])
+  }, [chainId, listOfVouchers, listOfStakedVouchers])
 
   useEffect(() => {
     const getAllVouchers = async () => {
@@ -341,7 +342,11 @@ export default function DeusStats() {
               <div onClick={() => handleClick(Dashboard.VDEUS_NFTS)}>
                 <InfoWrapper>
                   <p>Total vDEUS Vouchers</p>
-                  {numberOfVouchers === null ? <Loader /> : <ItemValue>{numberOfVouchers}</ItemValue>}
+                  {numberOfVouchers === null ? (
+                    <Loader />
+                  ) : (
+                    <ItemValue>{numberOfVouchers + numberOfStakedVouchers}</ItemValue>
+                  )}
                 </InfoWrapper>
               </div>
               <InfoWrapper>
@@ -364,13 +369,25 @@ export default function DeusStats() {
                   <ItemValue>{formatDollarAmount(totalDeusRedeemable)}</ItemValue>
                 )}
               </InfoWrapper>
-              {listOfVouchers && listOfVouchers.length > 0 && <Heading>Vouchers:</Heading>}
+              {listOfVouchers && listOfVouchers.length > 0 && <Heading>Vouchers(in Wallet):</Heading>}
               <VoucherWrapper>
                 {listOfVouchers &&
                   listOfVouchers.length > 0 &&
                   listOfVouchers.map((voucher: number, index) => (
                     <div key={index} onClick={() => handleVoucherClick(voucher)}>
                       <InfoWrapper secondary>
+                        <ItemValue style={{ margin: 'auto' }}>vDEUS Voucher #{voucher}</ItemValue>
+                      </InfoWrapper>
+                    </div>
+                  ))}
+              </VoucherWrapper>
+              {listOfStakedVouchers && listOfStakedVouchers.length > 0 && <Heading>Staked Vouchers:</Heading>}
+              <VoucherWrapper>
+                {listOfStakedVouchers &&
+                  listOfStakedVouchers.length > 0 &&
+                  listOfStakedVouchers.map((voucher: number, index) => (
+                    <div key={index} onClick={() => handleVoucherClick(voucher)}>
+                      <InfoWrapper active secondary>
                         <ItemValue style={{ margin: 'auto' }}>vDEUS Voucher #{voucher}</ItemValue>
                       </InfoWrapper>
                     </div>

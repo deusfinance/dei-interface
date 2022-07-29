@@ -262,6 +262,10 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
 
   const onClaimReward = useCallback(
     async (pid: number) => {
+      if (flag) {
+        toast.error(`Claim disabled`)
+        return
+      }
       try {
         if (!masterChefContract || !account || !isSupportedChainId || !rewardsAmount) return
         setAwaitingClaimConfirmation(true)
@@ -276,7 +280,7 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
         // setPendingTxHash('')
       }
     },
-    [masterChefContract, account, isSupportedChainId, rewardsAmount, addTransaction]
+    [masterChefContract, account, isSupportedChainId, rewardsAmount, addTransaction, flag]
   )
 
   const onDeposit = useCallback(
@@ -423,7 +427,7 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
             </Row>
           </RewardData>
         </div>
-        {!flag && <div>{getClaimButton(pool)}</div>}
+        <div>{getClaimButton(pool)}</div>
       </ClaimWrapper>
     </Wrapper>
   )

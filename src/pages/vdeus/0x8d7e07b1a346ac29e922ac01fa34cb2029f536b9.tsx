@@ -69,7 +69,7 @@ export default function NFT() {
   return (
     <Container>
       <Hero>
-        <span>Nodo vDEUS Staking</span>
+        <span>vDEUS Staking</span>
         <HeroSubtext>deposit your DEUS voucher and earn.</HeroSubtext>
       </Hero>
       <TopWrapper>
@@ -89,7 +89,7 @@ export default function NFT() {
           </WarningWrapper>
         )}
         <StakeWrapper>
-          <PoolStake pool={vDeusStakingPools[2]} nodo={true}></PoolStake>
+          <PoolStake pool={vDeusStakingPools[2]} flag={true}></PoolStake>
         </StakeWrapper>
       </TopWrapper>
       <Disclaimer />

@@ -90,7 +90,7 @@ export default function NFT() {
         )}
         <StakeWrapper>
           {vDeusStakingPools.map((pool) => (
-            <PoolStake key={pool.name} pool={pool} nodo={false}></PoolStake>
+            <PoolStake key={pool.name} pool={pool} flag={false}></PoolStake>
           ))}
         </StakeWrapper>
       </TopWrapper>

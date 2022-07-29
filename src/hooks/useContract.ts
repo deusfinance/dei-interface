@@ -218,11 +218,11 @@ export function useMasterChefV2Contract() {
   return useContract(address, MasterChefV2_ABI)
 }
 
-export function useVDeusMasterChefV2Contract(nodo = false) {
+export function useVDeusMasterChefV2Contract(flag = false) {
   const { chainId } = useWeb3React()
   const address = useMemo(
-    () => (chainId ? (nodo ? vDeusMasterChefV2ReadOnly[chainId] : vDeusMasterChefV2[chainId]) : undefined),
-    [chainId, nodo]
+    () => (chainId ? (flag ? vDeusMasterChefV2ReadOnly[chainId] : vDeusMasterChefV2[chainId]) : undefined),
+    [chainId, flag]
   )
   return useContract(address, VDeusMasterChefV2_ABI)
 }

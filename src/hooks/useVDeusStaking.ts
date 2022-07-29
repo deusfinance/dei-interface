@@ -8,12 +8,12 @@ import { toBN } from 'utils/numbers'
 import { useDeusPrice } from './useCoingeckoPrice'
 import { vDeusStakingPools } from 'constants/stakings'
 
-export function useGlobalMasterChefData(nodo = false): {
+export function useGlobalMasterChefData(flag = false): {
   tokenPerSecond: number
   totalAllocPoint: number
   poolLength: number
 } {
-  const contract = useVDeusMasterChefV2Contract(nodo)
+  const contract = useVDeusMasterChefV2Contract(flag)
 
   const calls = [
     {
@@ -50,15 +50,15 @@ export function useGlobalMasterChefData(nodo = false): {
 //TODO: totalDeposited should consider decimals of token
 export function usePoolInfo(
   pid: number,
-  nodo = false
+  flag = false
 ): {
   accTokensPerShare: number
   lastRewardBlock: number
   allocPoint: number
   totalDeposited: number
 } {
-  const contract = useVDeusMasterChefV2Contract(nodo)
-  const tokenAddress = nodo ? '0x72D049879BE3257F0Ca7bB02B7F8B557b4ecF638' : vDeusStakingPools[pid].lpToken
+  const contract = useVDeusMasterChefV2Contract(flag)
+  const tokenAddress = flag ? '0x72D049879BE3257F0Ca7bB02B7F8B557b4ecF638' : vDeusStakingPools[pid].lpToken
   const ERC20Contract = useERC20Contract(tokenAddress)
 
   const calls = [
@@ -98,12 +98,12 @@ export function usePoolInfo(
 //TODO: depositAmount should consider decimals of token
 export function useUserInfo(
   pid: number,
-  nodo = false
+  flag = false
 ): {
   depositAmount: number
   rewardsAmount: number
 } {
-  const contract = useVDeusMasterChefV2Contract(nodo)
+  const contract = useVDeusMasterChefV2Contract(flag)
   const { account } = useWeb3React()
 
   const calls = !account
@@ -134,9 +134,9 @@ export function useUserInfo(
   }
 }
 
-export function useGetApr(pid: number, nodo = false): number {
-  const { tokenPerSecond, totalAllocPoint } = useGlobalMasterChefData(nodo)
-  const { totalDeposited, allocPoint } = usePoolInfo(pid, nodo)
+export function useGetApr(pid: number, flag = false): number {
+  const { tokenPerSecond, totalAllocPoint } = useGlobalMasterChefData(flag)
+  const { totalDeposited, allocPoint } = usePoolInfo(pid, flag)
 
   const deusPrice = useDeusPrice()
   if (totalDeposited === 0 || totalAllocPoint === 0) return 0

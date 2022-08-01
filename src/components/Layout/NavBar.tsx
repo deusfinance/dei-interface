@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -12,6 +12,7 @@ import Web3Status from 'components/Web3Status'
 import Menu from './Menu'
 import NavLogo from './NavLogo'
 import { ChevronDown } from 'components/Icons'
+import InfoHeader from 'components/InfoHeader'
 
 const Wrapper = styled.div`
   padding: 0px 2rem;
@@ -162,13 +163,27 @@ const TitleSpan = styled.span<{ active: boolean }>`
 export default function NavBar() {
   const router = useRouter()
 
+  const showBanner = localStorage.getItem('HideInfoBanner') === 'true' ? false : true
+  const [showTopBanner, setShowTopBanner] = useState(showBanner)
+  const bannerText = 'DEI.finance is still an experimental software. Please use at your own risk.'
+
+  function setShowBanner(inp: boolean) {
+    if (!inp) {
+      localStorage.setItem('HideInfoBanner', 'true')
+      setShowTopBanner(false)
+    }
+  }
+
   function getMobileContent() {
     return (
-      <MobileWrapper>
-        <NavLogo />
-        <Web3Status />
-        <Menu />
-      </MobileWrapper>
+      <>
+        <MobileWrapper>
+          <NavLogo />
+          <Web3Status />
+          <Menu />
+        </MobileWrapper>
+        {showTopBanner && <InfoHeader onClose={setShowBanner} bg={'gray'} hasInfoIcon={true} text={bannerText} />}
+      </>
     )
   }
 
@@ -181,45 +196,48 @@ export default function NavBar() {
 
   function getDefaultContent() {
     return (
-      <DefaultWrapper>
-        <NavLogo />
-        <Routes>
-          {routes.map((item) => {
-            return item.children ? (
-              <NavbarContentWrap key={item.id}>
-                <TitleSpan active={isSubItemChosen(item.children)}>
-                  {item.text}
-                  <ChevronDown
-                    color={isSubItemChosen(item.children) ? '#FF8F00' : 'white'}
-                    disable
-                    style={{ position: 'absolute' }}
-                  />
-                </TitleSpan>
-                <SubNavbarContentWrap>
-                  {item.children.map((subItem) => (
-                    <li key={subItem.id}>
-                      <Link href={subItem.path} passHref>
-                        <NavLink active={router.route === subItem.path}>{subItem.text}</NavLink>
-                      </Link>
-                    </li>
-                  ))}
-                </SubNavbarContentWrap>
-              </NavbarContentWrap>
-            ) : (
-              <SimpleLinkWrapper key={item.id}>
-                <Link href={item.path} passHref>
-                  <NavLink active={router.route === item.path}>{item.text}</NavLink>
-                </Link>
-              </SimpleLinkWrapper>
-            )
-          })}
-        </Routes>
-        <Items>
-          <Web3Network />
-          <Web3Status />
-          <Menu />
-        </Items>
-      </DefaultWrapper>
+      <>
+        <DefaultWrapper>
+          <NavLogo />
+          <Routes>
+            {routes.map((item) => {
+              return item.children ? (
+                <NavbarContentWrap key={item.id}>
+                  <TitleSpan active={isSubItemChosen(item.children)}>
+                    {item.text}
+                    <ChevronDown
+                      color={isSubItemChosen(item.children) ? '#FF8F00' : 'white'}
+                      disable
+                      style={{ position: 'absolute' }}
+                    />
+                  </TitleSpan>
+                  <SubNavbarContentWrap>
+                    {item.children.map((subItem) => (
+                      <li key={subItem.id}>
+                        <Link href={subItem.path} passHref>
+                          <NavLink active={router.route === subItem.path}>{subItem.text}</NavLink>
+                        </Link>
+                      </li>
+                    ))}
+                  </SubNavbarContentWrap>
+                </NavbarContentWrap>
+              ) : (
+                <SimpleLinkWrapper key={item.id}>
+                  <Link href={item.path} passHref>
+                    <NavLink active={router.route === item.path}>{item.text}</NavLink>
+                  </Link>
+                </SimpleLinkWrapper>
+              )
+            })}
+          </Routes>
+          <Items>
+            <Web3Network />
+            <Web3Status />
+            <Menu />
+          </Items>
+        </DefaultWrapper>
+        {showTopBanner && <InfoHeader onClose={setShowBanner} bg={'gray'} hasInfoIcon={true} text={bannerText} />}
+      </>
     )
   }
 

@@ -12,7 +12,7 @@ import { useModalOpen, useVoucherModalToggle } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/reducer'
 import styled from 'styled-components'
 import { formatDollarAmount } from 'utils/numbers'
-import { adjustedDeusPerDei } from './DeusStats'
+import { adjustedDeusPerDei, adjustedUsdcPerDei } from './DeusStats'
 
 const ModalWrapper = styled.div`
   display: flex;
@@ -116,62 +116,64 @@ export default function VoucherModal({ voucherId }: { voucherId: number | undefi
   } = useMemo(() => {
     return {
       deiBurned: Number(formatEther(voucher?.amount || '0')), // dei burned to get the voucher
-      usdcRedeemed: Number(formatEther(voucher?.amount || '0')) * parseFloat(voucher?.y || '0'),
+      usdcRedeemed:
+        Number(formatEther(voucher?.amount || '0')) *
+        adjustedUsdcPerDei(parseFloat(voucher?.y || '0'), voucher?.currentTokenId || '-1'),
       deusRedeemable:
         Number(formatEther(voucher?.amount || '0')) *
         adjustedDeusPerDei(parseFloat(voucher?.y || '0') * VDEUS_USDC_FACTOR, voucher?.currentTokenId || '-1'),
     }
   }, [voucher])
 
-  const { burnBracket, cliffPeriod, vestingPeriod } = useMemo(() => {
-    if (voucher === null)
-      return {
-        burnBracket: null,
-        cliffPeriod: null,
-        vestingPeriod: null,
-      }
-    const parsedBurn = Number(formatEther(voucher?.totalBurned || '0'))
-    if (parsedBurn > 40000000)
-      // above 40M
-      return {
-        burnBracket: 'Above 40M',
-        cliffPeriod: '4 Months',
-        vestingPeriod: '6 Months',
-      }
-    if (parsedBurn > 30000000)
-      // between 30M - 40M
-      return {
-        burnBracket: 'Between 30M - 40M',
-        cliffPeriod: '3 Months',
-        vestingPeriod: '4 Months',
-      }
-    if (parsedBurn > 15000000)
-      // between 15M - 30M
-      return {
-        burnBracket: 'Between 15M - 30M',
-        cliffPeriod: '2.5 Months',
-        vestingPeriod: '2 Months',
-      }
-    if (parsedBurn > 5000000)
-      // between 5M - 15M
-      return {
-        burnBracket: 'Between 5M - 15M',
-        cliffPeriod: '2 Months',
-        vestingPeriod: '2 Months',
-      }
-    if (parsedBurn > 0)
-      // between 0 - 5M
-      return {
-        burnBracket: 'Between 0 - 5M',
-        cliffPeriod: '1 Month',
-        vestingPeriod: '2 Months',
-      }
-    return {
-      burnBracket: null,
-      cliffPeriod: null,
-      vestingPeriod: null,
-    }
-  }, [voucher])
+  //   const { burnBracket, cliffPeriod, vestingPeriod } = useMemo(() => {
+  //     if (voucher === null)
+  //       return {
+  //         burnBracket: null,
+  //         cliffPeriod: null,
+  //         vestingPeriod: null,
+  //       }
+  //     const parsedBurn = Number(formatEther(voucher?.totalBurned || '0'))
+  //     if (parsedBurn > 40000000)
+  //       // above 40M
+  //       return {
+  //         burnBracket: 'Above 40M',
+  //         cliffPeriod: '4 Months',
+  //         vestingPeriod: '6 Months',
+  //       }
+  //     if (parsedBurn > 30000000)
+  //       // between 30M - 40M
+  //       return {
+  //         burnBracket: 'Between 30M - 40M',
+  //         cliffPeriod: '3 Months',
+  //         vestingPeriod: '4 Months',
+  //       }
+  //     if (parsedBurn > 15000000)
+  //       // between 15M - 30M
+  //       return {
+  //         burnBracket: 'Between 15M - 30M',
+  //         cliffPeriod: '2.5 Months',
+  //         vestingPeriod: '2 Months',
+  //       }
+  //     if (parsedBurn > 5000000)
+  //       // between 5M - 15M
+  //       return {
+  //         burnBracket: 'Between 5M - 15M',
+  //         cliffPeriod: '2 Months',
+  //         vestingPeriod: '2 Months',
+  //       }
+  //     if (parsedBurn > 0)
+  //       // between 0 - 5M
+  //       return {
+  //         burnBracket: 'Between 0 - 5M',
+  //         cliffPeriod: '1 Month',
+  //         vestingPeriod: '2 Months',
+  //       }
+  //     return {
+  //       burnBracket: null,
+  //       cliffPeriod: null,
+  //       vestingPeriod: null,
+  //     }
+  //   }, [voucher])
 
   function getModalBody() {
     return (

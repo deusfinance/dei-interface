@@ -1,25 +1,32 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
-import { ArrowDown } from 'react-feather'
-import Image from 'next/image'
+import { toast } from 'react-hot-toast'
 
-import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
-import useDebounce from 'hooks/useDebounce'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import useBondsCallback from 'hooks/useBondsCallback'
-import { useBondsAmountsOut } from 'hooks/useBondsPage'
-import { tryParseAmount } from 'utils/parse'
-import NFT_IMG from '/public/static/images/pages/bonds/TR-NFT.svg'
+import { useVDeusMasterChefV2Contract } from 'hooks/useContract'
+import { ApprovalState } from 'hooks/useApproveNftCallback2'
+import { useGetApr } from 'hooks/useVDeusStaking'
 
+import { DefaultHandlerError } from 'utils/parseError'
+import { formatAmount } from 'utils/numbers'
+import { vDeusStakingPools, vDeusStakingType } from 'constants/stakings'
+import { DeiBonder } from 'constants/addresses'
+import { DEUS_TOKEN } from 'constants/tokens'
+
+import { VDEUS_TOKEN } from 'constants/tokens'
+import { Row } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-import { RowEnd } from 'components/Row'
-import InputBox from 'components/App/Redemption/InputBox'
-import { DeiBonder } from 'constants/addresses'
-import { DEI_TOKEN } from 'constants/tokens'
+import InputBox from '../Redemption/InputBox'
+import useDebounce from 'hooks/useDebounce'
+import { tryParseAmount } from 'utils/parse'
+import useApproveCallback from 'hooks/useApproveCallback'
+import { useCurrencyBalance } from 'state/wallet/hooks'
+import Navigation, { NavigationTypes } from '../Stake/Navigation'
+import LiquidityPool from './liquidityPool'
 
 const Container = styled.div`
   display: flex;
@@ -29,98 +36,154 @@ const Container = styled.div`
 `
 
 const Wrapper = styled(Container)`
-  margin: 0 auto;
+  margin: 0 10px;
   margin-top: 50px;
   width: clamp(250px, 90%, 500px);
   background-color: rgb(13 13 13);
-  padding: 20px 15px;
+  padding: 20px 15px 0 15px;
   border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
   justify-content: center;
+`
 
-  & > * {
-    &:nth-child(2) {
-      margin: 15px auto;
+const TopWrapper = styled.div`
+  display: flex;
+  align-items: flex-start;
+  margin: auto;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    min-width: 460px;
+    flex-direction: column;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    min-width: 340px;
+  `}
+`
+
+const DepositButton = styled(PrimaryButton)`
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+`
+
+const ClaimButtonWrapper = styled.div`
+  background: ${({ theme }) => theme.primary1};
+  padding: 1px;
+  border-radius: 8px;
+  height: 40px;
+`
+
+const ClaimButton = styled(PrimaryButton)`
+  border-radius: 8px;
+  background: ${({ theme }) => theme.bg0};
+  height: 100%;
+  /* width: unset; */
+  /* white-space: nowrap; */
+
+  &:hover {
+    & > * {
+      &:first-child {
+        color: ${({ theme }) => theme.text2};
+        -webkit-text-fill-color: black;
+        font-weight: 900;
+      }
     }
   }
 `
 
-const RedeemWrapper = styled.div`
-  -webkit-filter: blur(8px);
-  -moz-filter: blur(8px);
-  -o-filter: blur(8px);
-  -ms-filter: blur(8px);
-  filter: blur(8px);
+const SelectorContainer = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  margin-left: -30px;
 `
 
-const MainWrapper = styled.div`
-  position: relative;
+const BoxWrapper = styled.div`
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
 `
 
-const ComingSoon = styled.span`
-  position: absolute;
-  margin: 0 auto;
-  padding: 20px 15px;
+const Line = styled.div`
+  height: 2px;
+  width: clamp(250px, 110%, 500px);
+  margin-left: -16px;
+  background: ${({ theme }) => theme.bg2};
+`
+
+const RewardData = styled.div`
+  display: flex;
+  flex-direction: row;
   justify-content: center;
-  top: 39%;
-  left: 43%;
-  transform: translate(0, -50%);
-  z-index: 2;
-  font-size: 21px;
+  padding-top: 6px;
+  padding-bottom: 8px;
+  margin: 0 auto;
+  font-size: 14px;
+  background: -webkit-linear-gradient(90deg, #0badf4 0%, #30efe4 93.4%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 `
 
-const NftText = styled.div`
-  white-space: nowrap;
-  font-size: 0.85rem;
-  position: absolute;
-  margin-left: 10px;
-  left: 0;
-  top: 20px;
-  z-index: 10;
-  color: #f36c6c;
-  padding: 2px;
-  background: #0d0d0d;
-  border-radius: 2px;
+const YieldTitle = styled.div`
+  background: -webkit-linear-gradient(90deg, #e29c53 0%, #ce4c7a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  font-size: 24px;
+  font-family: 'IBM Plex Mono';
+  word-spacing: -12px;
 `
 
-const RedeemButton = styled(PrimaryButton)`
-  border-radius: 15px;
+const TitleInfo = styled.div`
+  padding: 20px;
+  padding-top: 5px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'IBM Plex Mono';
+  margin-bottom: 40px;
 `
 
-export default function Liquidity() {
+const ButtonText = styled.span`
+  background: -webkit-linear-gradient(90deg, #e29c53 0%, #ce4c7a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+`
+
+const AmountSpan = styled.span`
+  color: #fdb572;
+`
+
+export default function Liquidity({ flag = false }: { flag?: boolean }) {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
-  const [amountIn] = useState('')
+  const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
+
+  const [amountIn, setAmountIn] = useState('')
   const debouncedAmountIn = useDebounce(amountIn, 500)
-  const deiCurrency = DEI_TOKEN
-  const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
 
-  const { amountOut } = useBondsAmountsOut(debouncedAmountIn)
+  const vDEUSCurrency = VDEUS_TOKEN
+  const vDEUSAmount = useMemo(() => {
+    return tryParseAmount(amountIn, vDEUSCurrency || undefined)
+  }, [amountIn, vDEUSCurrency])
 
-  // Amount typed in either fields
-  const deiAmount = useMemo(() => {
-    return tryParseAmount(amountIn, deiCurrency || undefined)
-  }, [amountIn, deiCurrency])
+  const vdeusCurrencyBalance = useCurrencyBalance(account ?? undefined, vDEUSCurrency)
 
   const insufficientBalance = useMemo(() => {
-    if (!deiAmount) return false
-    return deiCurrencyBalance?.lessThan(deiAmount)
-  }, [deiCurrencyBalance, deiAmount])
-  const {
-    state: redeemCallbackState,
-    callback: redeemCallback,
-    error: redeemCallbackError,
-  } = useBondsCallback(deiCurrency, deiAmount)
+    if (!vDEUSAmount) return false
+    return vdeusCurrencyBalance?.lessThan(vDEUSAmount)
+  }, [vdeusCurrencyBalance, vDEUSAmount])
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
   const spender = useMemo(() => (chainId ? DeiBonder[chainId] : undefined), [chainId])
-  const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
+  const [approvalState, approveCallback] = useApproveCallback(vDEUSCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = deiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
+    const show = vDEUSCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [deiCurrency, approvalState, amountIn])
+  }, [vDEUSCurrency, approvalState, amountIn])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -128,97 +191,182 @@ export default function Liquidity() {
     setAwaitingApproveConfirmation(false)
   }
 
-  const handleMint = useCallback(async () => {
-    console.log('called handleMint')
-    console.log(redeemCallbackState, redeemCallback, redeemCallbackError)
-    if (!redeemCallback) return
+  const addTransaction = useTransactionAdder()
 
-    // let error = ''
+  const pool = vDeusStakingPools[0]
+
+  const masterChefContract = useVDeusMasterChefV2Contract(flag)
+  const pid = useMemo(() => (flag ? 0 : pool.pid), [flag, pool])
+  // const { depositAmount, rewardsAmount } = useUserInfo(pid, flag)
+
+  const depositAmount = 0.1
+  const rewardsAmount = 1.2
+
+  const apr = useGetApr(pid, flag)
+
+  const onClaimReward = useCallback(
+    async (pid: number) => {
+      if (flag) {
+        toast.error(`Claim disabled`)
+        return
+      }
+      try {
+        if (!masterChefContract || !account || !isSupportedChainId || !rewardsAmount) return
+        setAwaitingClaimConfirmation(true)
+        const response = await masterChefContract.harvest(pid, account)
+        addTransaction(response, { summary: `Claim Rewards`, vest: { hash: response.hash } })
+        setAwaitingClaimConfirmation(false)
+        // setPendingTxHash(response.hash)
+      } catch (err) {
+        console.log(err)
+        toast.error(DefaultHandlerError(err))
+        setAwaitingClaimConfirmation(false)
+        // setPendingTxHash('')
+      }
+    },
+    [masterChefContract, account, isSupportedChainId, rewardsAmount, addTransaction, flag]
+  )
+
+  const handleSwap = useCallback(async () => {
+    console.log('called handleSwap')
+    // console.log(swapCallbackState, swapCallbackError)
+    // if (!swapCallback) return
     try {
       setAwaitingRedeemConfirmation(true)
-      const txHash = await redeemCallback()
+      // const txHash = await swapCallback()
       setAwaitingRedeemConfirmation(false)
-      console.log({ txHash })
+      // console.log({ txHash })
     } catch (e) {
       setAwaitingRedeemConfirmation(false)
       if (e instanceof Error) {
-        // error = e.message
       } else {
         console.error(e)
-        // error = 'An unknown error occurred.'
       }
     }
-  }, [redeemCallbackState, redeemCallback, redeemCallbackError])
+  }, [])
 
   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
       return null
-    }
-    if (awaitingApproveConfirmation) {
+    } else if (awaitingApproveConfirmation) {
       return (
-        <RedeemButton active>
+        <DepositButton active>
           Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
-        </RedeemButton>
+        </DepositButton>
       )
-    }
-    if (showApproveLoader) {
+    } else if (showApproveLoader) {
       return (
-        <RedeemButton active>
+        <DepositButton active>
           Approving <DotFlashing style={{ marginLeft: '10px' }} />
-        </RedeemButton>
+        </DepositButton>
       )
-    }
-    if (showApprove) {
-      return <RedeemButton onClick={handleApprove}>Allow us to spend {deiCurrency?.symbol}</RedeemButton>
+    } else if (showApprove) {
+      return <DepositButton onClick={handleApprove}>Allow us to spend {vDEUSCurrency?.symbol}</DepositButton>
     }
     return null
   }
 
   function getActionButton(): JSX.Element | null {
     if (!chainId || !account) {
-      return <RedeemButton onClick={toggleWalletModal}>Connect Wallet</RedeemButton>
-    }
-    if (showApprove) {
+      return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
+    } else if (showApprove) {
       return null
-    }
-    if (insufficientBalance) {
-      return <RedeemButton disabled>Insufficient {deiCurrency?.symbol} Balance</RedeemButton>
-    }
-
-    if (awaitingRedeemConfirmation) {
+    } else if (insufficientBalance) {
+      return <DepositButton disabled>Insufficient {vDEUSCurrency?.symbol} Balance</DepositButton>
+    } else if (awaitingRedeemConfirmation) {
       return (
-        <RedeemButton>
-          Minting bDEI <DotFlashing style={{ marginLeft: '10px' }} />
-        </RedeemButton>
+        <DepositButton>
+          {selected === NavigationTypes.STAKE ? 'Staking' : 'Unstaking'} <DotFlashing style={{ marginLeft: '10px' }} />
+        </DepositButton>
       )
     }
-
-    return <RedeemButton onClick={() => handleMint()}>Mint bDEI</RedeemButton>
+    return (
+      <DepositButton onClick={() => handleSwap()}>
+        {selected === NavigationTypes.STAKE ? 'Stake' : 'Unstake'} {vDEUSCurrency?.symbol}
+      </DepositButton>
+    )
   }
 
-  return (
-    <MainWrapper style={{ pointerEvents: 'none' }}>
-      <ComingSoon> Coming soon... </ComingSoon>
-      <RedeemWrapper>
-        <Wrapper>
-          <RowEnd style={{ position: 'relative' }} height={'90px'}>
-            <NftText>Time Reduction NFT</NftText>
-            <Image src={NFT_IMG} height={'90px'} alt="nft" />
-          </RowEnd>
-          <ArrowDown />
+  function getClaimButton(pool: vDeusStakingType): JSX.Element | null {
+    if (awaitingClaimConfirmation) {
+      return (
+        <ClaimButtonWrapper>
+          <ClaimButton disabled={true}>
+            <ButtonText>
+              Claim
+              <DotFlashing style={{ marginLeft: '10px' }} />
+            </ButtonText>
+          </ClaimButton>
+        </ClaimButtonWrapper>
+      )
+    }
+    if (rewardsAmount <= 0) {
+      return (
+        <ClaimButtonWrapper>
+          <ClaimButton disabled={true}>
+            <ButtonText>Claim</ButtonText>
+          </ClaimButton>
+        </ClaimButtonWrapper>
+      )
+    }
+    return (
+      <ClaimButtonWrapper>
+        <ClaimButton onClick={() => onClaimReward(pool.pid)}>
+          <ButtonText>Claim</ButtonText>
+        </ClaimButton>
+      </ClaimButtonWrapper>
+    )
+  }
 
-          <InputBox
-            currency={deiCurrency}
-            value={amountOut}
-            onChange={(value: string) => console.log(value)}
-            title={'To'}
-            disabled={true}
-          />
-          <div style={{ marginTop: '20px' }}></div>
-          {getApproveButton()}
-          {getActionButton()}
-        </Wrapper>
-      </RedeemWrapper>
-    </MainWrapper>
+  const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.STAKE)
+
+  return (
+    <TopWrapper>
+      <LiquidityPool />
+
+      <Wrapper>
+        <TitleInfo>
+          <SelectorContainer>
+            <Navigation fontSize={'18px'} selected={selected} setSelected={setSelected} />
+          </SelectorContainer>
+          <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
+        </TitleInfo>
+
+        <InputBox
+          currency={vDEUSCurrency}
+          value={amountIn}
+          onChange={(value: string) => setAmountIn(value)}
+          title={'From'}
+          // maxValue={selected === NavigationTypes.UNSTAKE ? '0.1' : undefined}
+        />
+
+        {getApproveButton()}
+        {getActionButton()}
+
+        <Line />
+        {depositAmount > 0 && (
+          <BoxWrapper>
+            <span>vDEUS Staked:</span>
+            <AmountSpan>
+              {formatAmount(depositAmount)} {vDEUSCurrency?.symbol}
+            </AmountSpan>
+          </BoxWrapper>
+        )}
+
+        <Line />
+        <BoxWrapper>
+          <div>
+            <span style={{ fontSize: '12px' }}>Reward:</span>
+            <RewardData>
+              <span>{rewardsAmount && rewardsAmount?.toFixed(3)}</span>
+              <Row style={{ marginLeft: '10px' }}>
+                <span>{DEUS_TOKEN.symbol}</span>
+              </Row>
+            </RewardData>
+          </div>
+          <div>{getClaimButton(pool)}</div>
+        </BoxWrapper>
+      </Wrapper>
+    </TopWrapper>
   )
 }

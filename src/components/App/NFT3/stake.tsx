@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
-import { darken } from 'polished'
 import { ArrowDown } from 'react-feather'
+import Image from 'next/image'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -10,19 +10,16 @@ import useDebounce from 'hooks/useDebounce'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useBondsCallback from 'hooks/useBondsCallback'
-import { useBondsAmountsOut, useBonderData } from 'hooks/useBondsPage'
+import { useBondsAmountsOut } from 'hooks/useBondsPage'
 import { tryParseAmount } from 'utils/parse'
+import NFT_IMG from '/public/static/images/pages/bonds/TR-NFT.svg'
 
 import { PrimaryButton } from 'components/Button'
-import { Row } from 'components/Row'
-import { DotFlashing, Info } from 'components/Icons'
-
+import { DotFlashing } from 'components/Icons'
+import { RowEnd } from 'components/Row'
 import InputBox from 'components/App/Redemption/InputBox'
 import { DeiBonder } from 'constants/addresses'
-import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
-import InfoBox from 'components/App/Bonds/InfoBox'
-import { NavigationTypes } from 'components/StableCoin'
-import { ExternalLink } from 'components/Link'
+import { DEI_TOKEN } from 'constants/tokens'
 
 const Container = styled.div`
   display: flex;
@@ -48,29 +45,59 @@ const Wrapper = styled(Container)`
   }
 `
 
+const RedeemWrapper = styled.div`
+  -webkit-filter: blur(8px);
+  -moz-filter: blur(8px);
+  -o-filter: blur(8px);
+  -ms-filter: blur(8px);
+  filter: blur(8px);
+`
+
+const MainWrapper = styled.div`
+  position: relative;
+`
+
+const ComingSoon = styled.span`
+  position: absolute;
+  margin: 0 auto;
+  padding: 20px 15px;
+  justify-content: center;
+  top: 39%;
+  left: 43%;
+  transform: translate(0, -50%);
+  z-index: 2;
+  font-size: 21px;
+`
+
+const NftText = styled.div`
+  white-space: nowrap;
+  font-size: 0.85rem;
+  position: absolute;
+  margin-left: 10px;
+  left: 0;
+  top: 20px;
+  z-index: 10;
+  color: #f36c6c;
+  padding: 2px;
+  background: #0d0d0d;
+  border-radius: 2px;
+`
+
 const RedeemButton = styled(PrimaryButton)`
   border-radius: 15px;
 `
 
-const Description = styled.div`
-  font-size: 0.85rem;
-  line-height: 1.25rem;
-  margin-left: 10px;
-  color: ${({ theme }) => darken(0.4, theme.text1)};
-`
-
-export default function Mint({ onSwitch }: { onSwitch: any }) {
+export default function Redeem() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
-  const [amountIn, setAmountIn] = useState('')
+  const [amountIn] = useState('')
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
-  const bDeiCurrency = BDEI_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
 
   const { amountOut } = useBondsAmountsOut(debouncedAmountIn)
-  const { bondingPaused } = useBonderData()
+
   // Amount typed in either fields
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
@@ -148,17 +175,11 @@ export default function Mint({ onSwitch }: { onSwitch: any }) {
   }
 
   function getActionButton(): JSX.Element | null {
-    return <RedeemButton disabled>Bonding is closed</RedeemButton>
-
     if (!chainId || !account) {
       return <RedeemButton onClick={toggleWalletModal}>Connect Wallet</RedeemButton>
     }
     if (showApprove) {
       return null
-    }
-
-    if (bondingPaused) {
-      return <RedeemButton disabled>Mint Paused</RedeemButton>
     }
     if (insufficientBalance) {
       return <RedeemButton disabled>Insufficient {deiCurrency?.symbol} Balance</RedeemButton>
@@ -176,43 +197,28 @@ export default function Mint({ onSwitch }: { onSwitch: any }) {
   }
 
   return (
-    <>
-      <Wrapper>
-        <InputBox
-          currency={deiCurrency}
-          value={amountIn}
-          onChange={(value: string) => setAmountIn(value)}
-          title={'From'}
-        />
-        <ArrowDown style={{ cursor: 'pointer' }} onClick={() => onSwitch(NavigationTypes.SWAP)} />
+    <MainWrapper style={{ pointerEvents: 'none' }}>
+      <ComingSoon> Coming soon... </ComingSoon>
+      <RedeemWrapper>
+        <Wrapper>
+          <RowEnd style={{ position: 'relative' }} height={'90px'}>
+            <NftText>Time Reduction NFT</NftText>
+            <Image src={NFT_IMG} height={'90px'} alt="nft" />
+          </RowEnd>
+          <ArrowDown />
 
-        <InputBox
-          currency={bDeiCurrency}
-          value={amountOut}
-          onChange={(value: string) => console.log(value)}
-          title={'To'}
-          disabled={true}
-        />
-        {
-          <Row mt={'8px'}>
-            <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
-            <Description>
-              DEI Bonds are currently paused, read more about it{' '}
-              <ExternalLink
-                style={{ textDecoration: 'underline' }}
-                href="https://lafayettetabor.medium.com/deiv2-how-to-clear-old-debt-d48002965e1a"
-              >
-                here
-              </ExternalLink>
-              {'.'}
-            </Description>
-          </Row>
-        }
-        <div style={{ marginTop: '20px' }}></div>
-        {getApproveButton()}
-        {getActionButton()}
-      </Wrapper>
-      <InfoBox amountIn={debouncedAmountIn} />
-    </>
+          <InputBox
+            currency={deiCurrency}
+            value={amountOut}
+            onChange={(value: string) => console.log(value)}
+            title={'To'}
+            disabled={true}
+          />
+          <div style={{ marginTop: '20px' }}></div>
+          {getApproveButton()}
+          {getActionButton()}
+        </Wrapper>
+      </RedeemWrapper>
+    </MainWrapper>
   )
 }

@@ -80,7 +80,7 @@ export default function NFT() {
                 Based on recent events and the communities decision to potentially alter the vDEUS staking, we have
                 decided to set them to ZERO until a decision for how to move forward was made. <br />
                 For more info, please follow #vdeus-staking channel in{' '}
-                <ExternalLink style={{ 'text-decoration': 'underline' }} href="https://discord.gg/deusfinance">
+                <ExternalLink style={{ textDecoration: 'underline' }} href="https://discord.gg/deusfinance">
                   Discord
                 </ExternalLink>
                 {'.'}

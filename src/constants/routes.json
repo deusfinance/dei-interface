@@ -38,5 +38,11 @@
     "text": "vDEUS",
     "path": "/vdeus",
     "exact": true
+  },
+  {
+    "id": "7",
+    "text": "NFT",
+    "path": "/nft",
+    "exact": true
   }
 ]

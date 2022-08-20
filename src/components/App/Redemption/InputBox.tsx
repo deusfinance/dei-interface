@@ -70,12 +70,14 @@ export default function InputBox({
   onChange,
   title,
   disabled,
+  disable_vdeus,
 }: {
   currency: Currency
   value: string
   onChange(values: string): void
   title: string
   disabled?: boolean
+  disable_vdeus?: boolean
 }) {
   const { account } = useWeb3React()
   const logo = useCurrencyLogo(currency?.wrapped.address)
@@ -95,41 +97,39 @@ export default function InputBox({
   }
 
   return (
-    <>
-      <Wrapper>
-        <RowBetween alignItems={'center'}>
-          <div style={{ fontSize: '0.75rem' }}>{title}</div>
-          {currency?.symbol != 'DEUS' ? (
-            <Balance onClick={handleClick}>
-              {balanceDisplay ? balanceDisplay : '0.00'}
-              {!disabled && <span>MAX</span>}
-            </Balance>
-          ) : null}
-        </RowBetween>
-        <RowBetween>
-          <NumericalInput
-            value={value || ''}
-            onUserInput={onChange}
-            placeholder="0.0"
-            autoFocus
-            disabled={disabled}
-            style={{ textAlign: 'left', height: '50px', fontSize: '1.3rem' }}
+    <Wrapper>
+      <RowBetween alignItems={'center'}>
+        <div style={{ fontSize: '0.75rem' }}>{title}</div>
+        {currency?.symbol != 'DEUS' || disable_vdeus ? (
+          <Balance onClick={handleClick}>
+            {balanceDisplay ? balanceDisplay : '0.00'}
+            {!disabled && <span>MAX</span>}
+          </Balance>
+        ) : null}
+      </RowBetween>
+      <RowBetween>
+        <NumericalInput
+          value={value || ''}
+          onUserInput={onChange}
+          placeholder="0.0"
+          autoFocus
+          disabled={disabled}
+          style={{ textAlign: 'left', height: '50px', fontSize: '1.3rem' }}
+        />
+        <Row>
+          <ImageWithFallback
+            src={logo}
+            width={getImageSize()}
+            height={getImageSize()}
+            alt={`${currency?.symbol} Logo`}
+            round
           />
-          <Row style={{ width: currency?.symbol != 'DEI' ? '110px' : 'unset' }}>
-            <ImageWithFallback
-              src={logo}
-              width={getImageSize()}
-              height={getImageSize()}
-              alt={`${currency?.symbol} Logo`}
-              round
-            />
-            <p style={{ marginLeft: '5px', fontSize: '1.5rem', color: '#ccc' }}>
-              {currency?.symbol == 'DEUS' && 'v'}
-              {currency?.symbol}
-            </p>
-          </Row>
-        </RowBetween>
-      </Wrapper>
-    </>
+          <p style={{ marginLeft: '1px', fontSize: '1.5rem', color: '#ccc' }}>
+            {!disable_vdeus && currency?.symbol == 'DEUS' && 'v'}
+            {currency?.symbol}
+          </p>
+        </Row>
+      </RowBetween>
+    </Wrapper>
   )
 }

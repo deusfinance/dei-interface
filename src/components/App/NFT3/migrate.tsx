@@ -3,26 +3,22 @@ import styled from 'styled-components'
 import { darken } from 'polished'
 import { ArrowDown } from 'react-feather'
 
-import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import useDebounce from 'hooks/useDebounce'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useBondsCallback from 'hooks/useBondsCallback'
-import { useBondsAmountsOut, useBonderData } from 'hooks/useBondsPage'
+import { useBondsAmountsOut } from 'hooks/useBondsPage'
 import { tryParseAmount } from 'utils/parse'
 
 import { PrimaryButton } from 'components/Button'
-import { Row } from 'components/Row'
-import { DotFlashing, Info } from 'components/Icons'
+import { DotFlashing } from 'components/Icons'
 
 import InputBox from 'components/App/Redemption/InputBox'
 import { DeiBonder } from 'constants/addresses'
-import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
-import InfoBox from 'components/App/Bonds/InfoBox'
+import { DEI_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 import { NavigationTypes } from 'components/StableCoin'
-import { ExternalLink } from 'components/Link'
 
 const Container = styled.div`
   display: flex;
@@ -59,27 +55,25 @@ const Description = styled.div`
   color: ${({ theme }) => darken(0.4, theme.text1)};
 `
 
-export default function Mint({ onSwitch }: { onSwitch: any }) {
+export default function Migrate({ onSwitch }: { onSwitch: any }) {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
-  const bDeiCurrency = BDEI_TOKEN
-  const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
+  const vDEUSCurrency = VDEUS_TOKEN
 
   const { amountOut } = useBondsAmountsOut(debouncedAmountIn)
-  const { bondingPaused } = useBonderData()
-  // Amount typed in either fields
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
   }, [amountIn, deiCurrency])
 
-  const insufficientBalance = useMemo(() => {
-    if (!deiAmount) return false
-    return deiCurrencyBalance?.lessThan(deiAmount)
-  }, [deiCurrencyBalance, deiAmount])
+  // const insufficientBalance = useMemo(() => {
+  //   if (!deiAmount) return false
+  //   return deiCurrencyBalance?.lessThan(deiAmount)
+  // }, [deiCurrencyBalance, deiAmount])
+
   const {
     state: redeemCallbackState,
     callback: redeemCallback,
@@ -106,7 +100,6 @@ export default function Mint({ onSwitch }: { onSwitch: any }) {
     console.log(redeemCallbackState, redeemCallback, redeemCallbackError)
     if (!redeemCallback) return
 
-    // let error = ''
     try {
       setAwaitingRedeemConfirmation(true)
       const txHash = await redeemCallback()
@@ -148,31 +141,26 @@ export default function Mint({ onSwitch }: { onSwitch: any }) {
   }
 
   function getActionButton(): JSX.Element | null {
-    return <RedeemButton disabled>Bonding is closed</RedeemButton>
-
     if (!chainId || !account) {
       return <RedeemButton onClick={toggleWalletModal}>Connect Wallet</RedeemButton>
     }
     if (showApprove) {
       return null
     }
-
-    if (bondingPaused) {
-      return <RedeemButton disabled>Mint Paused</RedeemButton>
-    }
-    if (insufficientBalance) {
-      return <RedeemButton disabled>Insufficient {deiCurrency?.symbol} Balance</RedeemButton>
-    }
-
+    // if (bondingPaused) {
+    //   return <RedeemButton disabled>Mint Paused</RedeemButton>
+    // }
+    // if (insufficientBalance) {
+    //   return <RedeemButton disabled>Insufficient {deiCurrency?.symbol} Balance</RedeemButton>
+    // }
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Minting bDEI <DotFlashing style={{ marginLeft: '10px' }} />
+          Migrating to ERC20 <DotFlashing style={{ marginLeft: '10px' }} />
         </RedeemButton>
       )
     }
-
-    return <RedeemButton onClick={() => handleMint()}>Mint bDEI</RedeemButton>
+    return <RedeemButton onClick={() => handleMint()}>Migrate to ERC20</RedeemButton>
   }
 
   return (
@@ -187,32 +175,16 @@ export default function Mint({ onSwitch }: { onSwitch: any }) {
         <ArrowDown style={{ cursor: 'pointer' }} onClick={() => onSwitch(NavigationTypes.SWAP)} />
 
         <InputBox
-          currency={bDeiCurrency}
+          currency={vDEUSCurrency}
           value={amountOut}
           onChange={(value: string) => console.log(value)}
           title={'To'}
           disabled={true}
         />
-        {
-          <Row mt={'8px'}>
-            <Info data-for="id" data-tip={'Tool tip for hint client'} size={15} />
-            <Description>
-              DEI Bonds are currently paused, read more about it{' '}
-              <ExternalLink
-                style={{ textDecoration: 'underline' }}
-                href="https://lafayettetabor.medium.com/deiv2-how-to-clear-old-debt-d48002965e1a"
-              >
-                here
-              </ExternalLink>
-              {'.'}
-            </Description>
-          </Row>
-        }
         <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getActionButton()}
       </Wrapper>
-      <InfoBox amountIn={debouncedAmountIn} />
     </>
   )
 }

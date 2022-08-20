@@ -5,6 +5,7 @@ import DEI_LOGO from '/public/static/images/tokens/dei.svg'
 import DEUS_LOGO from '/public/static/images/tokens/deus.svg'
 import USDC_LOGO from '/public/static/images/tokens/usdc.svg'
 import BDEI_LOGO from '/public/static/images/tokens/bdei.svg'
+import vDEUS_LOGO from '/public/static/images/tokens/vdeus.svg'
 
 const LogoMap: { [contractOrSymbol: string]: string } = {
   // symbols
@@ -18,6 +19,7 @@ const LogoMap: { [contractOrSymbol: string]: string } = {
   '0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3': DEI_LOGO,
   '0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44': DEUS_LOGO,
   '0x05f6ea7F80BDC07f6E0728BbBBAbebEA4E142eE8': BDEI_LOGO,
+  '0xDE1E704dae0B4051e80DAbB26ab6ad6c12262DA0': vDEUS_LOGO,
 }
 
 export default function useCurrencyLogo(contractOrSymbol?: string): string {

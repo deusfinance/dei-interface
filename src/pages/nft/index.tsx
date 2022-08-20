@@ -45,7 +45,7 @@ export default function NFT() {
     <Container>
       <Hero>
         <div>vDEUS</div>
-        <HeroSubtext>Deposit your voucher and earn.</HeroSubtext>
+        <HeroSubtext>Deposit your voucher and earn</HeroSubtext>
       </Hero>
 
       <SelectorContainer>

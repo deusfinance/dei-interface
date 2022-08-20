@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
-import { darken } from 'polished'
 import { ArrowDown } from 'react-feather'
 
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -45,14 +44,7 @@ const Wrapper = styled(Container)`
 `
 
 const RedeemButton = styled(PrimaryButton)`
-  border-radius: 15px;
-`
-
-const Description = styled.div`
-  font-size: 0.85rem;
-  line-height: 1.25rem;
-  margin-left: 10px;
-  color: ${({ theme }) => darken(0.4, theme.text1)};
+  border-radius: 12px;
 `
 
 export default function Migrate({ onSwitch }: { onSwitch: any }) {

@@ -45,7 +45,7 @@ const Wrapper = styled(Container)`
 `
 
 const RedeemButton = styled(PrimaryButton)`
-  border-radius: 15px;
+  border-radius: 12px;
 `
 
 export default function SwapPage({ onSwitch }: { onSwitch: any }) {
@@ -55,8 +55,8 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
   const [amountIn, setAmountIn] = useState('')
   const [slippage, setSlippage] = useState(0.5)
   const debouncedAmountIn = useDebounce(amountIn, 500)
-  const [inputCurrency, setInputCurrency] = useState(VDEUS_TOKEN)
-  const [outputCurrency, setOutputCurrency] = useState(DEUS_TOKEN)
+  const [inputCurrency, setInputCurrency] = useState(DEUS_TOKEN)
+  const [outputCurrency, setOutputCurrency] = useState(VDEUS_TOKEN)
 
   const inputBalance = useCurrencyBalance(account ?? undefined, inputCurrency)
   const { amountOut } = useSwapAmountsOut(debouncedAmountIn, outputCurrency)

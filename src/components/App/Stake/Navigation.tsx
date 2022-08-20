@@ -9,10 +9,8 @@ const Wrapper = styled.div`
   margin-left: 30px;
 `
 
-const Item = styled.div<{
-  selected: boolean
-}>`
-  font-size: 15px;
+const Item = styled.div<{ selected: boolean; fontSize?: string }>`
+  font-size: ${({ fontSize }) => (fontSize ? fontSize : '15px')};
   transition: all 0.3s ease;
   border-bottom: 1px solid ${({ selected, theme }) => (selected ? theme.text1 : 'transparent')};
   color: ${({ selected, theme }) => (selected ? theme.text1 : theme.text3)};
@@ -34,16 +32,23 @@ const NavigationLabels = {
 export default function Navigation({
   selected,
   setSelected,
+  fontSize,
 }: {
   selected: string
   setSelected: (value: NavigationTypes) => void
+  fontSize?: string
 }) {
   return (
     <Wrapper>
       {(Object.keys(NavigationTypes) as Array<keyof typeof NavigationTypes>).map((key, index) => {
         const label = NavigationLabels[key]
         return (
-          <Item selected={key == selected} onClick={() => setSelected(NavigationTypes[key])} key={index}>
+          <Item
+            fontSize={fontSize}
+            selected={key == selected}
+            onClick={() => setSelected(NavigationTypes[key])}
+            key={index}
+          >
             {label}
           </Item>
         )

@@ -151,6 +151,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          <Link href="/nft" passHref>
+            <Row active={router.route === '/nft'}>
+              <div>NFT</div>
+              <IconWrapper>
+                <TradeIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <ExternalLink href="https://twitter.com/deusdao">
             <Row onClick={() => toggle()}>
               <div>Twitter</div>

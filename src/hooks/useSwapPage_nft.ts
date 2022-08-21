@@ -14,6 +14,7 @@ export function useSwapAmountsOut(
 } {
   const amountInBN = amountIn ? toBN(amountIn).times(BN_TEN.pow(tokenIn.decimals)).toFixed(0) : ''
   const contract = useDeiSwapContract()
+  const positions = useMemo(() => (tokenIn?.symbol === 'DEI' ? [1, 0] : [0, 1]), [tokenIn])
 
   const amountOutCall = useMemo(
     () =>
@@ -22,10 +23,10 @@ export function useSwapAmountsOut(
         : [
             {
               methodName: 'calculateSwap',
-              callInputs: [1, 0, amountInBN],
+              callInputs: [...positions, amountInBN],
             },
           ],
-    [amountInBN]
+    [amountInBN, positions]
   )
 
   const [bdeiSwap] = useSingleContractMultipleMethods(contract, amountOutCall)

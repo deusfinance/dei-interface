@@ -328,4 +328,10 @@ export const ThemedGlobalStyle = createGlobalStyle`
   *::-webkit-scrollbar {
     display: none; /* for Chrome, Safari, and Opera */
   }
+
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 `

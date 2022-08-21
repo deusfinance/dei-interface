@@ -77,16 +77,17 @@ export const Option = styled(Base)<{ theme?: any; active?: any; bgColor?: string
   display: inline-flex;
   height: 25px;
   color: ${({ theme, active }) => (active ? theme.text1 : theme.text2)};
-  /* background: ${({ theme, active }) => (active ? theme.text1 : theme.bg0)}; */
-  border: 1px solid ${({ theme, active }) => (active ? theme.warning : theme.text1)};
+  border: ${({ theme, active }) => (active ? `2px solid ${theme.yellow2}` : `1px solid ${theme.text1}`)};
   margin: 1px;
   margin-right: 5px;
   width: 50px;
   font-size: 13px;
   transition: all 0s;
   cursor: ${({ active }) => (active ? 'default' : 'pointer')};
+  border-radius: 8px;
+
   &:hover {
-    border: 1px solid ${({ theme, active }) => (active ? theme.warning : theme.text1)};
+    border: ${({ theme, active }) => (active ? `2px solid ${theme.yellow2}` : `1px solid ${theme.text1}`)};
   }
 `
 
@@ -94,12 +95,12 @@ export const CustomOption = styled.div<{ active?: any }>`
   font-size: 13px;
   height: 25px;
   margin: 1px;
-  border: 1px solid ${({ theme, active }) => (active ? theme.warning : theme.text1)};
+  border: 1px solid ${({ theme, active }) => (active ? theme.yellow2 : theme.text1)};
   padding: 0 5px;
   display: inline-flex;
   justify-content: flex-end;
   align-items: center;
-  border-radius: 6px;
+  border-radius: 8px;
 `
 
 const InputSlippage = styled.input.attrs({ type: 'number', min: 0.1 })`

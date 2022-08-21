@@ -107,8 +107,6 @@ export default function NFTsModal({
     }
   }
 
-  console.log({ selectedNFTs })
-
   function onSelectAll() {
     const nfts: VDEUS_NFT[] = []
     result.forEach((nft) => nfts.push({ value: +nft.value, tokenId: +nft.name }))

@@ -168,12 +168,20 @@ export default function Migrate({ onSwitch }: { onSwitch: any }) {
   }
   function getCurrentItem() {
     let totalValue = 0
-    let vDEUSText = ''
+    let vDEUSText = 'vDEUS '
+
+    inputNFT.forEach((nft, index) => {
+      totalValue += +nft.value
+
+      if (index < 2) vDEUSText += `#${nft.tokenId},`
+    })
+
+    console.log({ totalValue, vDEUSText })
 
     return inputNFT.length ? (
       <NFTWrap>
-        <TokenId>vDEUS #{inputNFT[0].tokenId}</TokenId>
-        <Balance>{true ? `NFT Value: ${2} vDEUS` : `Total NFT Value ${2} vDEUS`}</Balance>
+        <TokenId>{vDEUSText}</TokenId>
+        <Balance>{true ? `NFT Value: ${totalValue} vDEUS` : `Total NFT Value ${totalValue} vDEUS`}</Balance>
       </NFTWrap>
     ) : null
   }

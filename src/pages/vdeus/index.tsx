@@ -105,10 +105,12 @@ export default function NFT() {
         </TopWrapper>
         <Disclaimer />
       </Container>
-      <MaintenanceModal
-        content="vDEUS rewarder migration should be available again soon.
-You will have to claim() once to start accruing new rewards."
-      />
+      {false && (
+        <MaintenanceModal
+          content="vDEUS rewarder migration should be available again soon.
+          You will have to claim() once to start accruing new rewards."
+        />
+      )}
     </>
   )
 }

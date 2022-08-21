@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 
 import useWeb3React from 'hooks/useWeb3'
-import { useERC20Contract, useVDeusMasterChefV2Contract } from 'hooks/useContract'
+import { useERC20Contract, useVDeusMasterChefV2Contract, useVDeusMultiRewarderContract } from 'hooks/useContract'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
 import { useDeusPrice } from './useCoingeckoPrice'
@@ -102,8 +102,10 @@ export function useUserInfo(
 ): {
   depositAmount: number
   rewardsAmount: number
+  rewardsVDeusAmount: number
 } {
-  const contract = useVDeusMasterChefV2Contract(flag)
+  const MasterChefContract = useVDeusMasterChefV2Contract(flag)
+  const MultiRewarderContract = useVDeusMultiRewarderContract()
   const { account } = useWeb3React()
 
   const calls = !account
@@ -119,18 +121,30 @@ export function useUserInfo(
         },
       ]
 
-  const [userInfo, pendingTokens] = useSingleContractMultipleMethods(contract, calls)
+  const vDEUScalls = !account
+    ? []
+    : [
+        {
+          methodName: 'pendingTokens',
+          callInputs: [pid, account],
+        },
+      ]
 
-  const { depositedValue, rewardValue } = useMemo(() => {
+  const [userInfo, pendingTokens] = useSingleContractMultipleMethods(MasterChefContract, calls)
+  const [pendingTokens2] = useSingleContractMultipleMethods(MultiRewarderContract, vDEUScalls)
+
+  const { depositedValue, rewardValue, rewardVDeusValue } = useMemo(() => {
     return {
       depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0], 18)).toNumber() : 0,
       rewardValue: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0,
+      rewardVDeusValue: pendingTokens2?.result ? toBN(formatUnits(pendingTokens2.result[1][0], 18)).toNumber() : 0,
     }
-  }, [userInfo, pendingTokens])
+  }, [userInfo, pendingTokens, pendingTokens2])
 
   return {
     depositAmount: depositedValue,
     rewardsAmount: rewardValue,
+    rewardsVDeusAmount: rewardVDeusValue,
   }
 }
 

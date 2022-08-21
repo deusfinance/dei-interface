@@ -239,7 +239,7 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
   const masterChefContract = useVDeusMasterChefV2Contract(flag)
   const pid = useMemo(() => (flag ? 0 : pool.pid), [flag, pool])
   // const lockedNFTs = useUserLockedNfts()
-  const { depositAmount, rewardsAmount } = useUserInfo(pid, flag)
+  const { depositAmount, rewardsAmount, rewardsVDeusAmount } = useUserInfo(pid, flag)
   const { totalDeposited } = usePoolInfo(pid, flag)
   // const apr = useGetApr(pid, flag)
   const apr = 25
@@ -268,7 +268,7 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
         return
       }
       try {
-        if (!masterChefContract || !account || !isSupportedChainId || !rewardsAmount) return
+        if (!masterChefContract || !account || !isSupportedChainId) return
         setAwaitingClaimConfirmation(true)
         const response = await masterChefContract.harvest(pid, account)
         addTransaction(response, { summary: `Claim Rewards`, vest: { hash: response.hash } })
@@ -281,7 +281,7 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
         // setPendingTxHash('')
       }
     },
-    [masterChefContract, account, isSupportedChainId, rewardsAmount, addTransaction, flag]
+    [masterChefContract, account, isSupportedChainId, addTransaction, flag]
   )
 
   const onDeposit = useCallback(
@@ -353,17 +353,17 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
         </>
       )
     }
-    if (rewardsAmount <= 0) {
-      return (
-        <>
-          <ClaimButtonWrapper>
-            <ClaimButton disabled={true}>
-              <ButtonText>Claim</ButtonText>
-            </ClaimButton>
-          </ClaimButtonWrapper>
-        </>
-      )
-    }
+    // if (rewardsAmount <= 0) {
+    //   return (
+    //     <>
+    //       <ClaimButtonWrapper>
+    //         <ClaimButton disabled={true}>
+    //           <ButtonText>Claim</ButtonText>
+    //         </ClaimButton>
+    //       </ClaimButtonWrapper>
+    //     </>
+    //   )
+    // }
     return (
       <>
         <ClaimButtonWrapper>
@@ -425,6 +425,12 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
             <span>{rewardsAmount && rewardsAmount?.toFixed(3)}</span>
             <Row style={{ marginLeft: '10px' }}>
               <span>{DEUS_TOKEN.symbol}</span>
+            </Row>
+          </RewardData>
+          <RewardData style={{ marginTop: '-10px' }}>
+            <span>{rewardsVDeusAmount && rewardsVDeusAmount?.toFixed(3)}</span>
+            <Row style={{ marginLeft: '10px' }}>
+              <span>v{DEUS_TOKEN.symbol}</span>
             </Row>
           </RewardData>
         </div>

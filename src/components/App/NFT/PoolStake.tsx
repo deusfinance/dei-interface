@@ -9,7 +9,7 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
 import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
 import { useVDeusStats } from 'hooks/useVDeusStats'
-import { useGetApr, useUserInfo, usePoolInfo } from 'hooks/useVDeusStaking'
+import { useUserInfo, usePoolInfo } from 'hooks/useVDeusStaking'
 
 import { DefaultHandlerError } from 'utils/parseError'
 import { formatAmount } from 'utils/numbers'
@@ -241,7 +241,8 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
   // const lockedNFTs = useUserLockedNfts()
   const { depositAmount, rewardsAmount } = useUserInfo(pid, flag)
   const { totalDeposited } = usePoolInfo(pid, flag)
-  const apr = useGetApr(pid, flag)
+  // const apr = useGetApr(pid, flag)
+  const apr = 25
   const spender = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)

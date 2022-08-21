@@ -48,13 +48,15 @@ const StakeWrapper = styled.div`
 const WarningWrapper = styled.div`
   background: ${({ theme }) => theme.primary1};
   padding: 1px;
+  max-width: 1000px;
   border-radius: 8px;
-  margin: 12px;
+  margin: 12px auto;
 `
 
 const WarningContainer = styled(PrimaryButton)`
   border-radius: 8px;
   background: ${({ theme }) => theme.bg0};
+  line-height: 24px;
   height: 100%;
   &:hover {
     cursor: default;
@@ -63,38 +65,45 @@ const WarningContainer = styled(PrimaryButton)`
   }
 `
 
-export const DISPLAY_WARNING = false
+export const DISPLAY_WARNING = true
 
 export default function NFT() {
   return (
-    <Container>
-      <Hero>
-        <span>vDEUS Staking</span>
-        <HeroSubtext>deposit your DEUS voucher and earn.</HeroSubtext>
-      </Hero>
-      <TopWrapper>
-        {DISPLAY_WARNING && (
-          <WarningWrapper>
-            <WarningContainer>
-              <div>
-                Based on recent events and the communities decision to potentially alter the vDEUS staking, we have
-                decided to set them to ZERO until a decision for how to move forward was made. <br />
-                For more info, please follow #vdeus-staking channel in{' '}
-                <ExternalLink style={{ 'text-decoration': 'underline' }} href="https://discord.gg/deusfinance">
-                  Discord
-                </ExternalLink>
-                {'.'}
-              </div>
-            </WarningContainer>
-          </WarningWrapper>
-        )}
-        <StakeWrapper>
-          {vDeusStakingPools.map((pool) => (
-            <PoolStake key={pool.name} pool={pool} flag={false}></PoolStake>
-          ))}
-        </StakeWrapper>
-      </TopWrapper>
-      <Disclaimer />
-    </Container>
+    <>
+      <Container>
+        <Hero>
+          <span>vDEUS Staking</span>
+          <HeroSubtext>deposit your DEUS voucher and earn.</HeroSubtext>
+        </Hero>
+        <TopWrapper>
+          {DISPLAY_WARNING && (
+            <WarningWrapper>
+              <WarningContainer>
+                <div>
+                  {`
+                to prepare for the upcoming vDEUS (NFT) > vDEUS (ERC20) migration, DEUS rewards have been swapped with vDEUS(ERC20) rewards, NFT migration will be activated in the upcoming days.
+                  A liquidity pool for vDEUS will also be launched very soon.
+                  for more information read
+                `}
+                  <ExternalLink
+                    style={{ 'text-decoration': 'underline' }}
+                    href="https://lafayettetabor.medium.com/a-wealth-creating-revamped-redeem-plan-601dadcc29a1"
+                  >
+                    here
+                  </ExternalLink>
+                  {'.'}
+                </div>
+              </WarningContainer>
+            </WarningWrapper>
+          )}
+          <StakeWrapper>
+            {vDeusStakingPools.map((pool) => (
+              <PoolStake key={pool.name} pool={pool} flag={false}></PoolStake>
+            ))}
+          </StakeWrapper>
+        </TopWrapper>
+        <Disclaimer />
+      </Container>
+    </>
   )
 }

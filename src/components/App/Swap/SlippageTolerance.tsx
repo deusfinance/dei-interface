@@ -78,7 +78,7 @@ export const Option = styled(Base)<{ theme?: any; active?: any; bgColor?: string
   height: 25px;
   color: ${({ theme, active }) => (active ? theme.text1 : theme.text2)};
   /* background: ${({ theme, active }) => (active ? theme.text1 : theme.bg0)}; */
-  border: 1px solid ${({ theme, active }) => (active ? theme.green1 : theme.text1)};
+  border: 1px solid ${({ theme, active }) => (active ? theme.warning : theme.text1)};
   margin: 1px;
   margin-right: 5px;
   width: 50px;
@@ -86,7 +86,7 @@ export const Option = styled(Base)<{ theme?: any; active?: any; bgColor?: string
   transition: all 0s;
   cursor: ${({ active }) => (active ? 'default' : 'pointer')};
   &:hover {
-    border: 1px solid ${({ theme, active }) => (active ? theme.green1 : theme.text1)};
+    border: 1px solid ${({ theme, active }) => (active ? theme.warning : theme.text1)};
   }
 `
 
@@ -94,7 +94,7 @@ export const CustomOption = styled.div<{ active?: any }>`
   font-size: 13px;
   height: 25px;
   margin: 1px;
-  border: 1px solid ${({ theme, active }) => (active ? theme.green1 : theme.text1)};
+  border: 1px solid ${({ theme, active }) => (active ? theme.warning : theme.text1)};
   padding: 0 5px;
   display: inline-flex;
   justify-content: flex-end;

@@ -15,7 +15,7 @@ const ModalInnerWrapper = styled.div`
 export default function MaintenanceModal({ content }: { content: string }) {
   return (
     <Modal isOpen={true} onBackgroundClick={() => null} onEscapeKeydown={() => null}>
-      <ModalHeader title="Maintenance" border={true} onClose={() => null} hideClose />
+      <ModalHeader title="Under Maintenance" border={true} onClose={() => null} hideClose />
       <ModalInnerWrapper>
         <ConfirmationAnimation size="80px" />
         {content}

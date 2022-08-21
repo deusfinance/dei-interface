@@ -7,6 +7,7 @@ import { vDeusStakingPools } from 'constants/stakings'
 import PoolStake from 'components/App/NFT/PoolStake'
 import { PrimaryButton } from 'components/Button'
 import { ExternalLink } from 'components/Link'
+import MaintenanceModal from 'components/MaintenanceModal'
 
 const Container = styled.div`
   display: flex;
@@ -104,6 +105,10 @@ export default function NFT() {
         </TopWrapper>
         <Disclaimer />
       </Container>
+      <MaintenanceModal
+        content="vDEUS rewarder migration should be available again soon.
+You will have to claim() once to start accruing new rewards."
+      />
     </>
   )
 }

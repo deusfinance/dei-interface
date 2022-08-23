@@ -11,6 +11,6 @@ export const ToolTip = styled(ReactTooltip).attrs({
   background: ${({ theme }) => theme.primary1} !important;
   opacity: 1 !important;
   padding: 3px 7px !important;
-  font-size: 0.6rem !important;
+  font-size: 0.6rem;
   max-width: 180px !important;
 `

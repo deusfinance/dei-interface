@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import { toast } from 'react-hot-toast'
+import { useRouter } from 'next/router'
 
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -17,11 +18,11 @@ import { vDeusStakingType } from 'constants/stakings'
 import { vDeus, vDeusStaking } from 'constants/addresses'
 import { DEUS_TOKEN } from 'constants/tokens'
 
+import { ToolTip } from 'components/ToolTip'
 import Dropdown from 'components/DropDown'
-import { Row, RowCenter } from 'components/Row'
+import { Row, RowCenter, RowEnd } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
-import { useRouter } from 'next/router'
+import { DotFlashing, Info } from 'components/Icons'
 
 const Container = styled.div`
   display: flex;
@@ -191,6 +192,7 @@ const TimeTitle = styled.span`
   font-weight: 700;
   font-family: 'IBM Plex Mono';
   word-spacing: -10px;
+  white-space: nowrap;
 `
 
 const TitleNFTSpan = styled.span`
@@ -208,6 +210,15 @@ const ButtonText = styled.span`
 
 const AmountSpan = styled.span`
   color: #fdb572;
+`
+
+const InfoIcon = styled(Info)`
+  color: ${({ theme }) => theme.yellow2};
+  margin-left: 5px;
+`
+const CustomTooltip = styled(ToolTip)`
+  max-width: 380px !important;
+  font-size: 14px !important;
 `
 
 export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingType; flag: boolean }) {
@@ -379,7 +390,17 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
     <Wrapper>
       <TitleInfo>
         <TimeTitle>{pool.name}</TimeTitle>
-        <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
+        <RowEnd>
+          <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
+          <CustomTooltip id={`${pool.name}`} />
+          <InfoIcon
+            data-for={`${pool.name}`}
+            data-tip={
+              'vDEUS APR is calculated on the number of vDEUS you stake, not on your Dollar value, meaning you will have 25% more vDEUS after 1 year'
+            }
+            size={20}
+          />
+        </RowEnd>
       </TitleInfo>
 
       <DepositWrapper>

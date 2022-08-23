@@ -84,7 +84,7 @@ const InfoIcon = styled(Info)`
   color: ${({ theme }) => theme.yellow2};
 `
 const CustomTooltip = styled(ToolTip)`
-  max-width: 380px !important;
+  max-width: 500px !important;
 `
 
 const AprWrapper = styled.a`

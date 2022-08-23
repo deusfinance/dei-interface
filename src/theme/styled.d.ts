@@ -53,6 +53,7 @@ export interface Colors {
   error: Color
   success: Color
   warning: Color
+  deusColor: Color
 }
 
 export type Shadow = string

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
+import { darken } from 'polished'
 import { ArrowDown } from 'react-feather'
 
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -18,6 +19,10 @@ import InputBox from 'components/App/Redemption/InputBox'
 import { DeiBonder } from 'constants/addresses'
 import { DEI_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 import { NavigationTypes } from 'components/StableCoin'
+import NFTsModal from 'components/NFTsModal'
+import SelectBox from 'components/SelectBox'
+import { Balance, TokenId } from 'components/NFTsModal/NFTBox'
+import { VDEUS_NFT } from 'hooks/useVDeusNfts'
 
 const Container = styled.div`
   display: flex;
@@ -44,7 +49,11 @@ const Wrapper = styled(Container)`
 `
 
 const RedeemButton = styled(PrimaryButton)`
-  border-radius: 12px;
+  border-radius: 15px;
+`
+const NFTWrap = styled.div`
+  display: block;
+  margin-left: 16px;
 `
 
 export default function Migrate({ onSwitch }: { onSwitch: any }) {
@@ -55,6 +64,9 @@ export default function Migrate({ onSwitch }: { onSwitch: any }) {
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
   const vDEUSCurrency = VDEUS_TOKEN
+
+  const [isOpenNFTsModal, toggleNFTsModal] = useState(false)
+  const [inputNFT, setInputNFT] = useState<VDEUS_NFT[]>([])
 
   const { amountOut } = useBondsAmountsOut(debouncedAmountIn)
   const deiAmount = useMemo(() => {
@@ -154,15 +166,34 @@ export default function Migrate({ onSwitch }: { onSwitch: any }) {
     }
     return <RedeemButton onClick={() => handleMint()}>Migrate to ERC20</RedeemButton>
   }
+  function getCurrentItem() {
+    let totalValue = 0
+    let vDEUSText = 'vDEUS '
+
+    inputNFT.forEach((nft, index) => {
+      totalValue += +nft.value
+
+      if (index < 2) vDEUSText += `#${nft.tokenId},`
+    })
+
+    console.log({ totalValue, vDEUSText })
+
+    return inputNFT.length ? (
+      <NFTWrap>
+        <TokenId>{vDEUSText}</TokenId>
+        <Balance>{true ? `NFT Value: ${totalValue} vDEUS` : `Total NFT Value ${totalValue} vDEUS`}</Balance>
+      </NFTWrap>
+    ) : null
+  }
 
   return (
     <>
       <Wrapper>
-        <InputBox
-          currency={deiCurrency}
-          value={amountIn}
-          onChange={(value: string) => setAmountIn(value)}
-          title={'From'}
+        <SelectBox
+          value={inputNFT.length ? `vDEUS #${inputNFT[0].tokenId}` : ''}
+          placeholder="Select vDEUS NFT"
+          currentItem={getCurrentItem()}
+          onSelect={() => toggleNFTsModal(true)}
         />
         <ArrowDown style={{ cursor: 'pointer' }} onClick={() => onSwitch(NavigationTypes.SWAP)} />
 
@@ -177,6 +208,12 @@ export default function Migrate({ onSwitch }: { onSwitch: any }) {
         {getApproveButton()}
         {getActionButton()}
       </Wrapper>
+      <NFTsModal
+        isOpen={isOpenNFTsModal}
+        toggleModal={(action: boolean) => toggleNFTsModal(action)}
+        selectedNFT={inputNFT}
+        setNFTs={setInputNFT}
+      />
     </>
   )
 }

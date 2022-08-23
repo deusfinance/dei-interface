@@ -154,3 +154,8 @@ export const vDeusMasterChefV2ReadOnly: AddressMap = {
 export const vDeusStaking: AddressMap = {
   [SupportedChainId.FANTOM]: '0x978b5d59DeE843C99B205A81ca82F66F35B1Ba35',
 }
+
+//vDEUS Migrator
+export const Migrator: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x3f4B6D79c3235C08F0Ba73c0c5355020B90f476c',
+}

@@ -30,6 +30,7 @@ import SWAP_ABI from 'constants/abi/SWAP_ABI.json'
 import VDeusMasterChefV2_ABI from 'constants/abi/VDeusMasterChefV2_ABI.json'
 import MasterChefV2_ABI from 'constants/abi/MasterChefV2_ABI.json'
 import VDEUS_STAKING_ABI from 'constants/abi/VDEUS_STAKING.json'
+import VDEUS_MIGRATOR_ABI from 'constants/abi/VDEUS_MIGRATOR.json'
 
 import { Providers } from 'constants/providers'
 import {
@@ -51,6 +52,7 @@ import {
   vDeusStaking,
   vDeusMasterChefV2,
   vDeusMasterChefV2ReadOnly,
+  Migrator,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -231,4 +233,10 @@ export function useVDeusStakingContract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
   return useContract(address, VDEUS_STAKING_ABI)
+}
+
+export function useVDeusMigratorContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
+  return useContract(address, VDEUS_MIGRATOR_ABI)
 }

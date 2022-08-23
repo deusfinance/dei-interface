@@ -49,6 +49,7 @@ export default function useVDeusMigrationCallback(tokenIds: number[] | undefined
       const merkleProof = merkleProofResponse['proof']
 
       const args = [tokenIds[0], amounts, merkleProof]
+      console.log({ args })
 
       return {
         address: VDeusMigrator.address,

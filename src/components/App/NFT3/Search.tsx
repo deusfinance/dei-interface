@@ -25,15 +25,7 @@ function fuzzySearch(options: SelectSearchOption[]): any {
 }
 
 export function useSearch() {
-  const nfts = useOwnedVDeusNfts()
-  const nftIdsList = useMemo(() => {
-    return [
-      ...nfts.map((nft) => {
-        return { tokenId: nft.tokenId, value: nft.value }
-      }),
-    ]
-  }, [nfts])
-
+  const nftIdsList = useOwnedVDeusNfts()
   const list: SelectSearchOption[] = useMemo(() => {
     return nftIdsList.map((o) => ({ ...o, tokenId: o.tokenId, name: o.tokenId.toString(), value: o.value }))
   }, [nftIdsList])

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import styled from 'styled-components'
 
-import useOwnedNfts from 'hooks/useOwnedNfts'
+import { useOwnerVeDeusNFTs } from 'hooks/useOwnerNfts'
 import { useDeusPrice } from 'hooks/useCoingeckoPrice'
 import useWeb3React from 'hooks/useWeb3'
 import { useVestedAPY } from 'hooks/useVested'
@@ -108,7 +108,7 @@ export default function Vest() {
   const [showLockManager, setShowLockManager] = useState(false)
   const [showAPYManager, setShowAPYManager] = useState(false)
   const [nftId, setNftId] = useState(0)
-  const nftIds = useOwnedNfts()
+  const { tokenIds: nftIds } = useOwnerVeDeusNFTs()
   const { lockedVeDEUS } = useVestedAPY(undefined, getMaximumDate())
   const deusPrice = useDeusPrice()
 

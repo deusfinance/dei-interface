@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import toast from 'react-hot-toast'
 
 import { useVeDistContract } from 'hooks/useContract'
-import useOwnedNfts from 'hooks/useOwnedNfts'
+import { useOwnerVeDeusNFTs } from 'hooks/useOwnerNfts'
 import { useDeusPrice } from 'hooks/useCoingeckoPrice'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useWeb3React from 'hooks/useWeb3'
@@ -92,7 +92,7 @@ export default function Rewards() {
   const showTransactionPending = useIsTransactionPending(pendingTxHash)
   const deusPrice = useDeusPrice()
   const veDistContract = useVeDistContract()
-  const nftIds = useOwnedNfts()
+  const { tokenIds: nftIds } = useOwnerVeDeusNFTs()
   const rewards = useDistRewards()
 
   //pass just unclaimed tokenIds to claimAll method

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useOwnerVDeusNFT } from './useOwnerNfts'
 
 export type VDEUS_NFT = {
   tokenId: number
@@ -6,6 +7,10 @@ export type VDEUS_NFT = {
 }
 
 export function useOwnedVDeusNfts(): VDEUS_NFT[] {
+  const { tokenIds } = useOwnerVDeusNFT()
+  return useMemo(() => tokenIds.map((tokenId: number) => ({ tokenId, value: 100 } as VDEUS_NFT)), [tokenIds])
+}
+export function useOwnedVDeusNfts2(): VDEUS_NFT[] {
   return useMemo(() => {
     return [
       { tokenId: 2, value: 31 },

@@ -1,12 +1,12 @@
 import { useMemo } from 'react'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useVeDistContract } from 'hooks/useContract'
-import useOwnedNfts from 'hooks/useOwnedNfts'
+import { useOwnerVeDeusNFTs } from 'hooks/useOwnerNfts'
 import { toBN } from 'utils/numbers'
 
 export default function useDistRewards(): number[] {
   const veDistContract = useVeDistContract()
-  const nftIds = useOwnedNfts()
+  const { tokenIds: nftIds } = useOwnerVeDeusNFTs()
 
   const callInputs = useMemo(() => (!nftIds.length ? [] : nftIds.map((id) => [id])), [nftIds])
 

@@ -5,7 +5,7 @@ import { useRedeemData } from 'hooks/useRedemptionPage'
 
 import { RowBetween } from 'components/Row'
 import { Loader } from 'components/Icons'
-import { formatAmount, formatDollarAmount } from 'utils/numbers'
+import { formatAmount } from 'utils/numbers'
 import { useBonderData, useGetRedeemTime } from 'hooks/useBondsPage'
 import { useGlobalDEIBorrowed } from 'hooks/usePoolData'
 import { useBorrowPools } from 'state/borrow/hooks'
@@ -229,7 +229,7 @@ export default function DeiStats() {
           <StatsWrapper>
             <Container>
               <Heading>DEI stats</Heading>
-              <div onClick={() => handleClick(Dashboard.DEI_PRICE)}>
+              {/* <div onClick={() => handleClick(Dashboard.DEI_PRICE)}>
                 <InfoWrapper>
                   <p>Price</p>
                   {deiPrice === null ? (
@@ -238,7 +238,7 @@ export default function DeiStats() {
                     <ItemValue>{formatDollarAmount(parseFloat(deiPrice), 2)}</ItemValue>
                   )}
                 </InfoWrapper>
-              </div>
+              </div> */}
               <Container>
                 <SubWrapper>
                   <div onClick={() => handleClick(Dashboard.DEI_TOTAL_SUPPLY)}>
@@ -279,7 +279,7 @@ export default function DeiStats() {
                   )}
                 </InfoWrapper>
               </div>
-              <div onClick={() => handleClick(Dashboard.USDC_BACKING_FOR_DEI)}>
+              {/* <div onClick={() => handleClick(Dashboard.USDC_BACKING_FOR_DEI)}>
                 <InfoWrapper>
                   <p>USDC Backing per DEI</p>
                   {usdcBackingPerDei === null ? (
@@ -288,7 +288,7 @@ export default function DeiStats() {
                     <ItemValue>{formatDollarAmount(usdcBackingPerDei, 2)}</ItemValue>
                   )}
                 </InfoWrapper>
-              </div>
+              </div> */}
               {/* <div onClick={() => handleClick(Dashboard.GLOBAL_DEI_BORROWED)}>
                 <InfoWrapper>
                   <p>Global DEI Borrowed</p>

@@ -1,5 +1,5 @@
 import { Token } from '@sushiswap/core-sdk'
-import { BDEI_TOKEN, DEI_BDEI_LP_TOKEN } from 'constants/tokens'
+import { BDEI_TOKEN, DEI_BDEI_LP_TOKEN, DEUS_VDEUS_LP_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 
 export type StakingType = {
   name: string
@@ -30,6 +30,22 @@ export const StakingPools: StakingType[] = [
     pid: 1,
     token: DEI_BDEI_LP_TOKEN,
     provideLink: '/deibonds',
+  },
+]
+
+// namusan in moghe shab esm behtar yadam nemiad...
+export const StakingPools2: StakingType[] = [
+  {
+    name: 'single vDEUS(erc20)',
+    pid: 0,
+    token: VDEUS_TOKEN,
+    provideLink: '/nft',
+  },
+  {
+    name: 'DEUS-vDEUS',
+    pid: 1,
+    token: DEUS_VDEUS_LP_TOKEN,
+    provideLink: '/nft',
   },
 ]
 

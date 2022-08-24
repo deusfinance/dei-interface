@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useERC20Contract, useMasterChefV2Contract } from 'hooks/useContract'
+import { useERC20Contract, useMasterChefV2Contract, useMasterChefV3Contract } from 'hooks/useContract'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
 import useWeb3React from './useWeb3'
@@ -60,6 +60,41 @@ export function useUserInfo(pid: number): {
   rewardsAmount: number
 } {
   const contract = useMasterChefV2Contract()
+  const { account } = useWeb3React()
+  const calls = !account
+    ? []
+    : [
+        {
+          methodName: 'userInfo',
+          callInputs: [pid.toString(), account],
+        },
+        {
+          methodName: 'pendingTokens',
+          callInputs: [pid.toString(), account],
+        },
+      ]
+
+  const [userInfo, pendingTokens] = useSingleContractMultipleMethods(contract, calls)
+
+  const { depositedValue, reward } = useMemo(() => {
+    return {
+      depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0], 18)).toNumber() : 0,
+      reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0,
+    }
+  }, [userInfo, pendingTokens])
+
+  return {
+    depositAmount: depositedValue,
+    rewardsAmount: reward,
+  }
+}
+
+//TODO: depositAmount should consider decimals of token
+export function useUserInfo2(pid: number): {
+  depositAmount: number
+  rewardsAmount: number
+} {
+  const contract = useMasterChefV3Contract()
   const { account } = useWeb3React()
   const calls = !account
     ? []

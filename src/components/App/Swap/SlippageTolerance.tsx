@@ -63,10 +63,9 @@ export const flexCenter = css`
 const Wrapper = styled(FlexCenter)`
   ${StyleSwapBase}
   ${StyleTitles}
-    margin-top:10px;
+  margin-top: 10px;
   justify-content: space-between;
   padding: 10px 20px;
-  width: clamp(250px, 90%, 500px);
 
   &::first-child {
     position: absolute;
@@ -123,7 +122,7 @@ export default function SlippageTolerance({
 }: {
   slippage: number
   setSlippage: (value: number) => void
-  style: any // TODO
+  style?: any // TODO
   bgColor: string
 }) {
   const [customActive, setCustomActive] = useState(false)

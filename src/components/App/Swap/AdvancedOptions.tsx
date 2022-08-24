@@ -12,7 +12,7 @@ export default function AdvancedOptions({
     <SlippageTolerance
       slippage={slippage}
       setSlippage={setSlippage}
-      style={{ marginTop: '0px', width: '95.5%' }}
+      style={{ marginTop: '0px' }}
       bgColor={'grad_dei'}
     />
   )

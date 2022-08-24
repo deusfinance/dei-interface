@@ -27,7 +27,6 @@ const Container = styled.div`
 `
 
 const Wrapper = styled(Container)`
-  margin: 0 auto;
   margin-top: 50px;
   width: clamp(250px, 90%, 500px);
   background-color: rgb(13 13 13);
@@ -35,11 +34,13 @@ const Wrapper = styled(Container)`
   border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
   justify-content: center;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
   & > * {
     &:nth-child(2) {
       margin: 15px auto;
+    }
+    &:nth-child(6) {
+      margin-top: 20px !important;
+      padding: 0;
     }
   }
 `
@@ -181,8 +182,8 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
         <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getActionButton()}
+        <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
       </Wrapper>
-      <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
     </>
   )
 }

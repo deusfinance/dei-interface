@@ -29,18 +29,10 @@ export default function NFT() {
   const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.MIGRATE)
 
   const getAppComponent = (): JSX.Element => {
-    if (selected == NavigationTypes.MIGRATE) {
-      return <Migrate onSwitch={setSelected} />
-    }
-    // else if (selected == NavigationTypes.SWAP) {
-    //   return <Swap onSwitch={setSelected} />
-    // }
-    else if (selected == NavigationTypes.STAKE) {
-      return <Stake />
-    }
-    // else if (selected == NavigationTypes.LIQUIDITY) {
-    //   return <Liquidity />
-    // }
+    if (selected == NavigationTypes.MIGRATE) return <Migrate onSwitch={setSelected} />
+    // else if (selected == NavigationTypes.SWAP) return <Swap onSwitch={setSelected} />
+    else if (selected == NavigationTypes.STAKE) return <Stake />
+    // else if (selected == NavigationTypes.LIQUIDITY) return <Liquidity />
     return <Migrate onSwitch={setSelected} />
   }
 

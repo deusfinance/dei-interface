@@ -32,7 +32,7 @@ const NavigationLabels = {
   [NavigationTypes.MIGRATE]: 'Migrate',
   // [NavigationTypes.SWAP]: 'Swap',
   [NavigationTypes.STAKE]: 'Stake',
-  // [NavigationTypes.LIQUIDITY]: 'liquidity',
+  // [NavigationTypes.LIQUIDITY]: 'Liquidity',
 }
 
 export default function Navigation({

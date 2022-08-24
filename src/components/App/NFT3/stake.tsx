@@ -314,13 +314,22 @@ export default function Stake({ flag = false }: { flag?: boolean }) {
         <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
       </TitleInfo>
 
-      <InputBox
-        currency={vDEUSCurrency}
-        value={amountIn}
-        onChange={(value: string) => setAmountIn(value)}
-        title={'From'}
-        // maxValue={selected === NavigationTypes.UNSTAKE ? '0.1' : undefined}
-      />
+      {selected === NavigationTypes.STAKE ? (
+        <InputBox
+          currency={vDEUSCurrency}
+          value={amountIn}
+          onChange={(value: string) => setAmountIn(value)}
+          title={'vDEUS'}
+        />
+      ) : (
+        // TODO: pass vDEUS staked currency and value to this component
+        <InputBox
+          currency={vDEUSCurrency}
+          value={amountIn}
+          onChange={(value: string) => setAmountIn(value)}
+          title={'vDEUS Staked'}
+        />
+      )}
 
       {getApproveButton()}
       {getActionButton()}

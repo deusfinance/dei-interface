@@ -31,8 +31,6 @@ const Wrapper = styled.div`
   padding: 20px 15px;
   border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     width: 340px;
@@ -46,6 +44,13 @@ const ToggleState = styled.div`
 
 const DepositButton = styled(PrimaryButton)`
   border-radius: 15px;
+`
+
+const AdvancedOptionsWrap = styled.div`
+  & > * {
+    margin-top: 20px !important;
+    padding: 0;
+  }
 `
 
 export default function LiquidityPool() {
@@ -280,8 +285,10 @@ export default function LiquidityPool() {
           <ActionSetter selected={selected} setSelected={setSelected} />
         </ToggleState>
         {getAppComponent()}
+        <AdvancedOptionsWrap>
+          <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
+        </AdvancedOptionsWrap>
       </Wrapper>
-      <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
     </div>
   )
 }

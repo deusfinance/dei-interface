@@ -10,7 +10,7 @@ export const BaseButton = styled.div<{
   text-align: center;
   border-radius: 4px;
   outline: none;
-  border: 1px solid transparent;
+  /* border: 1px solid transparent; */
   color: black;
   text-decoration: none;
   display: flex;

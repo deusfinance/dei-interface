@@ -12,7 +12,7 @@ export const BDEI_TOKEN = new Token(SupportedChainId.FANTOM, BDEI_ADDRESS[Suppor
 
 export const VDEUS_TOKEN = new Token(
   SupportedChainId.FANTOM,
-  '0x953cd009a490176fceb3a26b9753e6f01645ff28',
+  '0x953Cd009a490176FcEB3a26b9753e6F01645ff28',
   18,
   'vDEUS',
   'vDEUS'
@@ -24,4 +24,12 @@ export const DEI_BDEI_LP_TOKEN = new Token(
   18,
   'DB-LP',
   'DB-LP'
+)
+
+export const DEUS_VDEUS_LP_TOKEN = new Token(
+  SupportedChainId.FANTOM,
+  '0x2138B8de892f2e562bc80b940654bc125e00108f',
+  18,
+  'DV-LP',
+  'DV-LP'
 )

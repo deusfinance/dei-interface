@@ -142,6 +142,15 @@ export const MasterChefV2: AddressMap = {
   [SupportedChainId.FANTOM]: '0x67932809213AFd6bac5ECD2e4e214Fe18209c419',
 }
 
+export const MasterChefV3: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x62ad8dE6740314677F06723a7A07797aE5082Dbb',
+}
+
+// Pool vdeus<>deus
+export const SwapFlashLoan2: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x39533295424F1dB73eBB6eDCD9660678539C7b18',
+}
+
 export const vDeusMasterChefV2: AddressMap = {
   [SupportedChainId.FANTOM]: '0x120FF9821817eA2bbB700e1131e5c856ccC20d1b',
 }

@@ -29,6 +29,7 @@ import DEI_BONDER_ABI from 'constants/abi/DEI_Bonder.json'
 import SWAP_ABI from 'constants/abi/SWAP_ABI.json'
 import VDeusMasterChefV2_ABI from 'constants/abi/VDeusMasterChefV2_ABI.json'
 import MasterChefV2_ABI from 'constants/abi/MasterChefV2_ABI.json'
+import MasterChefV3_ABI from 'constants/abi/MasterChefV3_ABI.json'
 import VDEUS_STAKING_ABI from 'constants/abi/VDEUS_STAKING.json'
 import VDEUS_MIGRATOR_ABI from 'constants/abi/VDEUS_MIGRATOR.json'
 
@@ -48,11 +49,13 @@ import {
   veDist,
   SwapFlashLoan,
   MasterChefV2,
+  MasterChefV3,
   vDeus,
   vDeusStaking,
   vDeusMasterChefV2,
   vDeusMasterChefV2ReadOnly,
   Migrator,
+  SwapFlashLoan2,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -214,6 +217,12 @@ export function useDeiSwapContract() {
   return useContract(address, SWAP_ABI)
 }
 
+export function useDeiSwapContract2() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? SwapFlashLoan2[chainId] : undefined), [chainId])
+  return useContract(address, SWAP_ABI)
+}
+
 export function useMasterChefV2Contract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? MasterChefV2[chainId] : undefined), [chainId])
@@ -227,6 +236,12 @@ export function useVDeusMasterChefV2Contract(flag = false) {
     [chainId, flag]
   )
   return useContract(address, VDeusMasterChefV2_ABI)
+}
+
+export function useMasterChefV3Contract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? MasterChefV3[chainId] : undefined), [chainId])
+  return useContract(address, MasterChefV3_ABI)
 }
 
 export function useVDeusStakingContract() {

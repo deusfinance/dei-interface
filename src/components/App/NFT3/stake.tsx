@@ -6,7 +6,7 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { useVDeusMasterChefV2Contract } from 'hooks/useContract'
+import { useMasterChefV3Contract } from 'hooks/useContract'
 import { ApprovalState } from 'hooks/useApproveNftCallback2'
 import { useGetApr } from 'hooks/useVDeusStaking'
 
@@ -14,7 +14,6 @@ import { DefaultHandlerError } from 'utils/parseError'
 import { formatAmount } from 'utils/numbers'
 import { vDeusStakingPools, vDeusStakingType } from 'constants/stakings'
 import { DeiBonder } from 'constants/addresses'
-import { DEUS_TOKEN } from 'constants/tokens'
 
 import { VDEUS_TOKEN } from 'constants/tokens'
 import { Row } from 'components/Row'
@@ -163,6 +162,7 @@ export default function Stake({ flag = false }: { flag?: boolean }) {
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
+  // TODO: correct spender
   const spender = useMemo(() => (chainId ? DeiBonder[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(vDEUSCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
@@ -180,8 +180,8 @@ export default function Stake({ flag = false }: { flag?: boolean }) {
 
   const pool = vDeusStakingPools[0]
 
-  const masterChefContract = useVDeusMasterChefV2Contract(flag)
-  const pid = useMemo(() => (flag ? 0 : pool.pid), [flag, pool])
+  const masterChefContract = useMasterChefV3Contract()
+  const pid = useMemo(() => pool.pid, [pool])
   // const { depositAmount, rewardsAmount } = useUserInfo(pid, flag)
 
   const depositAmount = 0.1
@@ -351,7 +351,7 @@ export default function Stake({ flag = false }: { flag?: boolean }) {
           <RewardData>
             <span>{rewardsAmount && rewardsAmount?.toFixed(3)}</span>
             <Row style={{ marginLeft: '10px' }}>
-              <span>{DEUS_TOKEN.symbol}</span>
+              <span>{VDEUS_TOKEN.symbol}</span>
             </Row>
           </RewardData>
         </div>

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { RowBetween } from 'components/Row'
 import { formatBalance } from 'utils/numbers'
-import { darken } from 'polished'
+import { lighten } from 'polished'
 import { VDEUS_NFT } from 'hooks/useVDeusNfts'
 
 const Wrapper = styled(RowBetween).attrs({
@@ -16,10 +16,10 @@ const Wrapper = styled(RowBetween).attrs({
   padding: 0px 1rem;
   margin: 0 auto;
   color: ${({ theme }) => theme.text2};
-  border: 1px solid ${({ theme }) => theme.border2};
-  background: ${({ theme, active }) => (active ? darken(0.1, theme.bg1) : theme.bg1)};
+  border: 1px solid ${({ theme, active }) => (active ? theme.text3 : theme.border2)};
+  background: ${({ theme, active }) => (active ? lighten(0.2, theme.bg1) : theme.bg1)};
   &:hover {
-    background: ${({ theme }) => theme.bg3};
+    background: ${({ theme }) => lighten(0.2, theme.bg1)};
     cursor: pointer;
   }
 
@@ -30,6 +30,7 @@ const Wrapper = styled(RowBetween).attrs({
 
 export const Balance = styled.div<{ active?: boolean }>`
   font-size: 12px;
+  margin-top: 6px;
   color: ${({ theme, active }) => (active ? theme.text2 : theme.text1)};
 `
 
@@ -60,13 +61,13 @@ export default function NFTBox({
   setNFT: (tokenId: VDEUS_NFT) => void
   disabled?: boolean
 }) {
-  const balanceDisplay = nft.value ? formatBalance(nft.value) : null
+  const balanceDisplay = nft.value ? formatBalance(nft.value * 250) : null
 
   return (
     <Wrapper onClick={() => setNFT(nft)} active={disabled}>
       <TokenIdWrap>
         <TokenId>vDEUS #{nft.tokenId}</TokenId>
-        <Balance>{balanceDisplay ? `NFT Value: ${balanceDisplay} vDEUS` : '0.00'}</Balance>
+        <Balance>{balanceDisplay ? `Value: $${balanceDisplay} in vDEUS` : '0.00'}</Balance>
       </TokenIdWrap>
     </Wrapper>
   )

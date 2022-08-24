@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import { ArrowDown } from 'react-feather'
 
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
-import { VDEUS_NFT } from 'hooks/useVDeusNfts'
+import { useOwnedVDeusNfts, VDEUS_NFT } from 'hooks/useVDeusNfts'
 import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
 import useVDeusMigrationCallback from 'hooks/useVDeusMigrationCallback'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
@@ -19,6 +19,8 @@ import { NavigationTypes } from 'components/StableCoin'
 import NFTsModal from 'components/NFTsModal'
 import SelectBox from 'components/SelectBox'
 import { Balance, TokenId } from 'components/NFTsModal/NFTBox'
+import { formatBalance } from 'utils/numbers'
+import { RowStart } from 'components/Row'
 
 const Container = styled.div`
   display: flex;
@@ -47,9 +49,10 @@ const Wrapper = styled(Container)`
 const MainButton = styled(PrimaryButton)`
   border-radius: 15px;
 `
+
 const NFTWrap = styled.div`
-  display: block;
   margin-left: 16px;
+  color: ${({ theme }) => theme.text1};
 `
 
 export default function Migrate({ onSwitch }: { onSwitch: any }) {
@@ -58,15 +61,23 @@ export default function Migrate({ onSwitch }: { onSwitch: any }) {
   const isSupportedChainId = useSupportedChainId()
   const vDEUSCurrency = VDEUS_TOKEN
 
+  const userNFTs = useOwnedVDeusNfts()
   const [isOpenNFTsModal, toggleNFTsModal] = useState(false)
   const [inputNFT, setInputNFT] = useState<VDEUS_NFT[]>([])
 
-  //todo
-  const amountOut = '100'
+  const [amountOut, setAmountOut] = useState('')
 
   const tokenIds = useMemo(() => {
     if (!inputNFT) return []
     return inputNFT.map((nft) => nft.tokenId)
+  }, [inputNFT])
+
+  useEffect(() => {
+    let totalValue = 0
+    inputNFT.forEach((nft) => {
+      totalValue += nft.value
+    })
+    setAmountOut(totalValue ? formatBalance(totalValue) : '')
   }, [inputNFT])
 
   const { callback: migrationCallback } = useVDeusMigrationCallback(tokenIds)
@@ -92,8 +103,12 @@ export default function Migrate({ onSwitch }: { onSwitch: any }) {
       const txHash = await migrationCallback()
       setAwaitingRedeemConfirmation(false)
       console.log({ txHash })
+      setInputNFT([])
+      setAmountOut('')
     } catch (e) {
       setAwaitingRedeemConfirmation(false)
+      setInputNFT([])
+      setAmountOut('')
       if (e instanceof Error) {
         // error = e.message
       } else {
@@ -142,25 +157,25 @@ export default function Migrate({ onSwitch }: { onSwitch: any }) {
     }
     return <MainButton onClick={() => handleMigrate()}>Migrate to ERC20</MainButton>
   }
-  function getCurrentItem() {
-    let totalValue = 0
-    let vDEUSText = 'vDEUS '
 
-    inputNFT.forEach((nft, index) => {
-      totalValue += +nft.value
+  const getCurrentItem = useCallback(() => {
+    const isSelectAll = userNFTs.length === tokenIds.length
 
-      if (index < 2) vDEUSText += `#${nft.tokenId},`
-    })
-
-    console.log({ totalValue, vDEUSText })
-
-    return inputNFT.length ? (
+    return tokenIds.length ? (
       <NFTWrap>
-        <TokenId>{vDEUSText}</TokenId>
-        <Balance>{true ? `NFT Value: ${totalValue} vDEUS` : `Total NFT Value ${totalValue} vDEUS`}</Balance>
+        <>
+          {isSelectAll ? (
+            <RowStart width={'100%'} style={{ gap: '6px' }}>
+              All <TokenId>{tokenIds.length} vDEUS</TokenId> NFTs are selected
+            </RowStart>
+          ) : (
+            <TokenId> {'vDEUS ' + `#${tokenIds.join(',#')}`}</TokenId>
+          )}
+          <Balance>Total NFTs Value: ${formatBalance(parseFloat(amountOut) * 250)} in vDEUS</Balance>
+        </>
       </NFTWrap>
     ) : null
-  }
+  }, [tokenIds, userNFTs, amountOut])
 
   return (
     <>
@@ -177,7 +192,7 @@ export default function Migrate({ onSwitch }: { onSwitch: any }) {
           currency={vDEUSCurrency}
           value={amountOut}
           onChange={(value: string) => console.log(value)}
-          title={'To'}
+          title={'To (ERC20)'}
           disabled={true}
         />
         <div style={{ marginTop: '20px' }}></div>

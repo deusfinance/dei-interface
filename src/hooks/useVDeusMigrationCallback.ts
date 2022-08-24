@@ -28,7 +28,7 @@ export default function useVDeusMigrationCallback(tokenIds: number[] | undefined
   const merkleProofRequest = useCallback(async () => {
     try {
       if (!tokenIds || !tokenIds.length) throw new Error(`tokenId didn't selected`)
-      const { href: url } = new URL(`/vdeus-migration/proof/${tokenIds[0]}/`, INFO_URL) //TODO
+      const { href: url } = new URL(`/vdeus-migration/proof/${tokenIds.join(',')}/`, INFO_URL) //TODO
       return makeHttpRequest(url)
     } catch (err) {
       throw err
@@ -41,15 +41,12 @@ export default function useVDeusMigrationCallback(tokenIds: number[] | undefined
         throw new Error('Missing dependencies.')
       }
 
-      //handle just one nft
-      // const methodName = tokenIds.length > 1 ? 'claimMany' : 'claim'
       const methodName = tokenIds.length > 1 ? 'claimMany' : 'claim'
       const merkleProofResponse = await merkleProofRequest()
-      const amounts = merkleProofResponse['amount']
-      const merkleProof = merkleProofResponse['proof']
+      const amounts = tokenIds.map((tokenId) => merkleProofResponse[tokenId.toString()]['amount'])
+      const merkleProof = tokenIds.map((tokenId) => merkleProofResponse[tokenId.toString()]['proof'])
 
-      const args = [tokenIds[0], amounts, merkleProof]
-      console.log({ args })
+      const args = tokenIds.length > 1 ? [tokenIds, amounts, merkleProof] : [tokenIds[0], amounts[0], merkleProof[0]]
 
       return {
         address: VDeusMigrator.address,
@@ -128,7 +125,7 @@ export default function useVDeusMigrationCallback(tokenIds: number[] | undefined
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const summary = `Migrate vDEUS #${tokenIds[0]}`
+            const summary = `Migrate vDEUS #${tokenIds.join(',#')}`
             addTransaction(response, { summary })
 
             return response.hash

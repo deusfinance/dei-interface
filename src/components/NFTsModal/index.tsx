@@ -1,13 +1,12 @@
+import { useState, useMemo } from 'react'
 import styled from 'styled-components'
 
 import { Modal, ModalHeader } from 'components/Modal'
-import Column from 'components/Column'
 import { RowBetween, RowCenter } from 'components/Row'
-import { SearchField, useSearch } from 'components/App/NFT3/Search'
-import NFTBox from './NFTBox'
-import { useState } from 'react'
 import { PrimaryButton } from 'components/Button'
-import { VDEUS_NFT } from 'hooks/useVDeusNfts'
+import Column from 'components/Column'
+import NFTBox from './NFTBox'
+import { useOwnedVDeusNfts, VDEUS_NFT } from 'hooks/useVDeusNfts'
 
 const Wrapper = styled.div`
   display: flex;
@@ -71,13 +70,6 @@ const DoneButton = styled(PrimaryButton)`
   border-radius: 15px;
 `
 
-const Separator = styled.div`
-  width: 420px;
-  height: 1px;
-  margin-left: -17px;
-  background: ${({ theme }) => theme.border2};
-`
-
 export default function NFTsModal({
   isOpen,
   toggleModal,
@@ -89,9 +81,8 @@ export default function NFTsModal({
   selectedNFT: VDEUS_NFT[]
   setNFTs: (tokenIds: VDEUS_NFT[]) => void
 }) {
+  const userNFTs = useOwnedVDeusNfts()
   const [selectedNFTs, setSelectedNFTs] = useState<VDEUS_NFT[]>([])
-  const { snapshot, searchProps } = useSearch()
-  const result = snapshot.options.map((nft) => nft)
 
   function setVDeusNfts(nft: VDEUS_NFT) {
     const index = selectedNFTs.findIndex((element) => element.tokenId === nft.tokenId)
@@ -107,10 +98,17 @@ export default function NFTsModal({
     }
   }
 
-  function onSelectAll() {
-    const nfts: VDEUS_NFT[] = []
-    result.forEach((nft) => nfts.push({ value: +nft.value, tokenId: +nft.name }))
-    setSelectedNFTs(nfts)
+  const isSelectedAll = useMemo(() => {
+    if (!selectedNFTs.length || !userNFTs.length) return false
+    return selectedNFTs.length == userNFTs.length
+  }, [userNFTs, selectedNFTs])
+
+  function toggleSelectAll() {
+    if (isSelectedAll) {
+      setSelectedNFTs([])
+      return
+    }
+    setSelectedNFTs(userNFTs)
   }
 
   function onExit() {
@@ -122,17 +120,14 @@ export default function NFTsModal({
     <Modal isOpen={isOpen} onBackgroundClick={onExit} onEscapeKeydown={onExit}>
       <ModalHeader onClose={onExit} title="Select a NFT" />
       <Wrapper>
-        <SearchField searchProps={searchProps} />
-        <Separator />
-
         <TokenResultWrapper>
-          {result.length ? (
+          {userNFTs.length ? (
             <>
-              <SelectAllWrap onClick={onSelectAll}>
+              <SelectAllWrap onClick={toggleSelectAll}>
                 <p>Select NFTs for Migration</p>
-                <p>Select All</p>
+                <p>{isSelectedAll ? 'Clear' : 'Select'} All</p>
               </SelectAllWrap>
-              {result.map((nft: any, index) => {
+              {userNFTs.map((nft: any, index) => {
                 return (
                   <NFTBox
                     key={index}

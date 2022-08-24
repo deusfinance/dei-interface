@@ -8,6 +8,11 @@ import { UserDeposit } from 'constants/stakings'
 
 export const VDEUS_USDC_FACTOR = 6
 
+export type VDEUS_NFT = {
+  tokenId: number
+  value: number
+}
+
 export function useVDeusStats(): {
   numberOfVouchers: number
   listOfVouchers: Array<number>

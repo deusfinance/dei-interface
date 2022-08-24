@@ -12,7 +12,7 @@ export const BDEI_TOKEN = new Token(SupportedChainId.FANTOM, BDEI_ADDRESS[Suppor
 
 export const VDEUS_TOKEN = new Token(
   SupportedChainId.FANTOM,
-  '0xDE1E704dae0B4051e80DAbB26ab6ad6c12262DA0',
+  '0x953cd009a490176fceb3a26b9753e6f01645ff28',
   18,
   'vDEUS',
   'vDEUS'

@@ -13,16 +13,16 @@ const Wrapper = styled.div`
   flex-flow: column nowrap;
   justify-content: flex-start;
   padding: 16px 12px;
-  max-height: 400px;
-  overflow-y: auto;
-  & > * {
+  /* max-height: 400px; */
+  /* overflow-y: auto; */
+  /* & > * {
     &:first-child {
       width: unset;
       margin: 0 9px;
       min-height: 54px;
       margin-bottom: 12px;
     }
-  }
+  } */
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 1rem;
@@ -53,8 +53,13 @@ const Text = styled(RowCenter)`
 
 const TokenResultWrapper = styled(Column)`
   gap: 8px;
-  padding: 1rem 9px;
-  padding-bottom: 0;
+  padding: 1rem 9px 0 9px;
+`
+
+const NFTsWrap = styled(Column)`
+  gap: 8px;
+  padding-top: 1rem;
+  max-height: 308px;
   overflow-y: auto;
 `
 
@@ -127,17 +132,21 @@ export default function NFTsModal({
                 <p>Select NFTs for Migration</p>
                 <p>{isSelectedAll ? 'Clear' : 'Select'} All</p>
               </SelectAllWrap>
-              {userNFTs.map((nft: any, index) => {
-                return (
-                  <NFTBox
-                    key={index}
-                    toggleModal={toggleModal}
-                    nft={{ tokenId: nft?.tokenId, value: nft?.value }}
-                    setNFT={(token: VDEUS_NFT) => setVDeusNfts(token)}
-                    disabled={selectedNFTs.findIndex((element) => element.tokenId === nft?.tokenId) > -1 ? true : false}
-                  />
-                )
-              })}
+              <NFTsWrap>
+                {userNFTs.map((nft: any, index) => {
+                  return (
+                    <NFTBox
+                      key={index}
+                      toggleModal={toggleModal}
+                      nft={{ tokenId: nft?.tokenId, value: nft?.value }}
+                      setNFT={(token: VDEUS_NFT) => setVDeusNfts(token)}
+                      disabled={
+                        selectedNFTs.findIndex((element) => element.tokenId === nft?.tokenId) > -1 ? true : false
+                      }
+                    />
+                  )
+                })}
+              </NFTsWrap>
               <DoneButton onClick={onExit}>Done</DoneButton>
             </>
           ) : (

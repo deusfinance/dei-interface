@@ -67,6 +67,7 @@ export function useVDeusStats(): {
 export function useStakedVDeusStats(): {
   numberOfStakedVouchers: number
   listOfStakedVouchers: Array<number>
+  poolIds: Array<number>
 } {
   const { account } = useWeb3React()
 
@@ -98,20 +99,35 @@ export function useStakedVDeusStats(): {
   const results = useSingleContractMultipleData(vDeusStakingContract, 'userNfts', callInputs)
 
   const listOfStakedVouchers = useMemo(() => {
-    return results
-      .reduce((acc: number[], value) => {
-        if (!value.result) return acc
-        const result = value.result[0].toString()
-        if (!result) return acc
-        acc.push(parseInt(result))
-        return acc
-      }, [])
-      .sort((a: number, b: number) => (a > b ? 1 : -1))
+    return results.reduce((acc: number[], value) => {
+      if (!value.result) return acc
+      const result = value.result[0].toString()
+      if (!result) return acc
+      acc.push(parseInt(result))
+      return acc
+    }, [])
   }, [results])
+
+  const nftPoolInputs = useMemo(() => {
+    return !listOfStakedVouchers ? [] : listOfStakedVouchers.map((id) => [id])
+  }, [listOfStakedVouchers])
+
+  const resultPoolIds = useSingleContractMultipleData(vDeusStakingContract, 'nftPool', nftPoolInputs)
+
+  const poolIds = useMemo(() => {
+    return resultPoolIds.reduce((acc: number[], value) => {
+      if (!value.result) return acc
+      const result = value.result[0].toString()
+      if (!result) return acc
+      acc.push(parseInt(result))
+      return acc
+    }, [])
+  }, [resultPoolIds])
 
   return {
     numberOfStakedVouchers,
     listOfStakedVouchers,
+    poolIds,
   }
 }
 

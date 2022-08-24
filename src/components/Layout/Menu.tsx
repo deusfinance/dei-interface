@@ -151,6 +151,11 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          <ExternalLink href="https://docs.deus.finance/contracts/disclaimer">
+            <Row onClick={() => toggle()}>
+              <div>Terms</div>
+            </Row>
+          </ExternalLink>
           <ExternalLink href="https://twitter.com/deusdao">
             <Row onClick={() => toggle()}>
               <div>Twitter</div>

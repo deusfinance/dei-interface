@@ -205,6 +205,7 @@ export default function NavBar() {
                 <NavbarContentWrap key={item.id}>
                   <TitleSpan active={isSubItemChosen(item.children)}>
                     {item.text}
+                    {/* TODO: disable has warning: check this later */}
                     <ChevronDown
                       color={isSubItemChosen(item.children) ? '#FF8F00' : 'white'}
                       disable
@@ -229,6 +230,13 @@ export default function NavBar() {
                 </SimpleLinkWrapper>
               )
             })}
+            <SimpleLinkWrapper>
+              <Link href={'https://docs.deus.finance/contracts/disclaimer'} passHref>
+                <a style={{ textDecoration: 'none' }} rel="noreferrer" target="_blank">
+                  <NavLink active={false}>Terms</NavLink>
+                </a>
+              </Link>
+            </SimpleLinkWrapper>
           </Routes>
           <Items>
             <Web3Network />

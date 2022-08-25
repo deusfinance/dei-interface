@@ -112,17 +112,17 @@ export default function LiquidityPool() {
   const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState(false)
   const spender = useMemo(() => (chainId ? pool.swapFlashLoan : undefined), [chainId, pool])
 
-  const [approvalState, approveCallback] = useApproveCallback(deusCurrency ?? undefined, spender)
+  const [approvalState, approveCallback] = useApproveCallback(vdeusCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = deusCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
+    const show = vdeusCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [deusCurrency, approvalState, amountIn])
+  }, [vdeusCurrency, approvalState, amountIn])
 
-  const [approvalState2, approveCallback2] = useApproveCallback(vdeusCurrency ?? undefined, spender)
+  const [approvalState2, approveCallback2] = useApproveCallback(deusCurrency ?? undefined, spender)
   const [showApprove2, showApproveLoader2] = useMemo(() => {
-    const show = vdeusCurrency && approvalState2 !== ApprovalState.APPROVED && !!amountIn2
+    const show = deusCurrency && approvalState2 !== ApprovalState.APPROVED && !!amountIn2
     return [show, show && approvalState2 === ApprovalState.PENDING]
-  }, [vdeusCurrency, approvalState2, amountIn2])
+  }, [deusCurrency, approvalState2, amountIn2])
 
   const [approvalState3, approveCallback3] = useApproveCallback(lpCurrency ?? undefined, spender)
   const [showApprove3, showApproveLoader3] = useMemo(() => {
@@ -187,9 +187,9 @@ export default function LiquidityPool() {
       )
     }
     if (showApprove && type === 'add') {
-      return <DepositButton onClick={handleApprove}>Allow us to spend {deusCurrency?.symbol}</DepositButton>
+      return <DepositButton onClick={handleApprove}>Allow us to spend {vdeusCurrency?.symbol}</DepositButton>
     } else if (showApprove2 && type === 'add') {
-      return <DepositButton onClick={handleApprove2}>Allow us to spend {vdeusCurrency?.symbol}</DepositButton>
+      return <DepositButton onClick={handleApprove2}>Allow us to spend {deusCurrency?.symbol}</DepositButton>
     } else if (showApprove3 && type === 'remove') {
       return <DepositButton onClick={handleApprove3}>Allow us to spend {lpCurrency?.symbol}</DepositButton>
     }
@@ -229,17 +229,6 @@ export default function LiquidityPool() {
           <ArrowDown style={{ margin: '12px auto' }} />
 
           <InputBox
-            currency={deusCurrency}
-            value={amountOut[0]?.toString()}
-            onChange={() => console.debug('')}
-            title={'To'}
-            disabled
-            disable_vdeus
-          />
-
-          <div style={{ marginTop: '20px' }}></div>
-
-          <InputBox
             currency={vdeusCurrency}
             value={amountOut[1]?.toString()}
             onChange={() => console.debug('')}
@@ -247,6 +236,15 @@ export default function LiquidityPool() {
             disabled
           />
 
+          <div style={{ marginTop: '20px' }}></div>
+          <InputBox
+            currency={deusCurrency}
+            value={amountOut[0]?.toString()}
+            onChange={() => console.debug('')}
+            title={'To'}
+            disabled
+            disable_vdeus
+          />
           <div style={{ marginTop: '20px' }}></div>
           {getApproveButton('remove')}
           {getActionButton('remove')}
@@ -256,20 +254,20 @@ export default function LiquidityPool() {
       return (
         <>
           <InputBox
-            currency={deusCurrency}
+            currency={vdeusCurrency}
             value={amountIn}
             onChange={(value: string) => setAmountIn(value)}
             title={'From'}
-            disable_vdeus
           />
 
           <div style={{ marginTop: '20px' }}></div>
 
           <InputBox
-            currency={vdeusCurrency}
+            currency={deusCurrency}
             value={amountIn2}
             onChange={(value: string) => setAmountIn2(value)}
             title={'From'}
+            disable_vdeus
           />
 
           <div style={{ marginTop: '20px' }}></div>

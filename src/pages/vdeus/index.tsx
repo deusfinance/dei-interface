@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
+import { toast } from 'react-hot-toast'
+import { useTransactionAdder } from 'state/transactions/hooks'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
@@ -14,6 +16,9 @@ import { DotFlashing } from 'components/Icons'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useStakedVDeusStats } from 'hooks/useVDeusStats'
+import { useVDeusStakingContract } from 'hooks/useContract'
+import { useSupportedChainId } from 'hooks/useSupportedChainId'
+import { DefaultHandlerError } from 'utils/parseError'
 
 const Container = styled.div`
   display: flex;
@@ -150,6 +155,25 @@ export default function VDEUS() {
   const toggleWalletModal = useWalletModalToggle()
   const [NFTCount, setNFTCount] = useState(0)
   const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState(false)
+  const stakingContract = useVDeusStakingContract()
+  const isSupportedChainId = useSupportedChainId()
+  const addTransaction = useTransactionAdder()
+
+  const onWithdrawAllDeposit = useCallback(async () => {
+    try {
+      if (!stakingContract || !account || !isSupportedChainId) return
+      setAwaitingWithdrawConfirmation(true)
+      const response = await stakingContract.withdrawAll(NFTCount, account)
+      addTransaction(response, { summary: `Withdraw All` })
+      setAwaitingWithdrawConfirmation(false)
+      // setPendingTxHash(response.hash)
+    } catch (err) {
+      console.log(err)
+      toast.error(DefaultHandlerError(err))
+      setAwaitingWithdrawConfirmation(false)
+      // setPendingTxHash('')
+    }
+  }, [stakingContract, NFTCount, addTransaction, account, isSupportedChainId])
 
   function getActionButton(): JSX.Element | null {
     if (!chainId || !account) {
@@ -161,7 +185,7 @@ export default function VDEUS() {
         </MainButton>
       )
     }
-    return <MainButton onClick={() => console.log()}>Withdraw NFT{NFTCount > 1 ? 's' : ''}</MainButton>
+    return <MainButton onClick={() => onWithdrawAllDeposit()}>Withdraw NFT{NFTCount > 1 ? 's' : ''}</MainButton>
   }
 
   const { numberOfStakedVouchers, listOfStakedVouchers } = useStakedVDeusStats()
@@ -204,14 +228,13 @@ export default function VDEUS() {
                 <RowBetween>
                   <p>vDEUS NFT Count</p>
                   <SelectAllWrap onClick={() => setNFTCount(numberOfStakedVouchers)}>
-                    Withdraw All {numberOfStakedVouchers}
+                    Select All {numberOfStakedVouchers}
                   </SelectAllWrap>
                 </RowBetween>
                 <NFTsWrap>
                   <NumericalInput
                     value={NFTCount || ''}
                     onUserInput={(value: string) => setNFTCount(Number(value))}
-                    // maxValue={numberOfStakedVouchers} // FIXME: set max limit
                     placeholder="Enter NFT count"
                     autoFocus
                     style={{ textAlign: 'left', height: '50px', fontSize: '1.3rem' }}

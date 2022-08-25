@@ -1,27 +1,23 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { toast } from 'react-hot-toast'
 
-import { useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
-import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
+import { useVDeusMasterChefV2Contract } from 'hooks/useContract'
 import { useStakedVDeusStats } from 'hooks/useVDeusStats'
 import { useGetApr, useUserInfo, usePoolInfo } from 'hooks/useVDeusStaking'
 
 import { DefaultHandlerError } from 'utils/parseError'
 import { formatAmount } from 'utils/numbers'
 import { vDeusStakingType } from 'constants/stakings'
-import { vDeus, vDeusStaking } from 'constants/addresses'
 import { DEUS_TOKEN } from 'constants/tokens'
 
 // import Dropdown from 'components/DropDown'
 import { Row, RowBetween } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-import { useRouter } from 'next/router'
 
 const Container = styled.div`
   display: flex;
@@ -206,11 +202,7 @@ const AmountSpan = styled.span`
 
 export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingType; flag: boolean }) {
   const { chainId, account } = useWeb3React()
-  const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
-  const [selectedNftId, setSelectedNftId] = useState('0')
-  const [dropDownDefaultValue, setDropDownDefaultValue] = useState<string | undefined>('0')
-  const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
   const vDeusStats = useStakedVDeusStats()
 
@@ -226,44 +218,18 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
   }, [listOfVouchers])
 
   const addTransaction = useTransactionAdder()
-  const router = useRouter()
-
-  const dropdownOnSelect = useCallback((val: string) => {
-    setSelectedNftId(val)
-    setDropDownDefaultValue(val)
-    // console.log('draw down on select', { val })
-    return
-  }, [])
 
   const dropdownOptions = listOfVouchers.map((tokenId: number) => ({
     label: `vDEUS #${tokenId}`,
     value: `${tokenId}`,
   }))
 
-  const stakingContract = useVDeusStakingContract()
   const masterChefContract = useVDeusMasterChefV2Contract(flag)
   const pid = useMemo(() => (flag ? 0 : pool.pid), [flag, pool])
   // const lockedNFTs = useUserLockedNfts()
   const { depositAmount, rewardsAmount } = useUserInfo(pid, flag)
   const { totalDeposited } = usePoolInfo(pid, flag)
   const apr = useGetApr(pid, flag)
-  const spender = useMemo(() => (chainId ? vDeusStaking[chainId] : undefined), [chainId])
-
-  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-
-  const [approvalState, approveCallback] = useERC721ApproveAllCallback(chainId ? vDeus[chainId] : undefined, spender)
-
-  const showApprove = useMemo(() => approvalState !== ApprovalState.APPROVED, [approvalState])
-
-  const handleApprove = async () => {
-    setAwaitingApproveConfirmation(true)
-    await approveCallback()
-    setAwaitingApproveConfirmation(false)
-  }
-
-  useEffect(() => {
-    setDropDownDefaultValue(undefined)
-  }, [])
 
   const onClaimReward = useCallback(
     async (pid: number) => {
@@ -286,25 +252,6 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
       }
     },
     [masterChefContract, account, isSupportedChainId, rewardsAmount, addTransaction, flag]
-  )
-
-  const onDeposit = useCallback(
-    async (pid: number) => {
-      try {
-        if (!stakingContract || !account || !isSupportedChainId) return
-        setAwaitingDepositConfirmation(true)
-        const response = await stakingContract.deposit(pid, selectedNftId, account)
-        addTransaction(response, { summary: `Deposit vDEUS #${selectedNftId}` })
-        setAwaitingDepositConfirmation(false)
-        // setPendingTxHash(response.hash)
-      } catch (err) {
-        console.log(err)
-        toast.error(DefaultHandlerError(err))
-        setAwaitingDepositConfirmation(false)
-        // setPendingTxHash('')
-      }
-    },
-    [stakingContract, addTransaction, account, selectedNftId, isSupportedChainId]
   )
 
   function getClaimButton(pool: vDeusStakingType): JSX.Element | null {
@@ -353,13 +300,12 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
 
       <DepositWrapper>
         {!chainId || !account ? (
-          <TitleNFTSpan>Connect your wallet to withdraw your DEUS voucher NFT</TitleNFTSpan>
+          <TitleNFTSpan>Connect your wallet</TitleNFTSpan>
         ) : numberOfVouchers > 0 ? (
           <UpperRow>
             {dropdownOptions.map((nft, index) => (
               <RowBetween key={index} style={{ marginBottom: '15px' }}>
                 <DeusText>{nft.label}</DeusText>
-                <NFTValue> NFT value: {nft.value}</NFTValue>
               </RowBetween>
             ))}
           </UpperRow>

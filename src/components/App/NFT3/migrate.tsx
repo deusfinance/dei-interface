@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import { ArrowDown } from 'react-feather'
 
+import { formatBalance } from 'utils/numbers'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useOwnedVDeusNfts, VDEUS_NFT } from 'hooks/useVDeusNfts'
@@ -11,7 +12,6 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-
 import InputBox from 'components/App/Redemption/InputBox'
 import { vDeus, Migrator } from 'constants/addresses'
 import { VDEUS_TOKEN } from 'constants/tokens'
@@ -19,7 +19,6 @@ import { NavigationTypes } from 'components/StableCoin'
 import NFTsModal from 'components/NFTsModal'
 import SelectBox from 'components/SelectBox'
 import { Balance, TokenId } from 'components/NFTsModal/NFTBox'
-import { formatBalance } from 'utils/numbers'
 import { RowStart } from 'components/Row'
 
 const Container = styled.div`
@@ -142,12 +141,7 @@ export default function Migrate({ onSwitch }: { onSwitch: any }) {
     if (showApprove) {
       return null
     }
-    // if (bondingPaused) {
-    //   return <MainButton disabled>Mint Paused</MainButton>
-    // }
-    // if (insufficientBalance) {
-    //   return <MainButton disabled>Insufficient {deiCurrency?.symbol} Balance</MainButton>
-    // }
+
     if (awaitingRedeemConfirmation) {
       return (
         <MainButton>

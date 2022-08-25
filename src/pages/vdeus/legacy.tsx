@@ -177,6 +177,7 @@ export default function VDEUS() {
   const { numberOfStakedVouchers, listOfStakedVouchers } = useStakedVDeusStats()
   const [NFTCount, setNFTCount] = useState(0)
   const [initialSet, setInitialSet] = useState(false)
+  const [hasInformed, setHasInformed] = useState(false)
   const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState(false)
   const [isOpenReviewModal, toggleReviewModal] = useState(false)
   const stakingContract = useVDeusStakingContract()
@@ -193,6 +194,11 @@ export default function VDEUS() {
   const onWithdrawAllDeposit = useCallback(async () => {
     try {
       if (!stakingContract || !account || !isSupportedChainId) return
+      if (NFTCount > 10 && !hasInformed) {
+        toggleReviewModal(true)
+        setHasInformed(true)
+        return
+      }
       setAwaitingWithdrawConfirmation(true)
       const response = await stakingContract.withdrawAll(NFTCount, account)
       addTransaction(response, { summary: `Withdraw All` })
@@ -200,12 +206,11 @@ export default function VDEUS() {
       // setPendingTxHash(response.hash)
     } catch (err) {
       console.log(err)
-      toggleReviewModal(true)
       toast.error(DefaultHandlerError(err))
       setAwaitingWithdrawConfirmation(false)
       // setPendingTxHash('')
     }
-  }, [stakingContract, NFTCount, addTransaction, account, isSupportedChainId])
+  }, [stakingContract, account, isSupportedChainId, NFTCount, hasInformed, addTransaction])
 
   function getActionButton(): JSX.Element | null {
     if (!chainId || !account) {
@@ -288,7 +293,7 @@ export default function VDEUS() {
         toggleModal={(action: boolean) => toggleReviewModal(action)}
         summary={[
           'This transaction is expected to fail',
-          'This transaction will most likely fail because it will run out of gas, please select less NFTs to withdraw.',
+          "This transaction will most likely fail because it will run out of gas, please select less NFTs to withdraw. But if you insist, you can proceed by clicking again on 'Withdraw NFTs' button",
         ]}
       />
     </Container>

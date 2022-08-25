@@ -23,16 +23,16 @@ const Item = styled.div<{
 
 export enum NavigationTypes {
   MIGRATE = 'MIGRATE',
-  // SWAP = 'SWAP',
+  SWAP = 'SWAP',
   STAKE = 'STAKE',
-  // LIQUIDITY = 'LIQUIDITY',
+  LIQUIDITY = 'LIQUIDITY',
 }
 
 const NavigationLabels = {
   [NavigationTypes.MIGRATE]: 'Migrate',
-  // [NavigationTypes.SWAP]: 'Swap',
+  [NavigationTypes.SWAP]: 'Swap',
   [NavigationTypes.STAKE]: 'Stake',
-  // [NavigationTypes.LIQUIDITY]: 'Liquidity',
+  [NavigationTypes.LIQUIDITY]: 'Liquidity',
 }
 
 export default function Navigation({

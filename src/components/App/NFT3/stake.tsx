@@ -152,7 +152,7 @@ export default function Stake() {
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
   const { rewardsAmount, depositAmount } = useUserInfo2(pid)
-  const apr = 0 // useGetApr(pid)
+  const apr = 25 // useGetApr(pid)
 
   const currencyAmount = useMemo(() => {
     return tryParseAmount(amountIn, currency || undefined)

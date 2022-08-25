@@ -199,7 +199,7 @@ export default function Migrate() {
         <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getActionButton()}
-        {inputNFT.length > 10 && (
+        {inputNFT.length > 10 && !showApprove && (
           <Description>
             This transaction will most likely fail because it will run out of gas, please select less NFTs to migrate.
           </Description>

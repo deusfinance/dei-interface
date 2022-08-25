@@ -6,6 +6,7 @@ import { INFO_URL } from 'constants/misc'
 import { calculateGasMargin } from 'utils/web3'
 import { DefaultHandlerError } from 'utils/parseError'
 import { makeHttpRequest } from 'utils/http'
+import { toBN } from 'utils/numbers'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
@@ -43,7 +44,7 @@ export default function useVDeusMigrationCallback(tokenIds: number[] | undefined
 
       const methodName = tokenIds.length > 1 ? 'claimMany' : 'claim'
       const merkleProofResponse = await merkleProofRequest()
-      const amounts = tokenIds.map((tokenId) => merkleProofResponse[tokenId.toString()]['amount'])
+      const amounts = tokenIds.map((tokenId) => toBN(merkleProofResponse[tokenId.toString()]['amount']).toString())
       const merkleProof = tokenIds.map((tokenId) => merkleProofResponse[tokenId.toString()]['proof'])
 
       const args = tokenIds.length > 1 ? [tokenIds, amounts, merkleProof] : [tokenIds[0], amounts[0], merkleProof[0]]

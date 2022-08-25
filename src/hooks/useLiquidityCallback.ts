@@ -148,9 +148,10 @@ export default function useManageLiquidity(
           })
           .then((response: TransactionResponse) => {
             console.log(response)
+            const lpSymbol = isVoucher ? 'LP-vDEUS/DEUS' : `LP-bDEI/DEI`
             const summary = isRemove
-              ? `Remove ${minAmountOut} LP-bDEI/DEI from pool`
-              : `Deposit into pool for ${minAmountOut} LP-bDEI/DEI`
+              ? `Remove ${minAmountOut} ${lpSymbol} from pool`
+              : `Deposit into pool for ${minAmountOut} ${lpSymbol}`
             // TODO: add different summary
             addTransaction(response, { summary })
 

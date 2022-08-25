@@ -119,14 +119,6 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/vdeus" passHref>
-            <Row active={router.route === '/vdeus'}>
-              <div>vDEUS</div>
-              <IconWrapper>
-                <GiftIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
           <Link href="/borrow" passHref>
             <Row active={router.route === '/borrow'}>
               <div>Borrow</div>
@@ -151,11 +143,19 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/nft" passHref>
-            <Row active={router.route === '/nft'}>
-              <div>NFT</div>
+          <Link href="/vdeus/legacy" passHref>
+            <Row active={router.route === '/vdeus/legacy'}>
+              <div>Legacy vDEUS</div>
               <IconWrapper>
-                <TradeIcon size={20} />
+                <GiftIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/vdeus/new" passHref>
+            <Row active={router.route === '/vdeus/new'}>
+              <div>New vDEUS (ERC20)</div>
+              <IconWrapper>
+                <GiftIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>

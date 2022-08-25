@@ -46,7 +46,7 @@ const WithdrawTitleSpan = styled(Row)`
   margin-bottom: 0.75rem;
 `
 
-const VoucherText = styled.span<{ active: boolean }>`
+const VoucherText = styled.span<{ active?: boolean }>`
   margin-right: 12px;
   color: ${({ theme }) => theme.text2};
 
@@ -179,18 +179,22 @@ export default function WithdrawBox() {
   return (
     <WithdrawWrap>
       <WithdrawTitleSpan>You can Withdraw your vDEUS NFTs in this order:</WithdrawTitleSpan>
-      <div>
-        {listOfStakedVouchers.map((voucher, index) => (
-          <VoucherText active={index < NFTCount} key={index}>
-            {index + 1}.vDEUS #{voucher}
-          </VoucherText>
-        ))}
-      </div>
+      {numberOfStakedVouchers ? (
+        <div>
+          {listOfStakedVouchers.map((voucher, index) => (
+            <VoucherText active={index < NFTCount} key={index}>
+              {index + 1}.vDEUS #{voucher}
+            </VoucherText>
+          ))}
+        </div>
+      ) : (
+        <VoucherText active={true}>No staked NFT found!</VoucherText>
+      )}
       <Row>
         <BoxesRow>
           <NFTCountWrapper>
             <RowBetween>
-              <p>vDEUS NFT Count</p>
+              <p>vDEUS NFT Count:</p>
               <SelectAllWrap onClick={() => setNFTCount(numberOfStakedVouchers)}>
                 Select All {numberOfStakedVouchers}
               </SelectAllWrap>

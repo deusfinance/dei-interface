@@ -173,8 +173,6 @@ export default function Stake() {
   const spender = useMemo(() => (chainId ? MasterChefV3[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(currency ?? undefined, spender)
 
-  console.log({ approvalState, spender })
-
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = currency && approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
@@ -209,6 +207,7 @@ export default function Stake() {
       const response = await masterChefContract.deposit(pid, toBN(amountIn).times(1e18).toFixed(), account)
       addTransaction(response, { summary: `Deposit`, vest: { hash: response.hash } })
       setAwaitingDepositConfirmation(false)
+      setAmountIn('')
       // setPendingTxHash(response.hash)
     } catch (err) {
       console.log(err)
@@ -225,6 +224,7 @@ export default function Stake() {
       const response = await masterChefContract.withdraw(pid, toBN(amountIn).times(1e18).toFixed(), account)
       addTransaction(response, { summary: `Withdraw ${amountIn}`, vest: { hash: response.hash } })
       setAwaitingWithdrawConfirmation(false)
+      setAmountIn('')
       // setPendingTxHash(response.hash)
     } catch (err) {
       console.log(err)
@@ -260,7 +260,7 @@ export default function Stake() {
       return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
     } else if (showApprove) {
       return null
-    } else if (insufficientBalance) {
+    } else if (insufficientBalance && selected === NavigationTypes.STAKE) {
       return <DepositButton disabled>Insufficient {currency?.symbol} Balance</DepositButton>
     } else if (awaitingDepositConfirmation) {
       return (

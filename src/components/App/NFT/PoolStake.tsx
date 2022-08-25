@@ -17,8 +17,8 @@ import { vDeusStakingType } from 'constants/stakings'
 import { vDeus, vDeusStaking } from 'constants/addresses'
 import { DEUS_TOKEN } from 'constants/tokens'
 
-import Dropdown from 'components/DropDown'
-import { Row, RowCenter } from 'components/Row'
+// import Dropdown from 'components/DropDown'
+import { Row, RowBetween } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import { useRouter } from 'next/router'
@@ -57,35 +57,11 @@ const Wrapper = styled(Container)`
   `};
 `
 
-const UpperRow = styled(RowCenter)`
+const UpperRow = styled(Row)`
   margin: 0 auto;
-  margin-top: 15px;
-  height: 80px;
-  justify-content: center;
+  height: 100px;
   flex-direction: column;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-  `}
-  & > * {
-    height: 100%;
-    max-width: fit-content;
-
-    &:nth-child(1) {
-      text-align: left;
-    }
-    &:nth-child(2) {
-      max-width: 300px;
-
-      ul {
-        ${({ theme }) => theme.mediaWidth.upToSmall`
-            max-width: 256px;
-          `}
-      }
-    }
-  }
+  overflow: scroll;
 `
 
 const DepositButton = styled(PrimaryButton)`
@@ -172,6 +148,20 @@ const RewardData = styled.div`
   -webkit-text-fill-color: transparent;
 `
 
+export const DeusText = styled.span`
+  background: -webkit-linear-gradient(90deg, #0badf4 0%, #30efe4 93.4%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+`
+
+const NFTValue = styled.span`
+  font-family: 'IBM Plex Mono';
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: ${({ theme }) => theme.text1};
+`
+
 const YieldTitle = styled.div`
   background: -webkit-linear-gradient(90deg, #e29c53 0%, #ce4c7a 100%);
   -webkit-background-clip: text;
@@ -229,7 +219,7 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
     return poolStaked.filter((pid) => pid >= 0).map((id) => vDeusStats.listOfStakedVouchers[id])
   }, [vDeusStats, pool])
 
-  console.log({ listOfVouchers })
+  // console.log({ listOfVouchers })
 
   const numberOfVouchers = useMemo(() => {
     return listOfVouchers.length
@@ -366,20 +356,16 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
           <TitleNFTSpan>Connect your wallet to withdraw your DEUS voucher NFT</TitleNFTSpan>
         ) : numberOfVouchers > 0 ? (
           <UpperRow>
-            <p>Your Staked vDEUS NFT</p>
-            <Dropdown
-              options={dropdownOptions}
-              placeholder="select an NFT"
-              defaultValue={dropDownDefaultValue}
-              onSelect={(v) => dropdownOnSelect(v)}
-              width="300px"
-            />
+            {dropdownOptions.map((nft, index) => (
+              <RowBetween key={index} style={{ marginBottom: '15px' }}>
+                <DeusText>{nft.label}</DeusText>
+                <NFTValue> NFT value: {nft.value}</NFTValue>
+              </RowBetween>
+            ))}
           </UpperRow>
         ) : (
-          <DepositButton onClick={() => router.push('/redemption')}>GET vDEUS</DepositButton>
+          <span>you have no nft</span>
         )}
-
-        <div style={{ marginTop: '20px' }}></div>
       </DepositWrapper>
 
       {depositAmount > 0 && (

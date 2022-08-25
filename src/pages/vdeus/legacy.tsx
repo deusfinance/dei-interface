@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import { toast } from 'react-hot-toast'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -39,6 +39,7 @@ const WithdrawWrap = styled(Container)`
     display: flex;
     justify-content: center;
     flex-direction: column;
+    width: 95%;
   `};
 `
 
@@ -49,9 +50,7 @@ const WithdrawTitleSpan = styled(Row)`
   margin-bottom: 0.75rem;
 `
 
-const NFTsRow = styled.div`
-  /* white-space: wrap; */
-`
+const NFTsRow = styled.div``
 
 const VoucherText = styled.span<{ active: boolean }>`
   margin-right: 12px;
@@ -162,11 +161,20 @@ export const DISPLAY_WARNING = false
 export default function VDEUS() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
+  const { numberOfStakedVouchers, listOfStakedVouchers } = useStakedVDeusStats()
   const [NFTCount, setNFTCount] = useState(0)
+  const [initialSet, setInitialSet] = useState(false)
   const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState(false)
   const stakingContract = useVDeusStakingContract()
   const isSupportedChainId = useSupportedChainId()
   const addTransaction = useTransactionAdder()
+
+  useEffect(() => {
+    if (NFTCount === 0 && !initialSet && numberOfStakedVouchers) {
+      setInitialSet(true)
+      setNFTCount(numberOfStakedVouchers)
+    } else if (NFTCount > numberOfStakedVouchers) setNFTCount(numberOfStakedVouchers)
+  }, [NFTCount, initialSet, numberOfStakedVouchers])
 
   const onWithdrawAllDeposit = useCallback(async () => {
     try {
@@ -196,8 +204,6 @@ export default function VDEUS() {
     }
     return <MainButton onClick={() => onWithdrawAllDeposit()}>Withdraw NFT{NFTCount > 1 ? 's' : ''}</MainButton>
   }
-
-  const { numberOfStakedVouchers, listOfStakedVouchers } = useStakedVDeusStats()
 
   return (
     <Container>

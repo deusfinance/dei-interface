@@ -230,7 +230,7 @@ export default function LiquidityPool() {
 
           <InputBox
             currency={vdeusCurrency}
-            value={amountOut[1]?.toString()}
+            value={amountOut[0]?.toString()}
             onChange={() => console.debug('')}
             title={'To'}
             disabled
@@ -239,7 +239,7 @@ export default function LiquidityPool() {
           <div style={{ marginTop: '20px' }}></div>
           <InputBox
             currency={deusCurrency}
-            value={amountOut[0]?.toString()}
+            value={amountOut[1]?.toString()}
             onChange={() => console.debug('')}
             title={'To'}
             disabled

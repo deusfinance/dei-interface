@@ -53,6 +53,14 @@ const NFTWrap = styled.div`
   color: ${({ theme }) => theme.text1};
 `
 
+const Description = styled.div`
+  font-size: 0.85rem;
+  line-height: 1.25rem;
+  margin-top: 15px;
+  margin-left: 10px;
+  color: ${({ theme }) => theme.warning};
+`
+
 export default function Migrate() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -191,6 +199,11 @@ export default function Migrate() {
         <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getActionButton()}
+        {inputNFT.length > 10 && (
+          <Description>
+            This transaction will most likely fail because it will run out of gas, please select less NFTs to migrate.
+          </Description>
+        )}
       </Wrapper>
       <NFTsModal
         isOpen={isOpenNFTsModal}

@@ -13,16 +13,6 @@ const Wrapper = styled.div`
   flex-flow: column nowrap;
   justify-content: flex-start;
   padding: 16px 12px;
-  /* max-height: 400px; */
-  /* overflow-y: auto; */
-  /* & > * {
-    &:first-child {
-      width: unset;
-      margin: 0 9px;
-      min-height: 54px;
-      margin-bottom: 12px;
-    }
-  } */
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 1rem;

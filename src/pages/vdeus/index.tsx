@@ -45,12 +45,16 @@ const WithdrawTitleSpan = styled(Row)`
 `
 
 const NFTsRow = styled.div`
-  white-space: wrap;
+  /* white-space: wrap; */
 `
 
 const VoucherText = styled.span<{ active: boolean }>`
   margin-right: 12px;
   color: ${({ theme }) => theme.text2};
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    display: block;
+  `}
 
   ${({ active }) =>
     active &&
@@ -75,10 +79,11 @@ const StakeWrapper = styled.div`
   max-width: 1200px;
   align-items: flex-start;
   margin: auto;
+
   ${({ theme }) => theme.mediaWidth.upToLarge`
     display: flex;
     flex-flow: column nowrap;
-`}
+  `}
 `
 
 const WarningWrapper = styled.div`
@@ -92,6 +97,7 @@ const WarningContainer = styled(PrimaryButton)`
   border-radius: 8px;
   background: ${({ theme }) => theme.bg0};
   height: 100%;
+
   &:hover {
     cursor: default;
     background: ${({ theme }) => theme.bg0};
@@ -106,9 +112,15 @@ const NFTCountWrapper = styled.div`
   border-radius: 12px;
   padding: 0.5rem;
   font-size: 10px;
+`
+
+const MainButton = styled(PrimaryButton)`
+  width: 280px;
+  height: 68px;
+  border-radius: 12px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    margin: 2px;
+    margin-top: 10px;
   `}
 `
 
@@ -119,10 +131,14 @@ const BoxesRow = styled.div`
   margin-left: auto;
   margin-right: 0;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    margin: 2px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    margin: 0 auto;
     flex-direction: column;
   `}
+
+  & > * {
+    margin: 4px;
+  }
 `
 
 const SelectAllWrap = styled.div`
@@ -134,13 +150,6 @@ const SelectAllWrap = styled.div`
 
 const NFTsWrap = styled(Column)`
   padding-top: 10px;
-`
-
-const MainButton = styled(PrimaryButton)`
-  margin-left: 10px;
-  width: 280px;
-  height: 68px;
-  border-radius: 12px;
 `
 
 export const DISPLAY_WARNING = false
@@ -165,7 +174,6 @@ export default function VDEUS() {
   }
 
   const { numberOfStakedVouchers, listOfStakedVouchers } = useStakedVDeusStats()
-  console.log(numberOfStakedVouchers, listOfStakedVouchers)
 
   return (
     <Container>

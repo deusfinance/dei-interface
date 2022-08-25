@@ -67,7 +67,6 @@ const SelectAllWrap = styled(RowBetween)`
   cursor: pointer;
   font-weight: 400;
   font-size: 12px;
-
   color: #ffffff;
 `
 

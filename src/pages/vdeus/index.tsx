@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import Hero, { HeroSubtext } from 'components/Hero'
@@ -7,22 +7,58 @@ import { vDeusStakingPools } from 'constants/stakings'
 import PoolStake from 'components/App/NFT/PoolStake'
 import { PrimaryButton } from 'components/Button'
 import { ExternalLink } from 'components/Link'
+import { Row, RowBetween } from 'components/Row'
+import Column from 'components/Column'
+import { NumericalInput } from 'components/Input'
+import { DotFlashing } from 'components/Icons'
+import { useWalletModalToggle } from 'state/application/hooks'
+import useWeb3React from 'hooks/useWeb3'
+import { useStakedVDeusStats } from 'hooks/useVDeusStats'
 
 const Container = styled.div`
   display: flex;
   flex-flow: column nowrap;
   overflow: visible;
   margin: 0 auto;
-  & > * {
-    &:nth-child(2) {
-      border-top-left-radius: 15px;
-      border-top-right-radius: 15px;
-    }
-    &:last-child {
-      border-bottom-left-radius: 15px;
-      border-bottom-right-radius: 15px;
-    }
-  }
+`
+
+const WithdrawWrap = styled(Container)`
+  width: 98%;
+  border: ${({ theme }) => `2px solid ${theme.bg2}`};
+  margin: 50px 10px 0 10px;
+  padding: 20px;
+  border-radius: 15px;
+  background: ${({ theme }) => theme.bg0};
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  `};
+`
+
+const WithdrawTitleSpan = styled(Row)`
+  font-family: 'IBM Plex Mono';
+  font-size: 16px;
+  line-height: 21px;
+  margin-bottom: 0.75rem;
+`
+
+const NFTsRow = styled.div`
+  white-space: wrap;
+`
+
+const VoucherText = styled.span<{ active: boolean }>`
+  margin-right: 12px;
+  color: ${({ theme }) => theme.text2};
+
+  ${({ active }) =>
+    active &&
+    `
+    background: -webkit-linear-gradient(90deg, #0badf4 0%, #30efe4 93.4%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+`};
 `
 
 const TopWrapper = styled.div`
@@ -63,9 +99,74 @@ const WarningContainer = styled(PrimaryButton)`
   }
 `
 
+const NFTCountWrapper = styled.div`
+  background: ${({ theme }) => theme.bg2};
+  width: 280px;
+  border: 1px solid #444444;
+  border-radius: 12px;
+  padding: 0.5rem;
+  font-size: 10px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    margin: 2px;
+  `}
+`
+
+const BoxesRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding-top: 20px;
+  margin-left: auto;
+  margin-right: 0;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    margin: 2px;
+    flex-direction: column;
+  `}
+`
+
+const SelectAllWrap = styled.div`
+  cursor: pointer;
+  font-weight: 400;
+  font-size: 12px;
+  color: #ffffff;
+`
+
+const NFTsWrap = styled(Column)`
+  padding-top: 10px;
+`
+
+const MainButton = styled(PrimaryButton)`
+  margin-left: 10px;
+  width: 280px;
+  height: 68px;
+  border-radius: 12px;
+`
+
 export const DISPLAY_WARNING = false
 
-export default function NFT() {
+export default function VDEUS() {
+  const { chainId, account } = useWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
+  const [NFTCount, setNFTCount] = useState(0)
+  const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState(false)
+
+  function getActionButton(): JSX.Element | null {
+    if (!chainId || !account) {
+      return <MainButton onClick={toggleWalletModal}>Connect Wallet</MainButton>
+    } else if (awaitingWithdrawConfirmation) {
+      return (
+        <MainButton>
+          Withdrawing NFT{NFTCount > 1 ? 's' : ''} <DotFlashing style={{ marginLeft: '10px' }} />
+        </MainButton>
+      )
+    }
+    return <MainButton onClick={() => console.log()}>Withdraw NFT{NFTCount > 1 ? 's' : ''}</MainButton>
+  }
+
+  const { numberOfStakedVouchers, listOfStakedVouchers } = useStakedVDeusStats()
+  console.log(numberOfStakedVouchers, listOfStakedVouchers)
+
   return (
     <Container>
       <Hero>
@@ -88,6 +189,39 @@ export default function NFT() {
             </WarningContainer>
           </WarningWrapper>
         )}
+        <WithdrawWrap>
+          <WithdrawTitleSpan>You can Withdraw your vDEUS NFTs in this order:</WithdrawTitleSpan>
+          <NFTsRow>
+            {listOfStakedVouchers.map((voucher, index) => (
+              <VoucherText active={index < NFTCount} key={index}>
+                {index + 1}.vDEUS #{voucher}
+              </VoucherText>
+            ))}
+          </NFTsRow>
+          <Row>
+            <BoxesRow>
+              <NFTCountWrapper>
+                <RowBetween>
+                  <p>vDEUS NFT Count</p>
+                  <SelectAllWrap onClick={() => setNFTCount(numberOfStakedVouchers)}>
+                    Withdraw All {numberOfStakedVouchers}
+                  </SelectAllWrap>
+                </RowBetween>
+                <NFTsWrap>
+                  <NumericalInput
+                    value={NFTCount || ''}
+                    onUserInput={(value: string) => setNFTCount(Number(value))}
+                    // maxValue={numberOfStakedVouchers} // FIXME: set max limit
+                    placeholder="Enter NFT count"
+                    autoFocus
+                    style={{ textAlign: 'left', height: '50px', fontSize: '1.3rem' }}
+                  />
+                </NFTsWrap>
+              </NFTCountWrapper>
+              {getActionButton()}
+            </BoxesRow>
+          </Row>
+        </WithdrawWrap>
         <StakeWrapper>
           {vDeusStakingPools.map((pool) => (
             <PoolStake key={pool.name} pool={pool} flag={false}></PoolStake>

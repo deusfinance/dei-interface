@@ -8,7 +8,7 @@ import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useVDeusMasterChefV2Contract, useVDeusStakingContract } from 'hooks/useContract'
 import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
-import { useVDeusStats } from 'hooks/useVDeusStats'
+import { useStakedVDeusStats } from 'hooks/useVDeusStats'
 import { useGetApr, useUserInfo, usePoolInfo } from 'hooks/useVDeusStaking'
 
 import { DefaultHandlerError } from 'utils/parseError'
@@ -60,7 +60,9 @@ const Wrapper = styled(Container)`
 const UpperRow = styled(RowCenter)`
   margin: 0 auto;
   margin-top: 15px;
-  height: 50px;
+  height: 80px;
+  justify-content: center;
+  flex-direction: column;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     display: flex;
@@ -71,7 +73,10 @@ const UpperRow = styled(RowCenter)`
     height: 100%;
     max-width: fit-content;
 
-    &:first-child {
+    &:nth-child(1) {
+      text-align: left;
+    }
+    &:nth-child(2) {
       max-width: 300px;
 
       ul {
@@ -137,7 +142,6 @@ const BoxWrapper = styled.div`
 `
 
 const DepositWrapper = styled(BoxWrapper)`
-  margin-top: 30px;
   border: none;
 `
 
@@ -218,7 +222,18 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
   const [dropDownDefaultValue, setDropDownDefaultValue] = useState<string | undefined>('0')
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
   const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
-  const { listOfVouchers, numberOfVouchers } = useVDeusStats()
+  const vDeusStats = useStakedVDeusStats()
+
+  const listOfVouchers = useMemo(() => {
+    const poolStaked = vDeusStats.poolIds.map((id, index) => (id === pool.pid ? index : -1))
+    return poolStaked.filter((pid) => pid >= 0).map((id) => vDeusStats.listOfStakedVouchers[id])
+  }, [vDeusStats, pool])
+
+  console.log({ listOfVouchers })
+
+  const numberOfVouchers = useMemo(() => {
+    return listOfVouchers.length
+  }, [listOfVouchers])
 
   const addTransaction = useTransactionAdder()
   const router = useRouter()
@@ -301,41 +316,6 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
     },
     [stakingContract, addTransaction, account, selectedNftId, isSupportedChainId]
   )
-  function getApproveButton(): JSX.Element | null {
-    if (!isSupportedChainId || !account || numberOfVouchers <= 0) {
-      return null
-    }
-
-    if (awaitingApproveConfirmation) {
-      return (
-        <DepositButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
-        </DepositButton>
-      )
-    }
-
-    if (showApprove) {
-      return <DepositButton onClick={handleApprove}>Approve vDEUS</DepositButton>
-    }
-    return null
-  }
-
-  function getDepositButton(pid: number): JSX.Element | null {
-    if (!chainId || !account) {
-      return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
-    }
-    if (showApprove) {
-      return null
-    }
-    if (awaitingDepositConfirmation) {
-      return (
-        <DepositButton>
-          Depositing <DotFlashing style={{ marginLeft: '10px' }} />
-        </DepositButton>
-      )
-    }
-    return <DepositButton onClick={() => onDeposit(pid)}>Deposit your NFT</DepositButton>
-  }
 
   function getClaimButton(pool: vDeusStakingType): JSX.Element | null {
     if (awaitingClaimConfirmation) {
@@ -383,9 +363,10 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
 
       <DepositWrapper>
         {!chainId || !account ? (
-          <TitleNFTSpan>Connect your wallet to select DEUS voucher NFT</TitleNFTSpan>
+          <TitleNFTSpan>Connect your wallet to withdraw your DEUS voucher NFT</TitleNFTSpan>
         ) : numberOfVouchers > 0 ? (
           <UpperRow>
+            <p>Your Staked vDEUS NFT</p>
             <Dropdown
               options={dropdownOptions}
               placeholder="select an NFT"
@@ -399,8 +380,6 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
         )}
 
         <div style={{ marginTop: '20px' }}></div>
-        {getApproveButton()}
-        {getDepositButton(pool.pid)}
       </DepositWrapper>
 
       {depositAmount > 0 && (

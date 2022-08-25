@@ -49,7 +49,7 @@ const RedeemButton = styled(PrimaryButton)`
   border-radius: 12px;
 `
 
-export default function SwapPage({ onSwitch }: { onSwitch: any }) {
+export default function SwapPage() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()

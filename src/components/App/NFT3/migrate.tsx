@@ -15,7 +15,6 @@ import { DotFlashing } from 'components/Icons'
 import InputBox from 'components/App/Redemption/InputBox'
 import { vDeus, Migrator } from 'constants/addresses'
 import { VDEUS_TOKEN } from 'constants/tokens'
-import { NavigationTypes } from 'components/StableCoin'
 import NFTsModal from 'components/NFTsModal'
 import SelectBox from 'components/SelectBox'
 import { Balance, TokenId } from 'components/NFTsModal/NFTBox'
@@ -54,7 +53,7 @@ const NFTWrap = styled.div`
   color: ${({ theme }) => theme.text1};
 `
 
-export default function Migrate({ onSwitch }: { onSwitch: any }) {
+export default function Migrate() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
@@ -180,7 +179,7 @@ export default function Migrate({ onSwitch }: { onSwitch: any }) {
           currentItem={getCurrentItem()}
           onSelect={() => toggleNFTsModal(true)}
         />
-        <ArrowDown style={{ cursor: 'pointer' }} onClick={() => onSwitch(NavigationTypes.SWAP)} />
+        <ArrowDown />
 
         <InputBox
           currency={vDEUSCurrency}

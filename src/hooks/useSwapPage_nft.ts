@@ -4,7 +4,7 @@ import { formatUnits } from '@ethersproject/units'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { BN_TEN, toBN } from 'utils/numbers'
-import { useDeiSwapContract } from 'hooks/useContract'
+import { useDeiSwapContract2 } from 'hooks/useContract'
 
 export function useSwapAmountsOut(
   amountIn: string,
@@ -13,8 +13,8 @@ export function useSwapAmountsOut(
   amountOut: string
 } {
   const amountInBN = amountIn ? toBN(amountIn).times(BN_TEN.pow(tokenIn.decimals)).toFixed(0) : ''
-  const contract = useDeiSwapContract()
-  const positions = useMemo(() => (tokenIn?.symbol === 'DEI' ? [1, 0] : [0, 1]), [tokenIn])
+  const contract = useDeiSwapContract2()
+  const positions = useMemo(() => (tokenIn?.symbol === 'vDEUS' ? [1, 0] : [0, 1]), [tokenIn])
 
   const amountOutCall = useMemo(
     () =>

@@ -139,7 +139,7 @@ const AmountSpan = styled.span`
 export default function StakingPool() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const { token: currency, pid } = StakingPools2[0]
+  const { token: currency, pid } = StakingPools2[1]
 
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')

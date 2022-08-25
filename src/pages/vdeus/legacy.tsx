@@ -109,25 +109,6 @@ const WarningContainer = styled(PrimaryButton)`
   }
 `
 
-const NFTCountWrapper = styled.div`
-  background: ${({ theme }) => theme.bg2};
-  width: 280px;
-  border: 1px solid #444444;
-  border-radius: 12px;
-  padding: 0.5rem;
-  font-size: 10px;
-`
-
-const MainButton = styled(PrimaryButton)`
-  width: 280px;
-  height: 68px;
-  border-radius: 12px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    margin-top: 10px;
-  `}
-`
-
 const BoxesRow = styled.div`
   display: flex;
   flex-direction: row;
@@ -137,12 +118,39 @@ const BoxesRow = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin: 0 auto;
-    flex-direction: column;
   `}
-
   & > * {
     margin: 4px;
   }
+`
+
+const NFTCountWrapper = styled.div`
+  background: ${({ theme }) => theme.bg2};
+  width: 280px;
+  border: 1px solid #444444;
+  border-radius: 12px;
+  padding: 0.5rem;
+  font-size: 10px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 220px;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width: fit-content;
+  `}
+`
+
+const MainButton = styled(PrimaryButton)`
+  width: 280px;
+  height: 68px;
+  border-radius: 12px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 220px;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width: fit-content;
+  `}
 `
 
 const SelectAllWrap = styled.div`
@@ -150,6 +158,10 @@ const SelectAllWrap = styled.div`
   font-weight: 400;
   font-size: 12px;
   color: #ffffff;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    display: none;
+  `}
 `
 
 const NFTsWrap = styled(Column)`

@@ -310,7 +310,7 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
             ))}
           </UpperRow>
         ) : (
-          <span>you have no nft</span>
+          <span style={{ marginBottom: '20px' }}>You have no staked NFT</span>
         )}
       </DepositWrapper>
 

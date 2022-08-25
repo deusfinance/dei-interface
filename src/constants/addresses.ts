@@ -155,9 +155,14 @@ export const vDeusMasterChefV2: AddressMap = {
   [SupportedChainId.FANTOM]: '0x120FF9821817eA2bbB700e1131e5c856ccC20d1b',
 }
 
-//0x8d7e07b1a346ac29e922ac01fa34cb2029f536b9
+//vDEUS old Staking
 export const vDeusMasterChefV2ReadOnly: AddressMap = {
   [SupportedChainId.FANTOM]: '0xD232CAaEa0ea5eF69dC298455268B32Ec818f6e6',
+}
+
+//vDEUS current Staking (proxy contract)
+export const MultiRewarder: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x3600afE36E2b9A8540274a3092b5e87D36D27b34',
 }
 
 export const vDeusStaking: AddressMap = {

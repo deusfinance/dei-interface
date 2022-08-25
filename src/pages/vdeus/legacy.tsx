@@ -19,6 +19,7 @@ import { useStakedVDeusStats } from 'hooks/useVDeusStats'
 import { useVDeusStakingContract } from 'hooks/useContract'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { DefaultHandlerError } from 'utils/parseError'
+import DefaultReviewModal from 'components/ReviewModal/DefaultReviewModal'
 
 const Container = styled.div`
   display: flex;
@@ -177,6 +178,7 @@ export default function VDEUS() {
   const [NFTCount, setNFTCount] = useState(0)
   const [initialSet, setInitialSet] = useState(false)
   const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState(false)
+  const [isOpenReviewModal, toggleReviewModal] = useState(false)
   const stakingContract = useVDeusStakingContract()
   const isSupportedChainId = useSupportedChainId()
   const addTransaction = useTransactionAdder()
@@ -198,6 +200,7 @@ export default function VDEUS() {
       // setPendingTxHash(response.hash)
     } catch (err) {
       console.log(err)
+      toggleReviewModal(true)
       toast.error(DefaultHandlerError(err))
       setAwaitingWithdrawConfirmation(false)
       // setPendingTxHash('')
@@ -278,6 +281,16 @@ export default function VDEUS() {
         </StakeWrapper>
       </TopWrapper>
       <Disclaimer />
+
+      <DefaultReviewModal
+        title={'Warning'}
+        isOpen={isOpenReviewModal}
+        toggleModal={(action: boolean) => toggleReviewModal(action)}
+        summary={[
+          'This transaction is expected to fail',
+          'This transaction will most likely fail because it will run out of gas, please select less NFTs to withdraw.',
+        ]}
+      />
     </Container>
   )
 }

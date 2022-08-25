@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { useDeiSwapContract } from 'hooks/useContract'
+import { useDeiSwapContract, useDeiSwapContract2 } from 'hooks/useContract'
 import useWeb3React from 'hooks/useWeb3'
 
 import { StablePoolType } from 'constants/sPools'
@@ -34,9 +34,10 @@ export function usePoolBalances(pool: StablePoolType): number[] {
   }, [results, pool])
 }
 
-export function useAddLiquidity(pool: StablePoolType, amountIns: string[]): number {
+export function useAddLiquidity(pool: StablePoolType, amountIns: string[], isVoucher?: boolean): number {
   const { account } = useWeb3React()
-  const contract = useDeiSwapContract()
+  const contract1 = useDeiSwapContract()
+  const contract2 = useDeiSwapContract2()
 
   const amountsInBN: string[] = useMemo(() => {
     return amountIns.map((amount, index) => {
@@ -58,7 +59,7 @@ export function useAddLiquidity(pool: StablePoolType, amountIns: string[]): numb
     [account, amountsInBN]
   )
 
-  const [result] = useSingleContractMultipleMethods(contract, liqCalls)
+  const [result] = useSingleContractMultipleMethods(isVoucher ? contract2 : contract1, liqCalls)
 
   return useMemo(() => {
     if (!result || !result.result?.length) return 0
@@ -66,9 +67,11 @@ export function useAddLiquidity(pool: StablePoolType, amountIns: string[]): numb
   }, [result])
 }
 
-export function useRemoveLiquidity(pool: StablePoolType, amountIn: string): number[] {
+export function useRemoveLiquidity(pool: StablePoolType, amountIn: string, isVoucher?: boolean): number[] {
   const { account } = useWeb3React()
-  const contract = useDeiSwapContract()
+  const contract1 = useDeiSwapContract()
+  const contract2 = useDeiSwapContract2()
+
   const amountInBN = toBN(amountIn).times(1e18).toFixed()
   const liqCalls = useMemo(
     () =>
@@ -83,7 +86,7 @@ export function useRemoveLiquidity(pool: StablePoolType, amountIn: string): numb
     [account, amountIn, amountInBN]
   )
 
-  const [result] = useSingleContractMultipleMethods(contract, liqCalls)
+  const [result] = useSingleContractMultipleMethods(isVoucher ? contract2 : contract1, liqCalls)
 
   return useMemo(() => {
     if (!result || !result.result?.length) return []

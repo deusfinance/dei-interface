@@ -1,6 +1,7 @@
 import { Token } from '@sushiswap/core-sdk'
 import { SupportedChainId } from 'constants/chains'
-import { BDEI_TOKEN, DEI_TOKEN, DEUS_TOKEN } from 'constants/tokens'
+import { BDEI_TOKEN, DEI_TOKEN, DEUS_TOKEN, DEUS_VDEUS_LP_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
+import { SwapFlashLoan2 } from './addresses'
 
 export type StablePoolType = {
   name: string
@@ -19,6 +20,17 @@ export const StablePools: StablePoolType[] = [
     liquidityTokens: [DEI_TOKEN, BDEI_TOKEN],
     lpToken: new Token(SupportedChainId.FANTOM, '0xdce9ec1eb454829b6fe0f54f504fef3c3c0642fc', 18, 'DB-LP', 'DB-LP'),
     rewardsTokens: [DEUS_TOKEN],
+  },
+]
+
+export const StablePools2: StablePoolType[] = [
+  {
+    name: 'DEUS-vDEUS',
+    swapFlashLoan: SwapFlashLoan2[SupportedChainId.FANTOM],
+    stakingPid: 1,
+    liquidityTokens: [DEUS_TOKEN, VDEUS_TOKEN],
+    lpToken: DEUS_VDEUS_LP_TOKEN,
+    rewardsTokens: [VDEUS_TOKEN],
   },
 ]
 

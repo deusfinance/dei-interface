@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
-import { useDeiSwapContract } from 'hooks/useContract'
+import { useDeiSwapContract, useDeiSwapContract2 } from 'hooks/useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { DefaultHandlerError } from 'utils/parseError'
 import { BN_TEN, toBN } from 'utils/numbers'
@@ -21,7 +21,8 @@ export default function useManageLiquidity(
   pool: StablePoolType,
   slippage: number,
   deadline: number,
-  isRemove: boolean
+  isRemove: boolean,
+  isVoucher?: boolean
 ): {
   state: LiquidityCallbackState
   callback: null | (() => Promise<string>)
@@ -29,7 +30,10 @@ export default function useManageLiquidity(
 } {
   const { account, chainId, library } = useWeb3React()
   const addTransaction = useTransactionAdder()
-  const swapContract = useDeiSwapContract()
+  const contract1 = useDeiSwapContract()
+  const contract2 = useDeiSwapContract2()
+  const swapContract = isVoucher ? contract2 : contract1
+
   const deadlineValue = Math.round(new Date().getTime() / 1000 + 60 * deadline)
   const minAmountOutBN = toBN(minAmountOut).times(1e18).toFixed(0, 1)
   const amountsInBN = amounts.map((amount, index) => {

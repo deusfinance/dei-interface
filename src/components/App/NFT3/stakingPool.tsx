@@ -6,24 +6,22 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { useVDeusMasterChefV2Contract } from 'hooks/useContract'
-import { ApprovalState } from 'hooks/useApproveNftCallback2'
-import { useGetApr } from 'hooks/useVDeusStaking'
+import { useMasterChefV3Contract } from 'hooks/useContract'
+import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
+// import { useGetApr } from 'hooks/useVDeusStaking'
+import { useUserInfo2 } from 'hooks/useStakingInfo'
 
 import { DefaultHandlerError } from 'utils/parseError'
-import { formatAmount } from 'utils/numbers'
-import { vDeusStakingPools, vDeusStakingType } from 'constants/stakings'
-import { DeiBonder } from 'constants/addresses'
-import { DEUS_TOKEN } from 'constants/tokens'
+import { formatAmount, toBN } from 'utils/numbers'
+import { StakingPools2 } from 'constants/stakings'
+import { MasterChefV3 } from 'constants/addresses'
 
 import { VDEUS_TOKEN } from 'constants/tokens'
 import { Row } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import InputBox from '../Redemption/InputBox'
-import useDebounce from 'hooks/useDebounce'
 import { tryParseAmount } from 'utils/parse'
-import useApproveCallback from 'hooks/useApproveCallback'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import Navigation, { NavigationTypes } from '../Stake/Navigation'
 
@@ -35,7 +33,7 @@ const Container = styled.div`
 `
 
 const Wrapper = styled(Container)`
-  margin: 0 10px;
+  margin: 0 auto;
   margin-top: 50px;
   width: clamp(250px, 90%, 500px);
   background-color: rgb(13 13 13);
@@ -62,8 +60,6 @@ const ClaimButton = styled(PrimaryButton)`
   border-radius: 8px;
   background: ${({ theme }) => theme.bg0};
   height: 100%;
-  /* width: unset; */
-  /* white-space: nowrap; */
 
   &:hover {
     & > * {
@@ -92,7 +88,7 @@ const BoxWrapper = styled.div`
 `
 
 const Line = styled.div`
-  height: 2px;
+  height: 1px;
   width: clamp(250px, 110%, 500px);
   margin-left: -16px;
   background: ${({ theme }) => theme.bg2};
@@ -140,35 +136,47 @@ const AmountSpan = styled.span`
   color: #fdb572;
 `
 
-export default function StakingPool({ flag = false }: { flag?: boolean }) {
+export default function StakingPool() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
+  const { token: currency, pid } = StakingPools2[0]
+
   const isSupportedChainId = useSupportedChainId()
-  const [awaitingClaimConfirmation, setAwaitingClaimConfirmation] = useState<boolean>(false)
-
   const [amountIn, setAmountIn] = useState('')
-  const debouncedAmountIn = useDebounce(amountIn, 500)
+  const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
 
-  const vDEUSCurrency = VDEUS_TOKEN
-  const vDEUSAmount = useMemo(() => {
-    return tryParseAmount(amountIn, vDEUSCurrency || undefined)
-  }, [amountIn, vDEUSCurrency])
+  const masterChefContract = useMasterChefV3Contract()
 
-  const vdeusCurrencyBalance = useCurrencyBalance(account ?? undefined, vDEUSCurrency)
+  const addTransaction = useTransactionAdder()
+  // const [pendingTxHash, setPendingTxHash] = useState('')
+  //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
+
+  const { rewardsAmount, depositAmount } = useUserInfo2(pid)
+  const apr = 0 // useGetApr(pid)
+
+  const currencyAmount = useMemo(() => {
+    return tryParseAmount(amountIn, currency || undefined)
+  }, [amountIn, currency])
 
   const insufficientBalance = useMemo(() => {
-    if (!vDEUSAmount) return false
-    return vdeusCurrencyBalance?.lessThan(vDEUSAmount)
-  }, [vdeusCurrencyBalance, vDEUSAmount])
+    if (!currencyAmount) return false
+    return currencyBalance?.lessThan(currencyAmount)
+  }, [currencyBalance, currencyAmount])
 
-  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? DeiBonder[chainId] : undefined), [chainId])
-  const [approvalState, approveCallback] = useApproveCallback(vDEUSCurrency ?? undefined, spender)
+  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
+  const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState(false)
+  const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState(false)
+  const [awaitingClaimConfirmation, setAwaitClaimConfirmation] = useState(false)
+
+  const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.STAKE)
+
+  const spender = useMemo(() => (chainId ? MasterChefV3[chainId] : undefined), [chainId])
+  const [approvalState, approveCallback] = useApproveCallback(currency ?? undefined, spender)
+
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = vDEUSCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
+    const show = currency && approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [vDEUSCurrency, approvalState, amountIn])
+  }, [currency, approvalState])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -176,59 +184,55 @@ export default function StakingPool({ flag = false }: { flag?: boolean }) {
     setAwaitingApproveConfirmation(false)
   }
 
-  const addTransaction = useTransactionAdder()
-
-  const pool = vDeusStakingPools[0]
-
-  const masterChefContract = useVDeusMasterChefV2Contract(flag)
-  const pid = useMemo(() => (flag ? 0 : pool.pid), [flag, pool])
-  // const { depositAmount, rewardsAmount } = useUserInfo(pid, flag)
-
-  const depositAmount = 0.1
-  const rewardsAmount = 1.2
-
-  const apr = useGetApr(pid, flag)
-
-  const onClaimReward = useCallback(
-    async (pid: number) => {
-      if (flag) {
-        toast.error(`Claim disabled`)
-        return
-      }
-      try {
-        if (!masterChefContract || !account || !isSupportedChainId || !rewardsAmount) return
-        setAwaitingClaimConfirmation(true)
-        const response = await masterChefContract.harvest(pid, account)
-        addTransaction(response, { summary: `Claim Rewards`, vest: { hash: response.hash } })
-        setAwaitingClaimConfirmation(false)
-        // setPendingTxHash(response.hash)
-      } catch (err) {
-        console.log(err)
-        toast.error(DefaultHandlerError(err))
-        setAwaitingClaimConfirmation(false)
-        // setPendingTxHash('')
-      }
-    },
-    [masterChefContract, account, isSupportedChainId, rewardsAmount, addTransaction, flag]
-  )
-
-  const handleSwap = useCallback(async () => {
-    console.log('called handleSwap')
-    // console.log(swapCallbackState, swapCallbackError)
-    // if (!swapCallback) return
+  const onClaimReward = useCallback(async () => {
     try {
-      setAwaitingRedeemConfirmation(true)
-      // const txHash = await swapCallback()
-      setAwaitingRedeemConfirmation(false)
-      // console.log({ txHash })
-    } catch (e) {
-      setAwaitingRedeemConfirmation(false)
-      if (e instanceof Error) {
-      } else {
-        console.error(e)
-      }
+      if (!masterChefContract || !account || !isSupportedChainId) return
+      setAwaitClaimConfirmation(true)
+      const response = await masterChefContract.harvest(pid, account)
+      addTransaction(response, { summary: `Claim Rewards`, vest: { hash: response.hash } })
+      setAwaitClaimConfirmation(false)
+      // setPendingTxHash(response.hash)
+    } catch (err) {
+      console.log(err)
+      toast.error(DefaultHandlerError(err))
+      setAwaitClaimConfirmation(false)
+      // setPendingTxHash('')
     }
-  }, [])
+  }, [masterChefContract, addTransaction, pid, account, isSupportedChainId])
+
+  const onDeposit = useCallback(async () => {
+    try {
+      if (!masterChefContract || !account || !isSupportedChainId || !amountIn) return
+      setAwaitingDepositConfirmation(true)
+      const response = await masterChefContract.deposit(pid, toBN(amountIn).times(1e18).toFixed(), account)
+      addTransaction(response, { summary: `Deposit`, vest: { hash: response.hash } })
+      setAwaitingDepositConfirmation(false)
+      setAmountIn('')
+      // setPendingTxHash(response.hash)
+    } catch (err) {
+      console.log(err)
+      toast.error(DefaultHandlerError(err))
+      setAwaitingDepositConfirmation(false)
+      // setPendingTxHash('')
+    }
+  }, [masterChefContract, addTransaction, pid, account, isSupportedChainId, amountIn])
+
+  const onWithdraw = useCallback(async () => {
+    try {
+      if (!masterChefContract || !account || !isSupportedChainId || !amountIn) return
+      setAwaitingWithdrawConfirmation(true)
+      const response = await masterChefContract.withdraw(pid, toBN(amountIn).times(1e18).toFixed(), account)
+      addTransaction(response, { summary: `Withdraw ${amountIn}`, vest: { hash: response.hash } })
+      setAwaitingWithdrawConfirmation(false)
+      setAmountIn('')
+      // setPendingTxHash(response.hash)
+    } catch (err) {
+      console.log(err)
+      toast.error(DefaultHandlerError(err))
+      setAwaitingWithdrawConfirmation(false)
+      // setPendingTxHash('')
+    }
+  }, [masterChefContract, addTransaction, pid, account, isSupportedChainId, amountIn])
 
   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
@@ -246,7 +250,7 @@ export default function StakingPool({ flag = false }: { flag?: boolean }) {
         </DepositButton>
       )
     } else if (showApprove) {
-      return <DepositButton onClick={handleApprove}>Allow us to spend {vDEUSCurrency?.symbol}</DepositButton>
+      return <DepositButton onClick={handleApprove}>Allow us to spend {currency?.symbol}</DepositButton>
     }
     return null
   }
@@ -256,23 +260,30 @@ export default function StakingPool({ flag = false }: { flag?: boolean }) {
       return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
     } else if (showApprove) {
       return null
-    } else if (insufficientBalance) {
-      return <DepositButton disabled>Insufficient {vDEUSCurrency?.symbol} Balance</DepositButton>
-    } else if (awaitingRedeemConfirmation) {
+    } else if (insufficientBalance && selected === NavigationTypes.STAKE) {
+      return <DepositButton disabled>Insufficient {currency?.symbol} Balance</DepositButton>
+    } else if (awaitingDepositConfirmation) {
       return (
         <DepositButton>
-          {selected === NavigationTypes.STAKE ? 'Staking' : 'Unstaking'} <DotFlashing style={{ marginLeft: '10px' }} />
+          Staking <DotFlashing style={{ marginLeft: '10px' }} />
         </DepositButton>
       )
+    } else if (awaitingWithdrawConfirmation) {
+      return (
+        <DepositButton>
+          Unstaking <DotFlashing style={{ marginLeft: '10px' }} />
+        </DepositButton>
+      )
+    } else {
+      if (selected === NavigationTypes.STAKE) {
+        return <DepositButton onClick={() => onDeposit()}>Stake {currency?.symbol}</DepositButton>
+      } else {
+        return <DepositButton onClick={() => onWithdraw()}>Unstake {currency?.symbol}</DepositButton>
+      }
     }
-    return (
-      <DepositButton onClick={() => handleSwap()}>
-        {selected === NavigationTypes.STAKE ? 'Stake' : 'Unstake'} {vDEUSCurrency?.symbol}
-      </DepositButton>
-    )
   }
 
-  function getClaimButton(pool: vDeusStakingType): JSX.Element | null {
+  function getClaimButton(): JSX.Element | null {
     if (awaitingClaimConfirmation) {
       return (
         <ClaimButtonWrapper>
@@ -296,14 +307,12 @@ export default function StakingPool({ flag = false }: { flag?: boolean }) {
     }
     return (
       <ClaimButtonWrapper>
-        <ClaimButton onClick={() => onClaimReward(pool.pid)}>
+        <ClaimButton onClick={() => onClaimReward()}>
           <ButtonText>Claim</ButtonText>
         </ClaimButton>
       </ClaimButtonWrapper>
     )
   }
-
-  const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.STAKE)
 
   return (
     <Wrapper>
@@ -315,11 +324,11 @@ export default function StakingPool({ flag = false }: { flag?: boolean }) {
       </TitleInfo>
 
       <InputBox
-        currency={vDEUSCurrency}
+        currency={currency}
         value={amountIn}
         onChange={(value: string) => setAmountIn(value)}
-        title={'From'}
-        // maxValue={selected === NavigationTypes.UNSTAKE ? '0.1' : undefined}
+        title={selected === NavigationTypes.STAKE ? 'vDEUS' : 'vDEUS staked'}
+        maxValue={selected === NavigationTypes.STAKE ? null : depositAmount.toString()}
       />
 
       {getApproveButton()}
@@ -330,7 +339,7 @@ export default function StakingPool({ flag = false }: { flag?: boolean }) {
         <BoxWrapper>
           <span>vDEUS Staked:</span>
           <AmountSpan>
-            {formatAmount(depositAmount)} {vDEUSCurrency?.symbol}
+            {formatAmount(depositAmount)} {currency?.symbol}
           </AmountSpan>
         </BoxWrapper>
       )}
@@ -342,11 +351,11 @@ export default function StakingPool({ flag = false }: { flag?: boolean }) {
           <RewardData>
             <span>{rewardsAmount && rewardsAmount?.toFixed(3)}</span>
             <Row style={{ marginLeft: '10px' }}>
-              <span>{DEUS_TOKEN.symbol}</span>
+              <span>{VDEUS_TOKEN.symbol}</span>
             </Row>
           </RewardData>
         </div>
-        <div>{getClaimButton(pool)}</div>
+        <div>{getClaimButton()}</div>
       </BoxWrapper>
     </Wrapper>
   )

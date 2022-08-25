@@ -33,7 +33,6 @@ export const StakingPools: StakingType[] = [
   },
 ]
 
-// namusan in moghe shab esm behtar yadam nemiad...
 export const StakingPools2: StakingType[] = [
   {
     name: 'single vDEUS(erc20)',

@@ -14,7 +14,7 @@ import InputBox from 'components/App/Redemption/InputBox'
 import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
 import useManageLiquidity from 'hooks/useLiquidityCallback'
-import { StablePools } from 'constants/sPools'
+import { StablePools2 } from 'constants/sPools'
 import { ActionTypes } from 'components/StableCoin2'
 import { ActionSetter } from 'components/StableCoin2'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
@@ -65,7 +65,9 @@ export default function LiquidityPool() {
   const [slippage, setSlippage] = useState(0.5)
   const deusCurrency = DEUS_TOKEN
   const vdeusCurrency = VDEUS_TOKEN
-  const pool = StablePools[0]
+  const isVoucher = true
+
+  const pool = StablePools2[0]
   const lpCurrency = pool.lpToken
   const deusCurrencyBalance = useCurrencyBalance(account ?? undefined, deusCurrency)
   const vdeusCurrencyBalance = useCurrencyBalance(account ?? undefined, vdeusCurrency)
@@ -75,9 +77,8 @@ export default function LiquidityPool() {
   const debouncedAmountIn2 = useDebounce(amountIn2, 500)
   const debouncedLPAmountIn = useDebounce(lpAmountIn, 500)
 
-  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn)
-  const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2]).toString()
-  //   console.log({ amountOut, amountOut2, lpAmountIn })
+  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn, isVoucher)
+  const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2], isVoucher).toString()
 
   const deusAmount = useMemo(() => {
     return tryParseAmount(amountIn, deusCurrency || undefined)
@@ -103,11 +104,12 @@ export default function LiquidityPool() {
     pool,
     slippage,
     20,
-    isRemove
+    isRemove,
+    isVoucher
   )
 
-  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState<boolean>(false)
+  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
+  const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState(false)
   const spender = useMemo(() => (chainId ? pool.swapFlashLoan : undefined), [chainId, pool])
 
   const [approvalState, approveCallback] = useApproveCallback(deusCurrency ?? undefined, spender)

@@ -56,9 +56,7 @@ const Wrapper = styled(Container)`
 
 const UpperRow = styled(Row)`
   margin: 0 auto;
-  height: 100px;
   flex-direction: column;
-  overflow: scroll;
 `
 
 const DepositButton = styled(PrimaryButton)`

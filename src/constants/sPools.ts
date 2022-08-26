@@ -31,7 +31,7 @@ export const StablePools: StablePoolType[] = [
   {
     name: 'DEUS-vDEUS',
     swapFlashLoan: StablePool_DEUS_vDEUS[SupportedChainId.FANTOM],
-    stakingPid: 1,
+    stakingPid: 2,
     liquidityTokens: [VDEUS_TOKEN, DEUS_TOKEN],
     lpToken: DEUS_VDEUS_LP_TOKEN,
     rewardsTokens: [VDEUS_TOKEN],

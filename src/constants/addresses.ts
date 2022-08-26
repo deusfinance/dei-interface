@@ -147,7 +147,7 @@ export const StablePool_DEI_bDEI: AddressMap = {
 }
 
 export const StablePool_DEUS_vDEUS: AddressMap = {
-  [SupportedChainId.FANTOM]: '0x39533295424F1dB73eBB6eDCD9660678539C7b18',
+  [SupportedChainId.FANTOM]: '0x54a5039C403fff8538fC582e0e3f07387B707381',
 }
 
 export const vDeusMasterChefV2: AddressMap = {

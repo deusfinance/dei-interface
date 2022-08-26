@@ -28,7 +28,7 @@ export const DEI_BDEI_LP_TOKEN = new Token(
 
 export const DEUS_VDEUS_LP_TOKEN = new Token(
   SupportedChainId.FANTOM,
-  '0x2138B8de892f2e562bc80b940654bc125e00108f',
+  '0xECd9E18356bb8d72741c539e75CEAdB3C5869ea0',
   18,
   'DV-LP',
   'DV-LP'

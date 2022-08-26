@@ -42,7 +42,7 @@ export const StakingPools2: StakingType[] = [
   },
   {
     name: 'DEUS-vDEUS',
-    pid: 1,
+    pid: 2,
     token: DEUS_VDEUS_LP_TOKEN,
     provideLink: '/nft',
   },

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
-import { useDeiSwapContract, useDeiSwapContract2 } from 'hooks/useContract'
+import { useStablePoolContract } from 'hooks/useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { DefaultHandlerError } from 'utils/parseError'
 import { BN_TEN, toBN } from 'utils/numbers'
@@ -21,8 +21,7 @@ export default function useManageLiquidity(
   pool: StablePoolType,
   slippage: number,
   deadline: number,
-  isRemove: boolean,
-  isVoucher?: boolean
+  isRemove: boolean
 ): {
   state: LiquidityCallbackState
   callback: null | (() => Promise<string>)
@@ -30,9 +29,7 @@ export default function useManageLiquidity(
 } {
   const { account, chainId, library } = useWeb3React()
   const addTransaction = useTransactionAdder()
-  const contract1 = useDeiSwapContract()
-  const contract2 = useDeiSwapContract2()
-  const swapContract = isVoucher ? contract2 : contract1
+  const swapContract = useStablePoolContract(pool)
 
   const deadlineValue = Math.round(new Date().getTime() / 1000 + 60 * deadline)
   const minAmountOutBN = toBN(minAmountOut).times(1e18).toFixed(0, 1)
@@ -148,7 +145,7 @@ export default function useManageLiquidity(
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const lpSymbol = isVoucher ? 'LP-vDEUS/DEUS' : `LP-bDEI/DEI`
+            const lpSymbol = pool.lpToken.symbol
             const summary = isRemove
               ? `Remove ${minAmountOut} ${lpSymbol} from pool`
               : `Deposit into pool for ${minAmountOut} ${lpSymbol}`

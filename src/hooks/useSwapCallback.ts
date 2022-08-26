@@ -5,48 +5,58 @@ import toast from 'react-hot-toast'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
-import { useDeiSwapContract } from 'hooks/useContract'
+import { useStablePoolContract } from 'hooks/useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { toHex } from 'utils/hex'
 import { DefaultHandlerError } from 'utils/parseError'
 import { toBN } from 'utils/numbers'
+import { getTokenIndex, StablePoolType } from 'constants/sPools'
 
-export enum RedeemCallbackState {
+export enum TransactionCallbackState {
   INVALID = 'INVALID',
   VALID = 'VALID',
 }
 
 export default function useSwapCallback(
-  bdeiCurrency: Currency,
-  deiCurrency: Currency,
-  bdeiAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
-  deiAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+  inputCurrency: Currency,
+  outputCurrency: Currency,
+  inputAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+  outputAmount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+  pool: StablePoolType,
   slippage: number,
   deadline: number
 ): {
-  state: RedeemCallbackState
+  state: TransactionCallbackState
   callback: null | (() => Promise<string>)
   error: string | null
 } {
   const { account, chainId, library } = useWeb3React()
   const addTransaction = useTransactionAdder()
-  const swapContract = useDeiSwapContract()
+  const swapContract = useStablePoolContract(pool)
   const deadlineValue = Math.round(new Date().getTime() / 1000 + 60 * deadline)
+
+  const [inputIndex, outputIndex] = useMemo(() => {
+    return [getTokenIndex(inputCurrency.wrapped.address, pool), getTokenIndex(outputCurrency.wrapped.address, pool)]
+  }, [inputCurrency, outputCurrency, pool])
+
+  const positions = useMemo(() => {
+    if (inputIndex !== null && outputIndex !== null) return [inputIndex, outputIndex]
+    return null
+  }, [inputIndex, outputIndex])
 
   const constructCall = useCallback(() => {
     try {
-      if (!account || !library || !swapContract || !deiAmount || !bdeiAmount) {
+      if (!account || !library || !swapContract || !outputAmount || !inputAmount || !positions) {
         throw new Error('Missing dependencies.')
       }
 
       const methodName = 'swap'
 
-      const subtractSlippage = toBN(toHex(deiAmount.quotient))
+      const subtractSlippage = toBN(toHex(outputAmount.quotient))
         .multipliedBy((100 - Number(slippage)) / 100)
         .toFixed(0, 1)
 
-      const args = [1, 0, toHex(bdeiAmount.quotient), subtractSlippage, deadlineValue]
-      console.log({ args })
+      const args = [...positions, toHex(inputAmount.quotient), subtractSlippage, deadlineValue]
 
       return {
         address: swapContract.address,
@@ -58,26 +68,26 @@ export default function useSwapCallback(
         error,
       }
     }
-  }, [account, library, swapContract, deiAmount, bdeiAmount, slippage, deadlineValue])
+  }, [account, library, swapContract, outputAmount, positions, inputAmount, slippage, deadlineValue])
 
   return useMemo(() => {
-    if (!account || !chainId || !library || !swapContract || !bdeiCurrency || !deiCurrency || !deiAmount) {
+    if (!account || !chainId || !library || !swapContract || !inputCurrency || !outputCurrency || !outputAmount) {
       return {
-        state: RedeemCallbackState.INVALID,
+        state: TransactionCallbackState.INVALID,
         callback: null,
         error: 'Missing dependencies',
       }
     }
-    if (!bdeiAmount || !deiAmount) {
+    if (!inputAmount || !outputAmount) {
       return {
-        state: RedeemCallbackState.INVALID,
+        state: TransactionCallbackState.INVALID,
         callback: null,
         error: 'No amount provided',
       }
     }
 
     return {
-      state: RedeemCallbackState.VALID,
+      state: TransactionCallbackState.VALID,
       error: null,
       callback: async function onSwap(): Promise<string> {
         console.log('onSwap callback')
@@ -132,7 +142,9 @@ export default function useSwapCallback(
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const summary = `Swap ${bdeiAmount?.toSignificant()} bDEI for ${deiAmount?.toSignificant()} DEI`
+            const summary = `Swap ${inputAmount?.toSignificant()} ${
+              inputCurrency?.symbol
+            } for ${outputAmount?.toSignificant()} ${outputCurrency?.symbol}`
             addTransaction(response, { summary })
 
             return response.hash
@@ -156,9 +168,9 @@ export default function useSwapCallback(
     addTransaction,
     constructCall,
     swapContract,
-    bdeiCurrency,
-    deiCurrency,
-    bdeiAmount,
-    deiAmount,
+    inputCurrency,
+    outputCurrency,
+    inputAmount,
+    outputAmount,
   ])
 }

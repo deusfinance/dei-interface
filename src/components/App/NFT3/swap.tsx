@@ -2,22 +2,23 @@ import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { ArrowDown } from 'react-feather'
 
+import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
+import { StablePools } from 'constants/sPools'
+import { tryParseAmount } from 'utils/parse'
+
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import useDebounce from 'hooks/useDebounce'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import useSwapCallback from 'hooks/useSwapCallback_nft'
-import { useSwapAmountsOut } from 'hooks/useSwapPage_nft'
-import { tryParseAmount } from 'utils/parse'
+import useSwapCallback from 'hooks/useSwapCallback'
+import { useSwapAmountsOut } from 'hooks/useSwapPage'
 
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import InputBox from 'components/App/Redemption/InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-import { SwapFlashLoan2 } from 'constants/addresses'
-import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 
 const Container = styled.div`
   display: flex;
@@ -59,8 +60,12 @@ export default function SwapPage() {
   const [inputCurrency, setInputCurrency] = useState(DEUS_TOKEN)
   const [outputCurrency, setOutputCurrency] = useState(VDEUS_TOKEN)
 
+  //get stable pool info
+  const pool = StablePools[1]
   const inputBalance = useCurrencyBalance(account ?? undefined, inputCurrency)
-  const { amountOut } = useSwapAmountsOut(debouncedAmountIn, outputCurrency)
+
+  //todo fix me in dei bond
+  const { amountOut } = useSwapAmountsOut(debouncedAmountIn, inputCurrency, outputCurrency, pool)
 
   // Amount typed in either fields
   const inputAmount = useMemo(() => {
@@ -80,11 +85,11 @@ export default function SwapPage() {
     state: swapCallbackState,
     callback: swapCallback,
     error: swapCallbackError,
-  } = useSwapCallback(inputCurrency, outputCurrency, inputAmount, outputAmount, slippage, 20)
+  } = useSwapCallback(inputCurrency, outputCurrency, inputAmount, outputAmount, pool, slippage, 20)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? SwapFlashLoan2[chainId] : undefined), [chainId])
+  const spender = useMemo(() => (chainId && pool ? pool.swapFlashLoan : undefined), [chainId, pool])
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = inputCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn

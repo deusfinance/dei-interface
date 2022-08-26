@@ -1,25 +1,25 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
+import { ArrowDown } from 'react-feather'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
+import useDebounce from 'hooks/useDebounce'
+import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
+import useManageLiquidity from 'hooks/useLiquidityCallback'
+
 import { tryParseAmount } from 'utils/parse'
+import { StablePools } from 'constants/sPools'
+import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import InputBox from 'components/App/Redemption/InputBox'
-import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
-import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
-import useManageLiquidity from 'hooks/useLiquidityCallback'
-import { StablePools2 } from 'constants/sPools'
-import { ActionTypes } from 'components/StableCoin2'
-import { ActionSetter } from 'components/StableCoin2'
+import { ActionTypes, ActionSetter } from 'components/StableCoin2'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
-import useDebounce from 'hooks/useDebounce'
-import { ArrowDown } from 'react-feather'
 
 const Wrapper = styled.div`
   display: flex;
@@ -69,20 +69,18 @@ export default function LiquidityPool() {
   const [slippage, setSlippage] = useState(0.5)
   const deusCurrency = DEUS_TOKEN
   const vdeusCurrency = VDEUS_TOKEN
-  const isVoucher = true
 
-  const pool = StablePools2[0]
+  const pool = StablePools[1]
   const lpCurrency = pool.lpToken
   const deusCurrencyBalance = useCurrencyBalance(account ?? undefined, deusCurrency)
   const vdeusCurrencyBalance = useCurrencyBalance(account ?? undefined, vdeusCurrency)
-  const lpCurrencyBalance = useCurrencyBalance(account ?? undefined, lpCurrency)
 
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const debouncedAmountIn2 = useDebounce(amountIn2, 500)
   const debouncedLPAmountIn = useDebounce(lpAmountIn, 500)
 
-  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn, isVoucher)
-  const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2], isVoucher).toString()
+  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn)
+  const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2]).toString()
 
   const deusAmount = useMemo(() => {
     return tryParseAmount(amountIn, deusCurrency || undefined)
@@ -108,8 +106,7 @@ export default function LiquidityPool() {
     pool,
     slippage,
     20,
-    isRemove,
-    isVoucher
+    isRemove
   )
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)

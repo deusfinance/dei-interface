@@ -32,6 +32,10 @@ const Wrapper = styled.div`
   border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
 
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    margin-left: 20px;
+  `}
+
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     width: 340px;
   `}

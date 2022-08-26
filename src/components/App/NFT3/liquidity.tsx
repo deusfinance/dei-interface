@@ -9,7 +9,7 @@ const TopWrapper = styled.div`
   align-items: flex-start;
   margin: auto;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
     min-width: 460px;
     flex-direction: column;
   `}

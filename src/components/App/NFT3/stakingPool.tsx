@@ -33,7 +33,6 @@ const Container = styled.div`
 `
 
 const Wrapper = styled(Container)`
-  margin: 0 auto;
   margin-top: 50px;
   width: clamp(250px, 90%, 500px);
   background-color: rgb(13 13 13);
@@ -41,6 +40,10 @@ const Wrapper = styled(Container)`
   border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
   justify-content: center;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width: 340px;
+  `}
 `
 
 const DepositButton = styled(PrimaryButton)`

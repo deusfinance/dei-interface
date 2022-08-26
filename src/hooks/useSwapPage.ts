@@ -4,33 +4,46 @@ import { formatUnits } from '@ethersproject/units'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { BN_TEN, toBN } from 'utils/numbers'
-import { useDeiSwapContract } from 'hooks/useContract'
+import { useStablePoolContract } from 'hooks/useContract'
+import { getTokenIndex, StablePoolType } from 'constants/sPools'
 
 export function useSwapAmountsOut(
   amountIn: string,
-  tokenIn: Token
+  tokenIn: Token,
+  tokenOut: Token,
+  pool: StablePoolType
 ): {
   amountOut: string
 } {
   const amountInBN = amountIn ? toBN(amountIn).times(BN_TEN.pow(tokenIn.decimals)).toFixed(0) : ''
-  const contract = useDeiSwapContract()
+  const contract = useStablePoolContract(pool)
+
+  const [inputIndex, outputIndex] = useMemo(() => {
+    return [getTokenIndex(tokenIn.address, pool), getTokenIndex(tokenOut.address, pool)]
+  }, [tokenIn, tokenOut, pool])
+
+  const positions = useMemo(() => {
+    if (inputIndex !== null && outputIndex !== null) return [inputIndex, outputIndex]
+    return null
+  }, [inputIndex, outputIndex])
 
   const amountOutCall = useMemo(
     () =>
-      !amountInBN || amountInBN == '' || amountInBN == '0'
+      !amountInBN || amountInBN == '' || amountInBN == '0' || !positions
         ? []
         : [
             {
               methodName: 'calculateSwap',
-              callInputs: [1, 0, amountInBN],
+              callInputs: [...positions, amountInBN],
             },
           ],
-    [amountInBN]
+    [amountInBN, positions]
   )
 
-  const [bdeiSwap] = useSingleContractMultipleMethods(contract, amountOutCall)
+  const [result] = useSingleContractMultipleMethods(contract, amountOutCall)
 
-  const amountOut = !bdeiSwap || !bdeiSwap.result ? '' : toBN(formatUnits(bdeiSwap.result[0].toString(), 18)).toString()
+  const amountOut =
+    !result || !result.result ? '' : toBN(formatUnits(result.result[0].toString(), tokenOut.decimals)).toString()
 
   return {
     amountOut,

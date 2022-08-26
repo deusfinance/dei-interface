@@ -16,9 +16,10 @@ import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import InputBox from 'components/App/Redemption/InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-import { SwapFlashLoan } from 'constants/addresses'
+import { StablePool_DEI_bDEI } from 'constants/addresses'
 import { BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
 import { NavigationTypes } from 'components/StableCoin'
+import { StablePools } from 'constants/sPools'
 
 const Container = styled.div`
   display: flex;
@@ -59,7 +60,8 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
   const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
   const bDeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
-  const { amountOut } = useSwapAmountsOut(debouncedAmountIn, deiCurrency)
+  const pool = StablePools[0]
+  const { amountOut } = useSwapAmountsOut(debouncedAmountIn, bdeiCurrency, deiCurrency, pool)
 
   // Amount typed in either fields
   const bdeiAmount = useMemo(() => {
@@ -79,11 +81,11 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
     state: swapCallbackState,
     callback: swapCallback,
     error: swapCallbackError,
-  } = useSwapCallback(bdeiCurrency, deiCurrency, bdeiAmount, deiAmount, slippage, 20)
+  } = useSwapCallback(bdeiCurrency, deiCurrency, bdeiAmount, deiAmount, pool, slippage, 20)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? SwapFlashLoan[chainId] : undefined), [chainId])
+  const spender = useMemo(() => (chainId ? StablePool_DEI_bDEI[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(bdeiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = bdeiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn

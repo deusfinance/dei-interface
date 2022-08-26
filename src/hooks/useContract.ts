@@ -34,6 +34,7 @@ import VDEUS_STAKING_ABI from 'constants/abi/VDEUS_STAKING.json'
 import MULTI_REWARDER_ABI from 'constants/abi/MultiRewarder.json'
 import VDEUS_MIGRATOR_ABI from 'constants/abi/VDEUS_MIGRATOR.json'
 
+import { StablePoolType } from 'constants/sPools'
 import { Providers } from 'constants/providers'
 import {
   LenderManager,
@@ -48,7 +49,6 @@ import {
   DynamicRedeemer,
   DeiBonder,
   veDist,
-  SwapFlashLoan,
   MasterChefV2,
   MasterChefV3,
   vDeus,
@@ -57,7 +57,6 @@ import {
   vDeusMasterChefV2ReadOnly,
   MultiRewarder,
   Migrator,
-  SwapFlashLoan2,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -213,15 +212,8 @@ export function useDeiBonderContract() {
   return useContract(address, DEI_BONDER_ABI)
 }
 
-export function useDeiSwapContract() {
-  const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? SwapFlashLoan[chainId] : undefined), [chainId])
-  return useContract(address, SWAP_ABI)
-}
-
-export function useDeiSwapContract2() {
-  const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? SwapFlashLoan2[chainId] : undefined), [chainId])
+export function useStablePoolContract(pool: StablePoolType) {
+  const address = useMemo(() => (pool ? pool.swapFlashLoan : undefined), [pool])
   return useContract(address, SWAP_ABI)
 }
 

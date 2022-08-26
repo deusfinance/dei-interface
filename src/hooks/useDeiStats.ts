@@ -1,5 +1,5 @@
 import { formatUnits } from '@ethersproject/units'
-import { ProtocolHoldings1, ProtocolHoldings2, SwapFlashLoan, USDCReserves1, USDCReserves2 } from 'constants/addresses'
+import { ProtocolHoldings1, ProtocolHoldings2, DB_Pool, USDCReserves1, USDCReserves2 } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
 import { BDEI_TOKEN, DEI_TOKEN, USDC_TOKEN } from 'constants/tokens'
 import { useMemo } from 'react'
@@ -29,7 +29,7 @@ export function useDeiStats(): {
   const protocolHoldings2Address = ProtocolHoldings2[SupportedChainId.FANTOM]
   const usdcReserves1Address = USDCReserves1[SupportedChainId.FANTOM]
   const usdcReserves2Address = USDCReserves2[SupportedChainId.FANTOM]
-  const sPoolAddress = SwapFlashLoan[SupportedChainId.FANTOM]
+  const sPoolAddress = DB_Pool[SupportedChainId.FANTOM]
 
   const calls = !deiContract
     ? []

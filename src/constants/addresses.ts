@@ -134,7 +134,8 @@ export const DeiBonder: AddressMap = {
   [SupportedChainId.FANTOM]: '0x958C24d5cDF94fAF47cF4d66400Af598Dedc6e62',
 }
 
-export const SwapFlashLoan: AddressMap = {
+// bDEI-DEI pool
+export const DB_Pool: AddressMap = {
   [SupportedChainId.FANTOM]: '0x9caC3CE5D8327aa5AF54b1b4e99785F991885Bf3',
 }
 
@@ -146,8 +147,8 @@ export const MasterChefV3: AddressMap = {
   [SupportedChainId.FANTOM]: '0x62ad8dE6740314677F06723a7A07797aE5082Dbb',
 }
 
-// Pool vdeus<>deus
-export const SwapFlashLoan2: AddressMap = {
+// vDEUS-DEUS pool
+export const DV_Pool: AddressMap = {
   [SupportedChainId.FANTOM]: '0x39533295424F1dB73eBB6eDCD9660678539C7b18',
 }
 

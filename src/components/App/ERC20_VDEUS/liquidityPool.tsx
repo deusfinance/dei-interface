@@ -14,9 +14,8 @@ import InputBox from 'components/App/Redemption/InputBox'
 import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
 import useManageLiquidity from 'hooks/useLiquidityCallback'
-import { StablePools2 } from 'constants/sPools'
-import { ActionTypes } from 'components/StableCoin2'
-import { ActionSetter } from 'components/StableCoin2'
+import { VDeusLiquidityPools } from 'constants/sPools'
+import { ActionTypes, ActionSetter } from 'components/Liquidity'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import useDebounce from 'hooks/useDebounce'
 import { ArrowDown } from 'react-feather'
@@ -69,20 +68,20 @@ export default function LiquidityPool() {
   const [slippage, setSlippage] = useState(0.5)
   const deusCurrency = DEUS_TOKEN
   const vdeusCurrency = VDEUS_TOKEN
-  const isVoucher = true
+  const isERC20 = true
 
-  const pool = StablePools2[0]
+  const pool = VDeusLiquidityPools[0]
   const lpCurrency = pool.lpToken
   const deusCurrencyBalance = useCurrencyBalance(account ?? undefined, deusCurrency)
   const vdeusCurrencyBalance = useCurrencyBalance(account ?? undefined, vdeusCurrency)
-  const lpCurrencyBalance = useCurrencyBalance(account ?? undefined, lpCurrency)
+  // const lpCurrencyBalance = useCurrencyBalance(account ?? undefined, lpCurrency)
 
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const debouncedAmountIn2 = useDebounce(amountIn2, 500)
   const debouncedLPAmountIn = useDebounce(lpAmountIn, 500)
 
-  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn, isVoucher)
-  const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2], isVoucher).toString()
+  const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn, isERC20)
+  const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2], isERC20).toString()
 
   const deusAmount = useMemo(() => {
     return tryParseAmount(amountIn, deusCurrency || undefined)
@@ -109,12 +108,12 @@ export default function LiquidityPool() {
     slippage,
     20,
     isRemove,
-    isVoucher
+    isERC20
   )
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
   const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState(false)
-  const spender = useMemo(() => (chainId ? pool.swapFlashLoan : undefined), [chainId, pool])
+  const spender = useMemo(() => (chainId ? pool.DB_Pool : undefined), [chainId, pool])
 
   const [approvalState, approveCallback] = useApproveCallback(vdeusCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
@@ -190,26 +189,23 @@ export default function LiquidityPool() {
         </DepositButton>
       )
     }
-    if (showApprove && type === 'add') {
+    if (showApprove && type === 'add')
       return <DepositButton onClick={handleApprove}>Allow us to spend {vdeusCurrency?.symbol}</DepositButton>
-    } else if (showApprove2 && type === 'add') {
+    else if (showApprove2 && type === 'add')
       return <DepositButton onClick={handleApprove2}>Allow us to spend {deusCurrency?.symbol}</DepositButton>
-    } else if (showApprove3 && type === 'remove') {
+    else if (showApprove3 && type === 'remove')
       return <DepositButton onClick={handleApprove3}>Allow us to spend {lpCurrency?.symbol}</DepositButton>
-    }
+
     return null
   }
 
   function getActionButton(type: string): JSX.Element | null {
-    if (!chainId || !account || !type) {
-      return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
-    } else if ((showApprove || showApprove2) && type === 'add') {
-      return null
-    } else if (showApprove3 && type === 'remove') {
-      return null
-    } else if (insufficientBalance) {
+    if (!chainId || !account || !type) return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
+    else if ((showApprove || showApprove2) && type === 'add') return null
+    else if (showApprove3 && type === 'remove') return null
+    else if (insufficientBalance)
       return <DepositButton disabled>Insufficient {deusCurrency?.symbol} Balance</DepositButton>
-    } else if (awaitingLiquidityConfirmation) {
+    else if (awaitingLiquidityConfirmation) {
       return (
         <DepositButton>
           {type === 'add' ? 'Depositing DEUS/vDEUS' : 'Withdrawing DEUS/vDEUS'}
@@ -288,6 +284,7 @@ export default function LiquidityPool() {
         <ToggleState>
           <ActionSetter selected={selected} setSelected={setSelected} />
         </ToggleState>
+
         {getAppComponent()}
         <AdvancedOptionsWrap>
           <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />

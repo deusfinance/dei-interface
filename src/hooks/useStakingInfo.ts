@@ -55,46 +55,17 @@ export function useGlobalMasterChefData(): {
 }
 
 //TODO: depositAmount should consider decimals of token
-export function useUserInfo(pid: number): {
+export function useUserInfo(
+  pid: number,
+  isERC20?: boolean
+): {
   depositAmount: number
   rewardsAmount: number
 } {
-  const contract = useMasterChefV2Contract()
-  const { account } = useWeb3React()
-  const calls = !account
-    ? []
-    : [
-        {
-          methodName: 'userInfo',
-          callInputs: [pid.toString(), account],
-        },
-        {
-          methodName: 'pendingTokens',
-          callInputs: [pid.toString(), account],
-        },
-      ]
+  const contract_V2 = useMasterChefV2Contract()
+  const contract_V3 = useMasterChefV3Contract()
+  const contract = isERC20 ? contract_V3 : contract_V2
 
-  const [userInfo, pendingTokens] = useSingleContractMultipleMethods(contract, calls)
-
-  const { depositedValue, reward } = useMemo(() => {
-    return {
-      depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0], 18)).toNumber() : 0,
-      reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0,
-    }
-  }, [userInfo, pendingTokens])
-
-  return {
-    depositAmount: depositedValue,
-    rewardsAmount: reward,
-  }
-}
-
-//TODO: depositAmount should consider decimals of token
-export function useUserInfo2(pid: number): {
-  depositAmount: number
-  rewardsAmount: number
-} {
-  const contract = useMasterChefV3Contract()
   const { account } = useWeb3React()
   const calls = !account
     ? []

@@ -20,7 +20,7 @@ export const VDEUS_TOKEN = new Token(
 
 export const DEI_BDEI_LP_TOKEN = new Token(
   SupportedChainId.FANTOM,
-  '0xdce9ec1eb454829b6fe0f54f504fef3c3c0642fc',
+  '0xDce9EC1eB454829B6fe0f54F504FEF3c3C0642Fc',
   18,
   'DB-LP',
   'DB-LP'

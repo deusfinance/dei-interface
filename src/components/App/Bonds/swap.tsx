@@ -16,7 +16,7 @@ import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import InputBox from 'components/App/Redemption/InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-import { SwapFlashLoan } from 'constants/addresses'
+import { DB_Pool } from 'constants/addresses'
 import { BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
 import { NavigationTypes } from 'components/StableCoin'
 
@@ -83,7 +83,7 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? SwapFlashLoan[chainId] : undefined), [chainId])
+  const spender = useMemo(() => (chainId ? DB_Pool[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(bdeiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = bdeiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn

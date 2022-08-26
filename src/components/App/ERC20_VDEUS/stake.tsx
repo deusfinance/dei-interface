@@ -9,11 +9,11 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useMasterChefV3Contract } from 'hooks/useContract'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 // import { useGetApr } from 'hooks/useVDeusStaking'
-import { useUserInfo2 } from 'hooks/useStakingInfo'
+import { useUserInfo } from 'hooks/useStakingInfo'
 
 import { DefaultHandlerError } from 'utils/parseError'
 import { formatAmount, toBN } from 'utils/numbers'
-import { StakingPools2 } from 'constants/stakings'
+import { VDeusStakingPools } from 'constants/stakings'
 import { MasterChefV3 } from 'constants/addresses'
 
 import { VDEUS_TOKEN } from 'constants/tokens'
@@ -139,7 +139,7 @@ const AmountSpan = styled.span`
 export default function Stake() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const { token: currency, pid } = StakingPools2[0]
+  const { token: currency, pid } = VDeusStakingPools[0]
 
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
@@ -149,9 +149,9 @@ export default function Stake() {
 
   const addTransaction = useTransactionAdder()
   // const [pendingTxHash, setPendingTxHash] = useState('')
-  //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
+  // const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const { rewardsAmount, depositAmount } = useUserInfo2(pid)
+  const { rewardsAmount, depositAmount } = useUserInfo(pid, true)
   const apr = 25 // useGetApr(pid)
 
   const currencyAmount = useMemo(() => {
@@ -295,8 +295,7 @@ export default function Stake() {
           </ClaimButton>
         </ClaimButtonWrapper>
       )
-    }
-    if (rewardsAmount <= 0) {
+    } else if (rewardsAmount <= 0) {
       return (
         <ClaimButtonWrapper>
           <ClaimButton disabled={true}>

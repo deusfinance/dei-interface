@@ -17,8 +17,8 @@ import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
 import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
 import useManageLiquidity from 'hooks/useLiquidityCallback'
 import { StablePools } from 'constants/sPools'
-import { ActionTypes } from 'components/StableCoin2'
-import { ActionSetter } from 'components/StableCoin2'
+import { ActionTypes } from 'components/Liquidity'
+import { ActionSetter } from 'components/Liquidity'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import useDebounce from 'hooks/useDebounce'
 import { ArrowDown } from 'react-feather'
@@ -162,7 +162,7 @@ export default function Liquidity() {
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? pool.swapFlashLoan : undefined), [chainId, pool])
+  const spender = useMemo(() => (chainId ? pool.DB_Pool : undefined), [chainId, pool])
 
   const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {

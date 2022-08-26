@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
-import { useDeiSwapContract2 } from 'hooks/useContract'
+import { useVDeusSwapContract } from 'hooks/useContract'
 import { calculateGasMargin } from 'utils/web3'
 import { toHex } from 'utils/hex'
 import { DefaultHandlerError } from 'utils/parseError'
@@ -30,7 +30,7 @@ export default function useSwapCallback(
 } {
   const { account, chainId, library } = useWeb3React()
   const addTransaction = useTransactionAdder()
-  const swapContract = useDeiSwapContract2()
+  const swapContract = useVDeusSwapContract()
   const deadlineValue = Math.round(new Date().getTime() / 1000 + 60 * deadline)
 
   const constructCall = useCallback(() => {

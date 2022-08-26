@@ -33,18 +33,18 @@ export const StakingPools: StakingType[] = [
   },
 ]
 
-export const StakingPools2: StakingType[] = [
+export const VDeusStakingPools: StakingType[] = [
   {
-    name: 'single vDEUS(erc20)',
+    name: 'vDEUS(ERC20)',
     pid: 0,
     token: VDEUS_TOKEN,
-    provideLink: '/nft',
+    provideLink: '/vdeus/new',
   },
   {
     name: 'DEUS-vDEUS',
     pid: 1,
     token: DEUS_VDEUS_LP_TOKEN,
-    provideLink: '/nft',
+    provideLink: '/vdeus/new',
   },
 ]
 

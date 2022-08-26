@@ -220,8 +220,6 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
     return poolStaked.filter((pid) => pid >= 0).map((id) => vDeusStats.listOfStakedVouchers[id])
   }, [vDeusStats, pool])
 
-  // console.log({ listOfVouchers })
-
   const numberOfVouchers = useMemo(() => {
     return listOfVouchers.length
   }, [listOfVouchers])

@@ -3,11 +3,11 @@ import styled from 'styled-components'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import { Navigation, NavigationTypes } from 'components/StableCoin3'
-import Migrate from 'components/App/NFT3/migrate'
-import Stake from 'components/App/NFT3/stake'
-import Swap from 'components/App/NFT3/swap'
-import Liquidity from 'components/App/NFT3/liquidity'
+import { Navigation, NavigationTypes } from 'components/NavigationTabs_VDEUS'
+import Migrate from 'components/App/ERC20_VDEUS/migrate'
+import Stake from 'components/App/ERC20_VDEUS/stake'
+import Swap from 'components/App/ERC20_VDEUS/swap'
+import Liquidity from 'components/App/ERC20_VDEUS/liquidity'
 
 const Container = styled.div`
   display: flex;

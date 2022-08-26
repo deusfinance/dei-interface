@@ -8,15 +8,15 @@ import useWeb3React from 'hooks/useWeb3'
 import useDebounce from 'hooks/useDebounce'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import useSwapCallback from 'hooks/useSwapCallback_nft'
-import { useSwapAmountsOut } from 'hooks/useSwapPage_nft'
+import useSwapCallback from 'hooks/useSwapCallback_VDEUS'
+import { useSwapAmountsOut } from 'hooks/useSwapPage_VDEUS'
 import { tryParseAmount } from 'utils/parse'
 
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import InputBox from 'components/App/Redemption/InputBox'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
-import { SwapFlashLoan2 } from 'constants/addresses'
+import { DV_Pool } from 'constants/addresses'
 import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 
 const Container = styled.div`
@@ -84,7 +84,7 @@ export default function SwapPage() {
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? SwapFlashLoan2[chainId] : undefined), [chainId])
+  const spender = useMemo(() => (chainId ? DV_Pool[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = inputCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn

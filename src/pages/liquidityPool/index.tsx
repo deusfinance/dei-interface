@@ -17,8 +17,7 @@ import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
 import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
 import useManageLiquidity from 'hooks/useLiquidityCallback'
 import { StablePools } from 'constants/sPools'
-import { ActionTypes } from 'components/StableCoin2'
-import { ActionSetter } from 'components/StableCoin2'
+import { ActionTypes, ActionSetter } from 'components/Liquidity'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import useDebounce from 'hooks/useDebounce'
 import { ArrowDown } from 'react-feather'
@@ -81,20 +80,8 @@ const ToggleState = styled.div`
   width: clamp(250px, 90%, 500px);
 `
 
-const StateButton = styled.div`
-  width: 50%;
-  text-align: center;
-  padding: 12px;
-  cursor: pointer;
-`
-
 const DepositButton = styled(PrimaryButton)`
   border-radius: 15px;
-`
-
-const LeftTitle = styled.span`
-  font-size: 24px;
-  font-weight: 500;
 `
 
 export default function LiquidityPool() {
@@ -113,7 +100,7 @@ export default function LiquidityPool() {
   const lpCurrency = pool.lpToken
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
   const bdeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
-  const lpCurrencyBalance = useCurrencyBalance(account ?? undefined, lpCurrency)
+  // const lpCurrencyBalance = useCurrencyBalance(account ?? undefined, lpCurrency)
 
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const debouncedAmountIn2 = useDebounce(amountIn2, 500)
@@ -152,7 +139,7 @@ export default function LiquidityPool() {
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingLiquidityConfirmation, setAwaitingLiquidityConfirmation] = useState<boolean>(false)
-  const spender = useMemo(() => (chainId ? pool.swapFlashLoan : undefined), [chainId, pool])
+  const spender = useMemo(() => (chainId ? pool.DB_Pool : undefined), [chainId, pool])
 
   const [approvalState, approveCallback] = useApproveCallback(deiCurrency ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {

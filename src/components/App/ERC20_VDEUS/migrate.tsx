@@ -127,15 +127,13 @@ export default function Migrate() {
   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
       return null
-    }
-    if (awaitingApproveConfirmation) {
+    } else if (awaitingApproveConfirmation) {
       return (
         <MainButton active>
           Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
         </MainButton>
       )
-    }
-    if (showApprove) {
+    } else if (showApprove) {
       return <MainButton onClick={handleApprove}>Approve vDEUS NFT</MainButton>
     }
     return null
@@ -144,12 +142,9 @@ export default function Migrate() {
   function getActionButton(): JSX.Element | null {
     if (!chainId || !account) {
       return <MainButton onClick={toggleWalletModal}>Connect Wallet</MainButton>
-    }
-    if (showApprove) {
+    } else if (showApprove) {
       return null
-    }
-
-    if (awaitingRedeemConfirmation) {
+    } else if (awaitingRedeemConfirmation) {
       return (
         <MainButton>
           Migrating to ERC20 <DotFlashing style={{ marginLeft: '10px' }} />

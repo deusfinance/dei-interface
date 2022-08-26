@@ -48,7 +48,7 @@ import {
   DynamicRedeemer,
   DeiBonder,
   veDist,
-  SwapFlashLoan,
+  DB_Pool,
   MasterChefV2,
   MasterChefV3,
   vDeus,
@@ -57,7 +57,7 @@ import {
   vDeusMasterChefV2ReadOnly,
   MultiRewarder,
   Migrator,
-  SwapFlashLoan2,
+  DV_Pool,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -215,13 +215,13 @@ export function useDeiBonderContract() {
 
 export function useDeiSwapContract() {
   const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? SwapFlashLoan[chainId] : undefined), [chainId])
+  const address = useMemo(() => (chainId ? DB_Pool[chainId] : undefined), [chainId])
   return useContract(address, SWAP_ABI)
 }
 
-export function useDeiSwapContract2() {
+export function useVDeusSwapContract() {
   const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? SwapFlashLoan2[chainId] : undefined), [chainId])
+  const address = useMemo(() => (chainId ? DV_Pool[chainId] : undefined), [chainId])
   return useContract(address, SWAP_ABI)
 }
 

@@ -5,7 +5,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
-  /* gap: 20px; */
   margin: 0 auto;
   width: clamp(250px, 90%, 500px);
 `

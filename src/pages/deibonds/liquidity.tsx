@@ -227,14 +227,14 @@ export default function Liquidity() {
     if (awaitingApproveConfirmation) {
       return (
         <DepositButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </DepositButton>
       )
     }
     if (showApproveLoader || showApproveLoader2 || showApproveLoader3) {
       return (
         <DepositButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </DepositButton>
       )
     }
@@ -265,7 +265,7 @@ export default function Liquidity() {
       return (
         <DepositButton>
           {type === 'add' ? 'Depositing DEI/bDEI' : 'Withdrawing DEI/bDEI'}
-          <DotFlashing style={{ marginLeft: '10px' }} />
+          <DotFlashing />
         </DepositButton>
       )
     }

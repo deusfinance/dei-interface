@@ -169,7 +169,7 @@ export default function WithdrawBox() {
     } else if (awaitingWithdrawConfirmation) {
       return (
         <MainButton>
-          Withdrawing NFT{NFTCount > 1 ? 's' : ''} <DotFlashing style={{ marginLeft: '10px' }} />
+          Withdrawing NFT{NFTCount > 1 ? 's' : ''} <DotFlashing />
         </MainButton>
       )
     }

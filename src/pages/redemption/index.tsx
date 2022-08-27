@@ -150,14 +150,14 @@ export default function Redemption() {
     if (awaitingApproveConfirmation) {
       return (
         <RedeemButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </RedeemButton>
       )
     }
     if (showApproveLoader) {
       return (
         <RedeemButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </RedeemButton>
       )
     }
@@ -192,7 +192,7 @@ export default function Redemption() {
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Redeeming DEI <DotFlashing style={{ marginLeft: '10px' }} />
+          Redeeming DEI <DotFlashing />
         </RedeemButton>
       )
     }

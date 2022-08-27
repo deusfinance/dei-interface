@@ -88,8 +88,8 @@ export default function Migrate() {
 
   const { callback: migrationCallback } = useVDeusMigrationCallback(tokenIds)
 
-  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
+  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
+  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState(false)
   const spender = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
 
   const [approvalState, approveCallback] = useERC721ApproveAllCallback(chainId ? vDeus[chainId] : undefined, spender)
@@ -125,34 +125,29 @@ export default function Migrate() {
   }, [migrationCallback])
 
   function getApproveButton(): JSX.Element | null {
-    if (!isSupportedChainId || !account) {
-      return null
-    }
+    if (!isSupportedChainId || !account) return null
+
     if (awaitingApproveConfirmation) {
       return (
         <MainButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </MainButton>
       )
     }
-    if (showApprove) {
-      return <MainButton onClick={handleApprove}>Approve vDEUS NFT</MainButton>
-    }
+    if (showApprove) return <MainButton onClick={handleApprove}>Approve vDEUS NFT</MainButton>
+
     return null
   }
 
   function getActionButton(): JSX.Element | null {
-    if (!chainId || !account) {
-      return <MainButton onClick={toggleWalletModal}>Connect Wallet</MainButton>
-    }
-    if (showApprove) {
-      return null
-    }
+    if (!chainId || !account) return <MainButton onClick={toggleWalletModal}>Connect Wallet</MainButton>
+
+    if (showApprove) return null
 
     if (awaitingRedeemConfirmation) {
       return (
         <MainButton>
-          Migrating to ERC20 <DotFlashing style={{ marginLeft: '10px' }} />
+          Migrating to ERC20 <DotFlashing />
         </MainButton>
       )
     }

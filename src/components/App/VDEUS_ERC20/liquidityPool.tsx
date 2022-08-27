@@ -170,50 +170,52 @@ export default function LiquidityPool() {
   }, [liquidityCallbackState, liquidityCallback, liquidityCallbackError])
 
   function getApproveButton(type: string): JSX.Element | null {
-    if (!isSupportedChainId || !account || !type) {
-      return null
-    }
+    if (!isSupportedChainId || !account || !type) return null
+
     if (awaitingApproveConfirmation) {
       return (
         <DepositButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </DepositButton>
       )
     }
     if (showApproveLoader || showApproveLoader2 || showApproveLoader3) {
       return (
         <DepositButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </DepositButton>
       )
     }
-    if (showApprove && type === 'add') {
+    if (showApprove && type === 'add')
       return <DepositButton onClick={handleApprove}>Allow us to spend {vdeusCurrency?.symbol}</DepositButton>
-    } else if (showApprove2 && type === 'add') {
+
+    if (showApprove2 && type === 'add')
       return <DepositButton onClick={handleApprove2}>Allow us to spend {deusCurrency?.symbol}</DepositButton>
-    } else if (showApprove3 && type === 'remove') {
+
+    if (showApprove3 && type === 'remove')
       return <DepositButton onClick={handleApprove3}>Allow us to spend {lpCurrency?.symbol}</DepositButton>
-    }
+
     return null
   }
 
   function getActionButton(type: string): JSX.Element | null {
-    if (!chainId || !account || !type) {
-      return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
-    } else if ((showApprove || showApprove2) && type === 'add') {
-      return null
-    } else if (showApprove3 && type === 'remove') {
-      return null
-    } else if (insufficientBalance) {
-      return <DepositButton disabled>Insufficient {deusCurrency?.symbol} Balance</DepositButton>
-    } else if (awaitingLiquidityConfirmation) {
+    if (!chainId || !account || !type) return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
+
+    if ((showApprove || showApprove2) && type === 'add') return null
+
+    if (showApprove3 && type === 'remove') return null
+
+    if (insufficientBalance) return <DepositButton disabled>Insufficient {deusCurrency?.symbol} Balance</DepositButton>
+
+    if (awaitingLiquidityConfirmation) {
       return (
         <DepositButton>
           {type === 'add' ? 'Depositing DEUS/vDEUS' : 'Withdrawing DEUS/vDEUS'}
-          <DotFlashing style={{ marginLeft: '10px' }} />
+          <DotFlashing />
         </DepositButton>
       )
     }
+
     return <DepositButton onClick={() => handleLiquidity()}>{type === 'add' ? 'Deposit' : 'Withdraw'}</DepositButton>
   }
 

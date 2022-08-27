@@ -235,43 +235,43 @@ export default function Stake() {
   }, [masterChefContract, addTransaction, pid, account, isSupportedChainId, amountIn])
 
   function getApproveButton(): JSX.Element | null {
-    if (!isSupportedChainId || !account) {
-      return null
-    } else if (awaitingApproveConfirmation) {
+    if (!isSupportedChainId || !account) return null
+
+    if (awaitingApproveConfirmation) {
       return (
         <DepositButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </DepositButton>
       )
-    } else if (showApproveLoader) {
+    }
+    if (showApproveLoader) {
       return (
         <DepositButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </DepositButton>
       )
-    } else if (showApprove) {
+    }
+    if (showApprove) {
       return <DepositButton onClick={handleApprove}>Allow us to spend {currency?.symbol}</DepositButton>
     }
     return null
   }
 
   function getActionButton(): JSX.Element | null {
-    if (!chainId || !account) {
-      return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
-    } else if (showApprove) {
-      return null
-    } else if (insufficientBalance && selected === NavigationTypes.STAKE) {
+    if (!chainId || !account) return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
+    else if (showApprove) return null
+    else if (insufficientBalance && selected === NavigationTypes.STAKE)
       return <DepositButton disabled>Insufficient {currency?.symbol} Balance</DepositButton>
-    } else if (awaitingDepositConfirmation) {
+    else if (awaitingDepositConfirmation) {
       return (
         <DepositButton>
-          Staking <DotFlashing style={{ marginLeft: '10px' }} />
+          Staking <DotFlashing />
         </DepositButton>
       )
     } else if (awaitingWithdrawConfirmation) {
       return (
         <DepositButton>
-          Unstaking <DotFlashing style={{ marginLeft: '10px' }} />
+          Unstaking <DotFlashing />
         </DepositButton>
       )
     } else {
@@ -290,7 +290,7 @@ export default function Stake() {
           <ClaimButton disabled={true}>
             <ButtonText>
               Claim
-              <DotFlashing style={{ marginLeft: '10px' }} />
+              <DotFlashing />
             </ButtonText>
           </ClaimButton>
         </ClaimButtonWrapper>

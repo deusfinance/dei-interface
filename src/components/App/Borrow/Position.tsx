@@ -118,7 +118,7 @@ export default function Position({ pool }: { pool: BorrowPool }) {
     if (awaitingClaimConfirmation) {
       return (
         <StyledPrimaryButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </StyledPrimaryButton>
       )
     }

@@ -121,37 +121,39 @@ export default function SwapPage() {
   }, [swapCallbackState, swapCallback, swapCallbackError])
 
   function getApproveButton(): JSX.Element | null {
-    if (!isSupportedChainId || !account) {
-      return null
-    } else if (awaitingApproveConfirmation) {
+    if (!isSupportedChainId || !account) return null
+
+    if (awaitingApproveConfirmation) {
       return (
         <RedeemButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </RedeemButton>
       )
-    } else if (showApproveLoader) {
+    }
+    if (showApproveLoader) {
       return (
         <RedeemButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </RedeemButton>
       )
-    } else if (showApprove) {
+    }
+    if (showApprove) {
       return <RedeemButton onClick={handleApprove}>Allow us to spend {inputCurrency?.symbol}</RedeemButton>
     }
     return null
   }
 
   function getActionButton(): JSX.Element | null {
-    if (!chainId || !account) {
-      return <RedeemButton onClick={toggleWalletModal}>Connect Wallet</RedeemButton>
-    } else if (showApprove) {
-      return null
-    } else if (insufficientBalance) {
-      return <RedeemButton disabled>Insufficient {inputCurrency?.symbol} Balance</RedeemButton>
-    } else if (awaitingRedeemConfirmation) {
+    if (!chainId || !account) return <RedeemButton onClick={toggleWalletModal}>Connect Wallet</RedeemButton>
+
+    if (showApprove) return null
+
+    if (insufficientBalance) return <RedeemButton disabled>Insufficient {inputCurrency?.symbol} Balance</RedeemButton>
+
+    if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Swapping <DotFlashing style={{ marginLeft: '10px' }} />
+          Swapping <DotFlashing />
         </RedeemButton>
       )
     }
@@ -159,36 +161,34 @@ export default function SwapPage() {
   }
 
   return (
-    <>
-      <Wrapper>
-        <InputBox
-          currency={inputCurrency}
-          value={amountIn}
-          onChange={(value: string) => setAmountIn(value)}
-          title={'From'}
-          disable_vdeus
-        />
-        <ArrowDown
-          style={{ cursor: 'pointer' }}
-          onClick={() => {
-            setInputCurrency(outputCurrency)
-            setOutputCurrency(inputCurrency)
-          }}
-        />
+    <Wrapper>
+      <InputBox
+        currency={inputCurrency}
+        value={amountIn}
+        onChange={(value: string) => setAmountIn(value)}
+        title={'From'}
+        disable_vdeus
+      />
+      <ArrowDown
+        style={{ cursor: 'pointer' }}
+        onClick={() => {
+          setInputCurrency(outputCurrency)
+          setOutputCurrency(inputCurrency)
+        }}
+      />
 
-        <InputBox
-          currency={outputCurrency}
-          value={amountOut}
-          onChange={(value: string) => console.log(value)}
-          title={'To'}
-          disabled={true}
-          disable_vdeus
-        />
-        <div style={{ marginTop: '20px' }}></div>
-        {getApproveButton()}
-        {getActionButton()}
-        <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
-      </Wrapper>
-    </>
+      <InputBox
+        currency={outputCurrency}
+        value={amountOut}
+        onChange={(value: string) => console.log(value)}
+        title={'To'}
+        disabled={true}
+        disable_vdeus
+      />
+      <div style={{ marginTop: '20px' }}></div>
+      {getApproveButton()}
+      {getActionButton()}
+      <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
+    </Wrapper>
   )
 }

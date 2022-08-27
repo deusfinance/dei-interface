@@ -193,14 +193,14 @@ function TableRow({ nftId, reward }: { nftId: number; reward: number }) {
     if (awaitingConfirmation) {
       return (
         <PrimaryButton active>
-          Confirming <DotFlashing style={{ marginLeft: '10px' }} />
+          Confirming <DotFlashing />
         </PrimaryButton>
       )
     }
     if (showTransactionPending) {
       return (
         <PrimaryButton active>
-          Claiming <DotFlashing style={{ marginLeft: '10px' }} />
+          Claiming <DotFlashing />
         </PrimaryButton>
       )
     }

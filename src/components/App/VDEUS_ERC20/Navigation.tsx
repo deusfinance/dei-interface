@@ -9,9 +9,7 @@ const Wrapper = styled.div`
   margin-left: 30px;
 `
 
-const Item = styled.div<{
-  selected: boolean
-}>`
+const Item = styled.div<{ selected: boolean }>`
   font-size: 15px;
   transition: all 0.3s ease;
   border-bottom: 1px solid ${({ selected, theme }) => (selected ? theme.text1 : 'transparent')};

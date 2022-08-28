@@ -6,7 +6,7 @@ import { formatBalance } from 'utils/numbers'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useOwnedVDeusNfts, VDEUS_NFT } from 'hooks/useVDeusNfts'
-import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
+import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback'
 import useVDeusMigrationCallback from 'hooks/useVDeusMigrationCallback'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 

@@ -1,11 +1,10 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 
-import { useCurrencyBalance } from 'state/wallet/hooks'
+// import { useCurrencyBalance } from 'state/wallet/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import { tryParseAmount } from 'utils/parse'
 
 import { MasterChefV2 } from 'constants/addresses'
 import StakeBox from 'components/App/deiPool/StakeBox'
@@ -71,25 +70,25 @@ export default function Staking({ pool }: { pool: StakingType }) {
 
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
-  const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
+  // const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
 
   const masterChefContract = useMasterChefV2Contract()
 
   const addTransaction = useTransactionAdder()
-  const [pendingTxHash, setPendingTxHash] = useState('')
+  // const [pendingTxHash, setPendingTxHash] = useState('')
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
   const { rewardsAmount, depositAmount } = useUserInfo(pid)
   const apr = useGetApy(pid)
-  //   console.log(name, apr)
-  const currencyAmount = useMemo(() => {
-    return tryParseAmount(amountIn, currency || undefined)
-  }, [amountIn, currency])
 
-  const insufficientBalance = useMemo(() => {
-    if (!currencyAmount) return false
-    return currencyBalance?.lessThan(currencyAmount)
-  }, [currencyBalance, currencyAmount])
+  // const currencyAmount = useMemo(() => {
+  //   return tryParseAmount(amountIn, currency || undefined)
+  // }, [amountIn, currency])
+
+  // const insufficientBalance = useMemo(() => {
+  //   if (!currencyAmount) return false
+  //   return currencyBalance?.lessThan(currencyAmount)
+  // }, [currencyBalance, currencyAmount])
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)

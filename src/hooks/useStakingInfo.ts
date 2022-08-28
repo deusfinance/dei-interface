@@ -139,13 +139,15 @@ export function useGetDeusApy(pool: StablePoolType): number {
     },
   ]
   const [retrieveTokenPerBlock] = useSingleContractMultipleMethods(contract, calls)
-  const [, deusBalance] = usePoolBalances(pool)
+  const balances = usePoolBalances(pool)
+  const deusBalance = balances[1]
 
   const retrieveTokenPerBlockValue = useMemo(() => {
     return retrieveTokenPerBlock?.result ? toBN(formatUnits(retrieveTokenPerBlock.result[0], 18)).toNumber() : 0
   }, [retrieveTokenPerBlock])
 
   const totalDeposited = toBN(deusBalance).times(2).times(deusPrice).toNumber()
+  // console.log({ deusBalance })
 
   if (totalDeposited === 0) return 0
   return (retrieveTokenPerBlockValue * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) / totalDeposited
@@ -168,7 +170,7 @@ export function useGetDeusReward(pool: StablePoolType): number {
 
   const [pendingTokens] = useSingleContractMultipleMethods(contract, calls)
 
-  console.log({ pendingTokens })
+  // console.log({ pendingTokens })
 
   return useMemo(() => {
     return pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[1][0], 18)).toNumber() : 0

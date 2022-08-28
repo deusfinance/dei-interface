@@ -121,6 +121,11 @@ const YieldTitle = styled.div`
   font-family: 'IBM Plex Mono';
   word-spacing: -12px;
   margin-right: 5px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+      font-size: 20px;
+      margin-right: 2px;
+  `}
 `
 
 const TitleInfo = styled.div`
@@ -130,6 +135,11 @@ const TitleInfo = styled.div`
   justify-content: space-between;
   font-family: 'IBM Plex Mono';
   margin-bottom: 40px;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+      font-size: 20px;
+      margin-right: 2px;
+      padding: 10px;
+  `}
 `
 
 const ButtonText = styled.span`
@@ -164,7 +174,7 @@ export default function StakingPool() {
   const { rewardsAmount, depositAmount } = useUserInfo2(pid)
   const duesApr = useGetDeusApy(pool)
   const deusReward = useGetDeusReward(pool)
-  console.log({ duesApr, deusReward })
+  // console.log({ duesApr, deusReward })
   const vdeusApr = 25
   const apr = 25 + duesApr
 

@@ -159,9 +159,14 @@ export const vDeusMasterChefV2ReadOnly: AddressMap = {
   [SupportedChainId.FANTOM]: '0xD232CAaEa0ea5eF69dC298455268B32Ec818f6e6',
 }
 
-//vDEUS current Staking (proxy contract)
-export const MultiRewarder: AddressMap = {
+//vDEUS NFT Staking (proxy contract)
+export const veDEUSMultiRewarderNFT: AddressMap = {
   [SupportedChainId.FANTOM]: '0x3600afE36E2b9A8540274a3092b5e87D36D27b34',
+}
+
+//vDEUS ERC20 Staking (proxy contract)
+export const veDEUSMultiRewarderERC20: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x9909E6046A9Ca950Cd2a28071338BdcB7d33f9Cb',
 }
 
 export const vDeusStaking: AddressMap = {

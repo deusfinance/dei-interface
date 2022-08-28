@@ -7,6 +7,9 @@ import { formatUnits } from '@ethersproject/units'
 import { useDeusPrice } from './useCoingeckoPrice'
 import { MasterChefV2 } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
+import { useVDeusMultiRewarderERC20Contract } from './useContract'
+import { StablePoolType } from 'constants/sPools'
+import { usePoolBalances } from './useStablePoolInfo'
 
 //TODO: should remove all and put it in /constants
 const pids = [0, 1]
@@ -122,6 +125,54 @@ export function useUserInfo2(pid: number): {
     depositAmount: depositedValue,
     rewardsAmount: reward,
   }
+}
+
+//get deus reward apy for deus-vdeus lp pool
+export function useGetDeusApy(pool: StablePoolType): number {
+  const contract = useVDeusMultiRewarderERC20Contract()
+  const deusPrice = useDeusPrice()
+
+  const calls = [
+    {
+      methodName: 'retrieveTokenPerBlock',
+      callInputs: [pool.stakingPid, 0],
+    },
+  ]
+  const [retrieveTokenPerBlock] = useSingleContractMultipleMethods(contract, calls)
+  const [, deusBalance] = usePoolBalances(pool)
+
+  const retrieveTokenPerBlockValue = useMemo(() => {
+    return retrieveTokenPerBlock?.result ? toBN(formatUnits(retrieveTokenPerBlock.result[0], 18)).toNumber() : 0
+  }, [retrieveTokenPerBlock])
+
+  const totalDeposited = toBN(deusBalance).times(2).times(deusPrice).toNumber()
+
+  if (totalDeposited === 0) return 0
+  return (retrieveTokenPerBlockValue * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) / totalDeposited
+}
+//get deus reward for deus-vdeus lp pool user
+export function useGetDeusReward(pool: StablePoolType): number {
+  const contract = useVDeusMultiRewarderERC20Contract()
+  const { account } = useWeb3React()
+
+  const calls = useMemo(() => {
+    return !account
+      ? []
+      : [
+          {
+            methodName: 'pendingTokens',
+            callInputs: [pool.stakingPid, account],
+          },
+        ]
+  }, [pool, account])
+
+  const [pendingTokens] = useSingleContractMultipleMethods(contract, calls)
+
+  console.log({ pendingTokens })
+
+  return useMemo(() => {
+    return pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[1][0], 18)).toNumber() : 0
+  }, [pendingTokens])
 }
 
 //TODO: totalDeposited should consider decimals of token

@@ -9,21 +9,23 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useMasterChefV3Contract } from 'hooks/useContract'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 // import { useGetApr } from 'hooks/useVDeusStaking'
-import { useUserInfo2 } from 'hooks/useStakingInfo'
+import { useGetDeusApy, useUserInfo2, useGetDeusReward } from 'hooks/useStakingInfo'
 
 import { DefaultHandlerError } from 'utils/parseError'
-import { formatAmount, toBN } from 'utils/numbers'
+import { formatAmount, formatBalance, toBN } from 'utils/numbers'
 import { StakingPools2 } from 'constants/stakings'
 import { MasterChefV3 } from 'constants/addresses'
 
-import { VDEUS_TOKEN } from 'constants/tokens'
-import { Row } from 'components/Row'
+import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
+import { Row, RowEnd } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
+import { DotFlashing, Info } from 'components/Icons'
 import InputBox from '../Redemption/InputBox'
 import { tryParseAmount } from 'utils/parse'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import Navigation, { NavigationTypes } from '../Stake/Navigation'
+import { StablePools } from 'constants/sPools'
+import { ToolTip } from 'components/ToolTip'
 
 const Container = styled.div`
   display: flex;
@@ -118,6 +120,7 @@ const YieldTitle = styled.div`
   font-size: 24px;
   font-family: 'IBM Plex Mono';
   word-spacing: -12px;
+  margin-right: 5px;
 `
 
 const TitleInfo = styled.div`
@@ -139,11 +142,15 @@ const AmountSpan = styled.span`
   color: #fdb572;
 `
 
+const InfoIcon = styled(Info)`
+  color: ${({ theme }) => theme.yellow2};
+`
+
 export default function StakingPool() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const { token: currency, pid } = StakingPools2[1]
-
+  const pool = StablePools[1]
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
@@ -155,7 +162,11 @@ export default function StakingPool() {
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
   const { rewardsAmount, depositAmount } = useUserInfo2(pid)
-  const apr = 25 // useGetApr(pid)
+  const duesApr = useGetDeusApy(pool)
+  const deusReward = useGetDeusReward(pool)
+  console.log({ duesApr, deusReward })
+  const vdeusApr = 25
+  const apr = 25 + duesApr
 
   const currencyAmount = useMemo(() => {
     return tryParseAmount(amountIn, currency || undefined)
@@ -299,7 +310,7 @@ export default function StakingPool() {
         </ClaimButtonWrapper>
       )
     }
-    if (rewardsAmount <= 0) {
+    if (rewardsAmount < 0) {
       return (
         <ClaimButtonWrapper>
           <ClaimButton disabled={true}>
@@ -323,7 +334,11 @@ export default function StakingPool() {
         <SelectorContainer>
           <Navigation fontSize={'18px'} selected={selected} setSelected={setSelected} />
         </SelectorContainer>
-        <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
+        <ToolTip id="id" />
+        <RowEnd data-for="id" data-tip={`${formatBalance(duesApr, 3)}% DEUS + ${vdeusApr}% vDEUS`}>
+          <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
+          <InfoIcon size={25} />
+        </RowEnd>
       </TitleInfo>
 
       <InputBox
@@ -355,6 +370,12 @@ export default function StakingPool() {
             <span>{rewardsAmount && rewardsAmount?.toFixed(3)}</span>
             <Row style={{ marginLeft: '10px' }}>
               <span>{VDEUS_TOKEN.symbol}</span>
+            </Row>
+          </RewardData>
+          <RewardData>
+            <span>{deusReward && deusReward?.toFixed(3)}</span>
+            <Row style={{ marginLeft: '10px' }}>
+              <span>{DEUS_TOKEN.symbol}</span>
             </Row>
           </RewardData>
         </div>

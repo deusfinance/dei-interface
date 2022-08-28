@@ -1,20 +1,22 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import { toast } from 'react-hot-toast'
-import { useTransactionAdder } from 'state/transactions/hooks'
 
-import { PrimaryButton } from 'components/Button'
-import { Row, RowBetween } from 'components/Row'
-import Column from 'components/Column'
-import { NumericalInput } from 'components/Input'
-import { DotFlashing } from 'components/Icons'
+import { DefaultHandlerError } from 'utils/parseError'
+
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useStakedVDeusStats } from 'hooks/useVDeusStats'
 import { useVDeusStakingContract } from 'hooks/useContract'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { DefaultHandlerError } from 'utils/parseError'
+
 import DefaultReviewModal from 'components/ReviewModal/DefaultReviewModal'
+import { PrimaryButton } from 'components/Button'
+import { Row, RowBetween } from 'components/Row'
+import Column from 'components/Column'
+import { NumericalInput } from 'components/Input'
+import { DotFlashing } from 'components/Icons'
 
 const Container = styled.div`
   display: flex;

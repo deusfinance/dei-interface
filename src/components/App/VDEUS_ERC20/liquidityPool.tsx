@@ -10,6 +10,7 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useDebounce from 'hooks/useDebounce'
 import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
 import useManageLiquidity from 'hooks/useLiquidityCallback'
+import { toBN, BN_ZERO } from 'utils/numbers'
 
 import { tryParseAmount } from 'utils/parse'
 import { StablePools } from 'constants/sPools'
@@ -20,6 +21,7 @@ import { DotFlashing } from 'components/Icons'
 import InputBox from 'components/App/Redemption/InputBox'
 import { ActionTypes, ActionSetter } from 'components/StableCoin2'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
+import { darken } from 'polished'
 
 const Wrapper = styled.div`
   display: flex;
@@ -55,6 +57,21 @@ const AdvancedOptionsWrap = styled.div`
     margin-top: 20px !important;
     padding: 0;
   }
+`
+
+const Description = styled.div`
+  font-family: 'IBM Plex Mono';
+  font-size: 0.85rem;
+  margin-top: 15px;
+  color: ${({ theme }) => darken(0.4, theme.text1)};
+`
+
+const DescriptionMainText = styled.span`
+  /* background: -webkit-linear-gradient(90deg, #e29c53 0%, #ce4c7a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.85; */
+  color: ${({ theme }) => darken(0.2, theme.text1)};
 `
 
 export default function LiquidityPool() {
@@ -291,6 +308,15 @@ export default function LiquidityPool() {
         <AdvancedOptionsWrap>
           <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
         </AdvancedOptionsWrap>
+        {amountOut2 && selected == ActionTypes.ADD && toBN(amountOut2).gt(BN_ZERO) && (
+          <Description>
+            You will get{' '}
+            <DescriptionMainText>
+              {parseFloat(amountOut2).toFixed(6).toString()} {lpCurrency.symbol}{' '}
+            </DescriptionMainText>
+            approximately.
+          </Description>
+        )}
       </Wrapper>
     </div>
   )

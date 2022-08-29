@@ -9,21 +9,23 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useMasterChefV3Contract } from 'hooks/useContract'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 // import { useGetApr } from 'hooks/useVDeusStaking'
-import { useUserInfo } from 'hooks/useStakingInfo'
+import { useGetDeusApy, useUserInfo, useGetDeusReward } from 'hooks/useStakingInfo'
 
 import { DefaultHandlerError } from 'utils/parseError'
-import { formatAmount, toBN } from 'utils/numbers'
+import { formatAmount, formatBalance, toBN } from 'utils/numbers'
 import { StakingPools2 } from 'constants/stakings'
 import { MasterChefV3 } from 'constants/addresses'
 
-import { VDEUS_TOKEN } from 'constants/tokens'
-import { Row } from 'components/Row'
+import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
+import { Row, RowEnd } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
+import { DotFlashing, Info } from 'components/Icons'
 import InputBox from '../Redemption/InputBox'
 import { tryParseAmount } from 'utils/parse'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import Navigation, { NavigationTypes } from '../Stake/Navigation'
+import { StablePools } from 'constants/sPools'
+import { ToolTip } from 'components/ToolTip'
 
 const Container = styled.div`
   display: flex;
@@ -118,6 +120,12 @@ const YieldTitle = styled.div`
   font-size: 24px;
   font-family: 'IBM Plex Mono';
   word-spacing: -12px;
+  margin-right: 5px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+      font-size: 20px;
+      margin-right: 2px;
+  `}
 `
 
 const TitleInfo = styled.div`
@@ -127,6 +135,11 @@ const TitleInfo = styled.div`
   justify-content: space-between;
   font-family: 'IBM Plex Mono';
   margin-bottom: 40px;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+      font-size: 20px;
+      margin-right: 2px;
+      padding: 10px;
+  `}
 `
 
 const ButtonText = styled.span`
@@ -139,11 +152,15 @@ const AmountSpan = styled.span`
   color: #fdb572;
 `
 
+const InfoIcon = styled(Info)`
+  color: ${({ theme }) => theme.yellow2};
+`
+
 export default function StakingPool() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const { token: currency, pid } = StakingPools2[1]
-
+  const pool = StablePools[1]
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
@@ -155,7 +172,11 @@ export default function StakingPool() {
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
   const { rewardsAmount, depositAmount } = useUserInfo(pid, true)
-  const apr = 25 // useGetApr(pid)
+  const duesApr = useGetDeusApy(pool)
+  const deusReward = useGetDeusReward(pool)
+  // console.log({ duesApr, deusReward })
+  const vdeusApr = 25
+  const apr = 25 + duesApr
 
   const currencyAmount = useMemo(() => {
     return tryParseAmount(amountIn, currency || undefined)
@@ -238,9 +259,9 @@ export default function StakingPool() {
   }, [masterChefContract, addTransaction, pid, account, isSupportedChainId, amountIn])
 
   function getApproveButton(): JSX.Element | null {
-    if (!isSupportedChainId || !account) return null
-
-    if (awaitingApproveConfirmation) {
+    if (!isSupportedChainId || !account) {
+      return null
+    } else if (awaitingApproveConfirmation) {
       return (
         <DepositButton active>
           Awaiting Confirmation <DotFlashing />
@@ -253,21 +274,20 @@ export default function StakingPool() {
           Approving <DotFlashing />
         </DepositButton>
       )
+    } else if (showApprove) {
+      return <DepositButton onClick={handleApprove}>Allow us to spend {currency?.symbol}</DepositButton>
     }
-    if (showApprove) return <DepositButton onClick={handleApprove}>Allow us to spend {currency?.symbol}</DepositButton>
-
     return null
   }
 
   function getActionButton(): JSX.Element | null {
-    if (!chainId || !account) return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
-
-    if (showApprove) return null
-
-    if (insufficientBalance && selected === NavigationTypes.STAKE)
+    if (!chainId || !account) {
+      return <DepositButton onClick={toggleWalletModal}>Connect Wallet</DepositButton>
+    } else if (showApprove) {
+      return null
+    } else if (insufficientBalance && selected === NavigationTypes.STAKE) {
       return <DepositButton disabled>Insufficient {currency?.symbol} Balance</DepositButton>
-
-    if (awaitingDepositConfirmation) {
+    } else if (awaitingDepositConfirmation) {
       return (
         <DepositButton>
           Staking <DotFlashing />
@@ -302,7 +322,7 @@ export default function StakingPool() {
         </ClaimButtonWrapper>
       )
     }
-    if (rewardsAmount <= 0) {
+    if (rewardsAmount < 0) {
       return (
         <ClaimButtonWrapper>
           <ClaimButton disabled={true}>
@@ -326,7 +346,11 @@ export default function StakingPool() {
         <SelectorContainer>
           <Navigation fontSize={'18px'} selected={selected} setSelected={setSelected} />
         </SelectorContainer>
-        <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
+        <ToolTip id="id" />
+        <RowEnd data-for="id" data-tip={`${formatBalance(duesApr, 3)}% DEUS + ${vdeusApr}% vDEUS`}>
+          <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
+          <InfoIcon size={25} />
+        </RowEnd>
       </TitleInfo>
 
       <InputBox
@@ -358,6 +382,12 @@ export default function StakingPool() {
             <span>{rewardsAmount && rewardsAmount?.toFixed(3)}</span>
             <Row style={{ marginLeft: '10px' }}>
               <span>{VDEUS_TOKEN.symbol}</span>
+            </Row>
+          </RewardData>
+          <RewardData>
+            <span>{deusReward && deusReward?.toFixed(3)}</span>
+            <Row style={{ marginLeft: '10px' }}>
+              <span>{DEUS_TOKEN.symbol}</span>
             </Row>
           </RewardData>
         </div>

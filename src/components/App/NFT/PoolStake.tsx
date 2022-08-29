@@ -59,18 +59,8 @@ const UpperRow = styled(Row)`
   flex-direction: column;
 `
 
-const DepositButton = styled(PrimaryButton)`
-  margin-top: 12px;
-  margin-bottom: 4px;
-  border-radius: 12px;
-  max-width: 312px;
-  width: 100%;
-  height: 55px;
-`
-
 const ClaimButtonWrapper = styled.div`
   background: ${({ theme }) => theme.primary1};
-
   padding: 1px;
   border-radius: 8px;
   margin-top: 12px;
@@ -147,14 +137,6 @@ export const DeusText = styled.span`
   background: -webkit-linear-gradient(90deg, #0badf4 0%, #30efe4 93.4%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-`
-
-const NFTValue = styled.span`
-  font-family: 'IBM Plex Mono';
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 16px;
-  color: ${({ theme }) => theme.text1};
 `
 
 const YieldTitle = styled.div`
@@ -236,7 +218,7 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
   // const lockedNFTs = useUserLockedNfts()
   const { depositAmount, rewardsAmount, rewardsVDeusAmount } = useUserInfo(pid, flag)
   const { totalDeposited } = usePoolInfo(pid, flag)
-  const apr = 25
+  const apr = 0
 
   const onClaimReward = useCallback(
     async (pid: number) => {
@@ -258,7 +240,7 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
         // setPendingTxHash('')
       }
     },
-    [masterChefContract, account, isSupportedChainId, rewardsAmount, addTransaction, flag]
+    [masterChefContract, account, isSupportedChainId, addTransaction, flag]
   )
 
   function getClaimButton(pool: vDeusStakingType): JSX.Element | null {
@@ -304,14 +286,14 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
         <TimeTitle>{pool.name}</TimeTitle>
         <RowEnd>
           <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
-          <CustomTooltip id={`${pool.name}`} />
+          {/* <CustomTooltip id={`${pool.name}`} />
           <InfoIcon
             data-for={`${pool.name}`}
             data-tip={
               'vDEUS APR is calculated on the number of vDEUS you stake, not on your Dollar value, meaning you will have 25% more vDEUS after 1 year'
             }
             size={20}
-          />
+          /> */}
         </RowEnd>
       </TitleInfo>
 

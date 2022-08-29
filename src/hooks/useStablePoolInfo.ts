@@ -3,24 +3,20 @@ import { BigNumber } from '@ethersproject/bignumber'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { useStablePoolContract } from 'hooks/useContract'
-import useWeb3React from 'hooks/useWeb3'
 
 import { StablePoolType } from 'constants/sPools'
 import { BN_TEN, toBN } from 'utils/numbers'
 
 export function usePoolBalances(pool: StablePoolType): number[] {
-  const { account } = useWeb3React()
   const contract = useStablePoolContract(pool)
 
   const tokenBalancesCall = useMemo(
     () =>
-      !account
-        ? []
-        : pool.liquidityTokens.map((t, index) => ({
-            methodName: 'getTokenBalance',
-            callInputs: [index],
-          })),
-    [account, pool]
+      pool.liquidityTokens.map((t, index) => ({
+        methodName: 'getTokenBalance',
+        callInputs: [index],
+      })),
+    [pool]
   )
   const results = useSingleContractMultipleMethods(contract, tokenBalancesCall)
 
@@ -35,7 +31,6 @@ export function usePoolBalances(pool: StablePoolType): number[] {
 }
 
 export function useAddLiquidity(pool: StablePoolType, amountIns: string[]): number {
-  const { account } = useWeb3React()
   const contract = useStablePoolContract(pool)
 
   const amountsInBN: string[] = useMemo(() => {
@@ -47,7 +42,7 @@ export function useAddLiquidity(pool: StablePoolType, amountIns: string[]): numb
 
   const liqCalls = useMemo(
     () =>
-      !account || !amountsInBN.length
+      !amountsInBN.length
         ? []
         : [
             {
@@ -55,7 +50,7 @@ export function useAddLiquidity(pool: StablePoolType, amountIns: string[]): numb
               callInputs: [amountsInBN, 'true'],
             },
           ],
-    [account, amountsInBN]
+    [amountsInBN]
   )
 
   const [result] = useSingleContractMultipleMethods(contract, liqCalls)
@@ -67,13 +62,12 @@ export function useAddLiquidity(pool: StablePoolType, amountIns: string[]): numb
 }
 
 export function useRemoveLiquidity(pool: StablePoolType, amountIn: string): number[] {
-  const { account } = useWeb3React()
   const contract = useStablePoolContract(pool)
 
   const amountInBN = toBN(amountIn).times(1e18).toFixed()
   const liqCalls = useMemo(
     () =>
-      !account || amountIn == ''
+      amountIn == ''
         ? []
         : [
             {
@@ -81,7 +75,7 @@ export function useRemoveLiquidity(pool: StablePoolType, amountIn: string): numb
               callInputs: [amountInBN],
             },
           ],
-    [account, amountIn, amountInBN]
+    [amountIn, amountInBN]
   )
 
   const [result] = useSingleContractMultipleMethods(contract, liqCalls)

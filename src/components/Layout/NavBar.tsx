@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { isMobileOnly as isMobile } from 'react-device-detect'
 
 import { Z_INDEX } from 'theme'
-import routes from 'constants/routes.json'
+import routes from 'constants/files/routes.json'
 
 import Web3Network from 'components/Web3Network'
 import Web3Status from 'components/Web3Status'

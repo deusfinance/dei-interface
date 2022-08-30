@@ -67,3 +67,8 @@ export function useActivePopups(): PopupList {
   })
   return useMemo(() => list.filter((item: Popup) => item.show), [list])
 }
+
+export function useBlockTimestamp(): number | undefined {
+  const { chainId } = useWeb3React()
+  return useAppSelector((state: AppState) => state.application.blockTimestamp[chainId ?? -1])
+}

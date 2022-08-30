@@ -62,3 +62,8 @@ export const useDeiMarketCap = () => {
     return deiMarketCap
   }, [deiMarketCap])
 }
+
+export const useExpiredPrice = () => {
+  const { expiredPrice } = useDashboardState()
+  return useMemo(() => expiredPrice, [expiredPrice])
+}

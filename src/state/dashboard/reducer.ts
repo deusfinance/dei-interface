@@ -26,6 +26,7 @@ const initialState = {
   deiDexLiquidity: 0,
   mintedDei: 0,
   stakedDeiLiquidity: 0,
+  expiredPrice: false,
 }
 
 export const fetchData = createAsyncThunk<any>('dashboard/fetchData', async () => {
@@ -73,6 +74,9 @@ const deiSlice = createSlice({
     updateStatus: (state, { payload }) => {
       state.status = payload
     },
+    updateExpiredPrice: (state, { payload }) => {
+      state.expiredPrice = payload
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -107,5 +111,5 @@ const deiSlice = createSlice({
 })
 
 const { actions, reducer } = deiSlice
-export const { updateStatus } = actions
+export const { updateStatus, updateExpiredPrice } = actions
 export default reducer

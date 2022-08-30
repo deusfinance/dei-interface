@@ -177,3 +177,11 @@ export const vDeusStaking: AddressMap = {
 export const Migrator: AddressMap = {
   [SupportedChainId.FANTOM]: '0x3f4B6D79c3235C08F0Ba73c0c5355020B90f476c',
 }
+
+export const TwapOracle: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x733570cB9e76fD5293c028e124FC9F0a2234F07c',
+}
+
+export const CollateralPool: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x6E0098A8c651F7A6A9510B270CD02c858C344D94',
+}

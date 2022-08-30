@@ -19,6 +19,8 @@ import NFTsModal from 'components/NFTsModal'
 import SelectBox from 'components/SelectBox'
 import { Balance, TokenId } from 'components/NFTsModal/NFTBox'
 import { RowStart } from 'components/Row'
+import { useExpiredPrice } from 'state/dashboard/hooks'
+import useUpdateCallback from 'hooks/useOracleCallback'
 
 const Container = styled.div`
   display: flex;
@@ -67,6 +69,8 @@ export default function Migrate() {
   const isSupportedChainId = useSupportedChainId()
   const vDEUSCurrency = VDEUS_TOKEN
 
+  const expiredPrice = useExpiredPrice()
+
   const userNFTs = useOwnedVDeusNfts()
   const [isOpenNFTsModal, toggleNFTsModal] = useState(false)
   const [inputNFT, setInputNFT] = useState<VDEUS_NFT[]>([])
@@ -87,9 +91,11 @@ export default function Migrate() {
   }, [inputNFT])
 
   const { callback: migrationCallback } = useVDeusMigrationCallback(tokenIds)
+  const { callback: updateOracleCallback } = useUpdateCallback()
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
+  const [awaitingUpdateConfirmation, setAwaitingUpdateConfirmation] = useState<boolean>(false)
   const spender = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
 
   const [approvalState, approveCallback] = useERC721ApproveAllCallback(chainId ? vDeus[chainId] : undefined, spender)
@@ -124,6 +130,23 @@ export default function Migrate() {
     }
   }, [migrationCallback])
 
+  const handleUpdatePrice = useCallback(async () => {
+    if (!updateOracleCallback) return
+    try {
+      setAwaitingUpdateConfirmation(true)
+      const txHash = await updateOracleCallback()
+      console.log({ txHash })
+      setAwaitingUpdateConfirmation(false)
+    } catch (e) {
+      setAwaitingUpdateConfirmation(false)
+      if (e instanceof Error) {
+        console.error(e)
+      } else {
+        console.error(e)
+      }
+    }
+  }, [updateOracleCallback])
+
   function getApproveButton(): JSX.Element | null {
     if (!isSupportedChainId || !account) {
       return null
@@ -147,6 +170,16 @@ export default function Migrate() {
     }
     if (showApprove) {
       return null
+    }
+    if (awaitingUpdateConfirmation) {
+      return (
+        <MainButton>
+          Updating Oracle <DotFlashing style={{ marginLeft: '10px' }} />
+        </MainButton>
+      )
+    }
+    if (expiredPrice) {
+      return <MainButton onClick={handleUpdatePrice}>Update Oracle</MainButton>
     }
 
     if (awaitingRedeemConfirmation) {

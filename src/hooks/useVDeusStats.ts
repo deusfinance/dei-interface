@@ -2,7 +2,7 @@ import { formatUnits } from '@ethersproject/units'
 import { useMemo } from 'react'
 import { useSingleContractMultipleData, useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
-import { useVDeusContract, useVDeusStakingContract } from './useContract'
+import { useCollateralPoolContract, useVDeusContract, useVDeusStakingContract } from './useContract'
 import useWeb3React from './useWeb3'
 import { UserDeposit } from 'constants/stakings'
 
@@ -170,4 +170,22 @@ export function useUserLockedNfts(): UserDeposit[] | null {
       return { ...nft, poolId: nftPools[index] } as UserDeposit
     })
   }, [userNFTs, nftPools])
+}
+
+export function useGetOracleAddress(): string {
+  const contract = useCollateralPoolContract()
+
+  const call = useMemo(
+    () => [
+      {
+        methodName: 'oracle',
+        callInputs: [],
+      },
+    ],
+    []
+  )
+
+  const [oracleAddressRes] = useSingleContractMultipleMethods(contract, call)
+
+  return !oracleAddressRes || !oracleAddressRes.result ? '' : oracleAddressRes.result[0].toString()
 }

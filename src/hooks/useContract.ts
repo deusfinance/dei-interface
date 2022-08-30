@@ -34,6 +34,9 @@ import VDEUS_STAKING_ABI from 'constants/abi/VDEUS_STAKING.json'
 import MULTI_REWARDER_ABI from 'constants/abi/veDEUSMultiRewarderNFT.json'
 import VEDEUS_MULTI_REWARDER_ERC20_ABI from 'constants/abi/VEDEUS_MULTI_REWARDER_ERC20.json'
 import VDEUS_MIGRATOR_ABI from 'constants/abi/VDEUS_MIGRATOR.json'
+import TWAP_ORACLE_ABI from 'constants/abi/TWAP_ORACLE.json'
+import COLLATERAL_POOL_ABI from 'constants/abi/COLLATERAL_POOL.json'
+import ORACLE_ABI from 'constants/abi/ORACLE_ABI.json'
 
 import { StablePoolType } from 'constants/sPools'
 import { Providers } from 'constants/providers'
@@ -59,6 +62,8 @@ import {
   veDEUSMultiRewarderNFT,
   veDEUSMultiRewarderERC20,
   Migrator,
+  TwapOracle,
+  CollateralPool,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 
@@ -261,4 +266,20 @@ export function useVDeusMultiRewarderERC20Contract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? veDEUSMultiRewarderERC20[chainId] : undefined), [chainId])
   return useContract(address, VEDEUS_MULTI_REWARDER_ERC20_ABI)
+}
+
+export function useTwapOracleContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? TwapOracle[chainId] : undefined), [chainId])
+  return useContract(address, TWAP_ORACLE_ABI)
+}
+
+export function useCollateralPoolContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? CollateralPool[chainId] : undefined), [chainId])
+  return useContract(address, COLLATERAL_POOL_ABI)
+}
+
+export function useOracleContract2(address: string) {
+  return useContract(address, ORACLE_ABI)
 }

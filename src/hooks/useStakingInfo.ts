@@ -96,6 +96,7 @@ export function useUserInfo(pid: number): {
 export function useUserInfo2(pid: number): {
   depositAmount: number
   rewardsAmount: number
+  totalDepositedAmount: number
 } {
   const contract = useMasterChefV3Contract()
   const { account } = useWeb3React()
@@ -110,20 +111,28 @@ export function useUserInfo2(pid: number): {
           methodName: 'pendingTokens',
           callInputs: [pid.toString(), account],
         },
+        {
+          methodName: 'totalDepositedAmount',
+          callInputs: [pid.toString()],
+        },
       ]
 
-  const [userInfo, pendingTokens] = useSingleContractMultipleMethods(contract, calls)
+  const [userInfo, pendingTokens, totalDepositedAmount] = useSingleContractMultipleMethods(contract, calls)
 
-  const { depositedValue, reward } = useMemo(() => {
+  const { depositedValue, reward, totalDepositedAmountValue } = useMemo(() => {
     return {
       depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0], 18)).toNumber() : 0,
       reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0,
+      totalDepositedAmountValue: totalDepositedAmount?.result
+        ? toBN(formatUnits(totalDepositedAmount.result[0], 18)).toNumber()
+        : 0,
     }
-  }, [userInfo, pendingTokens])
+  }, [userInfo.result, pendingTokens.result, totalDepositedAmount.result])
 
   return {
     depositAmount: depositedValue,
     rewardsAmount: reward,
+    totalDepositedAmount: totalDepositedAmountValue,
   }
 }
 
@@ -140,17 +149,30 @@ export function useGetDeusApy(pool: StablePoolType): number {
   ]
   const [retrieveTokenPerBlock] = useSingleContractMultipleMethods(contract, calls)
   const balances = usePoolBalances(pool)
+  const vdeusBalance = balances[0]
   const deusBalance = balances[1]
+
+  const { depositAmount, totalDepositedAmount } = useUserInfo2(pool.stakingPid)
 
   const retrieveTokenPerBlockValue = useMemo(() => {
     return retrieveTokenPerBlock?.result ? toBN(formatUnits(retrieveTokenPerBlock.result[0], 18)).toNumber() : 0
   }, [retrieveTokenPerBlock])
 
-  const totalDeposited = toBN(deusBalance).times(2).times(deusPrice).toNumber()
-  // console.log({ deusBalance })
+  // const totalDeposited = toBN(deusBalance).times(2).times(deusPrice).toNumber()
 
-  if (totalDeposited === 0) return 0
-  return (retrieveTokenPerBlockValue * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) / totalDeposited
+  const ratio = depositAmount / totalDepositedAmount
+  const totalBalance = vdeusBalance + deusBalance
+  const myShare = ratio * totalBalance
+  const retrieveTokenPerYearValue = retrieveTokenPerBlockValue * 365 * 24 * 60 * 60
+  const myAprShare = ratio * retrieveTokenPerYearValue
+
+  // console.log({ ratio, totalBalance, myShare, retrieveTokenPerYearValue, myAprShare })
+
+  if (myShare === 0) return (retrieveTokenPerYearValue / totalBalance) * 100
+  return (myAprShare / myShare) * 100
+
+  // if (totalDeposited === 0) return 0
+  // return (retrieveTokenPerBlockValue * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) / totalDeposited
 }
 //get deus reward for deus-vdeus lp pool user
 export function useGetDeusReward(pool: StablePoolType): number {

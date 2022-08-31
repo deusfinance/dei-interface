@@ -127,7 +127,7 @@ export function useUserInfo2(pid: number): {
         ? toBN(formatUnits(totalDepositedAmount.result[0], 18)).toNumber()
         : 0,
     }
-  }, [userInfo.result, pendingTokens.result, totalDepositedAmount.result])
+  }, [userInfo, pendingTokens, totalDepositedAmount])
 
   return {
     depositAmount: depositedValue,

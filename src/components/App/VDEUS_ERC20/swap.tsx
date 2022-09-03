@@ -126,13 +126,13 @@ export default function SwapPage() {
     } else if (awaitingApproveConfirmation) {
       return (
         <RedeemButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </RedeemButton>
       )
     } else if (showApproveLoader) {
       return (
         <RedeemButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </RedeemButton>
       )
     } else if (showApprove) {
@@ -151,7 +151,7 @@ export default function SwapPage() {
     } else if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Swapping <DotFlashing style={{ marginLeft: '10px' }} />
+          Swapping <DotFlashing />
         </RedeemButton>
       )
     }
@@ -159,36 +159,34 @@ export default function SwapPage() {
   }
 
   return (
-    <>
-      <Wrapper>
-        <InputBox
-          currency={inputCurrency}
-          value={amountIn}
-          onChange={(value: string) => setAmountIn(value)}
-          title={'From'}
-          disable_vdeus
-        />
-        <ArrowDown
-          style={{ cursor: 'pointer' }}
-          onClick={() => {
-            setInputCurrency(outputCurrency)
-            setOutputCurrency(inputCurrency)
-          }}
-        />
+    <Wrapper>
+      <InputBox
+        currency={inputCurrency}
+        value={amountIn}
+        onChange={(value: string) => setAmountIn(value)}
+        title={'From'}
+        disable_vdeus
+      />
+      <ArrowDown
+        style={{ cursor: 'pointer' }}
+        onClick={() => {
+          setInputCurrency(outputCurrency)
+          setOutputCurrency(inputCurrency)
+        }}
+      />
 
-        <InputBox
-          currency={outputCurrency}
-          value={amountOut}
-          onChange={(value: string) => console.log(value)}
-          title={'To'}
-          disabled={true}
-          disable_vdeus
-        />
-        <div style={{ marginTop: '20px' }}></div>
-        {getApproveButton()}
-        {getActionButton()}
-        <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
-      </Wrapper>
-    </>
+      <InputBox
+        currency={outputCurrency}
+        value={amountOut}
+        onChange={(value: string) => console.log(value)}
+        title={'To'}
+        disabled={true}
+        disable_vdeus
+      />
+      <div style={{ marginTop: '20px' }}></div>
+      {getApproveButton()}
+      {getActionButton()}
+      <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
+    </Wrapper>
   )
 }

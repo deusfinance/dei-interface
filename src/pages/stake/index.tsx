@@ -1,24 +1,24 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 
-import { useCurrencyBalance } from 'state/wallet/hooks'
-import { useWalletModalToggle } from 'state/application/hooks'
+// import { useCurrencyBalance } from 'state/wallet/hooks'
+// import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import { tryParseAmount } from 'utils/parse'
+// import { tryParseAmount } from 'utils/parse'
 
 import { PrimaryButton } from 'components/Button'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
+import { BDEI_TOKEN } from 'constants/tokens'
 import { MasterChefV2 } from 'constants/addresses'
 import StakeBox from 'components/App/deiPool/StakeBox'
 import { useGetApy, useStakingData } from 'hooks/useBdeiStakingPage'
-import { useMasterChefV2Contract } from 'hooks/useContract'
+import { useMasterChefContract } from 'hooks/useContract'
 import toast from 'react-hot-toast'
 import { DefaultHandlerError } from 'utils/parseError'
-import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { RowCenter, RowEnd, RowStart } from 'components/Row'
 import { toBN } from 'utils/numbers'
 import Navigation, { NavigationTypes } from 'components/App/Stake/Navigation'
@@ -101,34 +101,34 @@ const Label = styled.div`
 
 export default function Redemption() {
   const { chainId, account } = useWeb3React()
-  const toggleWalletModal = useWalletModalToggle()
+  // const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const [amountIn2, setAmountIn2] = useState('')
-  const deiCurrency = DEI_TOKEN
+  // const deiCurrency = DEI_TOKEN
   const bdeiCurrency = BDEI_TOKEN
-  const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
-  const bdeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
-  const masterChefContract = useMasterChefV2Contract()
+  // const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
+  // const bdeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
+  const masterChefContract = useMasterChefContract()
 
   const addTransaction = useTransactionAdder()
-  const [pendingTxHash, setPendingTxHash] = useState('')
-  const showTransactionPending = useIsTransactionPending(pendingTxHash)
+  // const [pendingTxHash, setPendingTxHash] = useState('')
+  // const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
   const { rewardsAmount, depositAmount } = useStakingData(0)
   const apy = useGetApy()
-  const deiAmount = useMemo(() => {
-    return tryParseAmount(amountIn, deiCurrency || undefined)
-  }, [amountIn, deiCurrency])
+  // const deiAmount = useMemo(() => {
+  //   return tryParseAmount(amountIn, deiCurrency || undefined)
+  // }, [amountIn, deiCurrency])
 
-  const bdeiAmount = useMemo(() => {
-    return tryParseAmount(amountIn2, bdeiCurrency || undefined)
-  }, [amountIn2, bdeiCurrency])
+  // const bdeiAmount = useMemo(() => {
+  //   return tryParseAmount(amountIn2, bdeiCurrency || undefined)
+  // }, [amountIn2, bdeiCurrency])
 
-  const insufficientBalance = useMemo(() => {
-    if (!deiAmount || !bdeiAmount) return false
-    return deiCurrencyBalance?.lessThan(deiAmount) && bdeiCurrencyBalance?.lessThan(bdeiAmount)
-  }, [deiCurrencyBalance, bdeiCurrencyBalance, deiAmount, bdeiAmount])
+  // const insufficientBalance = useMemo(() => {
+  //   if (!deiAmount || !bdeiAmount) return false
+  //   return deiCurrencyBalance?.lessThan(deiAmount) && bdeiCurrencyBalance?.lessThan(bdeiAmount)
+  // }, [deiCurrencyBalance, bdeiCurrencyBalance, deiAmount, bdeiAmount])
 
   // const {
   //   state: depositCallbackState,
@@ -210,14 +210,14 @@ export default function Redemption() {
     if (awaitingApproveConfirmation) {
       return (
         <DepositButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing/>
         </DepositButton>
       )
     }
     if (showApproveLoader) {
       return (
         <DepositButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing/>
         </DepositButton>
       )
     }
@@ -241,7 +241,7 @@ export default function Redemption() {
     if (awaitingRedeemConfirmation) {
       return (
         <DepositButton>
-          Depositing DEI/bDEI <DotFlashing style={{ marginLeft: '10px' }} />
+          Depositing DEI/bDEI <DotFlashing/>
         </DepositButton>
       )
     }

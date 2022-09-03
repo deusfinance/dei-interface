@@ -205,10 +205,9 @@ export default function NavBar() {
                 <NavbarContentWrap key={item.id}>
                   <TitleSpan active={isSubItemChosen(item.children)}>
                     {item.text}
-                    {/* TODO: disable has warning: check this later */}
                     <ChevronDown
                       color={isSubItemChosen(item.children) ? '#FF8F00' : 'white'}
-                      disable
+                      disabled
                       style={{ position: 'absolute' }}
                     />
                   </TitleSpan>

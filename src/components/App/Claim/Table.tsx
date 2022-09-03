@@ -112,7 +112,7 @@ function TableRow({ pool, userHolder, contract }: { pool: BorrowPool; userHolder
     if (awaitingClaimConfirmation) {
       return (
         <PrimaryButton active>
-          Awaiting <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting <DotFlashing />
         </PrimaryButton>
       )
     }

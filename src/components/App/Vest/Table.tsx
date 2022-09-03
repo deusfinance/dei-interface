@@ -200,14 +200,14 @@ function TableRow({
     if (awaitingConfirmation) {
       return (
         <PrimaryButton active>
-          Confirming <DotFlashing style={{ marginLeft: '10px' }} />
+          Confirming <DotFlashing />
         </PrimaryButton>
       )
     }
     if (showTransactionPending) {
       return (
         <PrimaryButton active>
-          Withdrawing <DotFlashing style={{ marginLeft: '10px' }} />
+          Withdrawing <DotFlashing />
         </PrimaryButton>
       )
     }

@@ -6,7 +6,7 @@ import { formatBalance } from 'utils/numbers'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useOwnedVDeusNfts, VDEUS_NFT } from 'hooks/useVDeusNfts'
-import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback2'
+import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback'
 import useVDeusMigrationCallback from 'hooks/useVDeusMigrationCallback'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 
@@ -93,9 +93,9 @@ export default function Migrate() {
   const { callback: migrationCallback } = useVDeusMigrationCallback(tokenIds)
   const { callback: updateOracleCallback } = useUpdateCallback()
 
-  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
-  const [awaitingUpdateConfirmation, setAwaitingUpdateConfirmation] = useState<boolean>(false)
+  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
+  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState(false)
+  const [awaitingUpdateConfirmation, setAwaitingUpdateConfirmation] = useState(false)
   const spender = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
 
   const [approvalState, approveCallback] = useERC721ApproveAllCallback(chainId ? vDeus[chainId] : undefined, spender)
@@ -154,7 +154,7 @@ export default function Migrate() {
     if (awaitingApproveConfirmation) {
       return (
         <MainButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </MainButton>
       )
     }
@@ -174,7 +174,7 @@ export default function Migrate() {
     if (awaitingUpdateConfirmation) {
       return (
         <MainButton>
-          Updating Oracle <DotFlashing style={{ marginLeft: '10px' }} />
+          Updating Oracle <DotFlashing />
         </MainButton>
       )
     }
@@ -185,7 +185,7 @@ export default function Migrate() {
     if (awaitingRedeemConfirmation) {
       return (
         <MainButton>
-          Migrating to ERC20 <DotFlashing style={{ marginLeft: '10px' }} />
+          Migrating to ERC20 <DotFlashing />
         </MainButton>
       )
     }

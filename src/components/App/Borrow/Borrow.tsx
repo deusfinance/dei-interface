@@ -159,14 +159,14 @@ export default function Borrow({ pool, action }: { pool: BorrowPool; action: Bor
     if (awaitingApproveConfirmation) {
       return (
         <PrimaryButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </PrimaryButton>
       )
     }
     if (showApproveLoader) {
       return (
         <PrimaryButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </PrimaryButton>
       )
     }

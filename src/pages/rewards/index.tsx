@@ -130,7 +130,7 @@ export default function Rewards() {
     if (awaitingConfirmation) {
       return (
         <PrimaryButton active>
-          Confirming <DotFlashing style={{ marginLeft: '10px' }} />
+          Confirming <DotFlashing />
         </PrimaryButton>
       )
     }
@@ -138,7 +138,7 @@ export default function Rewards() {
     if (showTransactionPending) {
       return (
         <PrimaryButton active>
-          Claiming <DotFlashing style={{ marginLeft: '10px' }} />
+          Claiming <DotFlashing />
         </PrimaryButton>
       )
     }

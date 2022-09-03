@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useERC20Contract, useMasterChefV2Contract } from 'hooks/useContract'
+import { useERC20Contract, useMasterChefContract } from 'hooks/useContract'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
 import useWeb3React from './useWeb3'
@@ -11,7 +11,7 @@ export function useTokenPerBlock(): {
   tokenPerBlock: number
   totalDeposited: number
 } {
-  const contract = useMasterChefV2Contract()
+  const contract = useMasterChefContract()
   const bDEIContract = useERC20Contract(BDEI_TOKEN.address)
 
   const calls = [
@@ -52,7 +52,7 @@ export function useStakingData(pid: number): {
   totalDeposited: number
   tokenPerBlock: number
 } {
-  const contract = useMasterChefV2Contract()
+  const contract = useMasterChefContract()
   const { account } = useWeb3React()
   const bDEIContract = useERC20Contract(BDEI_TOKEN.address)
   const calls = !account

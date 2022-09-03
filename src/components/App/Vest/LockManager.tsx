@@ -162,11 +162,11 @@ function IncreaseAmount({ nftId }: { nftId: number }) {
         <PrimaryButton disabled>INSUFFICIENT BALANCE</PrimaryButton>
       ) : awaitingConfirmation ? (
         <PrimaryButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </PrimaryButton>
       ) : showTransactionPending ? (
         <PrimaryButton active>
-          Increasing <DotFlashing style={{ marginLeft: '10px' }} />
+          Increasing <DotFlashing />
         </PrimaryButton>
       ) : (
         <PrimaryButton onClick={onLock}>Increase Lock Amount</PrimaryButton>
@@ -233,11 +233,11 @@ function IncreaseDuration({ nftId }: { nftId: number }) {
       <UserLockInformation amount={deusAmount} selectedDate={selectedDate} title="New vesting setup:" />
       {awaitingConfirmation ? (
         <PrimaryButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </PrimaryButton>
       ) : showTransactionPending ? (
         <PrimaryButton active>
-          Increasing <DotFlashing style={{ marginLeft: '10px' }} />
+          Increasing <DotFlashing />
         </PrimaryButton>
       ) : !lockCanIncrease ? (
         <PrimaryButton disabled>Maximum Lock Reached</PrimaryButton>

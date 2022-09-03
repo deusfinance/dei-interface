@@ -193,14 +193,14 @@ export default function LiquidityPool() {
     if (awaitingApproveConfirmation) {
       return (
         <DepositButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </DepositButton>
       )
     }
     if (showApproveLoader || showApproveLoader2 || showApproveLoader3) {
       return (
         <DepositButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </DepositButton>
       )
     }
@@ -227,7 +227,7 @@ export default function LiquidityPool() {
       return (
         <DepositButton>
           {type === 'add' ? 'Depositing DEUS/vDEUS' : 'Withdrawing DEUS/vDEUS'}
-          <DotFlashing style={{ marginLeft: '10px' }} />
+          <DotFlashing />
         </DepositButton>
       )
     }

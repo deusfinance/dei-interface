@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useERC20Contract, useMasterChefV2Contract, useMasterChefV3Contract } from 'hooks/useContract'
+import { useERC20Contract, useMasterChefContract } from 'hooks/useContract'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
 import useWeb3React from './useWeb3'
@@ -23,7 +23,7 @@ export function useGlobalMasterChefData(): {
   totalAllocPoint: number
   poolLength: number
 } {
-  const contract = useMasterChefV2Contract()
+  const contract = useMasterChefContract()
 
   const calls = [
     {
@@ -58,48 +58,14 @@ export function useGlobalMasterChefData(): {
 }
 
 //TODO: depositAmount should consider decimals of token
-export function useUserInfo(pid: number): {
-  depositAmount: number
-  rewardsAmount: number
-} {
-  const contract = useMasterChefV2Contract()
-  const { account } = useWeb3React()
-  const calls = !account
-    ? []
-    : [
-        {
-          methodName: 'userInfo',
-          callInputs: [pid.toString(), account],
-        },
-        {
-          methodName: 'pendingTokens',
-          callInputs: [pid.toString(), account],
-        },
-      ]
-
-  const [userInfo, pendingTokens] = useSingleContractMultipleMethods(contract, calls)
-
-  const { depositedValue, reward } = useMemo(() => {
-    return {
-      depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0], 18)).toNumber() : 0,
-      reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0,
-    }
-  }, [userInfo, pendingTokens])
-
-  return {
-    depositAmount: depositedValue,
-    rewardsAmount: reward,
-  }
-}
-
-//TODO: depositAmount should consider decimals of token
-export function useUserInfo2(pid: number): {
+export function useUserInfo(pool: StablePoolType): {
   depositAmount: number
   rewardsAmount: number
   totalDepositedAmount: number
 } {
-  const contract = useMasterChefV3Contract()
+  const contract = useMasterChefContract(pool)
   const { account } = useWeb3React()
+  const pid = pool.pid
   const calls = !account
     ? []
     : [
@@ -144,7 +110,7 @@ export function useGetDeusApy(pool: StablePoolType): number {
   const calls = [
     {
       methodName: 'retrieveTokenPerBlock',
-      callInputs: [pool.stakingPid, 0],
+      callInputs: [pool.pid, 0],
     },
   ]
   const [retrieveTokenPerBlock] = useSingleContractMultipleMethods(contract, calls)
@@ -152,7 +118,7 @@ export function useGetDeusApy(pool: StablePoolType): number {
   const vdeusBalance = balances[0]
   const deusBalance = balances[1]
 
-  const { depositAmount, totalDepositedAmount } = useUserInfo2(pool.stakingPid)
+  const { depositAmount, totalDepositedAmount } = useUserInfo(pool)
 
   const retrieveTokenPerBlockValue = useMemo(() => {
     return retrieveTokenPerBlock?.result ? toBN(formatUnits(retrieveTokenPerBlock.result[0], 18)).toNumber() : 0
@@ -185,7 +151,7 @@ export function useGetDeusReward(pool: StablePoolType): number {
       : [
           {
             methodName: 'pendingTokens',
-            callInputs: [pool.stakingPid, account],
+            callInputs: [pool.pid, account],
           },
         ]
   }, [pool, account])
@@ -206,7 +172,7 @@ export function usePoolInfo(pid: number): {
   allocPoint: number
   totalDeposited: number
 } {
-  const contract = useMasterChefV2Contract()
+  const contract = useMasterChefContract()
   const tokenAddress = stakingTokens[pid]
   const ERC20Contract = useERC20Contract(tokenAddress)
   const calls = [

@@ -1,15 +1,15 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 
-import { useCurrencyBalance } from 'state/wallet/hooks'
+// import { useCurrencyBalance } from 'state/wallet/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import { tryParseAmount } from 'utils/parse'
+// import { tryParseAmount } from 'utils/parse'
 
 import { MasterChefV2 } from 'constants/addresses'
 import StakeBox from 'components/App/deiPool/StakeBox'
-import { useMasterChefV2Contract } from 'hooks/useContract'
+import { useMasterChefContract } from 'hooks/useContract'
 import Navigation, { NavigationTypes } from 'components/App/Stake/Navigation'
 import toast from 'react-hot-toast'
 import { DefaultHandlerError } from 'utils/parseError'
@@ -19,6 +19,7 @@ import { toBN } from 'utils/numbers'
 import { Loader } from 'components/Icons'
 import { StakingType } from 'constants/stakings'
 import { useUserInfo, useGetApy } from 'hooks/useStakingInfo'
+import { StablePoolType } from 'constants/sPools'
 
 const Container = styled.div`
   display: flex;
@@ -71,30 +72,30 @@ export default function Staking({ pool }: { pool: StakingType }) {
 
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
-  const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
+  // const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
 
-  const masterChefContract = useMasterChefV2Contract()
+  const masterChefContract = useMasterChefContract()
 
   const addTransaction = useTransactionAdder()
-  const [pendingTxHash, setPendingTxHash] = useState('')
+  // const [pendingTxHash, setPendingTxHash] = useState('')
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const { rewardsAmount, depositAmount } = useUserInfo(pid)
+  const { rewardsAmount, depositAmount } = useUserInfo(pool as unknown as StablePoolType)
   const apr = useGetApy(pid)
   //   console.log(name, apr)
-  const currencyAmount = useMemo(() => {
-    return tryParseAmount(amountIn, currency || undefined)
-  }, [amountIn, currency])
+  // const currencyAmount = useMemo(() => {
+  //   return tryParseAmount(amountIn, currency || undefined)
+  // }, [amountIn, currency])
 
-  const insufficientBalance = useMemo(() => {
-    if (!currencyAmount) return false
-    return currencyBalance?.lessThan(currencyAmount)
-  }, [currencyBalance, currencyAmount])
+  // const insufficientBalance = useMemo(() => {
+  //   if (!currencyAmount) return false
+  //   return currencyBalance?.lessThan(currencyAmount)
+  // }, [currencyBalance, currencyAmount])
 
-  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState<boolean>(false)
-  const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState<boolean>(false)
-  const [awaitingClaimConfirmation, setAwaitClaimConfirmation] = useState<boolean>(false)
+  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
+  const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState(false)
+  const [awaitingWithdrawConfirmation, setAwaitingWithdrawConfirmation] = useState(false)
+  const [awaitingClaimConfirmation, setAwaitClaimConfirmation] = useState(false)
 
   const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.STAKE)
 
@@ -161,58 +162,56 @@ export default function Staking({ pool }: { pool: StakingType }) {
   }, [masterChefContract, addTransaction, pid, account, isSupportedChainId, amountIn])
 
   return (
-    <>
-      <Wrapper>
-        <SelectorContainer>
-          <Navigation selected={selected} setSelected={setSelected} />
-        </SelectorContainer>
+    <Wrapper>
+      <SelectorContainer>
+        <Navigation selected={selected} setSelected={setSelected} />
+      </SelectorContainer>
 
-        <RowCenter style={{ alignItems: 'center' }}>
-          <LeftTitle>{name}</LeftTitle>
-          <RowEnd>
-            APR:<Label>{apr !== null || apr !== NaN ? `${apr.toFixed(0)}%` : <Loader />}</Label>
-          </RowEnd>
-        </RowCenter>
-        <div style={{ marginTop: '20px' }}></div>
-        {selected === NavigationTypes.UNSTAKE && (
-          <StakeBox
-            currency={currency}
-            onClick={() => onWithdraw()}
-            onChange={(value: string) => setAmountIn(value)}
-            type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
-            value={amountIn}
-            title={`${currency.name} Staked`}
-            maxValue={depositAmount.toString()}
-          />
-        )}
-        {selected === NavigationTypes.STAKE && (
-          <StakeBox
-            currency={currency}
-            onClick={showApprove ? handleApprove : () => onDeposit()}
-            onChange={(value: string) => setAmountIn(value)}
-            type={
-              showApprove
-                ? awaitingApproveConfirmation
-                  ? 'Approving...'
-                  : 'Approve'
-                : awaitingDepositConfirmation
-                ? 'Staking...'
-                : 'Stake'
-            }
-            value={amountIn}
-            title={'LP Balance:'}
-          />
-        )}
-        <div style={{ marginTop: '20px' }}></div>
+      <RowCenter style={{ alignItems: 'center' }}>
+        <LeftTitle>{name}</LeftTitle>
+        <RowEnd>
+          APR:<Label>{apr !== null || apr !== NaN ? `${apr.toFixed(0)}%` : <Loader />}</Label>
+        </RowEnd>
+      </RowCenter>
+      <div style={{ marginTop: '20px' }}></div>
+      {selected === NavigationTypes.UNSTAKE && (
         <StakeBox
-          currency={null}
-          onClick={onClaimReward}
-          onChange={(value: string) => console.log(value)}
-          type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
-          value={`${rewardsAmount.toFixed(3)} DEUS`}
-          title={'Rewards'}
+          currency={currency}
+          onClick={() => onWithdraw()}
+          onChange={(value: string) => setAmountIn(value)}
+          type={awaitingWithdrawConfirmation ? 'Unstaking...' : 'Unstake'}
+          value={amountIn}
+          title={`${currency.name} Staked`}
+          maxValue={depositAmount.toString()}
         />
-      </Wrapper>
-    </>
+      )}
+      {selected === NavigationTypes.STAKE && (
+        <StakeBox
+          currency={currency}
+          onClick={showApprove ? handleApprove : () => onDeposit()}
+          onChange={(value: string) => setAmountIn(value)}
+          type={
+            showApprove
+              ? awaitingApproveConfirmation
+                ? 'Approving...'
+                : 'Approve'
+              : awaitingDepositConfirmation
+              ? 'Staking...'
+              : 'Stake'
+          }
+          value={amountIn}
+          title={'LP Balance:'}
+        />
+      )}
+      <div style={{ marginTop: '20px' }}></div>
+      <StakeBox
+        currency={null}
+        onClick={onClaimReward}
+        onChange={(value: string) => console.log(value)}
+        type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
+        value={`${rewardsAmount.toFixed(3)} DEUS`}
+        title={'Rewards'}
+      />
+    </Wrapper>
   )
 }

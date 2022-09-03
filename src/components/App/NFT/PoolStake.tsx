@@ -253,7 +253,7 @@ export default function PoolStake({ pool, flag = false }: { pool: vDeusStakingTy
             <ClaimButton disabled={true}>
               <ButtonText>
                 Claim
-                <DotFlashing style={{ marginLeft: '10px' }} />
+                <DotFlashing />
               </ButtonText>
             </ClaimButton>
           </ClaimButtonWrapper>

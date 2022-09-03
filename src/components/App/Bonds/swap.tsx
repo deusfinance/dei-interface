@@ -129,14 +129,14 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
     if (awaitingApproveConfirmation) {
       return (
         <RedeemButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </RedeemButton>
       )
     }
     if (showApproveLoader) {
       return (
         <RedeemButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </RedeemButton>
       )
     }
@@ -159,7 +159,7 @@ export default function SwapPage({ onSwitch }: { onSwitch: any }) {
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Swapping <DotFlashing style={{ marginLeft: '10px' }} />
+          Swapping <DotFlashing />
         </RedeemButton>
       )
     }

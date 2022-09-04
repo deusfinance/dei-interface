@@ -19,7 +19,7 @@ import { MasterChefV3 } from 'constants/addresses'
 import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 import { Row, RowEnd } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing, Info } from 'components/Icons'
+import { DotFlashing, Info, Loader } from 'components/Icons'
 import InputBox from '../Redemption/InputBox'
 import { tryParseAmount } from 'utils/parse'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -347,8 +347,14 @@ export default function StakingPool() {
         </SelectorContainer>
         <ToolTip id="id" />
         <RowEnd data-for="id" data-tip={`${formatBalance(duesApr, 3)}% DEUS + ${vdeusApr}% vDEUS`}>
-          <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
-          <InfoIcon size={25} />
+          {apr ? (
+            <>
+              <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
+              <InfoIcon size={25} />
+            </>
+          ) : (
+            <Loader size={'20px'} stroke="yellow" />
+          )}
         </RowEnd>
       </TitleInfo>
 

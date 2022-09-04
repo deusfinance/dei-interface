@@ -52,7 +52,6 @@ import {
   DynamicRedeemer,
   DeiBonder,
   veDist,
-  MasterChefV2,
   vDeus,
   vDeusStaking,
   vDeusMasterChefV2,
@@ -64,6 +63,7 @@ import {
   CollateralPool,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
+import { StakingType } from 'constants/stakings'
 
 export function useContract<T extends Contract = Contract>(
   addressOrAddressMap: string | null | undefined,
@@ -231,9 +231,8 @@ export function useVDeusMasterChefV2Contract(flag = false) {
   return useContract(address, VDeusMasterChefV2_ABI)
 }
 
-export function useMasterChefContract(pool?: StablePoolType) {
-  const { chainId } = useWeb3React()
-  const address = useMemo(() => (pool ? pool.masterChef : chainId ? MasterChefV2[chainId] : undefined), [pool, chainId])
+export function useMasterChefContract(stakingPool: StakingType) {
+  const address = useMemo(() => (stakingPool ? stakingPool.masterChef : undefined), [stakingPool])
   return useContract(address, MasterChefV3_ABI)
 }
 

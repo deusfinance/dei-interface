@@ -109,8 +109,10 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
   const deiPrice = useDeiPrice()
   const { redeemTranche, deiBurned } = useRedeemData()
 
+  const singleStakingPool = StakingPools[0] //bDEI single staking pool
+
   const { deiBonded } = useBonderData()
-  const { totalDeposited } = useTokenPerBlock()
+  const { totalDeposited } = useTokenPerBlock(singleStakingPool)
 
   const pools = useBorrowPools()
   const { borrowedElastic } = useGlobalDEIBorrowed(pools)
@@ -120,11 +122,10 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
   const { day, hours } = getRemainingTime(redeemTime)
   const roundedDays = day + (hours > 12 ? 1 : 0) //adds 1 more day if remained hours is above 12 hours.
 
-  const { pid: deiPID } = StakingPools[0] //bDEI single staking pool
-  const bDeiSingleStakingAPR = useGetApy(deiPID)
+  const bDeiSingleStakingAPR = useGetApy(singleStakingPool)
 
-  const { pid: deibDeiPID } = StakingPools[1] //bDEI-DEI staking pool
-  const bDeiDeiStakingAPR = useGetApy(deibDeiPID)
+  const bondStakingPool = StakingPools[1] //bDEI-DEI staking pool
+  const bDeiDeiStakingAPR = useGetApy(bondStakingPool)
 
   const {
     totalSupply,

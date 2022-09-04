@@ -19,7 +19,6 @@ import { toBN } from 'utils/numbers'
 import { Loader } from 'components/Icons'
 import { StakingType } from 'constants/stakings'
 import { useUserInfo, useGetApy } from 'hooks/useStakingInfo'
-import { StablePoolType } from 'constants/sPools'
 
 const Container = styled.div`
   display: flex;
@@ -65,23 +64,23 @@ const SelectorContainer = styled.div`
   margin-bottom: 12px;
 `
 
-export default function Staking({ pool }: { pool: StakingType }) {
+export default function Staking({ stakingPool }: { stakingPool: StakingType }) {
   const { chainId, account } = useWeb3React()
   //   const toggleWalletModal = useWalletModalToggle()
-  const { token: currency, pid, name } = pool
+  const { token: currency, pid, name } = stakingPool
 
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   // const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
 
-  const masterChefContract = useMasterChefContract()
+  const masterChefContract = useMasterChefContract(stakingPool)
 
   const addTransaction = useTransactionAdder()
   // const [pendingTxHash, setPendingTxHash] = useState('')
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const { rewardsAmount, depositAmount } = useUserInfo(pool as unknown as StablePoolType)
-  const apr = useGetApy(pid)
+  const { rewardsAmount, depositAmount } = useUserInfo(stakingPool)
+  const apr = useGetApy(stakingPool)
   //   console.log(name, apr)
   // const currencyAmount = useMemo(() => {
   //   return tryParseAmount(amountIn, currency || undefined)

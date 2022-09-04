@@ -6,12 +6,13 @@ import useWeb3React from './useWeb3'
 import { BDEI_TOKEN } from 'constants/tokens'
 import { formatUnits } from '@ethersproject/units'
 import { useDeiPrice, useDeusPrice } from './useCoingeckoPrice'
+import { StakingType } from 'constants/stakings'
 
-export function useTokenPerBlock(): {
+export function useTokenPerBlock(stakingPool: StakingType): {
   tokenPerBlock: number
   totalDeposited: number
 } {
-  const contract = useMasterChefContract()
+  const contract = useMasterChefContract(stakingPool)
   const bDEIContract = useERC20Contract(BDEI_TOKEN.address)
 
   const calls = [
@@ -46,13 +47,13 @@ export function useTokenPerBlock(): {
   }
 }
 
-export function useStakingData(pid: number): {
+export function useStakingData(pool: StakingType): {
   depositAmount: number
   rewardsAmount: number
   totalDeposited: number
   tokenPerBlock: number
 } {
-  const contract = useMasterChefContract()
+  const contract = useMasterChefContract(pool)
   const { account } = useWeb3React()
   const bDEIContract = useERC20Contract(BDEI_TOKEN.address)
   const calls = !account
@@ -60,7 +61,7 @@ export function useStakingData(pid: number): {
     : [
         {
           methodName: 'userInfo',
-          callInputs: [pid.toString(), account],
+          callInputs: [pool.pid.toString(), account],
         },
         {
           methodName: 'tokenPerBlock',
@@ -68,7 +69,7 @@ export function useStakingData(pid: number): {
         },
         {
           methodName: 'pendingTokens',
-          callInputs: [pid.toString(), account],
+          callInputs: [pool.pid.toString(), account],
         },
       ]
 
@@ -101,8 +102,8 @@ export function useStakingData(pid: number): {
   }
 }
 
-export function useGetApy(): number {
-  const { tokenPerBlock, totalDeposited } = useTokenPerBlock()
+export function useGetApy(stakingPool: StakingType): number {
+  const { tokenPerBlock, totalDeposited } = useTokenPerBlock(stakingPool)
   // const { tokenPerBlock, totalDeposited } = useStakingData(0)
   console.log(tokenPerBlock, totalDeposited)
   const deiPrice = useDeiPrice()

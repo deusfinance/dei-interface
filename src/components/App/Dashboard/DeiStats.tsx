@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import { useRedeemData } from 'hooks/useRedemptionPage'
@@ -14,7 +14,7 @@ import useDebounce from 'hooks/useDebounce'
 import { useDeiPrice } from 'hooks/useCoingeckoPrice'
 import { useTokenPerBlock } from 'hooks/useBdeiStakingPage'
 import { useDeiStats } from 'hooks/useDeiStats'
-import { StakingPools } from 'constants/stakings'
+import { StakingPools, StakingType } from 'constants/stakings'
 import { useGetApy } from 'hooks/useStakingInfo'
 import { useDashboardModalToggle } from 'state/application/hooks'
 import StatsModal from './StatsModal'
@@ -176,7 +176,7 @@ export enum Dashboard {
   VDEUS_STAKED_12MONTHS = 'Total vDEUS Staked for 12 Months',
 }
 
-export default function DeiStats() {
+export default function DeiStats({ stakingPool }: { stakingPool: StakingType }) {
   const toggleDashboardModal = useDashboardModalToggle()
 
   const [currentStat, setCurrentStat] = useState(Dashboard.EMPTY)
@@ -185,7 +185,7 @@ export default function DeiStats() {
   const { redeemTranche, deiBurned } = useRedeemData()
 
   const { deiBonded } = useBonderData()
-  const { totalDeposited } = useTokenPerBlock()
+  const { totalDeposited } = useTokenPerBlock(stakingPool)
 
   const pools = useBorrowPools()
   const { borrowedElastic } = useGlobalDEIBorrowed(pools)
@@ -195,11 +195,11 @@ export default function DeiStats() {
   const { day, hours } = getRemainingTime(redeemTime)
   const roundedDays = day + (hours > 12 ? 1 : 0) //adds 1 more day if remained hours is above 12 hours.
 
-  const { pid: deiPID } = StakingPools[0] //bDEI single staking pool
-  const bDeiSingleStakingAPR = useGetApy(deiPID)
+  const singleStakingPool = StakingPools[0] //bDEI single staking pool
+  const bDeiSingleStakingAPR = useGetApy(singleStakingPool)
 
-  const { pid: deibDeiPID } = StakingPools[1] //bDEI-DEI staking pool
-  const bDeiDeiStakingAPR = useGetApy(deibDeiPID)
+  const bondStakingPool = StakingPools[1] //bDEI-DEI staking pool
+  const bDeiDeiStakingAPR = useGetApy(bondStakingPool)
 
   const {
     totalSupply,
@@ -211,9 +211,9 @@ export default function DeiStats() {
     sPoolLiquidity,
   } = useDeiStats()
 
-  const usdcBackingPerDei = useMemo(() => {
-    return totalUSDCReserves / circulatingSupply
-  }, [totalUSDCReserves, circulatingSupply])
+  // const usdcBackingPerDei = useMemo(() => {
+  //   return totalUSDCReserves / circulatingSupply
+  // }, [totalUSDCReserves, circulatingSupply])
 
   const showLoader = redeemTranche.trancheId == null ? true : false
 

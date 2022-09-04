@@ -354,7 +354,7 @@ export default function Liquidity() {
         </LiquidityWrapper>
 
         <FarmWrapper>
-          <Staking pool={StakingPools[1]} />
+          <Staking stakingPool={StakingPools[1]} />
         </FarmWrapper>
 
         {/* <FarmWrapper>

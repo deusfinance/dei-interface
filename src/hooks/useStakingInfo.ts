@@ -10,6 +10,7 @@ import { SupportedChainId } from 'constants/chains'
 import { useVDeusMultiRewarderERC20Contract } from './useContract'
 import { StablePoolType } from 'constants/sPools'
 import { usePoolBalances } from './useStablePoolInfo'
+import { StakingType } from 'constants/stakings'
 
 //TODO: should remove all and put it in /constants
 const pids = [0, 1]
@@ -18,12 +19,12 @@ const stakingTokens: { [pid: number]: string } = {
   [pids[1]]: '0xDce9EC1eB454829B6fe0f54F504FEF3c3C0642Fc',
 }
 
-export function useGlobalMasterChefData(): {
+export function useGlobalMasterChefData(stakingPool: StakingType): {
   tokenPerBlock: number
   totalAllocPoint: number
   poolLength: number
 } {
-  const contract = useMasterChefContract()
+  const contract = useMasterChefContract(stakingPool)
 
   const calls = [
     {
@@ -58,14 +59,14 @@ export function useGlobalMasterChefData(): {
 }
 
 //TODO: depositAmount should consider decimals of token
-export function useUserInfo(pool: StablePoolType): {
+export function useUserInfo(stakingPool: StakingType): {
   depositAmount: number
   rewardsAmount: number
   totalDepositedAmount: number
 } {
-  const contract = useMasterChefContract(pool)
+  const contract = useMasterChefContract(stakingPool)
   const { account } = useWeb3React()
-  const pid = pool.pid
+  const pid = stakingPool.pid
   const calls = !account
     ? []
     : [
@@ -103,7 +104,7 @@ export function useUserInfo(pool: StablePoolType): {
 }
 
 //get deus reward apy for deus-vdeus lp pool
-export function useGetDeusApy(pool: StablePoolType): number {
+export function useGetDeusApy(pool: StablePoolType, stakingPool: StakingType): number {
   const contract = useVDeusMultiRewarderERC20Contract()
   // const deusPrice = useDeusPrice()
 
@@ -118,7 +119,7 @@ export function useGetDeusApy(pool: StablePoolType): number {
   const vdeusBalance = balances[0]
   const deusBalance = balances[1]
 
-  const { depositAmount, totalDepositedAmount } = useUserInfo(pool)
+  const { depositAmount, totalDepositedAmount } = useUserInfo(stakingPool)
 
   const retrieveTokenPerBlockValue = useMemo(() => {
     return retrieveTokenPerBlock?.result ? toBN(formatUnits(retrieveTokenPerBlock.result[0], 18)).toNumber() : 0
@@ -166,19 +167,19 @@ export function useGetDeusReward(pool: StablePoolType): number {
 }
 
 //TODO: totalDeposited should consider decimals of token
-export function usePoolInfo(pid: number): {
+export function usePoolInfo(stakingPool: StakingType): {
   accTokensPerShare: number
   lastRewardBlock: number
   allocPoint: number
   totalDeposited: number
 } {
-  const contract = useMasterChefContract()
-  const tokenAddress = stakingTokens[pid]
+  const contract = useMasterChefContract(stakingPool)
+  const tokenAddress = stakingTokens[stakingPool.pid]
   const ERC20Contract = useERC20Contract(tokenAddress)
   const calls = [
     {
       methodName: 'poolInfo',
-      callInputs: [pid.toString()],
+      callInputs: [stakingPool.pid.toString()],
     },
   ]
 
@@ -208,9 +209,9 @@ export function usePoolInfo(pid: number): {
   }
 }
 
-export function useGetApy(pid: number): number {
-  const { tokenPerBlock, totalAllocPoint } = useGlobalMasterChefData()
-  const { totalDeposited, allocPoint } = usePoolInfo(pid)
+export function useGetApy(stakingPool: StakingType): number {
+  const { tokenPerBlock, totalAllocPoint } = useGlobalMasterChefData(stakingPool)
+  const { totalDeposited, allocPoint } = usePoolInfo(stakingPool)
   // console.log(tokenPerBlock, totalDeposited)
   // const deiPrice = useDeiPrice()
   const deusPrice = useDeusPrice()

@@ -159,20 +159,21 @@ const InfoIcon = styled(Info)`
 export default function StakingPool() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const { token: currency, pid } = StakingPools2[1]
+  const stakingPool = StakingPools2[1]
+  const { token: currency, pid } = stakingPool
   const pool = StablePools[1]
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
 
-  const masterChefContract = useMasterChefContract(pool)
+  const masterChefContract = useMasterChefContract(stakingPool)
 
   const addTransaction = useTransactionAdder()
   // const [pendingTxHash, setPendingTxHash] = useState('')
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const { rewardsAmount, depositAmount } = useUserInfo(pool)
-  const duesApr = useGetDeusApy(pool)
+  const { rewardsAmount, depositAmount } = useUserInfo(stakingPool)
+  const duesApr = useGetDeusApy(pool, stakingPool)
   const deusReward = useGetDeusReward(pool)
   // console.log({ duesApr, deusReward })
   const vdeusApr = 25

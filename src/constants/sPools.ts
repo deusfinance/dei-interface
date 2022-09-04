@@ -8,7 +8,7 @@ import {
   VDEUS_TOKEN,
   DEI_BDEI_LP_TOKEN,
 } from 'constants/tokens'
-import { StablePool_DEUS_vDEUS, StablePool_DEI_bDEI, MasterChefV2, MasterChefV3 } from './addresses'
+import { StablePool_DEUS_vDEUS, StablePool_DEI_bDEI } from './addresses'
 
 export type StablePoolType = {
   name: string
@@ -17,7 +17,6 @@ export type StablePoolType = {
   lpToken: Token
   pid: number
   rewardsTokens: Token[]
-  masterChef: string
 }
 
 export const StablePools: StablePoolType[] = [
@@ -28,7 +27,6 @@ export const StablePools: StablePoolType[] = [
     liquidityTokens: [DEI_TOKEN, BDEI_TOKEN],
     lpToken: DEI_BDEI_LP_TOKEN,
     rewardsTokens: [DEUS_TOKEN],
-    masterChef: MasterChefV2[SupportedChainId.FANTOM],
   },
   {
     name: 'DEUS-vDEUS',
@@ -37,7 +35,6 @@ export const StablePools: StablePoolType[] = [
     liquidityTokens: [VDEUS_TOKEN, DEUS_TOKEN],
     lpToken: DEUS_VDEUS_LP_TOKEN,
     rewardsTokens: [VDEUS_TOKEN],
-    masterChef: MasterChefV3[SupportedChainId.FANTOM],
   },
 ]
 

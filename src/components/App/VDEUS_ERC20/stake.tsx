@@ -24,7 +24,6 @@ import InputBox from '../Redemption/InputBox'
 import { tryParseAmount } from 'utils/parse'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import Navigation, { NavigationTypes } from '../Stake/Navigation'
-import { StablePoolType } from 'constants/sPools'
 
 const Container = styled.div`
   display: flex;
@@ -140,20 +139,20 @@ const AmountSpan = styled.span`
 export default function Stake() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const pool = StakingPools2[0]
-  const { token: currency, pid } = pool
+  const stakingPool = StakingPools2[0]
+  const { token: currency, pid } = stakingPool
 
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
 
-  const masterChefContract = useMasterChefContract(pool as unknown as StablePoolType)
+  const masterChefContract = useMasterChefContract(stakingPool)
 
   const addTransaction = useTransactionAdder()
   // const [pendingTxHash, setPendingTxHash] = useState('')
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const { rewardsAmount, depositAmount } = useUserInfo(pool as unknown as StablePoolType)
+  const { rewardsAmount, depositAmount } = useUserInfo(stakingPool)
   const apr = 25 // useGetApr(pid)
 
   const currencyAmount = useMemo(() => {

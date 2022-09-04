@@ -21,7 +21,6 @@ import InputBox from 'components/App/Redemption/InputBox'
 import { DeiBonder } from 'constants/addresses'
 import { DEI_TOKEN, BDEI_TOKEN } from 'constants/tokens'
 import InfoBox from 'components/App/Bonds/InfoBox'
-import { NavigationTypes } from 'components/StableCoin'
 import { ExternalLink } from 'components/Link'
 
 const Container = styled.div`
@@ -59,7 +58,7 @@ const Description = styled.div`
   color: ${({ theme }) => darken(0.4, theme.text1)};
 `
 
-export default function Mint({ onSwitch }: { onSwitch: any }) {
+export default function Mint() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
@@ -184,7 +183,7 @@ export default function Mint({ onSwitch }: { onSwitch: any }) {
           onChange={(value: string) => setAmountIn(value)}
           title={'From'}
         />
-        <ArrowDown style={{ cursor: 'pointer' }} onClick={() => onSwitch(NavigationTypes.SWAP)} />
+        <ArrowDown />
 
         <InputBox
           currency={bDeiCurrency}

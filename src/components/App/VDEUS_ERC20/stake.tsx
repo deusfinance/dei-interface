@@ -6,10 +6,10 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { useMasterChefV3Contract } from 'hooks/useContract'
+import { useMasterChefContract } from 'hooks/useContract'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 // import { useGetApr } from 'hooks/useVDeusStaking'
-import { useUserInfo2 } from 'hooks/useStakingInfo'
+import { useUserInfo } from 'hooks/useStakingInfo'
 
 import { DefaultHandlerError } from 'utils/parseError'
 import { formatAmount, toBN } from 'utils/numbers'
@@ -139,19 +139,20 @@ const AmountSpan = styled.span`
 export default function Stake() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const { token: currency, pid } = StakingPools2[0]
+  const stakingPool = StakingPools2[0]
+  const { token: currency, pid } = stakingPool
 
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
 
-  const masterChefContract = useMasterChefV3Contract()
+  const masterChefContract = useMasterChefContract(stakingPool)
 
   const addTransaction = useTransactionAdder()
   // const [pendingTxHash, setPendingTxHash] = useState('')
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const { rewardsAmount, depositAmount } = useUserInfo2(pid)
+  const { rewardsAmount, depositAmount } = useUserInfo(stakingPool)
   const apr = 25 // useGetApr(pid)
 
   const currencyAmount = useMemo(() => {
@@ -240,13 +241,13 @@ export default function Stake() {
     } else if (awaitingApproveConfirmation) {
       return (
         <DepositButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </DepositButton>
       )
     } else if (showApproveLoader) {
       return (
         <DepositButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </DepositButton>
       )
     } else if (showApprove) {
@@ -265,13 +266,13 @@ export default function Stake() {
     } else if (awaitingDepositConfirmation) {
       return (
         <DepositButton>
-          Staking <DotFlashing style={{ marginLeft: '10px' }} />
+          Staking <DotFlashing />
         </DepositButton>
       )
     } else if (awaitingWithdrawConfirmation) {
       return (
         <DepositButton>
-          Unstaking <DotFlashing style={{ marginLeft: '10px' }} />
+          Unstaking <DotFlashing />
         </DepositButton>
       )
     } else {
@@ -290,7 +291,7 @@ export default function Stake() {
           <ClaimButton disabled={true}>
             <ButtonText>
               Claim
-              <DotFlashing style={{ marginLeft: '10px' }} />
+              <DotFlashing />
             </ButtonText>
           </ClaimButton>
         </ClaimButtonWrapper>

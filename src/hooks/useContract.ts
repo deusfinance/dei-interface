@@ -28,8 +28,7 @@ import DYNAMIC_REDEEMER_ABI from 'constants/abi/DYNAMIC_REDEEMER.json'
 import DEI_BONDER_ABI from 'constants/abi/DEI_Bonder.json'
 import SWAP_ABI from 'constants/abi/SWAP_ABI.json'
 import VDeusMasterChefV2_ABI from 'constants/abi/VDeusMasterChefV2_ABI.json'
-import MasterChefV2_ABI from 'constants/abi/MasterChefV2_ABI.json'
-import MasterChefV3_ABI from 'constants/abi/MasterChefV3_ABI.json'
+import MasterChefV2_ABI from 'constants/abi/MasterChefV2.json'
 import VDEUS_STAKING_ABI from 'constants/abi/VDEUS_STAKING.json'
 import MULTI_REWARDER_ABI from 'constants/abi/veDEUSMultiRewarderNFT.json'
 import VEDEUS_MULTI_REWARDER_ERC20_ABI from 'constants/abi/VEDEUS_MULTI_REWARDER_ERC20.json'
@@ -53,8 +52,6 @@ import {
   DynamicRedeemer,
   DeiBonder,
   veDist,
-  MasterChefV2,
-  MasterChefV3,
   vDeus,
   vDeusStaking,
   vDeusMasterChefV2,
@@ -66,6 +63,7 @@ import {
   CollateralPool,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
+import { StakingType } from 'constants/stakings'
 
 export function useContract<T extends Contract = Contract>(
   addressOrAddressMap: string | null | undefined,
@@ -224,12 +222,6 @@ export function useStablePoolContract(pool: StablePoolType) {
   return useContract(address, SWAP_ABI)
 }
 
-export function useMasterChefV2Contract() {
-  const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? MasterChefV2[chainId] : undefined), [chainId])
-  return useContract(address, MasterChefV2_ABI)
-}
-
 export function useVDeusMasterChefV2Contract(flag = false) {
   const { chainId } = useWeb3React()
   const address = useMemo(
@@ -239,10 +231,9 @@ export function useVDeusMasterChefV2Contract(flag = false) {
   return useContract(address, VDeusMasterChefV2_ABI)
 }
 
-export function useMasterChefV3Contract() {
-  const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? MasterChefV3[chainId] : undefined), [chainId])
-  return useContract(address, MasterChefV3_ABI)
+export function useMasterChefContract(stakingPool: StakingType) {
+  const address = useMemo(() => (stakingPool ? stakingPool.masterChef : undefined), [stakingPool])
+  return useContract(address, MasterChefV2_ABI)
 }
 
 export function useVDeusStakingContract() {

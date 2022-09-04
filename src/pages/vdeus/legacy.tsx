@@ -58,7 +58,7 @@ const WarningContainer = styled(PrimaryButton)`
 
 export const DISPLAY_WARNING = false
 
-export default function VDEUS() {
+export default function Legacy() {
   return (
     <Container>
       <Hero>

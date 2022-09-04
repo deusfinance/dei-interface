@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useERC20Contract, useMasterChefV2Contract, useMasterChefV3Contract } from 'hooks/useContract'
+import { useERC20Contract, useMasterChefContract } from 'hooks/useContract'
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { toBN } from 'utils/numbers'
 import useWeb3React from './useWeb3'
@@ -10,6 +10,7 @@ import { SupportedChainId } from 'constants/chains'
 import { useVDeusMultiRewarderERC20Contract } from './useContract'
 import { StablePoolType } from 'constants/sPools'
 import { usePoolBalances } from './useStablePoolInfo'
+import { StakingType } from 'constants/stakings'
 
 //TODO: should remove all and put it in /constants
 const pids = [0, 1]
@@ -18,12 +19,12 @@ const stakingTokens: { [pid: number]: string } = {
   [pids[1]]: '0xDce9EC1eB454829B6fe0f54F504FEF3c3C0642Fc',
 }
 
-export function useGlobalMasterChefData(): {
+export function useGlobalMasterChefData(stakingPool: StakingType): {
   tokenPerBlock: number
   totalAllocPoint: number
   poolLength: number
 } {
-  const contract = useMasterChefV2Contract()
+  const contract = useMasterChefContract(stakingPool)
 
   const calls = [
     {
@@ -58,48 +59,14 @@ export function useGlobalMasterChefData(): {
 }
 
 //TODO: depositAmount should consider decimals of token
-export function useUserInfo(pid: number): {
-  depositAmount: number
-  rewardsAmount: number
-} {
-  const contract = useMasterChefV2Contract()
-  const { account } = useWeb3React()
-  const calls = !account
-    ? []
-    : [
-        {
-          methodName: 'userInfo',
-          callInputs: [pid.toString(), account],
-        },
-        {
-          methodName: 'pendingTokens',
-          callInputs: [pid.toString(), account],
-        },
-      ]
-
-  const [userInfo, pendingTokens] = useSingleContractMultipleMethods(contract, calls)
-
-  const { depositedValue, reward } = useMemo(() => {
-    return {
-      depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0], 18)).toNumber() : 0,
-      reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0,
-    }
-  }, [userInfo, pendingTokens])
-
-  return {
-    depositAmount: depositedValue,
-    rewardsAmount: reward,
-  }
-}
-
-//TODO: depositAmount should consider decimals of token
-export function useUserInfo2(pid: number): {
+export function useUserInfo(stakingPool: StakingType): {
   depositAmount: number
   rewardsAmount: number
   totalDepositedAmount: number
 } {
-  const contract = useMasterChefV3Contract()
+  const contract = useMasterChefContract(stakingPool)
   const { account } = useWeb3React()
+  const pid = stakingPool.pid
   const calls = !account
     ? []
     : [
@@ -137,14 +104,14 @@ export function useUserInfo2(pid: number): {
 }
 
 //get deus reward apy for deus-vdeus lp pool
-export function useGetDeusApy(pool: StablePoolType): number {
+export function useGetDeusApy(pool: StablePoolType, stakingPool: StakingType): number {
   const contract = useVDeusMultiRewarderERC20Contract()
-  const deusPrice = useDeusPrice()
+  // const deusPrice = useDeusPrice()
 
   const calls = [
     {
       methodName: 'retrieveTokenPerBlock',
-      callInputs: [pool.stakingPid, 0],
+      callInputs: [stakingPool.pid, 0],
     },
   ]
   const [retrieveTokenPerBlock] = useSingleContractMultipleMethods(contract, calls)
@@ -152,7 +119,7 @@ export function useGetDeusApy(pool: StablePoolType): number {
   const vdeusBalance = balances[0]
   const deusBalance = balances[1]
 
-  const { depositAmount, totalDepositedAmount } = useUserInfo2(pool.stakingPid)
+  const { depositAmount, totalDepositedAmount } = useUserInfo(stakingPool)
 
   const retrieveTokenPerBlockValue = useMemo(() => {
     return retrieveTokenPerBlock?.result ? toBN(formatUnits(retrieveTokenPerBlock.result[0], 18)).toNumber() : 0
@@ -168,14 +135,14 @@ export function useGetDeusApy(pool: StablePoolType): number {
 
   // console.log({ ratio, totalBalance, myShare, retrieveTokenPerYearValue, myAprShare })
 
-  if (myShare === 0) return (retrieveTokenPerYearValue / totalBalance) * 100
+  if (!myShare || myShare === 0) return (retrieveTokenPerYearValue / totalBalance) * 100
   return (myAprShare / myShare) * 100
 
   // if (totalDeposited === 0) return 0
   // return (retrieveTokenPerBlockValue * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) / totalDeposited
 }
 //get deus reward for deus-vdeus lp pool user
-export function useGetDeusReward(pool: StablePoolType): number {
+export function useGetDeusReward(): number {
   const contract = useVDeusMultiRewarderERC20Contract()
   const { account } = useWeb3React()
 
@@ -185,10 +152,10 @@ export function useGetDeusReward(pool: StablePoolType): number {
       : [
           {
             methodName: 'pendingTokens',
-            callInputs: [pool.stakingPid, account],
+            callInputs: [2, account],
           },
         ]
-  }, [pool, account])
+  }, [account])
 
   const [pendingTokens] = useSingleContractMultipleMethods(contract, calls)
 
@@ -200,19 +167,19 @@ export function useGetDeusReward(pool: StablePoolType): number {
 }
 
 //TODO: totalDeposited should consider decimals of token
-export function usePoolInfo(pid: number): {
+export function usePoolInfo(stakingPool: StakingType): {
   accTokensPerShare: number
   lastRewardBlock: number
   allocPoint: number
   totalDeposited: number
 } {
-  const contract = useMasterChefV2Contract()
-  const tokenAddress = stakingTokens[pid]
+  const contract = useMasterChefContract(stakingPool)
+  const tokenAddress = stakingTokens[stakingPool.pid]
   const ERC20Contract = useERC20Contract(tokenAddress)
   const calls = [
     {
       methodName: 'poolInfo',
-      callInputs: [pid.toString()],
+      callInputs: [stakingPool.pid.toString()],
     },
   ]
 
@@ -242,9 +209,9 @@ export function usePoolInfo(pid: number): {
   }
 }
 
-export function useGetApy(pid: number): number {
-  const { tokenPerBlock, totalAllocPoint } = useGlobalMasterChefData()
-  const { totalDeposited, allocPoint } = usePoolInfo(pid)
+export function useGetApy(stakingPool: StakingType): number {
+  const { tokenPerBlock, totalAllocPoint } = useGlobalMasterChefData(stakingPool)
+  const { totalDeposited, allocPoint } = usePoolInfo(stakingPool)
   // console.log(tokenPerBlock, totalDeposited)
   // const deiPrice = useDeiPrice()
   const deusPrice = useDeusPrice()

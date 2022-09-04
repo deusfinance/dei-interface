@@ -6,6 +6,7 @@ import Disclaimer from 'components/Disclaimer'
 import { Navigation, NavigationTypes } from 'components/App/Dashboard'
 import DeiStats from 'components/App/Dashboard/DeiStats'
 import DeusStats from 'components/App/Dashboard/DeusStats'
+import { StakingPools } from 'constants/stakings'
 
 const Container = styled.div`
   display: flex;
@@ -25,15 +26,16 @@ const SelectorContainer = styled.div`
 
 export default function Dashboard() {
   const [selected, setSelected] = useState<NavigationTypes>(NavigationTypes.DEI)
+  const stakingPool = StakingPools[0]
 
   const getAppComponent = (): JSX.Element => {
     if (selected == NavigationTypes.DEI) {
-      return <DeiStats />
+      return <DeiStats stakingPool={stakingPool} />
     }
     if (selected == NavigationTypes.DEUS) {
       return <DeusStats />
     }
-    return <DeiStats />
+    return <DeiStats stakingPool={stakingPool} />
   }
 
   return (

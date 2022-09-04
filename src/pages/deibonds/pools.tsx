@@ -25,7 +25,7 @@ export default function Pools() {
       <Hero>
         <div>Pools</div>
       </Hero>
-      <Staking pool={StakingPools[0]} />
+      <Staking stakingPool={StakingPools[0]} />
       {/* {StakingPools.map((pool) => {
         return <Staking key={pool.pid} pool={pool} />
       })} */}

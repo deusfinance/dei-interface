@@ -1,11 +1,14 @@
 import { Token } from '@sushiswap/core-sdk'
 import { BDEI_TOKEN, DEI_BDEI_LP_TOKEN, DEUS_VDEUS_LP_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
+import { MasterChefV2, MasterChefV3 } from './addresses'
+import { SupportedChainId } from './chains'
 
 export type StakingType = {
   name: string
   pid: number
   token: Token
   provideLink?: string
+  masterChef: string
 }
 
 export type vDeusStakingType = {
@@ -24,27 +27,31 @@ export const StakingPools: StakingType[] = [
     pid: 0,
     token: BDEI_TOKEN,
     provideLink: '/deibonds',
+    masterChef: MasterChefV2[SupportedChainId.FANTOM],
   },
   {
     name: 'DEI-bDEI',
     pid: 1,
     token: DEI_BDEI_LP_TOKEN,
     provideLink: '/deibonds',
+    masterChef: MasterChefV2[SupportedChainId.FANTOM],
   },
 ]
 
 export const StakingPools2: StakingType[] = [
   {
-    name: 'single vDEUS(erc20)',
+    name: 'vDEUS(ERC20)',
     pid: 0,
     token: VDEUS_TOKEN,
-    provideLink: '/nft',
+    provideLink: '/vdeus/new',
+    masterChef: MasterChefV3[SupportedChainId.FANTOM],
   },
   {
     name: 'DEUS-vDEUS',
     pid: 2,
     token: DEUS_VDEUS_LP_TOKEN,
-    provideLink: '/nft',
+    provideLink: '/vdeus/new',
+    masterChef: MasterChefV3[SupportedChainId.FANTOM],
   },
 ]
 

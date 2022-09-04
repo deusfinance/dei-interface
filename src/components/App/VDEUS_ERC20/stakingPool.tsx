@@ -6,10 +6,10 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { useMasterChefV3Contract } from 'hooks/useContract'
+import { useMasterChefContract } from 'hooks/useContract'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 // import { useGetApr } from 'hooks/useVDeusStaking'
-import { useGetDeusApy, useUserInfo2, useGetDeusReward } from 'hooks/useStakingInfo'
+import { useGetDeusApy, useUserInfo, useGetDeusReward } from 'hooks/useStakingInfo'
 
 import { DefaultHandlerError } from 'utils/parseError'
 import { formatAmount, formatBalance, toBN } from 'utils/numbers'
@@ -19,7 +19,7 @@ import { MasterChefV3 } from 'constants/addresses'
 import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 import { Row, RowEnd } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing, Info } from 'components/Icons'
+import { DotFlashing, Info, Loader } from 'components/Icons'
 import InputBox from '../Redemption/InputBox'
 import { tryParseAmount } from 'utils/parse'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -159,21 +159,22 @@ const InfoIcon = styled(Info)`
 export default function StakingPool() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const { token: currency, pid } = StakingPools2[1]
+  const stakingPool = StakingPools2[1]
+  const { token: currency, pid } = stakingPool
   const pool = StablePools[1]
   const isSupportedChainId = useSupportedChainId()
   const [amountIn, setAmountIn] = useState('')
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency)
 
-  const masterChefContract = useMasterChefV3Contract()
+  const masterChefContract = useMasterChefContract(stakingPool)
 
   const addTransaction = useTransactionAdder()
   // const [pendingTxHash, setPendingTxHash] = useState('')
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const { rewardsAmount, depositAmount } = useUserInfo2(pid)
-  const duesApr = useGetDeusApy(pool)
-  const deusReward = useGetDeusReward(pool)
+  const { rewardsAmount, depositAmount } = useUserInfo(stakingPool)
+  const duesApr = useGetDeusApy(pool, stakingPool)
+  const deusReward = useGetDeusReward()
   // console.log({ duesApr, deusReward })
   const vdeusApr = 25
   const apr = 25 + duesApr
@@ -264,13 +265,13 @@ export default function StakingPool() {
     } else if (awaitingApproveConfirmation) {
       return (
         <DepositButton active>
-          Awaiting Confirmation <DotFlashing style={{ marginLeft: '10px' }} />
+          Awaiting Confirmation <DotFlashing />
         </DepositButton>
       )
     } else if (showApproveLoader) {
       return (
         <DepositButton active>
-          Approving <DotFlashing style={{ marginLeft: '10px' }} />
+          Approving <DotFlashing />
         </DepositButton>
       )
     } else if (showApprove) {
@@ -289,13 +290,13 @@ export default function StakingPool() {
     } else if (awaitingDepositConfirmation) {
       return (
         <DepositButton>
-          Staking <DotFlashing style={{ marginLeft: '10px' }} />
+          Staking <DotFlashing />
         </DepositButton>
       )
     } else if (awaitingWithdrawConfirmation) {
       return (
         <DepositButton>
-          Unstaking <DotFlashing style={{ marginLeft: '10px' }} />
+          Unstaking <DotFlashing />
         </DepositButton>
       )
     } else {
@@ -314,7 +315,7 @@ export default function StakingPool() {
           <ClaimButton disabled={true}>
             <ButtonText>
               Claim
-              <DotFlashing style={{ marginLeft: '10px' }} />
+              <DotFlashing />
             </ButtonText>
           </ClaimButton>
         </ClaimButtonWrapper>
@@ -346,8 +347,14 @@ export default function StakingPool() {
         </SelectorContainer>
         <ToolTip id="id" />
         <RowEnd data-for="id" data-tip={`${formatBalance(duesApr, 3)}% DEUS + ${vdeusApr}% vDEUS`}>
-          <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
-          <InfoIcon size={25} />
+          {apr ? (
+            <>
+              <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>
+              <InfoIcon size={25} />
+            </>
+          ) : (
+            <Loader size={'20px'} stroke="yellow" />
+          )}
         </RowEnd>
       </TitleInfo>
 

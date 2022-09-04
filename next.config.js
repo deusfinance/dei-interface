@@ -9,6 +9,11 @@ module.exports = {
         destination: '/redemption',
         permanent: true,
       },
+      {
+        source: '/vdeus',
+        destination: '/vdeus/new',
+        permanent: true,
+      },
     ]
   },
 }

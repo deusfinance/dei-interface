@@ -105,7 +105,7 @@ export function useUserInfo(pool: StablePoolType): {
 //get deus reward apy for deus-vdeus lp pool
 export function useGetDeusApy(pool: StablePoolType): number {
   const contract = useVDeusMultiRewarderERC20Contract()
-  const deusPrice = useDeusPrice()
+  // const deusPrice = useDeusPrice()
 
   const calls = [
     {
@@ -134,7 +134,7 @@ export function useGetDeusApy(pool: StablePoolType): number {
 
   // console.log({ ratio, totalBalance, myShare, retrieveTokenPerYearValue, myAprShare })
 
-  if (myShare === 0) return (retrieveTokenPerYearValue / totalBalance) * 100
+  if (!myShare || myShare === 0) return (retrieveTokenPerYearValue / totalBalance) * 100
   return (myAprShare / myShare) * 100
 
   // if (totalDeposited === 0) return 0

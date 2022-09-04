@@ -21,11 +21,6 @@
     ]
   },
   {
-    "id": "4",
-    "text": "Money Markets",
-    "children": [{ "id": "41", "text": "Borrow", "path": "/borrow" }]
-  },
-  {
     "id": "5",
     "text": "veDEUS",
     "children": [
@@ -40,5 +35,11 @@
       { "id": "61", "text": "LEGACY (NFT)", "path": "/vdeus/legacy" },
       { "id": "62", "text": "NEW (ERC20)", "path": "/vdeus/new" }
     ]
+  },
+  {
+    "id": "4",
+    "text": "Borrow",
+    "path": "/borrow",
+    "exact": true
   }
 ]

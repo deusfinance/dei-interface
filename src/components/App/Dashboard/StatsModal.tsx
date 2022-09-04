@@ -360,11 +360,11 @@ export default function StatsModal({ stat }: { stat: Dashboard }) {
       case Dashboard.GLOBAL_DEI_BORROWED:
         return (
           <ModalWrapper>
-            <div>Total DEI Borrowed from the DEI Money markets</div>
+            <div>Total DEI Borrowed from the DEI stablecoin</div>
             <div>
               Link to Borrow :{' '}
               <Link href="/borrow" passHref>
-                DEI Money Markets
+                DEI stablecoin
               </Link>
             </div>
             <ModalInfoWrapper>

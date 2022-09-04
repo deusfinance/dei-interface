@@ -111,7 +111,7 @@ export function useGetDeusApy(pool: StablePoolType, stakingPool: StakingType): n
   const calls = [
     {
       methodName: 'retrieveTokenPerBlock',
-      callInputs: [pool.pid, 0],
+      callInputs: [stakingPool.pid, 0],
     },
   ]
   const [retrieveTokenPerBlock] = useSingleContractMultipleMethods(contract, calls)
@@ -142,7 +142,7 @@ export function useGetDeusApy(pool: StablePoolType, stakingPool: StakingType): n
   // return (retrieveTokenPerBlockValue * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) / totalDeposited
 }
 //get deus reward for deus-vdeus lp pool user
-export function useGetDeusReward(pool: StablePoolType): number {
+export function useGetDeusReward(): number {
   const contract = useVDeusMultiRewarderERC20Contract()
   const { account } = useWeb3React()
 
@@ -152,10 +152,10 @@ export function useGetDeusReward(pool: StablePoolType): number {
       : [
           {
             methodName: 'pendingTokens',
-            callInputs: [pool.pid, account],
+            callInputs: [2, account],
           },
         ]
-  }, [pool, account])
+  }, [account])
 
   const [pendingTokens] = useSingleContractMultipleMethods(contract, calls)
 

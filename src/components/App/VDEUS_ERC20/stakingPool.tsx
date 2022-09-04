@@ -174,7 +174,7 @@ export default function StakingPool() {
 
   const { rewardsAmount, depositAmount } = useUserInfo(stakingPool)
   const duesApr = useGetDeusApy(pool, stakingPool)
-  const deusReward = useGetDeusReward(pool)
+  const deusReward = useGetDeusReward()
   // console.log({ duesApr, deusReward })
   const vdeusApr = 25
   const apr = 25 + duesApr

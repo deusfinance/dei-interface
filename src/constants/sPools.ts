@@ -15,7 +15,6 @@ export type StablePoolType = {
   swapFlashLoan: string
   liquidityTokens: Token[]
   lpToken: Token
-  pid: number
   rewardsTokens: Token[]
 }
 
@@ -23,7 +22,6 @@ export const StablePools: StablePoolType[] = [
   {
     name: 'DEI-bDEI',
     swapFlashLoan: StablePool_DEI_bDEI[SupportedChainId.FANTOM],
-    pid: 1,
     liquidityTokens: [DEI_TOKEN, BDEI_TOKEN],
     lpToken: DEI_BDEI_LP_TOKEN,
     rewardsTokens: [DEUS_TOKEN],
@@ -31,7 +29,6 @@ export const StablePools: StablePoolType[] = [
   {
     name: 'DEUS-vDEUS',
     swapFlashLoan: StablePool_DEUS_vDEUS[SupportedChainId.FANTOM],
-    pid: 2,
     liquidityTokens: [VDEUS_TOKEN, DEUS_TOKEN],
     lpToken: DEUS_VDEUS_LP_TOKEN,
     rewardsTokens: [VDEUS_TOKEN],

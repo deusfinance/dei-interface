@@ -54,7 +54,7 @@ const TopWrapper = styled.div`
   flex-wrap: wrap;
   width: 100%;
   max-width: 1200px;
-  margin 0 auto;
+  margin: 0 auto;
 `
 
 const FarmWrapper = styled(Wrapper)`
@@ -77,6 +77,10 @@ const LiquidityWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
     margin: 0 auto;
+    & > * {
+    &:nth-child(3) {
+      width: 90%;
+    }
   `}
 `
 
@@ -91,20 +95,8 @@ const ToggleState = styled.div`
   width: clamp(250px, 90%, 500px);
 `
 
-const StateButton = styled.div`
-  width: 50%;
-  text-align: center;
-  padding: 12px;
-  cursor: pointer;
-`
-
 const DepositButton = styled(PrimaryButton)`
   border-radius: 15px;
-`
-
-const LeftTitle = styled.span`
-  font-size: 24px;
-  font-weight: 500;
 `
 
 export default function Liquidity() {
@@ -131,7 +123,6 @@ export default function Liquidity() {
 
   const amountOut = useRemoveLiquidity(pool, debouncedLPAmountIn)
   const amountOut2 = useAddLiquidity(pool, [debouncedAmountIn, debouncedAmountIn2]).toString()
-  // console.log({ amountOut, amountOut2, lpAmountIn })
 
   const deiAmount = useMemo(() => {
     return tryParseAmount(amountIn, deiCurrency || undefined)
@@ -141,11 +132,24 @@ export default function Liquidity() {
     return tryParseAmount(amountIn2, bdeiCurrency || undefined)
   }, [amountIn2, bdeiCurrency])
 
-  const insufficientBalance = useMemo(() => {
-    // TODO: complete this later
-    if (!deiAmount || !bdeiAmount) return false
-    return deiCurrencyBalance?.lessThan(deiAmount) && bdeiCurrencyBalance?.lessThan(bdeiAmount)
-  }, [deiCurrencyBalance, bdeiCurrencyBalance, deiAmount, bdeiAmount])
+  const lpAmount = useMemo(() => {
+    return tryParseAmount(lpAmountIn, lpCurrency || undefined)
+  }, [lpAmountIn, lpCurrency])
+
+  const insufficientBalance1 = useMemo(() => {
+    if (!deiAmount) return false
+    return deiCurrencyBalance?.lessThan(deiAmount)
+  }, [deiCurrencyBalance, deiAmount])
+
+  const insufficientBalance2 = useMemo(() => {
+    if (!bdeiAmount) return false
+    return bdeiCurrencyBalance?.lessThan(bdeiAmount)
+  }, [bdeiCurrencyBalance, bdeiAmount])
+
+  const insufficientBalance3 = useMemo(() => {
+    if (!lpAmount) return false
+    return lpCurrencyBalance?.lessThan(lpAmount)
+  }, [lpCurrencyBalance, lpAmount])
 
   const {
     state: liquidityCallbackState,
@@ -202,7 +206,7 @@ export default function Liquidity() {
 
   const handleLiquidity = useCallback(async () => {
     console.log('called handleLiquidity')
-    // console.log(liquidityCallbackState, liquidityCallback, liquidityCallbackError)
+    console.log(liquidityCallbackState, liquidityCallbackError)
     if (!liquidityCallback) return
     try {
       setAwaitingLiquidityConfirmation(true)
@@ -254,12 +258,18 @@ export default function Liquidity() {
     }
     if ((showApprove || showApprove2) && type === 'add') {
       return null
-    } else if (showApprove3 && type === 'remove') {
+    }
+    if (showApprove3 && type === 'remove') {
       return null
     }
-
-    if (insufficientBalance) {
+    if (insufficientBalance1) {
       return <DepositButton disabled>Insufficient {deiCurrency?.symbol} Balance</DepositButton>
+    }
+    if (insufficientBalance2) {
+      return <DepositButton disabled>Insufficient {bdeiCurrency?.symbol} Balance</DepositButton>
+    }
+    if (insufficientBalance3) {
+      return <DepositButton disabled>Insufficient {lpCurrency?.symbol} Balance</DepositButton>
     }
     if (awaitingLiquidityConfirmation) {
       return (
@@ -356,30 +366,6 @@ export default function Liquidity() {
         <FarmWrapper>
           <Staking stakingPool={StakingPools[1]} />
         </FarmWrapper>
-
-        {/* <FarmWrapper>
-          <LeftTitle>My farm</LeftTitle>
-          <div style={{ marginTop: '20px' }}></div>
-          <StakeBox
-            currency={lpCurrency}
-            onClick={() => console.debug('')}
-            onChange={() => console.debug('')}
-            type={'Stake All'}
-            value={lpCurrencyBalance?.toSignificant(6) || '0'}
-            title={'LP Available'}
-            disabled
-          />
-          <div style={{ marginTop: '20px' }}></div>
-          <StakeBox
-            currency={null}
-            onClick={() => console.debug('')}
-            onChange={() => console.debug('')}
-            type={'Unstake All'}
-            value={'2.1'}
-            title={'LP Staked'}
-            disabled
-          />
-        </FarmWrapper> */}
       </TopWrapper>
       <Disclaimer />
     </Container>

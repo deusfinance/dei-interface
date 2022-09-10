@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { darken } from 'polished'
-import { ArrowDown } from 'react-feather'
+import { ArrowDown, Plus } from 'react-feather'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -10,10 +10,9 @@ import useDebounce from 'hooks/useDebounce'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useRedemptionCallback from 'hooks/useRedemptionCallback'
-import { useRedeemAmountsOut, useRedeemData } from 'hooks/useRedemptionPage'
+import { useRedeemAmountsOut } from 'hooks/useRedemptionPage'
 import { tryParseAmount } from 'utils/parse'
-import { getRemainingTime } from 'utils/time'
-import { DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
+import { BDEI_TOKEN, DEI_TOKEN, DEUS_TOKEN, USDC_TOKEN } from 'constants/tokens'
 import { DynamicRedeemer } from 'constants/addresses'
 
 import { PrimaryButton } from 'components/Button'
@@ -22,7 +21,7 @@ import { Row } from 'components/Row'
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import InputBox from 'components/App/Redemption/InputBox'
-import RedemptionInfoBox from 'components/App/Redemption/RedemptionInfoBox'
+// import RedemptionInfoBox from 'components/App/Redemption/RedemptionInfoBox'
 
 const Container = styled.div`
   display: flex;
@@ -42,7 +41,7 @@ const Wrapper = styled(Container)`
   justify-content: center;
 
   & > * {
-    &:nth-child(2) {
+    &:nth-child(4) {
       margin: 15px auto;
     }
   }
@@ -55,14 +54,14 @@ const Description = styled.div`
   color: ${({ theme }) => darken(0.4, theme.text1)};
 `
 
-// const PlusIcon = styled(Plus)`
-//   margin: -14px auto;
-//   z-index: 1000;
-//   padding: 3px;
-//   border: 1px solid black;
-//   border-radius: 15px;
-//   background-color: rgb(0 0 0);
-// `
+const PlusIcon = styled(Plus)`
+  margin: -14px auto;
+  z-index: 1000;
+  padding: 3px;
+  border: 1px solid black;
+  border-radius: 15px;
+  background-color: rgb(0 0 0);
+`
 
 const RedeemButton = styled(PrimaryButton)`
   border-radius: 15px;
@@ -75,13 +74,16 @@ export default function Redemption() {
   const [amountIn, setAmountIn] = useState('')
   const debouncedAmountIn = useDebounce(amountIn, 500)
   const deiCurrency = DEI_TOKEN
+  const bdeiCurrency = BDEI_TOKEN
   const usdcCurrency = USDC_TOKEN
   const deusCurrency = DEUS_TOKEN
   const deiCurrencyBalance = useCurrencyBalance(account ?? undefined, deiCurrency)
+  const bdeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
 
   /* const { amountIn, amountOut1, amountOut2, onUserInput, onUserOutput1, onUserOutput2 } = useRedeemAmounts() */
   const { amountOut1, amountOut2 } = useRedeemAmountsOut(debouncedAmountIn, deiCurrency)
-  const { redeemPaused, redeemTranche } = useRedeemData()
+  // const { redeemPaused, redeemTranche } = useRedeemData()
+  const redeemPaused = false
   // console.log({ redeemPaused, rest })
 
   // Amount typed in either fields
@@ -113,7 +115,7 @@ export default function Redemption() {
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [deiCurrency, approvalState, amountIn])
 
-  const { diff } = getRemainingTime(redeemTranche.endTime)
+  // const { diff } = getRemainingTime(redeemTranche.endTime)
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -175,36 +177,27 @@ export default function Redemption() {
       return null
     }
     if (redeemPaused) {
-      return <RedeemButton disabled>Redeem Paused</RedeemButton>
+      return <RedeemButton disabled>Migrate Paused</RedeemButton>
     }
-
-    if (diff < 0 && redeemTranche.trancheId != null) {
-      return <RedeemButton disabled>Tranche Ended</RedeemButton>
-    }
-
-    if (Number(amountOut1) > redeemTranche.amountRemaining) {
-      return <RedeemButton disabled>Exceeds Available Amount</RedeemButton>
-    }
-
     if (insufficientBalance) {
       return <RedeemButton disabled>Insufficient {deiCurrency?.symbol} Balance</RedeemButton>
     }
     if (awaitingRedeemConfirmation) {
       return (
         <RedeemButton>
-          Redeeming DEI <DotFlashing />
+          Migrating DEI,bDEI <DotFlashing />
         </RedeemButton>
       )
     }
 
-    return <RedeemButton onClick={() => handleRedeem()}>Redeem DEI</RedeemButton>
+    return <RedeemButton onClick={() => handleRedeem()}>Migrate DEI,bDEI</RedeemButton>
   }
 
   return (
     <Container>
       <Hero>
-        <div>Redemption</div>
-        <HeroSubtext>redeem your DEI</HeroSubtext>
+        <div>Migration</div>
+        <HeroSubtext>Migrate your DEI, bDEI</HeroSubtext>
       </Hero>
       <Wrapper>
         <InputBox
@@ -213,16 +206,17 @@ export default function Redemption() {
           onChange={(value: string) => setAmountIn(value)}
           title={'From'}
         />
-        <ArrowDown />
-
-        {/* <InputBox
-          currency={usdcCurrency}
+        <PlusIcon size={'30px'} />
+        <InputBox
+          currency={bdeiCurrency}
           value={amountOut1}
           onChange={(value: string) => console.log(value)}
-          title={'To'}
+          title={'From'}
           disabled={true}
         />
-        <PlusIcon size={'30px'} /> */}
+
+        <ArrowDown />
+
         <InputBox
           currency={deusCurrency}
           value={amountOut2}
@@ -240,7 +234,7 @@ export default function Redemption() {
         {getApproveButton()}
         {getActionButton()}
       </Wrapper>
-      <RedemptionInfoBox />
+      {/* <RedemptionInfoBox /> */}
       <Disclaimer />
     </Container>
   )

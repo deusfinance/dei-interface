@@ -72,7 +72,7 @@ export const vDeusStakingPools: vDeusStakingType[] = [
     apr: 10,
     lpToken: '0x24651a470D08009832d62d702d1387962A2E5d60',
     lockDuration: 180,
-    provideLink: '/redeem',
+    provideLink: '/redemption',
   },
   {
     id: 1,
@@ -81,7 +81,7 @@ export const vDeusStakingPools: vDeusStakingType[] = [
     lpToken: '0x65875f75d5CDEf890ea97ADC43E216D3f0c2b2D8',
     apr: 20,
     lockDuration: 360,
-    provideLink: '/redeem',
+    provideLink: '/redemption',
   },
   {
     id: 2,
@@ -90,6 +90,6 @@ export const vDeusStakingPools: vDeusStakingType[] = [
     lpToken: '0xCf18eCa0EaC101eb47828BFd460D1922000213db',
     apr: 40,
     lockDuration: 720,
-    provideLink: '/redeem',
+    provideLink: '/redemption',
   },
 ]

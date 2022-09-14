@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { BorrowAction, BorrowPool, LenderVersion, TypedField } from 'state/borrow/reducer'
 import { useUserPoolData } from 'hooks/usePoolData'
-import { BorrowClient } from 'lib/muon'
+// import { BorrowClient } from 'lib/muon'
 
 import useWeb3React from './useWeb3'
 import { useGeneralLenderContract } from './useContract'
@@ -39,13 +39,13 @@ export default function useBorrowCallback(
   const GeneralLender = useGeneralLenderContract(pool)
   const { userBorrow } = useUserPoolData(pool)
 
-  const getOracleData = useCallback(async () => {
-    const result = await BorrowClient.getCollateralPrice(pool)
-    if (result.success === false) {
-      throw new Error(`Unable to fetch Muon collateral price: ${result.error}`)
-    }
-    return result.data.calldata
-  }, [pool])
+  // const getOracleData = useCallback(async () => {
+  //   const result = await BorrowClient.getCollateralPrice(pool)
+  //   if (result.success === false) {
+  //     throw new Error(`Unable to fetch Muon collateral price: ${result.error}`)
+  //   }
+  //   return result.data.calldata
+  // }, [pool])
 
   const constructCall = useCallback(async () => {
     try {
@@ -65,7 +65,20 @@ export default function useBorrowCallback(
         args = [account, toHex(collateralAmount.quotient)]
 
         if (pool.version == LenderVersion.V2) {
-          const { price, reqId, sigs, timestamp } = await getOracleData()
+          // const { price, reqId, sigs, timestamp } = await getOracleData()
+          const price = 1
+          const timestamp = 1
+          const reqId = '0x'
+          const signature = '1'
+          const owner = '0x2408E836eBfcF135731Df4Cf357C10a7b65193bF'
+          const nonce = '0x2408E836eBfcF135731Df4Cf357C10a7b65193bF'
+          const sigs = [
+            {
+              signature,
+              owner,
+              nonce,
+            },
+          ]
           if (!price || !reqId || !sigs || !timestamp) throw new Error('Missing dependencies from muon oracles.')
           args = [...args, price, timestamp, reqId, sigs]
         }
@@ -75,7 +88,20 @@ export default function useBorrowCallback(
         args = [account, toHex(borrowAmount.quotient)]
 
         if (pool.version == LenderVersion.V2) {
-          const { price, reqId, sigs, timestamp } = await getOracleData()
+          // const { price, reqId, sigs, timestamp } = await getOracleData()
+          const price = 1
+          const timestamp = 1
+          const reqId = '0x'
+          const signature = '1'
+          const owner = '0x2408E836eBfcF135731Df4Cf357C10a7b65193bF'
+          const nonce = '0x2408E836eBfcF135731Df4Cf357C10a7b65193bF'
+          const sigs = [
+            {
+              signature,
+              owner,
+              nonce,
+            },
+          ]
           if (!price || !reqId || !sigs || !timestamp) throw new Error('Missing dependencies from muon oracles.')
           args = [...args, price, timestamp, reqId, sigs]
         }
@@ -114,7 +140,6 @@ export default function useBorrowCallback(
     borrowAmount,
     payOff,
     userBorrow,
-    getOracleData,
   ])
 
   return useMemo(() => {

@@ -14,7 +14,7 @@ import {
   Twitter as TwitterIcon,
   Github as GithubIcon,
   Lock as LockIcon,
-  Redeem as RedeemIcon,
+  // Redeem as RedeemIcon,
   Gift as GiftIcon,
   Portfolio as PortfolioIcon,
   Trade as TradeIcon,
@@ -87,14 +87,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/redemption" passHref>
+          {/* <Link href="/redemption" passHref>
             <Row active={router.route === '/redemption'}>
               <div>Redemption</div>
               <IconWrapper>
                 <RedeemIcon size={20} />
               </IconWrapper>
             </Row>
-          </Link>
+          </Link> */}
           <Link href="/deibonds" passHref>
             <Row active={router.route === '/deibonds'}>
               <div>DeiBonds</div>

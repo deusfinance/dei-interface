@@ -6,12 +6,6 @@
     "exact": true
   },
   {
-    "id": "2",
-    "text": "Redeem",
-    "path": "/redemption",
-    "exact": true
-  },
-  {
     "id": "3",
     "text": "Bonds",
     "children": [

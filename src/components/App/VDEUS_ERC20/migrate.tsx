@@ -205,7 +205,11 @@ export default function Migrate() {
           ) : (
             <TokenId> {'vDEUS ' + `#${tokenIds.join(',#')}`}</TokenId>
           )}
-          <Balance>Total NFTs Value: ${formatBalance(parseFloat(amountOut) * 250)} in vDEUS</Balance>
+          <Balance>
+            {amountOut
+              ? `Total NFTs Value: ${formatBalance(parseFloat(amountOut) * 250)} in vDEUS`
+              : `New NFTs are not considered yet`}
+          </Balance>
         </>
       </NFTWrap>
     ) : null

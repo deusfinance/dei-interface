@@ -63,11 +63,18 @@ export default function NFTBox({
 }) {
   const balanceDisplay = nft.value ? formatBalance(nft.value * 250) : null
 
+  // console.log({ balanceDisplay })
+
   return (
-    <Wrapper onClick={() => setNFT(nft)} active={disabled}>
+    <Wrapper
+      onClick={() => {
+        if (nft.value !== 0) setNFT(nft)
+      }}
+      active={disabled}
+    >
       <TokenIdWrap>
         <TokenId>vDEUS #{nft.tokenId}</TokenId>
-        <Balance>{balanceDisplay ? `Value: $${balanceDisplay} in vDEUS` : '0.00'}</Balance>
+        <Balance>{balanceDisplay ? `Value: $${balanceDisplay} in vDEUS` : 'New NFTs are not considered yet'}</Balance>
       </TokenIdWrap>
     </Wrapper>
   )

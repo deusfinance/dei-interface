@@ -80,7 +80,7 @@ export default function NFTsModal({
 
   function setVDeusNfts(nft: VDEUS_NFT) {
     const index = selectedNFTs.findIndex((element) => element.tokenId === nft.tokenId)
-    console.log([...selectedNFTs, nft])
+    // console.log([...selectedNFTs, nft])
     if (index === -1) setSelectedNFTs([...selectedNFTs, nft])
     else {
       const nfts: VDEUS_NFT[] = []
@@ -102,7 +102,7 @@ export default function NFTsModal({
       setSelectedNFTs([])
       return
     }
-    setSelectedNFTs(userNFTs)
+    setSelectedNFTs(userNFTs.filter((nft) => nft.value !== 0))
   }
 
   function onExit() {

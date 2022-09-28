@@ -13,18 +13,27 @@ import { RowBetween } from 'components/Row'
 const Wrapper = styled(RowBetween).attrs({ align: 'center' })`
   display: flex;
   border-radius: 15px;
-  color: ${({ theme }) => theme.text2};
+  color: ${({ theme }) => theme.text1};
   white-space: nowrap;
   height: 60px;
   gap: 10px;
   padding: 0px 1rem;
-  /* margin: 0 1rem; */
   border: 1px solid ${({ theme }) => theme.border2};
   background: ${({ theme }) => theme.bg2};
 
+  & > * {
+    & > * {
+      font-size: 1.1rem;
+    }
+  }
+
   &:hover {
-    background: ${({ theme }) => theme.bg1};
+    background: ${({ theme }) => theme.primary2};
     cursor: pointer;
+    & > * {
+      color: ${({ theme }) => theme.black};
+      font-weight: bold;
+    }
   }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -53,9 +62,11 @@ const Balance = styled.div`
 export default function TokenBox({
   currency,
   toggleModal,
+  setToken,
 }: {
   currency: Currency
   toggleModal: (action: boolean) => void
+  setToken: (currency: Currency) => void
 }) {
   const { account } = useWeb3React()
   const tokenAddress = currency.isToken ? currency.address : currency.wrapped.address
@@ -70,8 +81,8 @@ export default function TokenBox({
   return (
     <Wrapper
       onClick={() => {
-        // onCurrencySelection(field, currency)
         toggleModal(false)
+        setToken(currency)
       }}
     >
       <Row>
@@ -82,7 +93,7 @@ export default function TokenBox({
           alt={`${currency?.symbol} Logo`}
           round
         />
-        <p style={{ marginLeft: '8px', fontSize: '1rem', color: '#ccc' }}>{currency?.symbol}</p>
+        <p style={{ marginLeft: '8px' }}>{currency?.symbol}</p>
       </Row>
       <Balance>{balanceDisplay ? balanceDisplay : '0.00'}</Balance>
     </Wrapper>

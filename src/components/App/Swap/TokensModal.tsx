@@ -38,10 +38,12 @@ export default function TokensModal({
   isOpen,
   toggleModal,
   tokens,
+  setToken,
 }: {
   isOpen: boolean
   toggleModal: (action: boolean) => void
   tokens: Currency[]
+  setToken: (currency: Currency) => void
 }) {
   const { snapshot, searchProps } = useSearch(tokens)
   const result = snapshot.options.map((token) => token)
@@ -53,7 +55,12 @@ export default function TokensModal({
         <SearchField searchProps={searchProps} />
         <TokenResultWrapper>
           {result.map((token, index) => (
-            <TokenBox key={index} toggleModal={toggleModal} currency={token as unknown as Currency} />
+            <TokenBox
+              key={index}
+              toggleModal={toggleModal}
+              currency={token as unknown as Currency}
+              setToken={setToken}
+            />
           ))}
         </TokenResultWrapper>
       </Wrapper>

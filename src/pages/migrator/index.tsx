@@ -1,14 +1,13 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 
 import { ArrowDown } from 'react-feather'
-import { formatBalance } from 'utils/numbers'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
-import { useOwnedVDeusNfts, VDEUS_NFT } from 'hooks/useVDeusNfts'
+import { VDEUS_NFT } from 'hooks/useVDeusNfts'
 import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback'
 import useVDeusMigrationCallback from 'hooks/useVDeusMigrationCallback'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
@@ -18,13 +17,10 @@ import { DotFlashing } from 'components/Icons'
 import InputBox from 'components/App/Redemption/InputBox'
 import { vDeus, Migrator } from 'constants/addresses'
 import { BDEI_TOKEN, DEI_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
-// import NFTsModal from 'components/NFTsModal'
-import SelectBox from 'components/SelectBox'
-import { Balance, TokenId } from 'components/NFTsModal/NFTBox'
-import { RowStart } from 'components/Row'
 import { useExpiredPrice } from 'state/dashboard/hooks'
 import useUpdateCallback from 'hooks/useOracleCallback'
 import TokensModal from 'components/App/Swap/TokensModal'
+import { Currency } from '@sushiswap/core-sdk'
 
 const Container = styled.div`
   display: flex;
@@ -54,11 +50,6 @@ const MainButton = styled(PrimaryButton)`
   border-radius: 15px;
 `
 
-const NFTWrap = styled.div`
-  margin-left: 16px;
-  color: ${({ theme }) => theme.text1};
-`
-
 const Description = styled.div`
   font-size: 0.85rem;
   line-height: 1.25rem;
@@ -77,23 +68,14 @@ export default function Migrator2() {
 
   const expiredPrice = useExpiredPrice()
 
-  const userNFTs = useOwnedVDeusNfts()
-  const [isOpenNFTsModal, toggleNFTsModal] = useState(false)
   const [inputNFT, setInputNFT] = useState<VDEUS_NFT[]>([])
+  const [inputCurrency, setInputCurrency] = useState<Currency>(DEICurrency)
 
   const [amountOut, setAmountOut] = useState('')
 
   const tokenIds = useMemo(() => {
     if (!inputNFT) return []
     return inputNFT.map((nft) => nft.tokenId)
-  }, [inputNFT])
-
-  useEffect(() => {
-    let totalValue = 0
-    inputNFT.forEach((nft) => {
-      totalValue += nft.value
-    })
-    setAmountOut(totalValue ? formatBalance(totalValue) : '')
   }, [inputNFT])
 
   const { callback: migrationCallback } = useVDeusMigrationCallback(tokenIds)
@@ -200,64 +182,41 @@ export default function Migrator2() {
     return <MainButton onClick={() => handleMigrate()}>Migrate to {bDEICurrency.symbol}</MainButton>
   }
 
-  const getCurrentItem = useCallback(() => {
-    const isSelectAll = userNFTs.length === tokenIds.length
-
-    return tokenIds.length ? (
-      <NFTWrap>
-        <>
-          {isSelectAll ? (
-            <RowStart width={'100%'} style={{ gap: '6px' }}>
-              All <TokenId>{tokenIds.length} vDEUS</TokenId> NFTs are selected
-            </RowStart>
-          ) : (
-            <TokenId> {'vDEUS ' + `#${tokenIds.join(',#')}`}</TokenId>
-          )}
-          <Balance>Total NFTs Value: ${formatBalance(parseFloat(amountOut) * 250)} in vDEUS</Balance>
-        </>
-      </NFTWrap>
-    ) : null
-  }, [tokenIds, userNFTs, amountOut])
-
   return (
     <Container>
       <Hero>
         <div>bDEI Migrator</div>
         <HeroSubtext>Migrate your DEI/vDEUS to bDEI</HeroSubtext>
       </Hero>
-      <>
-        <Wrapper>
-          <SelectBox
-            value={''}
-            placeholder="Select a Token"
-            currentItem={getCurrentItem()}
-            onSelect={() => toggleTokensModal(true)}
-          />
-          <ArrowDown />
-
-          <InputBox
-            currency={bDEICurrency}
-            value={amountOut}
-            onChange={(value: string) => console.log(value)}
-            title={'To bDEI'}
-            disabled={true}
-          />
-          <div style={{ marginTop: '20px' }}></div>
-          {getApproveButton()}
-          {getActionButton()}
-        </Wrapper>
-        {/* <NFTsModal
-          isOpen={isOpenNFTsModal}
-          toggleModal={(action: boolean) => toggleNFTsModal(action)}
-          selectedNFT={inputNFT}
-          setNFTs={setInputNFT}
-        /> */}
-        <TokensModal
-          isOpen={isOpenTokensModal}
-          toggleModal={(action: boolean) => toggleTokensModal(action)}
-          tokens={[DEICurrency, vDEUSCurrency]}
+      <Wrapper>
+        <InputBox
+          currency={inputCurrency}
+          value={amountOut}
+          onChange={(value: string) => console.log(value)}
+          title={'From'}
+          onTokenSelect={() => {
+            toggleTokensModal(true)
+          }}
         />
-      </>
+        <ArrowDown />
+
+        <InputBox
+          currency={bDEICurrency}
+          value={amountOut}
+          onChange={(value: string) => console.log(value)}
+          title={'To'}
+          disabled={true}
+        />
+        <div style={{ marginTop: '20px' }}></div>
+        {getApproveButton()}
+        {getActionButton()}
+      </Wrapper>
+      <TokensModal
+        isOpen={isOpenTokensModal}
+        toggleModal={(action: boolean) => toggleTokensModal(action)}
+        tokens={[DEICurrency, vDEUSCurrency]}
+        setToken={(currency: Currency) => setInputCurrency(currency)}
+      />
 
       <Disclaimer />
     </Container>

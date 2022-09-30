@@ -7,20 +7,22 @@ import Disclaimer from 'components/Disclaimer'
 import { ArrowDown } from 'react-feather'
 import { useWalletModalToggle } from 'state/application/hooks'
 import useWeb3React from 'hooks/useWeb3'
-import { VDEUS_NFT } from 'hooks/useVDeusNfts'
-import { useERC721ApproveAllCallback, ApprovalState } from 'hooks/useApproveNftCallback'
-import useVDeusMigrationCallback from 'hooks/useVDeusMigrationCallback'
+import { ApprovalState } from 'hooks/useApproveNftCallback'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
+import { DotFlashing, Info } from 'components/Icons'
 import InputBox from 'components/App/Redemption/InputBox'
-import { vDeus, Migrator } from 'constants/addresses'
+import { DeiBonderV3 } from 'constants/addresses'
 import { BDEI_TOKEN, DEI_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 import { useExpiredPrice } from 'state/dashboard/hooks'
 import useUpdateCallback from 'hooks/useOracleCallback'
 import TokensModal from 'components/App/Swap/TokensModal'
 import { Currency } from '@sushiswap/core-sdk'
+import { Row } from 'components/Row'
+import useApproveCallback from 'hooks/useApproveCallback'
+import useMigrationCallback from 'hooks/usebDEICallback'
+import { tryParseAmount } from 'utils/parse'
 
 const Container = styled.div`
   display: flex;
@@ -53,7 +55,6 @@ const MainButton = styled(PrimaryButton)`
 const Description = styled.div`
   font-size: 0.85rem;
   line-height: 1.25rem;
-  margin-top: 15px;
   margin-left: 10px;
   color: ${({ theme }) => theme.warning};
 `
@@ -66,30 +67,34 @@ export default function Migrator2() {
   const DEICurrency = DEI_TOKEN
   const vDEUSCurrency = VDEUS_TOKEN
 
-  const expiredPrice = useExpiredPrice()
-
-  const [inputNFT, setInputNFT] = useState<VDEUS_NFT[]>([])
-  const [inputCurrency, setInputCurrency] = useState<Currency>(DEICurrency)
-
+  const [amountIn, setAmountIn] = useState('')
   const [amountOut, setAmountOut] = useState('')
 
-  const tokenIds = useMemo(() => {
-    if (!inputNFT) return []
-    return inputNFT.map((nft) => nft.tokenId)
-  }, [inputNFT])
+  const expiredPrice = useExpiredPrice()
 
-  const { callback: migrationCallback } = useVDeusMigrationCallback(tokenIds)
+  const [inputCurrency, setInputCurrency] = useState<Currency>(DEICurrency)
+  const currencyAmount = useMemo(() => {
+    return tryParseAmount(amountIn, inputCurrency || undefined)
+  }, [amountIn, inputCurrency])
+
+  const { callback: migrationCallback } = useMigrationCallback(inputCurrency, currencyAmount)
+  // FIXME: this oracle is wrong
   const { callback: updateOracleCallback } = useUpdateCallback()
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
-  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState(false)
+  const [awaitingMigrateConfirmation, setAwaitingMigrateConfirmation] = useState(false)
   const [awaitingUpdateConfirmation, setAwaitingUpdateConfirmation] = useState(false)
-  const spender = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
 
   const [isOpenTokensModal, toggleTokensModal] = useState(false)
 
-  const [approvalState, approveCallback] = useERC721ApproveAllCallback(chainId ? vDeus[chainId] : undefined, spender)
-  const showApprove = useMemo(() => approvalState !== ApprovalState.APPROVED, [approvalState])
+  // TODO: double check the spender plz
+  const spender = useMemo(() => (chainId ? DeiBonderV3[chainId] : undefined), [chainId])
+  const [approvalState, approveCallback] = useApproveCallback(inputCurrency ?? undefined, spender)
+
+  const [showApprove, showApproveLoader] = useMemo(() => {
+    const show = inputCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
+    return [show, show && approvalState === ApprovalState.PENDING]
+  }, [inputCurrency, approvalState, amountIn])
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -101,16 +106,12 @@ export default function Migrator2() {
     console.log('called handleMigrate')
     if (!migrationCallback) return
     try {
-      setAwaitingRedeemConfirmation(true)
+      setAwaitingMigrateConfirmation(true)
       const txHash = await migrationCallback()
-      setAwaitingRedeemConfirmation(false)
+      setAwaitingMigrateConfirmation(false)
       console.log({ txHash })
-      setInputNFT([])
-      setAmountOut('')
     } catch (e) {
-      setAwaitingRedeemConfirmation(false)
-      setInputNFT([])
-      setAmountOut('')
+      setAwaitingMigrateConfirmation(false)
       if (e instanceof Error) {
         // error = e.message
       } else {
@@ -149,7 +150,7 @@ export default function Migrator2() {
       )
     }
     if (showApprove) {
-      return <MainButton onClick={handleApprove}>Approve vDEUS NFT</MainButton>
+      return <MainButton onClick={handleApprove}>Approve {inputCurrency?.symbol}</MainButton>
     }
     return null
   }
@@ -172,14 +173,14 @@ export default function Migrator2() {
       return <MainButton onClick={handleUpdatePrice}>Update Oracle</MainButton>
     }
 
-    if (awaitingRedeemConfirmation) {
+    if (awaitingMigrateConfirmation) {
       return (
         <MainButton>
-          Migrating to {bDEICurrency.symbol} <DotFlashing />
+          Migrating to {bDEICurrency?.symbol} <DotFlashing />
         </MainButton>
       )
     }
-    return <MainButton onClick={() => handleMigrate()}>Migrate to {bDEICurrency.symbol}</MainButton>
+    return <MainButton onClick={() => handleMigrate()}>Migrate to {bDEICurrency?.symbol}</MainButton>
   }
 
   return (
@@ -191,8 +192,8 @@ export default function Migrator2() {
       <Wrapper>
         <InputBox
           currency={inputCurrency}
-          value={amountOut}
-          onChange={(value: string) => console.log(value)}
+          value={amountIn}
+          onChange={(value: string) => setAmountIn(value)}
           title={'From'}
           onTokenSelect={() => {
             toggleTokensModal(true)
@@ -207,6 +208,12 @@ export default function Migrator2() {
           title={'To'}
           disabled={true}
         />
+        {true && (
+          <Row mt={'18px'}>
+            <Info size={16} color={'#FF8F00'} />
+            <Description>The entered amount exceed your claimable balance.</Description>
+          </Row>
+        )}
         <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getActionButton()}

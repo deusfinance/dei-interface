@@ -35,5 +35,11 @@
     "text": "Borrow",
     "path": "/borrow",
     "exact": true
+  },
+  {
+    "id": "7",
+    "text": "bDEI-bond",
+    "path": "/migrator",
+    "exact": true
   }
 ]

@@ -2,56 +2,57 @@ import { useCallback, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import toast from 'react-hot-toast'
 
-import { INFO_URL } from 'constants/misc'
+// import { INFO_URL } from 'constants/misc'
 import { calculateGasMargin } from 'utils/web3'
 import { DefaultHandlerError } from 'utils/parseError'
-import { makeHttpRequest } from 'utils/http'
-import { toBN } from 'utils/numbers'
+// import { makeHttpRequest } from 'utils/http'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
-import { useVDeusMigratorContract } from 'hooks/useContract'
+import { useDeiBonderV3Contract } from 'hooks/useContract'
+import { TransactionCallbackState } from 'hooks/useSwapCallback'
+import { toHex } from 'utils/hex'
+import { Currency, CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core-sdk'
 
-export enum TransactionCallbackState {
-  INVALID = 'INVALID',
-  VALID = 'VALID',
-}
-
-export default function useVDeusMigrationCallback(tokenIds: number[] | undefined | null): {
+export default function useMigrationCallback(
+  inputCurrency: Currency | undefined | null,
+  amount: CurrencyAmount<NativeCurrency | Token> | null | undefined
+): {
   state: TransactionCallbackState
   callback: null | (() => Promise<string>)
   error: string | null
 } {
   const { account, chainId, library } = useWeb3React()
   const addTransaction = useTransactionAdder()
-  const VDeusMigrator = useVDeusMigratorContract()
+  const deiBonderV3Contract = useDeiBonderV3Contract()
 
-  const merkleProofRequest = useCallback(async () => {
-    try {
-      if (!tokenIds || !tokenIds.length) throw new Error(`tokenId didn't selected`)
-      const { href: url } = new URL(`/vdeus-migration/proof/${tokenIds.join(',')}/`, INFO_URL) //TODO
-      return makeHttpRequest(url)
-    } catch (err) {
-      throw err
-    }
-  }, [tokenIds])
+  // const tokenIds = useMemo(() => [0], [])
+
+  // const merkleProofRequest = useCallback(async () => {
+  //   try {
+  //     if (!tokenIds || !tokenIds.length) throw new Error(`tokenId didn't selected`)
+  //     const { href: url } = new URL(`/vdeus-migration/proof/${tokenIds.join(',')}/`, INFO_URL) //TODO
+  //     return makeHttpRequest(url)
+  //   } catch (err) {
+  //     throw err
+  //   }
+  // }, [tokenIds])
 
   const constructCall = useCallback(async () => {
     try {
-      if (!account || !library || !VDeusMigrator || !tokenIds || !tokenIds.length) {
+      if (!account || !library || !deiBonderV3Contract || !inputCurrency || !amount) {
         throw new Error('Missing dependencies.')
       }
 
-      const methodName = tokenIds.length > 1 ? 'claimMany' : 'claim'
-      const merkleProofResponse = await merkleProofRequest()
-      const amounts = tokenIds.map((tokenId) => toBN(merkleProofResponse[tokenId.toString()]['amount']).toString())
-      const merkleProof = tokenIds.map((tokenId) => merkleProofResponse[tokenId.toString()]['proof'])
+      const methodName = inputCurrency?.symbol === 'DEI' ? 'legacyDEIToBDEI' : 'vDEUSToBDEI'
+      // const merkleProofResponse = await merkleProofRequest()
+      // const merkleProof = tokenIds.map((tokenId) => merkleProofResponse[tokenId.toString()]['proof'])
 
-      const args = tokenIds.length > 1 ? [tokenIds, amounts, merkleProof] : [tokenIds[0], amounts[0], merkleProof[0]]
+      const args = [toHex(amount.quotient)]
 
       return {
-        address: VDeusMigrator.address,
-        calldata: VDeusMigrator.interface.encodeFunctionData(methodName, args) ?? '',
+        address: deiBonderV3Contract.address,
+        calldata: deiBonderV3Contract.interface.encodeFunctionData(methodName, args) ?? '',
         value: 0,
       }
     } catch (error) {
@@ -59,10 +60,10 @@ export default function useVDeusMigrationCallback(tokenIds: number[] | undefined
         error,
       }
     }
-  }, [account, library, VDeusMigrator, tokenIds, merkleProofRequest])
+  }, [account, library, deiBonderV3Contract, inputCurrency, amount])
 
   return useMemo(() => {
-    if (!account || !chainId || !library || !VDeusMigrator || !tokenIds || !tokenIds.length) {
+    if (!account || !chainId || !library || !deiBonderV3Contract || !inputCurrency || !amount) {
       return {
         state: TransactionCallbackState.INVALID,
         callback: null,
@@ -126,7 +127,7 @@ export default function useVDeusMigrationCallback(tokenIds: number[] | undefined
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const summary = `Migrate vDEUS #${tokenIds.join(',#')}`
+            const summary = `Migrate ${amount} ${inputCurrency?.symbol} to bDEI}`
             addTransaction(response, { summary })
 
             return response.hash
@@ -143,5 +144,5 @@ export default function useVDeusMigrationCallback(tokenIds: number[] | undefined
           })
       },
     }
-  }, [account, chainId, library, addTransaction, constructCall, VDeusMigrator, tokenIds])
+  }, [account, chainId, library, deiBonderV3Contract, inputCurrency, amount, constructCall, addTransaction])
 }

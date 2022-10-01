@@ -13,10 +13,13 @@ import { useDeiBonderV3Contract } from 'hooks/useContract'
 import { TransactionCallbackState } from 'hooks/useSwapCallback'
 import { toHex } from 'utils/hex'
 import { Currency, CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core-sdk'
+import { INFO_URL } from 'constants/misc'
+import { makeHttpRequest } from 'utils/http'
 
 export default function useMigrationCallback(
   inputCurrency: Currency | undefined | null,
-  amount: CurrencyAmount<NativeCurrency | Token> | null | undefined
+  amount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
+  totalClaimableBDEI: string
 ): {
   state: TransactionCallbackState
   callback: null | (() => Promise<string>)
@@ -26,29 +29,27 @@ export default function useMigrationCallback(
   const addTransaction = useTransactionAdder()
   const deiBonderV3Contract = useDeiBonderV3Contract()
 
-  // const tokenIds = useMemo(() => [0], [])
-
-  // const merkleProofRequest = useCallback(async () => {
-  //   try {
-  //     if (!tokenIds || !tokenIds.length) throw new Error(`tokenId didn't selected`)
-  //     const { href: url } = new URL(`/vdeus-migration/proof/${tokenIds.join(',')}/`, INFO_URL) //TODO
-  //     return makeHttpRequest(url)
-  //   } catch (err) {
-  //     throw err
-  //   }
-  // }, [tokenIds])
+  const merkleProofRequest = useCallback(async () => {
+    try {
+      if (account) throw new Error(`account didn't provided`)
+      const { href: url } = new URL(`/bond-merkle/liquidity/proof/${account}/`, INFO_URL)
+      return makeHttpRequest(url)
+    } catch (err) {
+      throw err
+    }
+  }, [account])
 
   const constructCall = useCallback(async () => {
     try {
-      if (!account || !library || !deiBonderV3Contract || !inputCurrency || !amount) {
+      if (!account || !library || !deiBonderV3Contract || !inputCurrency || !amount || !totalClaimableBDEI) {
         throw new Error('Missing dependencies.')
       }
 
       const methodName = inputCurrency?.symbol === 'DEI' ? 'legacyDEIToBDEI' : 'vDEUSToBDEI'
-      // const merkleProofResponse = await merkleProofRequest()
-      // const merkleProof = tokenIds.map((tokenId) => merkleProofResponse[tokenId.toString()]['proof'])
+      const merkleProofResponse = await merkleProofRequest()
+      const merkleProof = merkleProofResponse['proof']
 
-      const args = [toHex(amount.quotient)]
+      const args = [toHex(amount.quotient), totalClaimableBDEI, merkleProof]
 
       return {
         address: deiBonderV3Contract.address,
@@ -60,7 +61,7 @@ export default function useMigrationCallback(
         error,
       }
     }
-  }, [account, library, deiBonderV3Contract, inputCurrency, amount])
+  }, [account, library, deiBonderV3Contract, inputCurrency, amount, totalClaimableBDEI, merkleProofRequest])
 
   return useMemo(() => {
     if (!account || !chainId || !library || !deiBonderV3Contract || !inputCurrency || !amount) {

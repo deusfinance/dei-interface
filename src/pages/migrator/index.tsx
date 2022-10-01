@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useCallback } from 'react'
-import styled from 'styled-components'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import styled, { useTheme } from 'styled-components'
 
 import Hero, { HeroSubtext } from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
@@ -23,6 +23,7 @@ import { Row } from 'components/Row'
 import useApproveCallback from 'hooks/useApproveCallback'
 import useMigrationCallback from 'hooks/usebDEICallback'
 import { tryParseAmount } from 'utils/parse'
+import { useClaimableBDEI } from 'hooks/usebDEIPage'
 
 const Container = styled.div`
   display: flex;
@@ -66,9 +67,11 @@ export default function Migrator2() {
   const bDEICurrency = BDEI_TOKEN
   const DEICurrency = DEI_TOKEN
   const vDEUSCurrency = VDEUS_TOKEN
+  const theme = useTheme()
 
   const [amountIn, setAmountIn] = useState('')
   const [amountOut, setAmountOut] = useState('')
+  const [exceedBalance, setExceedBalance] = useState(false)
 
   const expiredPrice = useExpiredPrice()
 
@@ -77,7 +80,17 @@ export default function Migrator2() {
     return tryParseAmount(amountIn, inputCurrency || undefined)
   }, [amountIn, inputCurrency])
 
-  const { callback: migrationCallback } = useMigrationCallback(inputCurrency, currencyAmount)
+  const { totalClaimableBDEI, availableClaimableBDEI } = useClaimableBDEI()
+
+  useEffect(() => {
+    if (amountOut > availableClaimableBDEI) {
+      setExceedBalance(true)
+    } else {
+      setExceedBalance(false)
+    }
+  }, [amountOut, availableClaimableBDEI])
+
+  const { callback: migrationCallback } = useMigrationCallback(inputCurrency, currencyAmount, totalClaimableBDEI)
   // FIXME: this oracle is wrong
   const { callback: updateOracleCallback } = useUpdateCallback()
 
@@ -208,9 +221,9 @@ export default function Migrator2() {
           title={'To'}
           disabled={true}
         />
-        {true && (
+        {exceedBalance && (
           <Row mt={'18px'}>
-            <Info size={16} color={'#FF8F00'} />
+            <Info size={16} color={theme.warning} />
             <Description>The entered amount exceed your claimable balance.</Description>
           </Row>
         )}

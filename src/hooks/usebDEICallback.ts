@@ -31,8 +31,8 @@ export default function useMigrationCallback(
 
   const merkleProofRequest = useCallback(async () => {
     try {
-      if (account) throw new Error(`account didn't provided`)
-      const { href: url } = new URL(`/bond-merkle/liquidity/proof/${account}/`, INFO_URL)
+      if (!account) throw new Error(`account didn't provided`)
+      const { href: url } = new URL(`/bond-merkle/liquidity/proof/${account.toLowerCase()}/`, INFO_URL)
       return makeHttpRequest(url)
     } catch (err) {
       throw err
@@ -49,7 +49,9 @@ export default function useMigrationCallback(
       const merkleProofResponse = await merkleProofRequest()
       const merkleProof = merkleProofResponse['proof']
 
+      // FIXME: Probably totalClaimableBDEI has bigNumber error!
       const args = [toHex(amount.quotient), totalClaimableBDEI, merkleProof]
+      console.log(args)
 
       return {
         address: deiBonderV3Contract.address,

@@ -1,12 +1,14 @@
 import { useMemo } from 'react'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { useCollateralPoolContract, useDeiBonderV3Contract } from 'hooks/useContract'
+import { useCollateralPoolContract, useDeiBonderV3Contract, useOracleContract2 } from 'hooks/useContract'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useWeb3React from 'hooks/useWeb3'
 
 import snapshot from 'constants/files/maxActiveLiquidity-snapshot.json'
 import { toBN } from 'utils/numbers'
+import { useGetOracleAddress } from './useVDeusStats'
+import { formatUnits } from '@ethersproject/units'
 
 export function useOracleAddress(): string {
   const contract = useCollateralPoolContract()
@@ -72,5 +74,34 @@ export function useClaimableBDEI(): { totalClaimableBDEI: string; availableClaim
         : '0',
     }),
     [parsedSnapshot, account, claimedBDEI]
+  )
+}
+
+export function useGetPrice(): { vDEUSPrice: string } {
+  const address = useGetOracleAddress()
+  const contract = useOracleContract2(address)
+
+  const calls = useMemo(
+    () => [
+      {
+        methodName: 'getPrice',
+        callInputs: [],
+      },
+    ],
+    []
+  )
+
+  const [getPrice] = useSingleContractMultipleMethods(contract, calls)
+
+  const vDEUSPriceAmount = useMemo(
+    () => (calls.length && getPrice?.result ? toBN(formatUnits(getPrice.result[0].toString(), 6)).toString() : '0'),
+    [calls, getPrice]
+  )
+
+  return useMemo(
+    () => ({
+      vDEUSPrice: vDEUSPriceAmount,
+    }),
+    [vDEUSPriceAmount]
   )
 }

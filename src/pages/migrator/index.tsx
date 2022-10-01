@@ -23,7 +23,9 @@ import { Row } from 'components/Row'
 import useApproveCallback from 'hooks/useApproveCallback'
 import useMigrationCallback from 'hooks/usebDEICallback'
 import { tryParseAmount } from 'utils/parse'
-import { useClaimableBDEI } from 'hooks/usebDEIPage'
+import { useClaimableBDEI, useGetPrice } from 'hooks/usebDEIPage'
+import { toBN } from 'utils/numbers'
+import toast from 'react-hot-toast'
 
 const Container = styled.div`
   display: flex;
@@ -60,6 +62,19 @@ const Description = styled.div`
   color: ${({ theme }) => theme.warning};
 `
 
+const MaxCircle = styled.div`
+  background: ${({ theme }) => theme.bg2};
+  border-radius: 6px;
+  padding: 3px 5px 4px 5px;
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.text1};
+  margin-left: 6px;
+
+  &:hover {
+    background: ${({ theme }) => theme.secondary2};
+  }
+`
+
 export default function Migrator2() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -81,17 +96,21 @@ export default function Migrator2() {
   }, [amountIn, inputCurrency])
 
   const { totalClaimableBDEI, availableClaimableBDEI } = useClaimableBDEI()
+  const { vDEUSPrice } = useGetPrice()
 
   useEffect(() => {
-    if (amountOut > availableClaimableBDEI) {
-      setExceedBalance(true)
-    } else {
-      setExceedBalance(false)
+    if (inputCurrency?.symbol === 'DEI') setAmountOut(amountIn)
+    else {
+      const val = toBN(amountIn).multipliedBy(toBN(vDEUSPrice))
+      setAmountOut(amountIn ? val.toString() : '')
     }
+  }, [amountIn, inputCurrency?.symbol, vDEUSPrice])
+
+  useEffect(() => {
+    setExceedBalance(!!(amountOut > availableClaimableBDEI))
   }, [amountOut, availableClaimableBDEI])
 
   const { callback: migrationCallback } = useMigrationCallback(inputCurrency, currencyAmount, totalClaimableBDEI)
-  // FIXME: this oracle is wrong
   const { callback: updateOracleCallback } = useUpdateCallback()
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
@@ -100,7 +119,6 @@ export default function Migrator2() {
 
   const [isOpenTokensModal, toggleTokensModal] = useState(false)
 
-  // TODO: double check the spender plz
   const spender = useMemo(() => (chainId ? DeiBonderV3[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency ?? undefined, spender)
 
@@ -193,8 +211,18 @@ export default function Migrator2() {
         </MainButton>
       )
     }
-    return <MainButton onClick={() => handleMigrate()}>Migrate to {bDEICurrency?.symbol}</MainButton>
+    return (
+      <MainButton disabled={exceedBalance} onClick={() => handleMigrate()}>
+        Migrate to {bDEICurrency?.symbol}
+      </MainButton>
+    )
   }
+
+  const handleMaxValue = useCallback(async () => {
+    if (expiredPrice) toast.error('Please update oracle')
+    else if (inputCurrency?.symbol === 'DEI') setAmountIn(availableClaimableBDEI)
+    else setAmountIn(toBN(availableClaimableBDEI).dividedBy(toBN(vDEUSPrice)).toString())
+  }, [availableClaimableBDEI, expiredPrice, inputCurrency?.symbol, vDEUSPrice])
 
   return (
     <Container>
@@ -211,6 +239,7 @@ export default function Migrator2() {
           onTokenSelect={() => {
             toggleTokensModal(true)
           }}
+          disabled={expiredPrice}
         />
         <ArrowDown />
 
@@ -221,6 +250,11 @@ export default function Migrator2() {
           title={'To'}
           disabled={true}
         />
+        <Row mt={'18px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
+          <Info size={16} />
+          <Description style={{ color: 'white' }}>Your Claimable BDEI is: {availableClaimableBDEI}</Description>
+          <MaxCircle>Max</MaxCircle>
+        </Row>
         {exceedBalance && (
           <Row mt={'18px'}>
             <Info size={16} color={theme.warning} />

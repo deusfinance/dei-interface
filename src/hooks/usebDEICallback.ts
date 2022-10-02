@@ -15,6 +15,8 @@ import { toHex } from 'utils/hex'
 import { Currency, CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core-sdk'
 import { INFO_URL } from 'constants/misc'
 import { makeHttpRequest } from 'utils/http'
+import { parseUnits } from '@ethersproject/units'
+import { BDEI_TOKEN } from 'constants/tokens'
 
 export default function useMigrationCallback(
   inputCurrency: Currency | undefined | null,
@@ -49,8 +51,8 @@ export default function useMigrationCallback(
       const merkleProofResponse = await merkleProofRequest()
       const merkleProof = merkleProofResponse['proof']
 
-      // FIXME: Probably totalClaimableBDEI has bigNumber error!
-      const args = [toHex(amount.quotient), totalClaimableBDEI, merkleProof]
+      const totalClaimableBDEIParsed = parseUnits(totalClaimableBDEI, BDEI_TOKEN.decimals).toString()
+      const args = [toHex(amount.quotient), totalClaimableBDEIParsed, merkleProof]
       console.log(args)
 
       return {

@@ -62,7 +62,7 @@ const Description = styled.div`
   color: ${({ theme }) => theme.warning};
 `
 
-const MaxCircle = styled.div`
+const MaxButtonWrap = styled.div`
   background: ${({ theme }) => theme.bg2};
   border-radius: 6px;
   padding: 3px 5px 4px 5px;
@@ -75,7 +75,7 @@ const MaxCircle = styled.div`
   }
 `
 
-export default function Migrator2() {
+export default function BDEIBond() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
@@ -204,6 +204,14 @@ export default function Migrator2() {
       return <MainButton onClick={handleUpdatePrice}>Update Oracle</MainButton>
     }
 
+    if (exceedBalance) {
+      return (
+        <MainButton disabled style={{ cursor: 'default' }}>
+          Migrate to {bDEICurrency?.symbol}
+        </MainButton>
+      )
+    }
+
     if (awaitingMigrateConfirmation) {
       return (
         <MainButton>
@@ -211,11 +219,8 @@ export default function Migrator2() {
         </MainButton>
       )
     }
-    return (
-      <MainButton disabled={exceedBalance} onClick={() => handleMigrate()}>
-        Migrate to {bDEICurrency?.symbol}
-      </MainButton>
-    )
+
+    return <MainButton onClick={() => handleMigrate()}>Migrate to {bDEICurrency?.symbol}</MainButton>
   }
 
   const handleMaxValue = useCallback(async () => {
@@ -253,7 +258,7 @@ export default function Migrator2() {
         <Row mt={'18px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
           <Info size={16} />
           <Description style={{ color: 'white' }}>Your Claimable BDEI is: {availableClaimableBDEI}</Description>
-          <MaxCircle>Max</MaxCircle>
+          <MaxButtonWrap>Max</MaxButtonWrap>
         </Row>
         {exceedBalance && (
           <Row mt={'18px'}>

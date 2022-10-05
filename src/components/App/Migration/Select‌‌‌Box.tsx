@@ -51,7 +51,7 @@ export const getImageSize = () => {
   return isMobile ? 35 : 38
 }
 
-export default function SelectBox({}: {}) {
+export default function SelectBox() {
   const tokens: Currency[][] = [
     [USDC_TOKEN, USDC_TOKEN],
     [USDC_TOKEN, USDC_TOKEN],

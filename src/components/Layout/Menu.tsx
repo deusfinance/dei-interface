@@ -167,6 +167,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          <Link href="migration" passHref>
+            <Row active={router.route === '/migration'}>
+              <div>Migration</div>
+              <IconWrapper>
+                <GiftIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <ExternalLink href="https://docs.deus.finance/contracts/disclaimer">
             <Row onClick={() => toggle()}>
               <div>Terms</div>

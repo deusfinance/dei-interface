@@ -1,1 +1,1 @@
-export { default as Table } from './Select‌‌‌Box'
+export { default as Table } from './SelectBox'

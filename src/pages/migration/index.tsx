@@ -1,16 +1,16 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { useWalletModalToggle } from 'state/application/hooks'
-import useWeb3React from 'hooks/useWeb3'
-import { useSupportedChainId } from 'hooks/useSupportedChainId'
+// import { useWalletModalToggle } from 'state/application/hooks'
+// import useWeb3React from 'hooks/useWeb3'
+// import { useSupportedChainId } from 'hooks/useSupportedChainId'
 
-import { PrimaryButton } from 'components/Button'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import ImageWithFallback from 'components/ImageWithFallback'
 import MIGRATION_ICON from '/public/static/images/pages/migration/ic_migration.svg'
-import SelectBox from 'components/App/Migration/Select‌‌‌Box'
+import SelectBox from 'components/App/Migration/SelectBox'
+import MigrationBox from 'components/App/Migration/MigrationBox'
 import { RowCenter } from 'components/Row'
 
 const Container = styled.div`
@@ -20,12 +20,14 @@ const Container = styled.div`
   margin: 0 auto;
 `
 
-const Wrapper = styled(Container)`
-  margin-top: 50px;
-  /* width: clamp(250px, 90%, 500px); */
-  border-radius: 12px;
-  flex-flow: row nowrap;
-  border-bottom-right-radius: 0;
+export const Wrapper = styled(Container)`
+  flex-flow: row wrap;
+  margin-top: 20px;
+  background: ${({ theme }) => theme.bg1};
+  border: 1px solid rgb(0, 0, 0);
+  width: 344px;
+  height: 472px;
+  border-radius: 12px 0px 0px 12px;
 `
 
 const TopWrapper = styled(RowCenter)`
@@ -33,6 +35,7 @@ const TopWrapper = styled(RowCenter)`
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  margin-top: 20px;
 `
 
 const MigrateWrapper = styled.div`
@@ -55,32 +58,27 @@ const MigrationsSelectBox = styled.div`
   `}
 `
 
-const DepositButton = styled(PrimaryButton)`
-  border-radius: 15px;
-`
-
 export default function Migration() {
-  const { chainId, account } = useWeb3React()
-  const toggleWalletModal = useWalletModalToggle()
-  const isSupportedChainId = useSupportedChainId()
+  // const { chainId, account } = useWeb3React()
+  // const toggleWalletModal = useWalletModalToggle()
+  // const isSupportedChainId = useSupportedChainId()
 
   return (
     <Container>
       <Hero>
         <ImageWithFallback src={MIGRATION_ICON} width={224} height={133} alt={`Logo`} />
       </Hero>
-      <Wrapper>
-        <TopWrapper>
-          <MigrationsSelectBox>
-            <SelectBox />
-          </MigrationsSelectBox>
 
-          <MigrateWrapper>
-            {/* Hello */}
-            {/* put your code here */}
-          </MigrateWrapper>
-        </TopWrapper>
-      </Wrapper>
+      <TopWrapper>
+        <MigrationsSelectBox>
+          <SelectBox />
+        </MigrationsSelectBox>
+
+        <MigrateWrapper>
+          <MigrationBox />
+        </MigrateWrapper>
+      </TopWrapper>
+
       <Disclaimer />
     </Container>
   )

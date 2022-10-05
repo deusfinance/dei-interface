@@ -11,6 +11,7 @@ import Disclaimer from 'components/Disclaimer'
 import ImageWithFallback from 'components/ImageWithFallback'
 import MIGRATION_ICON from '/public/static/images/pages/migration/ic_migration.svg'
 import SelectBox from 'components/App/Migration/Select‌‌‌Box'
+import { RowCenter } from 'components/Row'
 
 const Container = styled.div`
   display: flex;
@@ -21,23 +22,13 @@ const Container = styled.div`
 
 const Wrapper = styled(Container)`
   margin-top: 50px;
-  width: clamp(250px, 90%, 500px);
-  background-color: rgb(13 13 13);
-  padding: 20px 15px;
-  border: 1px solid rgb(0, 0, 0);
-  border-radius: 15px;
+  /* width: clamp(250px, 90%, 500px); */
+  border-radius: 12px;
+  flex-flow: row nowrap;
   border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-  & > * {
-    &:nth-child(2) {
-      margin: 15px auto;
-    }
-  }
 `
 
-const TopWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
+const TopWrapper = styled(RowCenter)`
   flex-wrap: wrap;
   width: 100%;
   max-width: 1200px;
@@ -45,20 +36,17 @@ const TopWrapper = styled.div`
 `
 
 const MigrateWrapper = styled.div`
-  border-radius: 15px;
+  border-radius: 12px;
   padding: 0;
-  & > * {
-    /* &:nth-child(1) {
-      padding: 0;
-      border: 0;
-      padding-bottom: 20px;
-    } */
-  }
 `
 
 const MigrationsSelectBox = styled.div`
   display: flex;
   flex-direction: column;
+  border-radius: 12px 0px 0px 12px;
+  /* width: 344px;
+  height: 472px; */
+  overflow: scroll;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
@@ -81,15 +69,18 @@ export default function Migration() {
       <Hero>
         <ImageWithFallback src={MIGRATION_ICON} width={224} height={133} alt={`Logo`} />
       </Hero>
-      <TopWrapper>
-        <MigrationsSelectBox>
-          <SelectBox />
-        </MigrationsSelectBox>
+      <Wrapper>
+        <TopWrapper>
+          <MigrationsSelectBox>
+            <SelectBox />
+          </MigrationsSelectBox>
 
-        <MigrateWrapper>
-          <SelectBox />
-        </MigrateWrapper>
-      </TopWrapper>
+          <MigrateWrapper>
+            {/* Hello */}
+            {/* put your code here */}
+          </MigrateWrapper>
+        </TopWrapper>
+      </Wrapper>
       <Disclaimer />
     </Container>
   )

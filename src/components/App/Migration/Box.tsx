@@ -88,7 +88,7 @@ export default function Box({
         </CurrencyWrapper>
 
         {!leverage ? (
-          <ArrowRight style={{ color: '#EBEBEC', minWidth: '24px' }} />
+          <ArrowRight style={{ color: '#EBEBEC', minWidth: '52px' }} />
         ) : (
           <LeverageArrow leverage={leverage} arrowDirection={'right'} />
         )}

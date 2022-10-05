@@ -25,12 +25,11 @@ const Wrapper = styled(Row)<{ active?: boolean }>`
   border-radius: 12px;
   color: ${({ theme }) => theme.text2};
   background: ${({ theme, active }) => (active ? theme.bg2 : theme.bg1)};
+  cursor: ${({ active }) => (active ? 'default' : 'pointer')};
 
-  cursor: ${({ active }) => active && 'pointer'};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    // height: 65px;
-  `}
+  /* ${({ theme }) => theme.mediaWidth.upToSmall`
+    height: 65px;
+  `} */
 `
 
 const CurrencyWrapper = styled(RowBetween)`
@@ -55,6 +54,7 @@ export const getImageSize = () => {
 }
 
 export default function Box({
+  index,
   currencyFrom,
   currencyTo,
   active,
@@ -62,18 +62,19 @@ export default function Box({
   arrowDirection,
   onTokenSelect,
 }: {
+  index: number
   currencyFrom: Currency
   currencyTo: Currency
   active: boolean
   leverage?: number
   arrowDirection?: string
-  onTokenSelect?: () => void
+  onTokenSelect: (value: number) => void
 }) {
   const logoFrom = useCurrencyLogo((currencyFrom as Token)?.address)
   const logoTo = useCurrencyLogo((currencyTo as Token)?.address)
 
   return (
-    <Container active={active}>
+    <Container active={active} onClick={() => onTokenSelect(index)}>
       <Wrapper active={active}>
         <CurrencyWrapper>
           <ImageWithFallback

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 // import { useWalletModalToggle } from 'state/application/hooks'
@@ -62,6 +62,7 @@ export default function Migration() {
   // const { chainId, account } = useWeb3React()
   // const toggleWalletModal = useWalletModalToggle()
   // const isSupportedChainId = useSupportedChainId()
+  const [activeState, setActiveState] = useState(0)
 
   return (
     <Container>
@@ -71,11 +72,11 @@ export default function Migration() {
 
       <TopWrapper>
         <MigrationsSelectBox>
-          <SelectBox />
+          <SelectBox activeState={activeState} onTokenSelect={(value: number) => setActiveState(value)} />
         </MigrationsSelectBox>
 
         <MigrateWrapper>
-          <MigrationBox />
+          <MigrationBox activeState={activeState} />
         </MigrateWrapper>
       </TopWrapper>
 

@@ -33,6 +33,7 @@ import VDEUS_STAKING_ABI from 'constants/abi/VDEUS_STAKING.json'
 import MULTI_REWARDER_ABI from 'constants/abi/veDEUSMultiRewarderNFT.json'
 import VEDEUS_MULTI_REWARDER_ERC20_ABI from 'constants/abi/VEDEUS_MULTI_REWARDER_ERC20.json'
 import VDEUS_MIGRATOR_ABI from 'constants/abi/VDEUS_MIGRATOR.json'
+import MIGRATOR_ABI from 'constants/abi/MIGRATOR.json'
 import TWAP_ORACLE_ABI from 'constants/abi/TWAP_ORACLE.json'
 import COLLATERAL_POOL_ABI from 'constants/abi/COLLATERAL_POOL.json'
 import ORACLE_ABI from 'constants/abi/ORACLE_ABI.json'
@@ -59,10 +60,11 @@ import {
   vDeusMasterChefV2ReadOnly,
   veDEUSMultiRewarderNFT,
   veDEUSMultiRewarderERC20,
-  Migrator,
+  vDEUSMigrator,
   TwapOracle,
   CollateralPool,
   DeiBonderV3,
+  Migrator,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
 import { StakingType } from 'constants/stakings'
@@ -246,7 +248,7 @@ export function useVDeusStakingContract() {
 
 export function useVDeusMigratorContract() {
   const { chainId } = useWeb3React()
-  const address = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
+  const address = useMemo(() => (chainId ? vDEUSMigrator[chainId] : undefined), [chainId])
   return useContract(address, VDEUS_MIGRATOR_ABI)
 }
 
@@ -281,4 +283,10 @@ export function useDeiBonderV3Contract() {
   const { chainId } = useWeb3React()
   const address = useMemo(() => (chainId ? DeiBonderV3[chainId] : undefined), [chainId])
   return useContract(address, DEI_BONDER_V3_ABI)
+}
+
+export function useMigratorContract() {
+  const { chainId } = useWeb3React()
+  const address = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
+  return useContract(address, MIGRATOR_ABI)
 }

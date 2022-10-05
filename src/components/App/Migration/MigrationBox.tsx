@@ -1,21 +1,20 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { isMobile } from 'react-device-detect'
-import { DEI_TOKEN } from 'constants/tokens'
-import InputBox from '../Redemption/InputBox'
 import { ArrowDown } from 'react-feather'
 import useWeb3React from 'hooks/useWeb3'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { DotFlashing } from 'components/Icons'
 import { PrimaryButton } from 'components/Button'
-import { Currency } from '@sushiswap/core-sdk'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import { DeiBonderV3 } from 'constants/addresses'
 import useMigrationCallback from 'hooks/usebDEICallback'
 import { tryParseAmount } from 'utils/parse'
 import useUpdateCallback from 'hooks/useOracleCallback'
 import { useExpiredPrice } from 'state/dashboard/hooks'
+import InputBox from 'components/InputBox'
+import { MigrationStates } from 'constants/migration'
 
 const Container = styled.div`
   display: flex;
@@ -30,6 +29,12 @@ export const Wrapper = styled(Container)`
   border-radius: 0 12px 12px 0;
   width: 470px;
   height: 472px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    margin-top: 20px;
+    width: 340px;
+    border-radius: 12px;
+  `}
 `
 
 export const MainWrapper = styled.div`
@@ -52,6 +57,10 @@ export const Title = styled.div`
   background: ${({ theme }) => theme.bg1};
   text-align: center;
   border-top-right-radius: 12px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 12px;
+  `}
 `
 
 export const Text = styled.p`
@@ -63,23 +72,25 @@ export const Text = styled.p`
   margin: 20px 0px;
 `
 
-export const getImageSize = () => {
-  return isMobile ? 35 : 38
-}
-
 const MainButton = styled(PrimaryButton)`
   border-radius: 15px;
 `
 
-export default function SelectBox() {
+export const getImageSize = () => {
+  return isMobile ? 35 : 38
+}
+
+export default function MigrationBox({ activeState }: { activeState: number }) {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
 
-  const DEICurrency = DEI_TOKEN
   const [amountIn, setAmountIn] = useState('')
+  const [amountOut, setAmountOut] = useState('')
 
-  const [inputCurrency, setInputCurrency] = useState<Currency>(DEICurrency)
+  const migrationState = useMemo(() => MigrationStates[activeState], [activeState])
+  const inputCurrency = useMemo(() => migrationState.inputToken, [migrationState])
+  const outputCurrency = useMemo(() => migrationState.outputToken, [migrationState])
 
   // FIXME: spender is not correct
   const spender = useMemo(() => (chainId ? DeiBonderV3[chainId] : undefined), [chainId])
@@ -157,7 +168,7 @@ export default function SelectBox() {
       )
     }
     if (showApprove) {
-      return <MainButton onClick={handleApprove}>Approve {DEICurrency?.symbol}</MainButton>
+      return <MainButton onClick={handleApprove}>Approve {inputCurrency?.symbol}</MainButton>
     }
     return null
   }
@@ -183,39 +194,29 @@ export default function SelectBox() {
     if (awaitingMigrateConfirmation) {
       return (
         <MainButton>
-          Migrating to {DEICurrency?.symbol} <DotFlashing />
+          Migrating to {outputCurrency?.symbol} <DotFlashing />
         </MainButton>
       )
     }
 
-    return <MainButton onClick={() => handleMigrate()}>Migrate to {DEICurrency?.symbol}</MainButton>
+    return <MainButton onClick={() => handleMigrate()}>Migrate to {outputCurrency?.symbol}</MainButton>
   }
 
   return (
     <Wrapper>
       <Title>
         <Text>
-          {'Legacy DEI'} to {'vDEUS'}
+          {inputCurrency?.symbol} to {outputCurrency?.symbol}
         </Text>
       </Title>
       <MainWrapper>
-        <InputBox
-          currency={DEICurrency}
-          value={amountIn}
-          onChange={(value: string) => setAmountIn(value)}
-          title={'From'}
-        />
+        <InputBox currency={inputCurrency} value={amountIn} onChange={(value: string) => setAmountIn(value)} />
 
         <ArrowDown />
 
-        <InputBox
-          currency={DEICurrency}
-          value={amountIn}
-          onChange={(value: string) => setAmountIn(value)}
-          title={'From'}
-        />
+        <InputBox currency={outputCurrency} value={amountOut} onChange={(value: string) => setAmountOut(value)} />
 
-        <div style={{ marginTop: '20px' }}></div>
+        <div style={{ marginTop: '40px' }}></div>
 
         {getApproveButton()}
         {getActionButton()}

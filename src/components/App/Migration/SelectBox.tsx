@@ -1,10 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Currency } from '@sushiswap/core-sdk'
 import { isMobile } from 'react-device-detect'
 
 import Box from './Box'
-import { USDC_TOKEN } from 'constants/tokens'
+import { MigrationStates } from 'constants/migration'
 
 const Container = styled.div`
   display: flex;
@@ -51,25 +50,30 @@ export const getImageSize = () => {
   return isMobile ? 35 : 38
 }
 
-export default function SelectBox() {
-  const tokens: Currency[][] = [
-    [USDC_TOKEN, USDC_TOKEN],
-    [USDC_TOKEN, USDC_TOKEN],
-  ]
+export default function SelectBox({
+  activeState,
+  onTokenSelect,
+}: {
+  activeState: number
+  onTokenSelect: (value: number) => void
+}) {
   return (
     <Wrapper>
       <Title>
         <Text>Migrations</Text>
       </Title>
       <PairsWrapper>
-        {tokens.map((pair, index) => {
+        {MigrationStates.map((migrationState, index) => {
+          const { inputToken, outputToken, leverage } = migrationState
           return (
             <Box
               key={index}
-              currencyFrom={pair[0]}
-              currencyTo={pair[1]}
-              active={index < 1}
-              leverage={index < 1 ? 2 : undefined}
+              index={index}
+              currencyFrom={inputToken}
+              currencyTo={outputToken}
+              active={activeState === index}
+              leverage={leverage > 1 ? leverage : undefined}
+              onTokenSelect={(value: number) => onTokenSelect(value)}
             />
           )
         })}

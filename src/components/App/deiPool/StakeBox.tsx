@@ -132,46 +132,44 @@ export default function StakeBox({
   }, [balanceExact, onChange])
 
   return (
-    <>
-      <Wrapper>
-        <div style={{ flex: 1 }}>
-          <RowBetween alignItems={'center'}>
-            {type === 'claim' || type === 'claiming' ? (
-              <TextData style={{ opacity: '0' }}>{'.'}</TextData>
-            ) : (
-              <>
-                <TitleBox>{title}</TitleBox>
-                {!disabled && (
-                  <Balance onClick={handleClick}>
-                    {balanceDisplay ? balanceDisplay : '0.00'}
-                    <span>MAX</span>
-                  </Balance>
-                )}
-              </>
-            )}
-          </RowBetween>
-          <RowBetween>
-            {type === 'claim' || type === 'claiming' ? (
-              <TextData style={{ marginTop: '-9px' }}>{value}</TextData>
-            ) : (
-              <NumericalInput
-                value={value || ''}
-                onUserInput={onChange}
-                placeholder="0.0"
-                autoFocus
-                disabled={disabled}
-                style={{ textAlign: 'left', fontSize: '1.1rem' }}
-              />
-            )}
-          </RowBetween>
-        </div>
+    <Wrapper>
+      <div style={{ flex: 1 }}>
+        <RowBetween alignItems={'center'}>
+          {type === 'claim' || type === 'claiming' ? (
+            <TextData style={{ opacity: '0' }}>{'.'}</TextData>
+          ) : (
+            <>
+              <TitleBox>{title}</TitleBox>
+              {!disabled && (
+                <Balance onClick={handleClick}>
+                  {balanceDisplay ? balanceDisplay : '0.00'}
+                  <span>MAX</span>
+                </Balance>
+              )}
+            </>
+          )}
+        </RowBetween>
+        <RowBetween>
+          {type === 'claim' || type === 'claiming' ? (
+            <TextData style={{ marginTop: '-9px' }}>{value}</TextData>
+          ) : (
+            <NumericalInput
+              value={value || ''}
+              onUserInput={onChange}
+              placeholder="0.0"
+              autoFocus
+              disabled={disabled}
+              style={{ textAlign: 'left', fontSize: '1.1rem' }}
+            />
+          )}
+        </RowBetween>
+      </div>
 
-        <div>
-          <ActionButton active onClick={onClick}>
-            {type}
-          </ActionButton>
-        </div>
-      </Wrapper>
-    </>
+      <div>
+        <ActionButton active onClick={onClick}>
+          {type}
+        </ActionButton>
+      </div>
+    </Wrapper>
   )
 }

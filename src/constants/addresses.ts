@@ -185,3 +185,7 @@ export const TwapOracle: AddressMap = {
 export const CollateralPool: AddressMap = {
   [SupportedChainId.FANTOM]: '0x6E0098A8c651F7A6A9510B270CD02c858C344D94',
 }
+
+export const DeiBonderV3: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x3360d56bcd109216214ef477728A0ED1b7d36A6F',
+}

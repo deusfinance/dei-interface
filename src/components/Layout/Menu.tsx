@@ -159,6 +159,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          <Link href="bDEI-bond" passHref>
+            <Row active={router.route === '/bDEI-bond'}>
+              <div>bDEI-bond</div>
+              <IconWrapper>
+                <GiftIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <ExternalLink href="https://docs.deus.finance/contracts/disclaimer">
             <Row onClick={() => toggle()}>
               <div>Terms</div>

@@ -159,14 +159,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="bDEI-bond" passHref>
+          {/* <Link href="bDEI-bond" passHref>
             <Row active={router.route === '/bDEI-bond'}>
               <div>bDEI-bond</div>
               <IconWrapper>
                 <GiftIcon size={20} />
               </IconWrapper>
             </Row>
-          </Link>
+          </Link> */}
           <Link href="migration" passHref>
             <Row active={router.route === '/migration'}>
               <div>Migration</div>

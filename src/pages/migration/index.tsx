@@ -54,7 +54,6 @@ const MigrationsSelectBox = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
     margin: 0 auto;
-   
   `}
 `
 

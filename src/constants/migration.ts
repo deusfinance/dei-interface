@@ -1,5 +1,5 @@
 import { Token } from '@sushiswap/core-sdk'
-import { BDEI_TOKEN, DEI_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
+import { BDEI_TOKEN, DEI_TOKEN, USDC_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 
 export type MigrationStateType = {
   inputToken: Token
@@ -7,34 +7,55 @@ export type MigrationStateType = {
   leverage: number
   oracleUpdate: boolean
   snapshotConfirmation: boolean
+  proof: boolean
+  methodName: string
 }
 
 export const MigrationStates: MigrationStateType[] = [
-  // TODO: scusdc,  scdai => bdei
-
-  // Legacy dei => vdeus
+  {
+    inputToken: USDC_TOKEN, // FIXME: change to scusdc
+    outputToken: BDEI_TOKEN,
+    leverage: 1,
+    oracleUpdate: false,
+    snapshotConfirmation: false,
+    proof: false,
+    methodName: 'tokenToBDEI', // 13: token, amount
+  },
+  {
+    inputToken: USDC_TOKEN, // FIXME: change to scdai
+    outputToken: BDEI_TOKEN,
+    leverage: 1,
+    oracleUpdate: false,
+    snapshotConfirmation: false,
+    proof: false,
+    methodName: 'tokenToBDEI', // 13: token, amount
+  },
   {
     inputToken: DEI_TOKEN,
     outputToken: VDEUS_TOKEN,
     leverage: 1,
-    oracleUpdate: false,
+    oracleUpdate: true,
     snapshotConfirmation: false,
+    proof: false,
+    methodName: 'migrateLegacyDEIToVDEUS', // 5: amount
   },
-  // Bdei => vdeus
   {
     inputToken: BDEI_TOKEN,
     outputToken: VDEUS_TOKEN,
     leverage: 1,
-    oracleUpdate: false,
+    oracleUpdate: true,
     snapshotConfirmation: false,
+    proof: false,
+    methodName: 'migrateBDEIToVDEUS', // 4: amount
   },
-  // Legacy dei or vdeus => bdei(with snapshot)
   {
     inputToken: DEI_TOKEN,
     outputToken: BDEI_TOKEN,
     leverage: 1,
     oracleUpdate: true,
     snapshotConfirmation: true,
+    proof: true,
+    methodName: 'legacyDEIToBDEI', // 3: amount, claimableBDEI, proof
   },
   {
     inputToken: VDEUS_TOKEN,
@@ -42,5 +63,7 @@ export const MigrationStates: MigrationStateType[] = [
     leverage: 2,
     oracleUpdate: true,
     snapshotConfirmation: true,
+    proof: true,
+    methodName: 'vDEUSToBDEI', // 15: amount, claimableBDEI, proof
   },
 ]

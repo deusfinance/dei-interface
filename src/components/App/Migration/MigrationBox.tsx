@@ -8,27 +8,22 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { DotFlashing } from 'components/Icons'
 import { PrimaryButton } from 'components/Button'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import { DeiBonderV3 } from 'constants/addresses'
-import useMigrationCallback from 'hooks/usebDEICallback'
+import { Migrator } from 'constants/addresses'
+import useMigrationCallback from 'hooks/useMigratorCallback'
 import { tryParseAmount } from 'utils/parse'
 import useUpdateCallback from 'hooks/useOracleCallback'
 import { useExpiredPrice } from 'state/dashboard/hooks'
 import InputBox from 'components/InputBox'
 import { MigrationStates } from 'constants/migration'
-
-const Container = styled.div`
-  display: flex;
-  flex-flow: column nowrap;
-  overflow: visible;
-  margin: 0 auto;
-`
+import { useClaimableBDEI } from 'hooks/usebDEIPage'
+import { Container } from './SelectBox'
 
 export const Wrapper = styled(Container)`
   background: ${({ theme }) => theme.bg1};
   border: 1px solid rgb(0, 0, 0);
   border-radius: 0 12px 12px 0;
   width: 470px;
-  height: 472px;
+  height: 485px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin-top: 20px;
@@ -92,8 +87,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const inputCurrency = useMemo(() => migrationState.inputToken, [migrationState])
   const outputCurrency = useMemo(() => migrationState.outputToken, [migrationState])
 
-  // FIXME: spender is not correct
-  const spender = useMemo(() => (chainId ? DeiBonderV3[chainId] : undefined), [chainId])
+  const spender = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency ?? undefined, spender)
 
   const [showApprove, showApproveLoader] = useMemo(() => {
@@ -109,7 +103,9 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const [awaitingMigrateConfirmation, setAwaitingMigrateConfirmation] = useState(false)
   const [awaitingUpdateConfirmation, setAwaitingUpdateConfirmation] = useState(false)
 
-  const { callback: migrationCallback } = useMigrationCallback(inputCurrency, currencyAmount, '0')
+  const { totalClaimableBDEI, availableClaimableBDEI } = useClaimableBDEI()
+
+  const { callback: migrationCallback } = useMigrationCallback(migrationState, currencyAmount, totalClaimableBDEI)
   const { callback: updateOracleCallback } = useUpdateCallback()
 
   const expiredPrice = useExpiredPrice()
@@ -187,7 +183,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
         </MainButton>
       )
     }
-    if (expiredPrice) {
+    if (expiredPrice && migrationState.oracleUpdate) {
       return <MainButton onClick={handleUpdatePrice}>Update Oracle</MainButton>
     }
 
@@ -211,9 +207,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
       </Title>
       <MainWrapper>
         <InputBox currency={inputCurrency} value={amountIn} onChange={(value: string) => setAmountIn(value)} />
-
         <ArrowDown />
-
         <InputBox currency={outputCurrency} value={amountOut} onChange={(value: string) => setAmountOut(value)} />
 
         <div style={{ marginTop: '40px' }}></div>

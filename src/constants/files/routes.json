@@ -37,12 +37,6 @@
     "exact": true
   },
   {
-    "id": "7",
-    "text": "bDEI-bond",
-    "path": "/bDEI-bond",
-    "exact": true
-  },
-  {
     "id": "8",
     "text": "Migration",
     "path": "/migration",

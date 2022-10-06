@@ -5,7 +5,7 @@ import { isMobile } from 'react-device-detect'
 import Box from './Box'
 import { MigrationStates } from 'constants/migration'
 
-const Container = styled.div`
+export const Container = styled.div`
   display: flex;
   flex-flow: column nowrap;
   overflow: visible;
@@ -15,13 +15,17 @@ const Container = styled.div`
 const Wrapper = styled(Container)`
   background: ${({ theme }) => theme.bg1};
   border: 1px solid rgb(0, 0, 0);
-  /* border-radius: 12px; */
-  width: 344px;
-  height: 472px;
   border-radius: 12px 0px 0px 12px;
+  width: 344px;
+  height: 485px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 12px;
+  `}
 `
 
 const PairsWrapper = styled.div`
+  overflow: scroll;
   & > * {
     margin: 16px auto;
   }
@@ -33,8 +37,10 @@ const Title = styled.div`
   color: ${({ theme }) => theme.text1};
   background: ${({ theme }) => theme.bg1};
   text-align: center;
-  border-top-right-radius: 0;
-  border-bottom-left-radius: 0;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 12px;
+  `}
 `
 
 const Text = styled.p`

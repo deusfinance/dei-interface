@@ -78,7 +78,7 @@ export default function SelectBox({
               currencyFrom={inputToken}
               currencyTo={outputToken}
               active={activeState === index}
-              leverage={leverage > 1 ? leverage : undefined}
+              leverage={leverage}
               onTokenSelect={(value: number) => onTokenSelect(value)}
             />
           )

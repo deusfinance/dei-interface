@@ -1,11 +1,11 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import styled from 'styled-components'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import styled, { useTheme } from 'styled-components'
 import { isMobile } from 'react-device-detect'
 import { ArrowDown } from 'react-feather'
 import useWeb3React from 'hooks/useWeb3'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { DotFlashing } from 'components/Icons'
+import { DotFlashing, Info } from 'components/Icons'
 import { PrimaryButton } from 'components/Button'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import { Migrator } from 'constants/addresses'
@@ -15,8 +15,11 @@ import useUpdateCallback from 'hooks/useOracleCallback'
 import { useExpiredPrice } from 'state/dashboard/hooks'
 import InputBox from 'components/InputBox'
 import { MigrationStates } from 'constants/migration'
-import { useClaimableBDEI } from 'hooks/usebDEIPage'
+import { useClaimableBDEI, useGetPrice } from 'hooks/usebDEIPage'
 import { Container } from './SelectBox'
+import { Row } from 'components/Row'
+import toast from 'react-hot-toast'
+import { toBN } from 'utils/numbers'
 
 export const Wrapper = styled(Container)`
   background: ${({ theme }) => theme.bg1};
@@ -71,6 +74,26 @@ const MainButton = styled(PrimaryButton)`
   border-radius: 15px;
 `
 
+const Description = styled.div`
+  font-size: 13px;
+  margin-left: 8px;
+  color: ${({ theme }) => theme.warning};
+  max-width: 370px;
+`
+
+const MaxButtonWrap = styled.div`
+  background: ${({ theme }) => theme.bg2};
+  border-radius: 8px;
+  padding: 4px 6px 5px 6px;
+  font-size: 0.6rem;
+  color: ${({ theme }) => theme.text1};
+  margin-left: 6px;
+
+  &:hover {
+    background: ${({ theme }) => theme.primary1};
+  }
+`
+
 export const getImageSize = () => {
   return isMobile ? 35 : 38
 }
@@ -79,9 +102,11 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
+  const theme = useTheme()
 
   const [amountIn, setAmountIn] = useState('')
   const [amountOut, setAmountOut] = useState('')
+  const [exceedBalance, setExceedBalance] = useState(false)
 
   const migrationState = useMemo(() => MigrationStates[activeState], [activeState])
   const inputCurrency = useMemo(() => migrationState.inputToken, [migrationState])
@@ -104,11 +129,30 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const [awaitingUpdateConfirmation, setAwaitingUpdateConfirmation] = useState(false)
 
   const { totalClaimableBDEI, availableClaimableBDEI } = useClaimableBDEI()
+  const { vDEUSPrice } = useGetPrice()
+  const expiredPrice = useExpiredPrice()
+
+  useEffect(() => {
+    const methodName = migrationState?.methodName
+    if (methodName === 'legacyDEIToBDEI') setAmountOut(amountIn)
+    if (methodName === 'vDEUSToBDEI') {
+      const val = toBN(amountIn).multipliedBy(toBN(vDEUSPrice))
+      setAmountOut(amountIn ? val.toString() : '')
+    }
+    if (outputCurrency?.symbol === 'vDEUS') {
+      const val = toBN(amountIn).dividedBy(toBN(vDEUSPrice))
+      setAmountOut(amountIn ? val.toString() : '')
+    } else {
+      setAmountOut(amountIn)
+    }
+  }, [amountIn, inputCurrency.symbol, migrationState?.methodName, outputCurrency?.symbol, vDEUSPrice])
+
+  useEffect(() => {
+    setExceedBalance(!!(amountOut > availableClaimableBDEI))
+  }, [amountOut, availableClaimableBDEI])
 
   const { callback: migrationCallback } = useMigrationCallback(migrationState, currencyAmount, totalClaimableBDEI)
   const { callback: updateOracleCallback } = useUpdateCallback()
-
-  const expiredPrice = useExpiredPrice()
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -198,6 +242,12 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
     return <MainButton onClick={() => handleMigrate()}>Migrate to {outputCurrency?.symbol}</MainButton>
   }
 
+  const handleMaxValue = useCallback(async () => {
+    if (expiredPrice) toast.error('Please update oracle')
+    else if (inputCurrency?.symbol === 'DEI') setAmountIn(availableClaimableBDEI)
+    else setAmountIn(toBN(availableClaimableBDEI).dividedBy(toBN(vDEUSPrice)).toString())
+  }, [availableClaimableBDEI, expiredPrice, inputCurrency?.symbol, vDEUSPrice])
+
   return (
     <Wrapper>
       <Title>
@@ -208,12 +258,26 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
       <MainWrapper>
         <InputBox currency={inputCurrency} value={amountIn} onChange={(value: string) => setAmountIn(value)} />
         <ArrowDown />
-        <InputBox currency={outputCurrency} value={amountOut} onChange={(value: string) => setAmountOut(value)} />
+        <InputBox currency={outputCurrency} value={amountOut} onChange={() => null} disabled />
 
         <div style={{ marginTop: '40px' }}></div>
 
         {getApproveButton()}
         {getActionButton()}
+
+        {migrationState.snapshotConfirmation && (
+          <Row mt={'18px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
+            <Info size={16} />
+            <Description style={{ color: 'white' }}>Your Claimable BDEI is: {availableClaimableBDEI}</Description>
+            <MaxButtonWrap>Max</MaxButtonWrap>
+          </Row>
+        )}
+        {migrationState.snapshotConfirmation && exceedBalance && (
+          <Row mt={'15px'}>
+            <Info size={16} color={theme.warning} />
+            <Description>The entered amount exceed your claimable balance.</Description>
+          </Row>
+        )}
       </MainWrapper>
     </Wrapper>
   )

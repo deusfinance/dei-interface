@@ -7,7 +7,7 @@ import { ArrowRight } from 'react-feather'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 
 import ImageWithFallback from 'components/ImageWithFallback'
-import { Row, RowBetween } from 'components/Row'
+import { Row, RowStart } from 'components/Row'
 import LeverageArrow from './LeverageArrow'
 
 const Container = styled.div<{ active?: boolean }>`
@@ -16,6 +16,7 @@ const Container = styled.div<{ active?: boolean }>`
   background: ${({ theme, active }) => (active ? theme.deiColor : theme.border1)};
   padding: 2px;
   border-radius: 12px;
+  cursor: ${({ active }) => (active ? 'default' : 'pointer')};
 `
 
 const Wrapper = styled(Row)<{ active?: boolean }>`
@@ -25,15 +26,11 @@ const Wrapper = styled(Row)<{ active?: boolean }>`
   border-radius: 12px;
   color: ${({ theme }) => theme.text2};
   background: ${({ theme, active }) => (active ? theme.bg2 : theme.bg1)};
-  cursor: ${({ active }) => (active ? 'default' : 'pointer')};
-
-  /* ${({ theme }) => theme.mediaWidth.upToSmall`
-    height: 65px;
-  `} */
 `
 
-const CurrencyWrapper = styled(RowBetween)`
-  margin: 0px 25px;
+const CurrencyWrapper = styled(RowStart)`
+  gap: 12px;
+  margin-left: 20px;
 `
 
 const CurrencySymbol = styled.div`
@@ -66,7 +63,7 @@ export default function Box({
   currencyFrom: Currency
   currencyTo: Currency
   active: boolean
-  leverage?: number
+  leverage: number
   arrowDirection?: string
   onTokenSelect: (value: number) => void
 }) {
@@ -88,7 +85,7 @@ export default function Box({
           <CurrencySymbol>{currencyFrom?.symbol}</CurrencySymbol>
         </CurrencyWrapper>
 
-        {!leverage ? (
+        {leverage === 1 ? (
           <ArrowRight style={{ color: '#EBEBEC', minWidth: '52px' }} />
         ) : (
           <LeverageArrow leverage={leverage} arrowDirection={'right'} />

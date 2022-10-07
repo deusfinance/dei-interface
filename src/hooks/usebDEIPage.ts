@@ -100,7 +100,7 @@ export function useGetPrice(): { vDEUSPrice: string } {
 
   return useMemo(
     () => ({
-      vDEUSPrice: vDEUSPriceAmount,
+      vDEUSPrice: vDEUSPriceAmount && Number(vDEUSPriceAmount) > 250 ? vDEUSPriceAmount : '250',
     }),
     [vDEUSPriceAmount]
   )

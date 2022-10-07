@@ -19,7 +19,7 @@ export const MigrationStates: MigrationStateType[] = [
     oracleUpdate: false,
     snapshotConfirmation: false,
     proof: false,
-    methodName: 'tokenToBDEI', // 13: token, amount
+    methodName: 'tokenToBDEI', // 13: tokenAddress, amount
   },
   {
     inputToken: scDAI_TOKEN,
@@ -28,7 +28,7 @@ export const MigrationStates: MigrationStateType[] = [
     oracleUpdate: false,
     snapshotConfirmation: false,
     proof: false,
-    methodName: 'tokenToBDEI', // 13: token, amount
+    methodName: 'tokenToBDEI', // 13: tokenAddress, amount
   },
   {
     inputToken: DEI_TOKEN,
@@ -60,7 +60,7 @@ export const MigrationStates: MigrationStateType[] = [
   {
     inputToken: VDEUS_TOKEN,
     outputToken: BDEI_TOKEN,
-    leverage: 2,
+    leverage: 1,
     oracleUpdate: true,
     snapshotConfirmation: true,
     proof: true,

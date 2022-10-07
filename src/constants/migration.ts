@@ -1,5 +1,5 @@
 import { Token } from '@sushiswap/core-sdk'
-import { BDEI_TOKEN, DEI_TOKEN, USDC_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
+import { BDEI_TOKEN, DEI_TOKEN, scDAI_TOKEN, scUSDC_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 
 export type MigrationStateType = {
   inputToken: Token
@@ -13,7 +13,7 @@ export type MigrationStateType = {
 
 export const MigrationStates: MigrationStateType[] = [
   {
-    inputToken: USDC_TOKEN, // FIXME: change to scusdc
+    inputToken: scUSDC_TOKEN,
     outputToken: BDEI_TOKEN,
     leverage: 1,
     oracleUpdate: false,
@@ -22,7 +22,7 @@ export const MigrationStates: MigrationStateType[] = [
     methodName: 'tokenToBDEI', // 13: token, amount
   },
   {
-    inputToken: USDC_TOKEN, // FIXME: change to scdai
+    inputToken: scDAI_TOKEN,
     outputToken: BDEI_TOKEN,
     leverage: 1,
     oracleUpdate: false,

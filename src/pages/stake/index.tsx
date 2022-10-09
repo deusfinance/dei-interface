@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 // import { useWalletModalToggle } from 'state/application/hooks'
@@ -8,9 +8,7 @@ import styled from 'styled-components'
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
 import ImageWithFallback from 'components/ImageWithFallback'
-import MIGRATION_ICON from '/public/static/images/pages/ic_migration.svg'
-import SelectBox from 'components/App/Migration/SelectBox'
-import MigrationBox from 'components/App/Migration/MigrationBox'
+import STAKE_ICON from '/public/static/images/pages/ic_stake.svg'
 import { RowCenter } from 'components/Row'
 
 const Container = styled.div`
@@ -38,17 +36,12 @@ const TopWrapper = styled(RowCenter)`
   margin-top: 20px;
 `
 
-const MigrateWrapper = styled.div`
-  border-radius: 12px;
-  padding: 0;
-`
-
-const MigrationsSelectBox = styled.div`
+const StakeBox = styled.div`
   display: flex;
   flex-direction: column;
-  border-radius: 12px 0px 0px 12px;
-  /* width: 344px;
-  height: 472px; */
+  background: ${({ theme }) => theme.bg1};
+  border-radius: 12px;
+  width: 100%;
   overflow: scroll;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -57,26 +50,19 @@ const MigrationsSelectBox = styled.div`
   `}
 `
 
-export default function Migration() {
+export default function Stake() {
   // const { chainId, account } = useWeb3React()
   // const toggleWalletModal = useWalletModalToggle()
   // const isSupportedChainId = useSupportedChainId()
-  const [activeState, setActiveState] = useState(0)
 
   return (
     <Container>
       <Hero>
-        <ImageWithFallback src={MIGRATION_ICON} width={224} height={133} alt={`Logo`} />
+        <ImageWithFallback src={STAKE_ICON} width={224} height={133} alt={`Logo`} />
       </Hero>
 
       <TopWrapper>
-        <MigrationsSelectBox>
-          <SelectBox activeState={activeState} onTokenSelect={(value: number) => setActiveState(value)} />
-        </MigrationsSelectBox>
-
-        <MigrateWrapper>
-          <MigrationBox activeState={activeState} />
-        </MigrateWrapper>
+        <StakeBox>Hi</StakeBox>
       </TopWrapper>
 
       <Disclaimer />

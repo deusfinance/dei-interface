@@ -15,7 +15,7 @@ import useUpdateCallback from 'hooks/useOracleCallback'
 import { useExpiredPrice } from 'state/dashboard/hooks'
 import InputBox from 'components/InputBox'
 import { MigrationStates } from 'constants/migration'
-import { useClaimableBDEI, useGetPrice } from 'hooks/usebDEIPage'
+import { useClaimableBDEI, useGetPrice } from 'hooks/useMigratorPage'
 import { Container } from './SelectBox'
 import { Row } from 'components/Row'
 import toast from 'react-hot-toast'
@@ -265,14 +265,14 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
         {getApproveButton()}
         {getActionButton()}
 
-        {migrationState.snapshotConfirmation && (
+        {account && migrationState.snapshotConfirmation && (
           <Row mt={'18px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
             <Info size={16} />
             <Description style={{ color: 'white' }}>Your Claimable BDEI is: {availableClaimableBDEI}</Description>
             <MaxButtonWrap>Max</MaxButtonWrap>
           </Row>
         )}
-        {migrationState.snapshotConfirmation && exceedBalance && (
+        {account && migrationState.snapshotConfirmation && exceedBalance && (
           <Row mt={'15px'}>
             <Info size={16} color={theme.warning} />
             <Description>The entered amount exceed your claimable balance.</Description>

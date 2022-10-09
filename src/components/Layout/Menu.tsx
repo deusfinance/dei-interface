@@ -167,14 +167,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          {/* <Link href="stake" passHref>
+          <Link href="stake" passHref>
             <Row active={router.route === '/stake'}>
               <div>Stake</div>
               <IconWrapper>
                 <GiftIcon size={20} />
               </IconWrapper>
             </Row>
-          </Link> */}
+          </Link>
           <ExternalLink href="https://docs.deus.finance/contracts/disclaimer">
             <Row onClick={() => toggle()}>
               <div>Terms</div>

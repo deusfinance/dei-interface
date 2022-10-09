@@ -34,18 +34,18 @@ export const DEUS_VDEUS_LP_TOKEN = new Token(
   'DV-LP'
 )
 
-export const scUSDC_TOKEN = new Token(
+export const sUSDC_TOKEN = new Token(
   SupportedChainId.FANTOM,
-  '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+  '0xCc44A1eDC0E8EcC6DF9703Dee4318B3da66b4F70',
   18,
-  'scUSDC',
-  'Scream USDC'
+  'sUSDC',
+  'Scream Wrapped USDC'
 )
 
-export const scDAI_TOKEN = new Token(
+export const sDAI_TOKEN = new Token(
   SupportedChainId.FANTOM,
-  '0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643',
+  '0x4FE2eA6a1985515259C0e06D348FE8b0c1F9e049',
   18,
-  'scDAI',
-  'Scream DAI'
+  'sDAI',
+  'Scream Wrapped DAI'
 )

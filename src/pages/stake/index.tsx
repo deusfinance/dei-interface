@@ -10,6 +10,10 @@ import Disclaimer from 'components/Disclaimer'
 import ImageWithFallback from 'components/ImageWithFallback'
 import STAKE_ICON from '/public/static/images/pages/ic_stake.svg'
 import { RowCenter } from 'components/Row'
+import TokenBox from 'components/App/Stake/TokenBox'
+import { Stakings } from 'constants/stakingPools'
+import InfoCell from 'components/App/Stake/InfoCell'
+import RewardBox from 'components/App/Stake/RewardBox'
 
 const Container = styled.div`
   display: flex;
@@ -18,7 +22,7 @@ const Container = styled.div`
   margin: 0 auto;
 `
 
-export const Wrapper = styled(Container)`
+const Wrapper = styled(Container)`
   flex-flow: row wrap;
   margin-top: 20px;
   background: ${({ theme }) => theme.bg1};
@@ -38,16 +42,18 @@ const TopWrapper = styled(RowCenter)`
 
 const StakeBox = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   background: ${({ theme }) => theme.bg1};
   border-radius: 12px;
   width: 100%;
-  overflow: scroll;
+  height: 100px;
+  padding: 20px;
+  align-items: center;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  /* ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
     margin: 0 auto;
-  `}
+  `} */
 `
 
 export default function Stake() {
@@ -61,9 +67,19 @@ export default function Stake() {
         <ImageWithFallback src={STAKE_ICON} width={224} height={133} alt={`Logo`} />
       </Hero>
 
-      <TopWrapper>
-        <StakeBox>Hi</StakeBox>
-      </TopWrapper>
+      {Stakings.map((staking, index) => {
+        return (
+          <TopWrapper key={index}>
+            <StakeBox>
+              <TokenBox tokens={staking.tokens} />
+              <InfoCell title={'APR'} text={'4%'} />
+              <InfoCell title={'TVL'} text={'$4.58m'} />
+              <InfoCell title={'Your Stake'} text={'0.00 LP'} />
+              <RewardBox tokens={staking.rewardTokens} />
+            </StakeBox>
+          </TopWrapper>
+        )
+      })}
 
       <Disclaimer />
     </Container>

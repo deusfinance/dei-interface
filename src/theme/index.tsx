@@ -75,6 +75,7 @@ function colors(themeName: SupportedThemes): Colors {
       bg1: '#F5F6FC',
       bg2: '#F0F0F7',
       bg3: '#E9E9F3',
+      bg4: '#23252C',
 
       // borders
       border1: '#B8B8BE',
@@ -106,15 +107,18 @@ function colors(themeName: SupportedThemes): Colors {
       yellow1: '#E3A507',
       yellow2: '#FF8F00',
       yellow3: '#F3B71E',
+      yellow4: '#FFBA93',
       blue1: '#0068FC',
       blue2: '#0068FC',
 
       error: '#DF1F38',
       success: '#007D35',
       warning: '#FF8F00',
+      warning1: '#FDB572',
+
       deusColor: 'linear-gradient(90deg, #0BADF4 0%, #30EFE4 93.4%)',
       deiColor: 'linear-gradient(90deg, #E29C53 0%, #CE4C7A 100%)',
-
+      legacyDeiColor: '#966131',
     },
     [SupportedThemes.DARK]: {
       themeName: SupportedThemes.DARK,
@@ -134,6 +138,7 @@ function colors(themeName: SupportedThemes): Colors {
       bg1: 'rgba(20, 20, 20, 0.9)',
       bg2: '#2F2F2F',
       bg3: '#262B35',
+      bg4: '#23252C',
 
       // borders
       border1: '#545454',
@@ -163,14 +168,17 @@ function colors(themeName: SupportedThemes): Colors {
       yellow1: '#E3A507',
       yellow2: '#FF8F00',
       yellow3: '#F3B71E',
+      yellow4: '#FFBA93',
       blue1: '#2172E5',
       blue2: '#5199FF',
 
       error: '#FD4040',
       success: '#27AE60',
       warning: '#FF8F00',
+      warning1: '#FDB572',
       deusColor: 'linear-gradient(90deg, #0BADF4 0%, #30EFE4 93.4%)',
       deiColor: 'linear-gradient(90deg, #E29C53 0%, #CE4C7A 100%)',
+      legacyDeiColor: '#966131',
     },
   }
   // default the theme to light mode

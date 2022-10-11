@@ -20,6 +20,7 @@ export interface Colors {
   bg1: Color
   bg2: Color
   bg3: Color
+  bg4: Color
 
   // borders
   border1: Color
@@ -47,14 +48,17 @@ export interface Colors {
   yellow1: Color
   yellow2: Color
   yellow3: Color
+  yellow4: Color
   blue1: Color
   blue2: Color
 
   error: Color
   success: Color
   warning: Color
+  warning1: Color
   deusColor: Color
   deiColor: Color
+  legacyDeiColor: Color
 }
 
 export type Shadow = string

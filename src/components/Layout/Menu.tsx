@@ -159,17 +159,17 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          {/* <Link href="bDEI-bond" passHref>
-            <Row active={router.route === '/bDEI-bond'}>
-              <div>bDEI-bond</div>
+          <Link href="migration" passHref>
+            <Row active={router.route === '/migration'}>
+              <div>Migration</div>
               <IconWrapper>
                 <GiftIcon size={20} />
               </IconWrapper>
             </Row>
-          </Link> */}
-          <Link href="migration" passHref>
-            <Row active={router.route === '/migration'}>
-              <div>Migration</div>
+          </Link>
+          <Link href="stake" passHref>
+            <Row active={router.route === '/stake'}>
+              <div>Stake</div>
               <IconWrapper>
                 <GiftIcon size={20} />
               </IconWrapper>

@@ -14,8 +14,9 @@ import TokenBox from 'components/App/Stake/TokenBox'
 import { Stakings } from 'constants/stakingPools'
 import InfoCell from 'components/App/Stake/InfoCell'
 import RewardBox from 'components/App/Stake/RewardBox'
+import { useRouter } from 'next/router'
 
-const Container = styled.div`
+export const Container = styled.div`
   display: flex;
   flex-flow: column nowrap;
   overflow: visible;
@@ -38,9 +39,11 @@ const TopWrapper = styled(RowCenter)`
   max-width: 1200px;
   margin: 0 auto;
   margin-top: 20px;
+  font-size: 14px;
+  cursor: pointer;
 `
 
-const StakeBox = styled.div`
+const StakeBox = styled.div<{ active: boolean }>`
   display: flex;
   flex-direction: row;
   background: ${({ theme }) => theme.bg1};
@@ -49,6 +52,10 @@ const StakeBox = styled.div`
   height: 100px;
   padding: 20px;
   align-items: center;
+
+  & > * {
+    opacity: ${({ active }) => (active ? '1' : '0.4')};
+  }
 
   /* ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
@@ -60,6 +67,7 @@ export default function Stake() {
   // const { chainId, account } = useWeb3React()
   // const toggleWalletModal = useWalletModalToggle()
   // const isSupportedChainId = useSupportedChainId()
+  const router = useRouter()
 
   return (
     <Container>
@@ -68,14 +76,15 @@ export default function Stake() {
       </Hero>
 
       {Stakings.map((staking, index) => {
+        const { pid, tokens, lpToken, rewardTokens, active } = staking
         return (
-          <TopWrapper key={index}>
-            <StakeBox>
-              <TokenBox tokens={staking.tokens} />
-              <InfoCell title={'APR'} text={'4%'} />
+          <TopWrapper key={index} onClick={() => router.push(`/stake/${pid}`)}>
+            <StakeBox active={active}>
+              <TokenBox tokens={tokens} />
+              {active ? <InfoCell title={'APR'} text={'4%'} /> : <span style={{ flexBasis: '12%' }}>Disable</span>}
               <InfoCell title={'TVL'} text={'$4.58m'} />
-              <InfoCell title={'Your Stake'} text={'0.00 LP'} />
-              <RewardBox tokens={staking.rewardTokens} />
+              <InfoCell title={'Your Stake'} text={`0.00 ${lpToken.symbol}`} size={'22%'} />
+              <RewardBox tokens={rewardTokens} />
             </StakeBox>
           </TopWrapper>
         )

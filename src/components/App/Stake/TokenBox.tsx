@@ -8,16 +8,50 @@ const TokenCell = styled.div`
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  gap: 10px;
-  flex-basis: 25%;
+  flex-basis: 18%;
+
+  & > * {
+    &:first-child {
+      margin-right: 8px;
+    }
+  }
 `
 
 const TokenWrap = styled.div`
+  /* display: flex; */
+  /* flex-flow: row nowrap; */
+  /* align-items: center; */
+  /* gap: 10px; */
+  /* margin: 0 10px; */
+`
+
+const MultipleImageWrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  gap: 10px;
-  margin: 0 10px;
+  justify-content: center;
+
+  & > * {
+    &:nth-child(2) {
+      transform: translateX(-30%);
+      margin-right: -9px;
+    }
+    &:nth-child(3) {
+      transform: translateX(-60%);
+      margin-right: -9px;
+    }
+    &:nth-child(4) {
+      transform: translateX(-90%);
+      margin-right: -9px;
+    }
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    & > * {
+      width: 28px;
+      height: 28px;
+    }
+`}
 `
 
 function getImageSize() {
@@ -30,17 +64,25 @@ export default function TokenBox({ tokens }: { tokens: Token[] }) {
 
   return (
     <TokenCell>
+      <MultipleImageWrapper>
+        {logos.map((logo, index) => {
+          return (
+            <ImageWithFallback
+              src={logo}
+              width={getImageSize()}
+              height={getImageSize()}
+              alt={`Logo`}
+              key={index}
+              round
+            />
+          )
+        })}
+      </MultipleImageWrapper>
       {tokens.map((token, index) => {
         return (
           <TokenWrap key={index}>
-            <ImageWithFallback
-              src={logos[index]}
-              width={getImageSize()}
-              height={getImageSize()}
-              alt={`${token?.symbol} Logo`}
-              round
-            />
-            <span>{token.name} </span>
+            <span>{token.name}</span>
+            {index + 1 !== tokens.length && <span>-</span>}
           </TokenWrap>
         )
       })}

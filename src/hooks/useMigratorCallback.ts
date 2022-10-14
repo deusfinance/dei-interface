@@ -149,9 +149,8 @@ export default function useMigrationCallback(
           })
           .then((response: TransactionResponse) => {
             console.log(response)
-            const summary = `Migrate ${amount} ${inputToken?.symbol} to ${outputToken?.symbol}}`
+            const summary = `Migrate ${amount?.toSignificant()} ${inputToken?.symbol} to ${outputToken?.symbol}`
             addTransaction(response, { summary })
-
             return response.hash
           })
           .catch((error) => {

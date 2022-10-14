@@ -5,7 +5,7 @@ import { Row } from 'components/Row'
 import { ArrowRight, ArrowDown } from 'react-feather'
 
 const Container = styled.div`
-  width: 52px;
+  width: 60px;
   height: 28px;
   padding: 1px;
   border-radius: 4px;
@@ -26,6 +26,7 @@ const Leverage = styled.span`
   background: ${({ theme }) => theme.deiColor};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  margin-right: 6px;
 `
 
 export default function LeverageArrow({ leverage, arrowDirection }: { leverage: number; arrowDirection: string }) {

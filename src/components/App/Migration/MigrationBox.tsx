@@ -20,6 +20,7 @@ import { Container } from './SelectBox'
 import { Row } from 'components/Row'
 import toast from 'react-hot-toast'
 import { toBN } from 'utils/numbers'
+import LeverageArrow from './LeverageArrow'
 
 export const Wrapper = styled(Container)`
   background: ${({ theme }) => theme.bg1};
@@ -111,6 +112,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const migrationState = useMemo(() => MigrationStates[activeState], [activeState])
   const inputCurrency = useMemo(() => migrationState.inputToken, [migrationState])
   const outputCurrency = useMemo(() => migrationState.outputToken, [migrationState])
+  const leverage = useMemo(() => migrationState.leverage, [migrationState])
 
   const spender = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency ?? undefined, spender)
@@ -134,18 +136,17 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
 
   useEffect(() => {
     const methodName = migrationState?.methodName
-    if (methodName === 'legacyDEIToBDEI') setAmountOut(amountIn)
-    if (methodName === 'vDEUSToBDEI') {
+    if (methodName === 'legacyDEIToBDEI') setAmountOut((Number(amountIn) * leverage).toString())
+    else if (methodName === 'vDEUSToBDEI') {
       const val = toBN(amountIn).multipliedBy(toBN(vDEUSPrice))
-      setAmountOut(amountIn ? val.toString() : '')
-    }
-    if (outputCurrency?.symbol === 'vDEUS') {
+      setAmountOut(amountIn ? (Number(val.toString()) * leverage).toString() : '')
+    } else if (outputCurrency?.symbol === 'vDEUS') {
       const val = toBN(amountIn).dividedBy(toBN(vDEUSPrice))
-      setAmountOut(amountIn ? val.toString() : '')
+      setAmountOut(amountIn ? (Number(val.toString()) * leverage).toString() : '')
     } else {
-      setAmountOut(amountIn)
+      setAmountOut((Number(amountIn) * leverage).toString())
     }
-  }, [amountIn, inputCurrency.symbol, migrationState?.methodName, outputCurrency?.symbol, vDEUSPrice])
+  }, [amountIn, inputCurrency.symbol, leverage, migrationState?.methodName, outputCurrency?.symbol, vDEUSPrice])
 
   useEffect(() => {
     setExceedBalance(!!(amountOut > availableClaimableBDEI))
@@ -257,7 +258,9 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
       </Title>
       <MainWrapper>
         <InputBox currency={inputCurrency} value={amountIn} onChange={(value: string) => setAmountIn(value)} />
-        <ArrowDown />
+
+        {leverage === 1 ? <ArrowDown /> : <LeverageArrow leverage={leverage} arrowDirection={'down'} />}
+
         <InputBox currency={outputCurrency} value={amountOut} onChange={() => null} disabled />
 
         <div style={{ marginTop: '40px' }}></div>

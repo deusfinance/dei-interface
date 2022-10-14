@@ -37,7 +37,7 @@ export const DEUS_VDEUS_LP_TOKEN = new Token(
 export const scUSDC_TOKEN = new Token(
   SupportedChainId.FANTOM,
   '0xE45Ac34E528907d0A0239ab5Db507688070B20bf',
-  18,
+  8,
   'scUSDC',
   'Scream Wrapped USDC'
 )
@@ -45,7 +45,7 @@ export const scUSDC_TOKEN = new Token(
 export const scDAI_TOKEN = new Token(
   SupportedChainId.FANTOM,
   '0x8D9AED9882b4953a0c9fa920168fa1FDfA0eBE75',
-  18,
+  8,
   'scDAI',
   'Scream Wrapped DAI'
 )

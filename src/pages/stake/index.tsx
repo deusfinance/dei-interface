@@ -63,6 +63,10 @@ const StakeBox = styled.div<{ active: boolean }>`
   `} */
 `
 
+const DisableCell = styled.div`
+  flex-basis: 12%;
+`
+
 export default function Stake() {
   // const { chainId, account } = useWeb3React()
   // const toggleWalletModal = useWalletModalToggle()
@@ -81,9 +85,9 @@ export default function Stake() {
           <TopWrapper key={index} onClick={() => router.push(`/stake/${pid}`)}>
             <StakeBox active={active}>
               <TokenBox tokens={tokens} />
-              {active ? <InfoCell title={'APR'} text={'4%'} /> : <span style={{ flexBasis: '12%' }}>Disable</span>}
+              {active ? <InfoCell title={'APR'} text={'4%'} /> : <DisableCell>Disable</DisableCell>}
               <InfoCell title={'TVL'} text={'$4.58m'} />
-              <InfoCell title={'Your Stake'} text={`0.00 ${lpToken.symbol}`} size={'22%'} />
+              <InfoCell title={'Your Stake'} text={`1.38 ${lpToken.symbol}`} size={'22%'} />
               <RewardBox tokens={rewardTokens} />
             </StakeBox>
           </TopWrapper>

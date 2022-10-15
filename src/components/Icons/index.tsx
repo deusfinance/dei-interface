@@ -27,6 +27,7 @@ export { default as Trade } from './Trade'
 export { Wallet } from './Wallet'
 export { default as Redeem } from './Redeem'
 export { default as Link } from './Link'
+export { default as Swap } from './Swap'
 
 // for wrapping react feather icons
 export const IconWrapper = styled.div<{ stroke?: string; size?: string; marginRight?: string; marginLeft?: string }>`

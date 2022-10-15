@@ -22,16 +22,6 @@ const Container = styled.div`
   margin: 0 auto;
 `
 
-export const Wrapper = styled(Container)`
-  flex-flow: row wrap;
-  margin-top: 20px;
-  background: ${({ theme }) => theme.bg1};
-  border: 1px solid rgb(0, 0, 0);
-  width: 344px;
-  height: 472px;
-  border-radius: 12px 0px 0px 12px;
-`
-
 const HeroWrap = styled(Hero)`
   overflow: hidden;
   height: 207px;
@@ -74,7 +64,11 @@ const TopWrapper = styled(RowCenter)`
 export default function Dashboard() {
   const { account } = useWeb3React()
 
-  function migrationCardContent() {
+  function swapCardContent(): JSX.Element {
+    return <></>
+  }
+
+  function migrationCardContent(): JSX.Element {
     return (
       <>
         {MigrationStates.map((migrationState, index) => {
@@ -97,6 +91,10 @@ export default function Dashboard() {
     )
   }
 
+  function myStakingCardContent(): JSX.Element {
+    return <></>
+  }
+
   return (
     <Container>
       <HeroWrap>
@@ -107,9 +105,9 @@ export default function Dashboard() {
       <TopWrapper>
         {account && <UserStats />}
         <CardWrapper>
-          <Card href="/migration" title={'Swap'} subTitle="view all" currentItem={migrationCardContent()} />
+          <Card href="/migration" title={'Swap'} subTitle="view all" currentItem={swapCardContent()} />
           <Card href="/bond" title={'Migration'} subTitle="view all" currentItem={migrationCardContent()} />
-          <Card href="/vest" title={'My Staking '} subTitle="view all" currentItem={migrationCardContent()} />
+          <Card href="/vest" title={'My Staking '} subTitle="view all" currentItem={myStakingCardContent()} />
         </CardWrapper>
         <Stats />
       </TopWrapper>

@@ -135,12 +135,14 @@ export default function InputBox({
   value,
   onChange,
   onTokenSelect,
+  maxValue,
   disabled,
 }: {
   currency: Currency
   value: string
   onChange(values: string): void
   onTokenSelect?: () => void
+  maxValue?: number
   disabled?: boolean
 }) {
   const { account } = useWeb3React()
@@ -148,8 +150,9 @@ export default function InputBox({
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
 
   const [balanceExact, balanceDisplay] = useMemo(() => {
-    return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
-  }, [currencyBalance])
+    if (!maxValue) return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
+    return [maxValue.toString(), maxValue?.toFixed(6)]
+  }, [currencyBalance, maxValue])
 
   const handleClick = useCallback(() => {
     if (!balanceExact || !onChange || disabled) return

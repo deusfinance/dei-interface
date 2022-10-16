@@ -312,7 +312,7 @@ export default function StakingPool({ pool }: { pool: StakingType }) {
         currency={currency}
         value={amountIn}
         onChange={(value: string) => setAmountIn(value)}
-        // maxValue={selected === ActionTypes.STAKE ? null : depositAmount.toString()}
+        maxValue={selected === ActionTypes.STAKE ? undefined : depositAmount}
       />
 
       {getApproveButton()}

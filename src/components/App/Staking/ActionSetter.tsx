@@ -51,12 +51,12 @@ export default function ActionSetter({
       {(Object.keys(ActionTypes) as Array<keyof typeof ActionTypes>).map((key, index) => {
         const label = ActionLabels[key]
         return (
-          <>
+          <React.Fragment key={index}>
             <Item selected={key == selected} onClick={() => setSelected(ActionTypes[key])} key={index}>
               {label}
             </Item>
             {index === 0 && <Line />}
-          </>
+          </React.Fragment>
         )
       })}
     </Wrapper>

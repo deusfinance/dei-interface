@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { StakingType } from 'constants/stakingPools'
+import PoolSelector from 'components/App/Stake/PoolSelector'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -53,7 +54,7 @@ export default function StatsHeader({
     <Wrapper>
       <ItemBox>
         {/* TODO: Pool selector goes here */}
-        <Value>{pool?.name}</Value>
+        <PoolSelector pool={pool}></PoolSelector>
       </ItemBox>
 
       {items.map((item, index) => (

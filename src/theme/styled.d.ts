@@ -53,6 +53,7 @@ export interface Colors {
   error: Color
   success: Color
   warning: Color
+  nude: Color
   deusColor: Color
   deiColor: Color
 }

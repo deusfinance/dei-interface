@@ -14,7 +14,7 @@ import { Row, RowBetween, RowCenter, RowEnd } from 'components/Row'
 import { ChevronDown as ChevronDownIcon } from 'components/Icons'
 
 export const Wrapper = styled(Row)`
-  background: ${({ theme }) => theme.bg2};
+  background: ${({ theme }) => theme.bg1};
   border-radius: 12px;
   color: ${({ theme }) => theme.text2};
   white-space: nowrap;

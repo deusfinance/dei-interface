@@ -1,9 +1,5 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import styled from 'styled-components'
-
-// import { useWalletModalToggle } from 'state/application/hooks'
-// import useWeb3React from 'hooks/useWeb3'
-// import { useSupportedChainId } from 'hooks/useSupportedChainId'
 
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
@@ -23,24 +19,14 @@ export const Container = styled.div`
   margin: 0 auto;
 `
 
-const Wrapper = styled(Container)`
-  flex-flow: row wrap;
-  margin-top: 20px;
-  background: ${({ theme }) => theme.bg1};
-  border: 1px solid rgb(0, 0, 0);
-  width: 344px;
-  height: 472px;
-  border-radius: 12px 0px 0px 12px;
-`
-
-const TopWrapper = styled(RowCenter)`
+const TopWrapper = styled(RowCenter)<{ active: boolean }>`
   flex-wrap: wrap;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   margin-top: 20px;
   font-size: 14px;
-  cursor: pointer;
+  cursor: ${({ active }) => (active ? 'pointer' : 'not-allowed')};
 `
 
 const StakeBox = styled.div<{ active: boolean }>`
@@ -56,11 +42,6 @@ const StakeBox = styled.div<{ active: boolean }>`
   & > * {
     opacity: ${({ active }) => (active ? '1' : '0.4')};
   }
-
-  /* ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 100%;
-    margin: 0 auto;
-  `} */
 `
 
 const DisableCell = styled.div`
@@ -68,10 +49,14 @@ const DisableCell = styled.div`
 `
 
 export default function Stake() {
-  // const { chainId, account } = useWeb3React()
-  // const toggleWalletModal = useWalletModalToggle()
-  // const isSupportedChainId = useSupportedChainId()
   const router = useRouter()
+
+  const handleClick = useCallback(
+    (pid) => {
+      router.push(`/stake/${pid}`)
+    },
+    [router]
+  )
 
   return (
     <Container>
@@ -82,7 +67,7 @@ export default function Stake() {
       {Stakings.map((staking, index) => {
         const { pid, tokens, lpToken, rewardTokens, active } = staking
         return (
-          <TopWrapper key={index} onClick={() => router.push(`/stake/${pid}`)}>
+          <TopWrapper key={index} active={active} onClick={active ? () => handleClick(pid) : undefined}>
             <StakeBox active={active}>
               <TokenBox tokens={tokens} />
               {active ? <InfoCell title={'APR'} text={'4%'} /> : <DisableCell>Disable</DisableCell>}

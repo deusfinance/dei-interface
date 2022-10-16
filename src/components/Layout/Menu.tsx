@@ -168,7 +168,7 @@ export default function Menu() {
             </Row>
           </Link>
           <Link href="stake" passHref>
-            <Row active={router.route === '/stake'}>
+            <Row active={router.route.includes('/stake')}>
               <div>Stake</div>
               <IconWrapper>
                 <GiftIcon size={20} />

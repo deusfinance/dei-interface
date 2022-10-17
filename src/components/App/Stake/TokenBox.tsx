@@ -58,7 +58,7 @@ function getImageSize() {
   return isMobile ? 22 : 30
 }
 
-export default function TokenBox({ tokens }: { tokens: Token[] }) {
+export default function TokenBox({ tokens, title }: { tokens: Token[]; title: string }) {
   const tokensAddress = tokens.map((token) => token.address)
   const logos = useCurrencyLogos(tokensAddress)
 
@@ -78,14 +78,15 @@ export default function TokenBox({ tokens }: { tokens: Token[] }) {
           )
         })}
       </MultipleImageWrapper>
-      {tokens.map((token, index) => {
+      <span>{title}</span>
+      {/* {tokens.map((token, index) => {
         return (
           <TokenWrap key={index}>
             <span>{token.name}</span>
             {index + 1 !== tokens.length && <span>-</span>}
           </TokenWrap>
         )
-      })}
+      })} */}
     </TokenCell>
   )
 }

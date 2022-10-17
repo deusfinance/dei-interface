@@ -55,7 +55,7 @@ export default function StakingPage() {
       <StatsHeader items={items} pool={pool} />
 
       <TopWrapper>
-        <LiquidityPool pool={pool} />
+        {pool?.tokens.length > 1 && <LiquidityPool pool={pool} />}
         <StakingPool pool={pool} />
       </TopWrapper>
 

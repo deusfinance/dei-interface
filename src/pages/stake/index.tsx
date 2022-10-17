@@ -65,11 +65,11 @@ export default function Stake() {
       </Hero>
 
       {Stakings.map((staking, index) => {
-        const { pid, tokens, lpToken, rewardTokens, active } = staking
+        const { pid, tokens, lpToken, rewardTokens, active, name } = staking
         return (
           <TopWrapper key={index} active={active} onClick={active ? () => handleClick(pid) : undefined}>
             <StakeBox active={active}>
-              <TokenBox tokens={tokens} />
+              <TokenBox tokens={tokens} title={name} />
               {active ? <InfoCell title={'APR'} text={'4%'} /> : <DisableCell>Disable</DisableCell>}
               <InfoCell title={'TVL'} text={'$4.58m'} />
               <InfoCell title={'Your Stake'} text={`1.38 ${lpToken.symbol}`} size={'22%'} />

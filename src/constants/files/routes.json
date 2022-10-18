@@ -41,11 +41,5 @@
     "text": "Migration",
     "path": "/migration",
     "exact": true
-  },
-  {
-    "id": "9",
-    "text": "Stake",
-    "path": "/stake",
-    "exact": true
   }
 ]

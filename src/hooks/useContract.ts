@@ -67,6 +67,7 @@ import {
   Migrator,
 } from 'constants/addresses'
 import { BorrowPool, LenderVersion } from 'state/borrow/reducer'
+// import { StakingType } from 'constants/stakingPools'
 import { StakingType } from 'constants/stakings'
 
 export function useContract<T extends Contract = Contract>(

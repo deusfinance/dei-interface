@@ -15,7 +15,7 @@ const Container = styled.div`
 const Wrapper = styled(Row)`
   width: 100%;
   height: 100%;
-  padding: 0px 6px;
+  padding: 0px 4px;
   white-space: nowrap;
   border-radius: 4px;
   color: ${({ theme }) => theme.text2};
@@ -26,14 +26,13 @@ const Leverage = styled.span`
   background: ${({ theme }) => theme.deiColor};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-right: 6px;
 `
 
 export default function LeverageArrow({ leverage, arrowDirection }: { leverage: number; arrowDirection: string }) {
   return (
     <Container>
       <Wrapper>
-        <Leverage>{`X${leverage}`}</Leverage>
+        <Leverage>{`1:${leverage}`}</Leverage>
 
         {arrowDirection === 'down' ? (
           <ArrowDown style={{ color: '#EBEBEC', minWidth: '24px' }} />

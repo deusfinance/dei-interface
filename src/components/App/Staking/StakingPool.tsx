@@ -12,7 +12,6 @@ import { useUserInfo } from 'hooks/useStakingInfo'
 
 import { DefaultHandlerError } from 'utils/parseError'
 import { toBN } from 'utils/numbers'
-import { StakingPools2 } from 'constants/stakings'
 import { MasterChefV3 } from 'constants/addresses'
 
 import { Row } from 'components/Row'
@@ -23,6 +22,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import ActionSetter, { ActionTypes } from './ActionSetter2'
 import InputBox from 'components/InputBox'
 import { StakingType } from 'constants/stakingPools'
+import { StakingPools } from 'constants/stakings'
 
 const Container = styled.div`
   display: flex;
@@ -124,8 +124,9 @@ export default function StakingPool({ pool }: { pool: StakingType }) {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
-  // FIXME: for test only
-  const stakingPool = StakingPools2[1]
+  // const stakingPool = pool
+  // const pid = pool?.pid
+  const stakingPool = StakingPools[1]
   const pid = 1
 
   const currency = pool?.lpToken

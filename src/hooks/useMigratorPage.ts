@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
-import { useCollateralPoolContract, useDeiBonderV3Contract, useOracleContract2 } from 'hooks/useContract'
+import { useCollateralPoolContract, useMigratorContract, useOracleContract2 } from 'hooks/useContract'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useWeb3React from 'hooks/useWeb3'
 
@@ -29,7 +29,7 @@ export function useOracleAddress(): string {
 }
 
 export function useClaimedBDEI(): { claimedBDEI: string } {
-  const contract = useDeiBonderV3Contract()
+  const contract = useMigratorContract()
   const { account } = useWeb3React()
   const isSupportedChainId = useSupportedChainId()
 
@@ -65,15 +65,16 @@ export function useClaimableBDEI(): { totalClaimableBDEI: string; availableClaim
   const { account } = useWeb3React()
   const parsedSnapshot = snapshot as { [address: string]: string }
   const { claimedBDEI } = useClaimedBDEI()
+  const claimedBDEI1 = formatUnits(claimedBDEI.toString(), 18)
 
   return useMemo(
     () => ({
       totalClaimableBDEI: account ? parsedSnapshot[account?.toString()?.toLowerCase()] : '0',
       availableClaimableBDEI: account
-        ? toBN(parsedSnapshot[account?.toString()?.toLowerCase()]).minus(toBN(claimedBDEI)).toString()
+        ? toBN(parsedSnapshot[account?.toString()?.toLowerCase()]).minus(toBN(claimedBDEI1)).toString()
         : '0',
     }),
-    [parsedSnapshot, account, claimedBDEI]
+    [account, parsedSnapshot, claimedBDEI1]
   )
 }
 

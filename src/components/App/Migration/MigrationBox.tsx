@@ -228,6 +228,10 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
         </MainButton>
       )
     }
+    // @ts-ignore
+    if (isNaN(availableClaimableBDEI) && outputCurrency?.symbol === 'bDEI') {
+      return <MainButton disabled>You are not whitelisted</MainButton>
+    }
     if (expiredPrice && migrationState.oracleUpdate) {
       return <MainButton onClick={handleUpdatePrice}>Update Oracle</MainButton>
     }
@@ -270,9 +274,13 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
 
         {account && migrationState.snapshotConfirmation && (
           <Row mt={'18px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
-            <Info size={16} />
-            <Description style={{ color: 'white' }}>Your Claimable BDEI is: {availableClaimableBDEI}</Description>
-            <MaxButtonWrap>Max</MaxButtonWrap>
+            {!availableClaimableBDEI && (
+              <>
+                <Info size={16} />
+                <Description style={{ color: 'white' }}>Your Claimable BDEI is: {availableClaimableBDEI}</Description>
+                <MaxButtonWrap>Max</MaxButtonWrap>
+              </>
+            )}
           </Row>
         )}
         {account && migrationState.snapshotConfirmation && exceedBalance && (

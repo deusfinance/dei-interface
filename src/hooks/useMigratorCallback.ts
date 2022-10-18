@@ -45,7 +45,7 @@ export default function useMigrationCallback(
 
   const constructCall = useCallback(async () => {
     try {
-      if (!account || !library || !migratorContract || !inputToken || !amount || !totalClaimableBDEI) {
+      if (!account || !library || !migratorContract || !inputToken || !amount) {
         throw new Error('Missing dependencies.')
       }
 

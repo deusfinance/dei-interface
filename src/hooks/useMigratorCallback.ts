@@ -56,6 +56,7 @@ export default function useMigrationCallback(
       if (proof) {
         const merkleProofResponse = await merkleProofRequest()
         const merkleProof = merkleProofResponse['proof']
+        // console.log({ merkleProof })
         const totalClaimableBDEIParsed = parseUnits(totalClaimableBDEI, BDEI_TOKEN.decimals).toString()
         args = [toHex(amount.quotient), totalClaimableBDEIParsed, merkleProof]
       } else {

@@ -274,7 +274,8 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
 
         {account && migrationState.snapshotConfirmation && (
           <Row mt={'18px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
-            {!availableClaimableBDEI && (
+            {/* @ts-ignore */}
+            {!isNaN(availableClaimableBDEI) && (
               <>
                 <Info size={16} />
                 <Description style={{ color: 'white' }}>Your Claimable BDEI is: {availableClaimableBDEI}</Description>

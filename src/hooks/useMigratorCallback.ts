@@ -62,6 +62,7 @@ export default function useMigrationCallback(
       } else {
         args = [toHex(amount.quotient)]
       }
+      console.log({ args })
 
       return {
         address: migratorContract.address,

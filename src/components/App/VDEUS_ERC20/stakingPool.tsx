@@ -149,7 +149,7 @@ const ButtonText = styled.span`
 `
 
 const AmountSpan = styled.span`
-  color: #fdb572;
+  color: ${({ theme }) => theme.nude};
 `
 
 const InfoIcon = styled(Info)`

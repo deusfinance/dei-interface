@@ -173,8 +173,7 @@ export const vDeusStaking: AddressMap = {
   [SupportedChainId.FANTOM]: '0x978b5d59DeE843C99B205A81ca82F66F35B1Ba35',
 }
 
-//vDEUS Migrator
-export const Migrator: AddressMap = {
+export const vDEUSMigrator: AddressMap = {
   [SupportedChainId.FANTOM]: '0x3f4B6D79c3235C08F0Ba73c0c5355020B90f476c',
 }
 
@@ -184,4 +183,12 @@ export const TwapOracle: AddressMap = {
 
 export const CollateralPool: AddressMap = {
   [SupportedChainId.FANTOM]: '0x6E0098A8c651F7A6A9510B270CD02c858C344D94',
+}
+
+export const DeiBonderV3: AddressMap = {
+  [SupportedChainId.FANTOM]: '0x3360d56bcd109216214ef477728A0ED1b7d36A6F',
+}
+
+export const Migrator: AddressMap = {
+  [SupportedChainId.FANTOM]: '0xADC3aaa050852679bed88419CdABde7AB0bfC996',
 }

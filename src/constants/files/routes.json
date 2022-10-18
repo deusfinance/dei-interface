@@ -35,5 +35,11 @@
     "text": "Borrow",
     "path": "/borrow",
     "exact": true
+  },
+  {
+    "id": "8",
+    "text": "Migration",
+    "path": "/migration",
+    "exact": true
   }
 ]

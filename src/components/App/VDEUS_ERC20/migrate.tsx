@@ -13,7 +13,7 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing } from 'components/Icons'
 import InputBox from 'components/App/Redemption/InputBox'
-import { vDeus, Migrator } from 'constants/addresses'
+import { vDeus, vDEUSMigrator } from 'constants/addresses'
 import { VDEUS_TOKEN } from 'constants/tokens'
 import NFTsModal from 'components/NFTsModal'
 import SelectBox from 'components/SelectBox'
@@ -96,7 +96,7 @@ export default function Migrate() {
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState(false)
   const [awaitingUpdateConfirmation, setAwaitingUpdateConfirmation] = useState(false)
-  const spender = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
+  const spender = useMemo(() => (chainId ? vDEUSMigrator[chainId] : undefined), [chainId])
 
   const [approvalState, approveCallback] = useERC721ApproveAllCallback(chainId ? vDeus[chainId] : undefined, spender)
   const showApprove = useMemo(() => approvalState !== ApprovalState.APPROVED, [approvalState])

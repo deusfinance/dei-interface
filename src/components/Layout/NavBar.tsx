@@ -224,7 +224,7 @@ export default function NavBar() {
               ) : (
                 <SimpleLinkWrapper key={item.id}>
                   <Link href={item.path} passHref>
-                    <NavLink active={router.route === item.path}>{item.text}</NavLink>
+                    <NavLink active={router.route.includes(item.path)}>{item.text}</NavLink>
                   </Link>
                 </SimpleLinkWrapper>
               )

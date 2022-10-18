@@ -88,7 +88,7 @@ export function useUserInfo(stakingPool: StakingType): {
 
   const { depositedValue, reward, totalDepositedAmountValue } = useMemo(() => {
     return {
-      depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0], 18)).toNumber() : 0,
+      depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0].toString(), 18)).toNumber() : 0,
       reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0,
       totalDepositedAmountValue: totalDepositedAmount?.result
         ? toBN(formatUnits(totalDepositedAmount.result[0], 18)).toNumber()

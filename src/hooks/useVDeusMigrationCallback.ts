@@ -12,13 +12,13 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
 import { useVDeusMigratorContract } from 'hooks/useContract'
 
-export enum TransactionCallbackSate {
+export enum TransactionCallbackState {
   INVALID = 'INVALID',
   VALID = 'VALID',
 }
 
 export default function useVDeusMigrationCallback(tokenIds: number[] | undefined | null): {
-  state: TransactionCallbackSate
+  state: TransactionCallbackState
   callback: null | (() => Promise<string>)
   error: string | null
 } {
@@ -64,14 +64,14 @@ export default function useVDeusMigrationCallback(tokenIds: number[] | undefined
   return useMemo(() => {
     if (!account || !chainId || !library || !VDeusMigrator || !tokenIds || !tokenIds.length) {
       return {
-        state: TransactionCallbackSate.INVALID,
+        state: TransactionCallbackState.INVALID,
         callback: null,
         error: 'Missing dependencies',
       }
     }
 
     return {
-      state: TransactionCallbackSate.VALID,
+      state: TransactionCallbackState.VALID,
       error: null,
       callback: async function onMigrate(): Promise<string> {
         console.log('onMigrate callback')

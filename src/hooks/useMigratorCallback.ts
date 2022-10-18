@@ -15,8 +15,8 @@ import { toHex } from 'utils/hex'
 import { CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core-sdk'
 import { INFO_URL } from 'constants/misc'
 import { makeHttpRequest } from 'utils/http'
-import { parseUnits } from '@ethersproject/units'
-import { BDEI_TOKEN } from 'constants/tokens'
+// import { parseUnits } from '@ethersproject/units'
+// import { BDEI_TOKEN } from 'constants/tokens'
 import { MigrationStateType } from 'constants/migration'
 
 export default function useMigrationCallback(
@@ -56,13 +56,16 @@ export default function useMigrationCallback(
       if (proof) {
         const merkleProofResponse = await merkleProofRequest()
         const merkleProof = merkleProofResponse['proof']
+        const totalClaimableBDEIParsed = merkleProofResponse['value']
         // console.log({ merkleProof })
-        const totalClaimableBDEIParsed = parseUnits(totalClaimableBDEI, BDEI_TOKEN.decimals).toString()
+        // const totalClaimableBDEIParsed = parseUnits(totalClaimableBDEI, BDEI_TOKEN.decimals).toString()
+        // const totalClaimableBDEIParsed = parseUnits(totalClaimableBDEI, BDEI_TOKEN.decimals).toString()
         args = [toHex(amount.quotient), totalClaimableBDEIParsed, merkleProof]
       } else {
         args = [toHex(amount.quotient)]
       }
-      console.log({ args })
+
+      // console.log({ args })
 
       return {
         address: migratorContract.address,
@@ -80,7 +83,7 @@ export default function useMigrationCallback(
     migratorContract,
     inputToken,
     amount,
-    totalClaimableBDEI,
+    // totalClaimableBDEI,
     methodName,
     proof,
     merkleProofRequest,

@@ -130,7 +130,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const [awaitingMigrateConfirmation, setAwaitingMigrateConfirmation] = useState(false)
   const [awaitingUpdateConfirmation, setAwaitingUpdateConfirmation] = useState(false)
 
-  const { totalClaimableBDEI, availableClaimableBDEI } = useClaimableBDEI()
+  const { availableClaimableBDEI } = useClaimableBDEI()
   const { vDEUSPrice } = useGetPrice()
   const expiredPrice = useExpiredPrice()
 
@@ -152,7 +152,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
     setExceedBalance(!!(amountOut > availableClaimableBDEI))
   }, [amountOut, availableClaimableBDEI])
 
-  const { callback: migrationCallback } = useMigrationCallback(migrationState, currencyAmount, totalClaimableBDEI)
+  const { callback: migrationCallback } = useMigrationCallback(migrationState, currencyAmount)
   const { callback: updateOracleCallback } = useUpdateCallback()
 
   const handleApprove = async () => {

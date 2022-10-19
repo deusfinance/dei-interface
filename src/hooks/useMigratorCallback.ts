@@ -2,10 +2,10 @@ import { useCallback, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import toast from 'react-hot-toast'
 
-// import { INFO_URL } from 'constants/misc'
+import { INFO_URL } from 'constants/misc'
 import { calculateGasMargin } from 'utils/web3'
 import { DefaultHandlerError } from 'utils/parseError'
-// import { makeHttpRequest } from 'utils/http'
+import { makeHttpRequest } from 'utils/http'
 
 import { useTransactionAdder } from 'state/transactions/hooks'
 import useWeb3React from 'hooks/useWeb3'
@@ -13,16 +13,13 @@ import { useMigratorContract } from 'hooks/useContract'
 import { TransactionCallbackState } from 'hooks/useSwapCallback'
 import { toHex } from 'utils/hex'
 import { CurrencyAmount, NativeCurrency, Token } from '@sushiswap/core-sdk'
-import { INFO_URL } from 'constants/misc'
-import { makeHttpRequest } from 'utils/http'
 // import { parseUnits } from '@ethersproject/units'
 // import { BDEI_TOKEN } from 'constants/tokens'
 import { MigrationStateType } from 'constants/migration'
 
 export default function useMigrationCallback(
   migrationState: MigrationStateType,
-  amount: CurrencyAmount<NativeCurrency | Token> | null | undefined,
-  totalClaimableBDEI: string
+  amount: CurrencyAmount<NativeCurrency | Token> | null | undefined
 ): {
   state: TransactionCallbackState
   callback: null | (() => Promise<string>)
@@ -65,8 +62,6 @@ export default function useMigrationCallback(
         args = [toHex(amount.quotient)]
       }
 
-      // console.log({ args })
-
       return {
         address: migratorContract.address,
         calldata: migratorContract.interface.encodeFunctionData(methodName, args) ?? '',
@@ -77,17 +72,7 @@ export default function useMigrationCallback(
         error,
       }
     }
-  }, [
-    account,
-    library,
-    migratorContract,
-    inputToken,
-    amount,
-    // totalClaimableBDEI,
-    methodName,
-    proof,
-    merkleProofRequest,
-  ])
+  }, [account, library, migratorContract, inputToken, amount, methodName, proof, merkleProofRequest])
 
   return useMemo(() => {
     if (!account || !chainId || !library || !migratorContract || !inputToken || !amount) {

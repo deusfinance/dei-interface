@@ -1,14 +1,16 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { useSingleContractMultipleMethods } from 'state/multicall/hooks'
 import { useCollateralPoolContract, useMigratorContract, useOracleContract2 } from 'hooks/useContract'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useWeb3React from 'hooks/useWeb3'
 
-import snapshot from 'constants/files/maxActiveLiquidity-snapshot.json'
+// import snapshot from 'constants/files/maxActiveLiquidity-snapshot.json'
 import { toBN } from 'utils/numbers'
 import { useGetOracleAddress } from './useVDeusStats'
 import { formatUnits } from '@ethersproject/units'
+import { makeHttpRequest } from 'utils/http'
+import { INFO_URL } from 'constants/misc'
 
 export function useOracleAddress(): string {
   const contract = useCollateralPoolContract()
@@ -63,18 +65,16 @@ export function useClaimedBDEI(): { claimedBDEI: string } {
 
 export function useClaimableBDEI(): { totalClaimableBDEI: string; availableClaimableBDEI: string } {
   const { account } = useWeb3React()
-  const parsedSnapshot = snapshot as { [address: string]: string }
   const { claimedBDEI } = useClaimedBDEI()
-  const claimedBDEI1 = formatUnits(claimedBDEI.toString(), 18)
+  const claimedBDEIAmount = formatUnits(claimedBDEI.toString(), 18)
+  const merkleClaimableBDEI = formatUnits(useMerkleClaimableBDEI().toString(), 18)
 
   return useMemo(
     () => ({
-      totalClaimableBDEI: account ? parsedSnapshot[account?.toString()?.toLowerCase()] : '0',
-      availableClaimableBDEI: account
-        ? toBN(parsedSnapshot[account?.toString()?.toLowerCase()]).minus(toBN(claimedBDEI1)).toString()
-        : '0',
+      totalClaimableBDEI: account ? merkleClaimableBDEI : '0',
+      availableClaimableBDEI: account ? toBN(merkleClaimableBDEI).minus(toBN(claimedBDEIAmount)).toString() : '0',
     }),
-    [account, parsedSnapshot, claimedBDEI1]
+    [account, merkleClaimableBDEI, claimedBDEIAmount]
   )
 }
 
@@ -105,4 +105,24 @@ export function useGetPrice(): { vDEUSPrice: string } {
     }),
     [vDEUSPriceAmount]
   )
+}
+
+export function useMerkleClaimableBDEI(): string {
+  const { account } = useWeb3React()
+  const [totalClaimableBDEI, setTotalClaimableBDEI] = useState('0')
+
+  useEffect(() => {
+    try {
+      if (!account) throw new Error(`account didn't provided`)
+      const { href: url } = new URL(`/bond-merkle/liquidity/proof/${account.toLowerCase()}/`, INFO_URL)
+      makeHttpRequest(url).then((data) => {
+        const value = data['value']
+        setTotalClaimableBDEI(value)
+      })
+    } catch (err) {
+      throw err
+    }
+  }, [account])
+
+  return totalClaimableBDEI
 }

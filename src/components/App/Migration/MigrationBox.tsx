@@ -130,7 +130,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const [awaitingMigrateConfirmation, setAwaitingMigrateConfirmation] = useState(false)
   const [awaitingUpdateConfirmation, setAwaitingUpdateConfirmation] = useState(false)
 
-  const { totalClaimableBDEI, availableClaimableBDEI } = useClaimableBDEI()
+  const { availableClaimableBDEI } = useClaimableBDEI()
   const { vDEUSPrice } = useGetPrice()
   const expiredPrice = useExpiredPrice()
 
@@ -152,7 +152,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
     setExceedBalance(!!(amountOut > availableClaimableBDEI))
   }, [amountOut, availableClaimableBDEI])
 
-  const { callback: migrationCallback } = useMigrationCallback(migrationState, currencyAmount, totalClaimableBDEI)
+  const { callback: migrationCallback } = useMigrationCallback(migrationState, currencyAmount)
   const { callback: updateOracleCallback } = useUpdateCallback()
 
   const handleApprove = async () => {
@@ -275,7 +275,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
         {account && migrationState.snapshotConfirmation && (
           <Row mt={'18px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
             {/* @ts-ignore */}
-            {!isNaN(availableClaimableBDEI) && (
+            {!isNaN(availableClaimableBDEI) && availableClaimableBDEI >= 0 && (
               <>
                 <Info size={16} />
                 <Description style={{ color: 'white' }}>Your Claimable BDEI is: {availableClaimableBDEI}</Description>

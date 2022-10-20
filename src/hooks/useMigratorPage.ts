@@ -113,11 +113,10 @@ export function useMerkleClaimableBDEI(): string {
 
   useEffect(() => {
     try {
-      if (!account) throw new Error(`account didn't provided`)
+      if (!account) return
       const { href: url } = new URL(`/bond-merkle/liquidity/proof/${account.toLowerCase()}/`, INFO_URL)
       makeHttpRequest(url).then((data) => {
-        const value = data['value']
-        setTotalClaimableBDEI(value)
+        data ? setTotalClaimableBDEI(data['value']) : setTotalClaimableBDEI('0')
       })
     } catch (err) {
       throw err

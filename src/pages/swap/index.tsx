@@ -33,7 +33,7 @@ export default function Swap() {
   return (
     <Container>
       <Hero>
-        <ImageWithFallback src={SWAP_ICON} width={224} height={133} alt={`Logo`} />
+        <ImageWithFallback src={SWAP_ICON} width={105} height={114} alt={`Logo`} />
       </Hero>
 
       <TopWrapper>

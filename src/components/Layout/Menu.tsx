@@ -63,6 +63,13 @@ const Row = styled.div<{
   `};
 `
 
+const Separator = styled.div`
+  width: 225px;
+  margin-left: -13px;
+  height: 1px;
+  background: ${({ theme }) => theme.bg4};
+`
+
 // TODO ADD PROPER ICONS
 export default function Menu() {
   const ref = useRef(null)
@@ -95,30 +102,30 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link> */}
-          <Link href="/deibonds" passHref>
+          {/* <Link href="/deibonds" passHref>
             <Row active={router.route === '/deibonds'}>
               <div>DeiBonds</div>
               <IconWrapper>
                 <TradeIcon size={20} />
               </IconWrapper>
             </Row>
-          </Link>
-          <Link href="/deibonds/pools" passHref>
+          </Link> */}
+          {/* <Link href="/deibonds/pools" passHref>
             <Row active={router.route === '/deibonds/pools'}>
               <div>Pools</div>
               <IconWrapper>
                 <PortfolioIcon size={20} />
               </IconWrapper>
             </Row>
-          </Link>
-          <Link href="/deibonds/liquidity" passHref>
+          </Link> */}
+          {/* <Link href="/deibonds/liquidity" passHref>
             <Row active={router.route === '/deibonds/liquidity'}>
               <div>Liquidity</div>
               <IconWrapper>
                 <PortfolioIcon size={20} />
               </IconWrapper>
             </Row>
-          </Link>
+          </Link> */}
           <Link href="/borrow" passHref>
             <Row active={router.route === '/borrow'}>
               <div>Borrow</div>
@@ -180,30 +187,15 @@ export default function Menu() {
               <div>Terms</div>
             </Row>
           </ExternalLink>
-          <ExternalLink href="https://twitter.com/deusdao">
-            <Row onClick={() => toggle()}>
-              <div>Twitter</div>
-              <IconWrapper>
-                <TwitterIcon size={15} />
-              </IconWrapper>
-            </Row>
-          </ExternalLink>
-          <ExternalLink href="https://t.me/deusfinance">
-            <Row onClick={() => toggle()}>
-              <div>Community</div>
-              <IconWrapper>
-                <TelegramIcon size={15} />
-              </IconWrapper>
-            </Row>
-          </ExternalLink>
-          <ExternalLink href="https://github.com/deusfinance">
+
+          {/* <ExternalLink href="https://github.com/deusfinance">
             <Row onClick={() => toggle()}>
               <div>Github</div>
               <IconWrapper>
                 <GithubIcon size={15} />
               </IconWrapper>
             </Row>
-          </ExternalLink>
+          </ExternalLink> */}
         </InlineModal>
       </div>
     </Container>

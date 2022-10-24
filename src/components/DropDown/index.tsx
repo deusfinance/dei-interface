@@ -20,6 +20,7 @@ const Wrapper = styled.div<{
 const Header = styled(Box)<{
   noHover?: boolean
   isOpen?: boolean
+  width: string
 }>`
   display: flex;
   justify-content: space-between;
@@ -27,9 +28,10 @@ const Header = styled(Box)<{
   text-align: left;
   padding: 0 0.8rem;
   align-items: center;
-  height: 100%;
+  height: 40px;
   background: ${({ theme }) => theme.bg1};
   color: ${({ theme }) => theme.text1};
+  width: ${({ width }) => width};
 
   &:hover {
     cursor: ${({ noHover }) => (noHover ? 'default' : 'pointer')};
@@ -82,9 +84,9 @@ const ListItem = styled.li`
   height: 40px;
   border-top: none;
   line-height: 40px;
-  padding: 0 10px;
   font-size: 13px;
   z-index: 999;
+  color: ${({ theme }) => theme.text1};
 
   &:hover {
     cursor: pointer;
@@ -94,6 +96,7 @@ const ListItem = styled.li`
 
 interface Option {
   value: string
+  index: number
   label: JSX.Element | string
 }
 
@@ -101,15 +104,15 @@ export default function Dropdown({
   options = [],
   placeholder = 'Select',
   onSelect,
-  defaultValue,
   width,
+  defaultValue,
   disabled = false,
 }: {
   options: Option[]
   placeholder: string
-  onSelect: (val: string) => void
-  defaultValue?: string
+  onSelect: (val: number) => void
   width: string
+  defaultValue?: number
   disabled?: boolean
 }) {
   const ref = useRef() as React.MutableRefObject<HTMLInputElement>
@@ -120,8 +123,8 @@ export default function Dropdown({
 
   useEffect(() => {
     if (options.length > 0) {
-      const value = defaultValue ?? options[0].value
-      onSelect(value)
+      const index = Number(defaultValue)
+      const value = defaultValue ? options[index].value : options[0].value
       setSelectedOption(value)
     }
   }, [options, defaultValue, onSelect])
@@ -138,7 +141,9 @@ export default function Dropdown({
   if (!options.length) {
     return (
       <Wrapper ref={ref} width={width}>
-        <Header noHover>No options available</Header>
+        <Header width={width} noHover>
+          No options available
+        </Header>
       </Wrapper>
     )
   }
@@ -146,14 +151,16 @@ export default function Dropdown({
   if (options.length == 1) {
     return (
       <Wrapper ref={ref} width={width}>
-        <Header noHover>{options[0].label}</Header>
+        <Header width={width} noHover>
+          {options[0].label}
+        </Header>
       </Wrapper>
     )
   }
 
   return (
     <Wrapper ref={ref} width={width}>
-      <Header onClick={toggle} isOpen={isOpen}>
+      <Header onClick={toggle} isOpen={isOpen} width={width}>
         {header}
         {!disabled && <StyledChevron isOpen={isOpen} />}
       </Header>
@@ -163,7 +170,7 @@ export default function Dropdown({
             key={i}
             onClick={() => {
               const selected = option.value
-              onSelect(selected)
+              onSelect(i)
               setSelectedOption(selected)
               toggle()
             }}

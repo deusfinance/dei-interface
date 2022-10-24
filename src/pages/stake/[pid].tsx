@@ -47,12 +47,15 @@ export default function StakingPage() {
     [pool?.lpToken?.symbol]
   )
 
+  function onSelect(pid: number) {
+    router.push(`/stake/${pid}`)
+  }
   return (
     <Container>
       <Hero>
         <ImageWithFallback src={STAKE_ICON} width={224} height={133} alt={`Logo`} />
       </Hero>
-      <StatsHeader items={items} pool={pool} />
+      <StatsHeader items={items} pid={pidNumber} onSelectDropDown={onSelect} />
 
       <TopWrapper>
         {pool?.tokens.length > 1 && <LiquidityPool pool={pool} />}

@@ -18,19 +18,8 @@ const TokenCell = styled.div`
   }
 `
 
-const TokenWrap = styled.div`
-  /* display: flex; */
-  /* flex-flow: row nowrap; */
-  /* align-items: center; */
-  /* gap: 10px; */
-  /* margin: 0 10px; */
-`
-
-export const MultipleImageWrapper = styled.div`
+const MultipleImageWrapper = styled.div`
   display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: center;
 
   & > * {
     &:nth-child(2) {
@@ -82,10 +71,10 @@ export default function PoolSelector({ pool }: { pool: StakingType }) {
       </MultipleImageWrapper>
       {tokens.map((token, index) => {
         return (
-          <TokenWrap key={index}>
+          <div key={index}>
             <span>{token.name}</span>
             {index + 1 !== tokens.length && <span>-</span>}
-          </TokenWrap>
+          </div>
         )
       })}
     </TokenCell>

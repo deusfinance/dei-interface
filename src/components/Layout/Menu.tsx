@@ -1,27 +1,27 @@
 import React, { useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Z_INDEX } from 'theme'
 
 import useOnOutsideClick from 'hooks/useOnOutsideClick'
+import DeiLogo from '/public/static/images/tokens/newDei.svg'
 
 import {
   NavToggle,
   IconWrapper,
-  Telegram as TelegramIcon,
-  CreditCard as CreditCardIcon,
-  Twitter as TwitterIcon,
-  Github as GithubIcon,
-  Lock as LockIcon,
-  // Redeem as RedeemIcon,
-  Gift as GiftIcon,
-  Portfolio as PortfolioIcon,
-  Trade as TradeIcon,
+  Swap as SwapIcon,
+  Borrow as BorrowIcon,
+  Staking as StakingIcon,
+  Dashboard as DashboardIcon,
+  Migration as MigrationIcon,
 } from 'components/Icons'
+
 import { Card } from 'components/Card'
 import { NavButton } from 'components/Button'
 import { ExternalLink } from 'components/Link'
+import { ArrowUpRight } from 'react-feather'
 
 const Container = styled.div`
   overflow: hidden;
@@ -50,15 +50,15 @@ const Row = styled.div<{
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
-  color: ${({ theme }) => theme.text2};
+  color: ${({ theme }) => theme.text1};
   &:hover {
     cursor: pointer;
-    color: ${({ theme }) => theme.text1};
+    color: ${({ theme }) => theme.text2};
   }
 
   ${({ active, theme }) =>
     active &&
-    ` color: ${theme.text1};
+    ` color: ${theme.text2};
       pointer-events: none;
   `};
 `
@@ -90,95 +90,39 @@ export default function Menu() {
             <Row active={router.route === '/dashboard'}>
               <div>Dashboard</div>
               <IconWrapper>
-                <CreditCardIcon size={20} />
+                <DashboardIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
-          {/* <Link href="/redemption" passHref>
-            <Row active={router.route === '/redemption'}>
-              <div>Redemption</div>
+          <Link href="/swap" passHref>
+            <Row active={router.route === '/swap'}>
+              <div>Swap</div>
               <IconWrapper>
-                <RedeemIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link> */}
-          {/* <Link href="/deibonds" passHref>
-            <Row active={router.route === '/deibonds'}>
-              <div>DeiBonds</div>
-              <IconWrapper>
-                <TradeIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link> */}
-          {/* <Link href="/deibonds/pools" passHref>
-            <Row active={router.route === '/deibonds/pools'}>
-              <div>Pools</div>
-              <IconWrapper>
-                <PortfolioIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link> */}
-          {/* <Link href="/deibonds/liquidity" passHref>
-            <Row active={router.route === '/deibonds/liquidity'}>
-              <div>Liquidity</div>
-              <IconWrapper>
-                <PortfolioIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link> */}
-          <Link href="/borrow" passHref>
-            <Row active={router.route === '/borrow'}>
-              <div>Borrow</div>
-              <IconWrapper>
-                <CreditCardIcon size={20} />
+                <SwapIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/vest" passHref>
-            <Row active={router.route === '/vest'}>
-              <div>Vest</div>
-              <IconWrapper>
-                <LockIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
-          <Link href="/rewards" passHref>
-            <Row active={router.route === '/rewards'}>
-              <div>Rewards</div>
-              <IconWrapper>
-                <GiftIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
-          <Link href="/vdeus/legacy" passHref>
-            <Row active={router.route === '/vdeus/legacy'}>
-              <div>Legacy vDEUS</div>
-              <IconWrapper>
-                <GiftIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
-          <Link href="/vdeus/new" passHref>
-            <Row active={router.route === '/vdeus/new'}>
-              <div>New vDEUS (ERC20)</div>
-              <IconWrapper>
-                <GiftIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
-          <Link href="migration" passHref>
+          <Link href="/migration" passHref>
             <Row active={router.route === '/migration'}>
               <div>Migration</div>
               <IconWrapper>
-                <GiftIcon size={20} />
+                <MigrationIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="stake" passHref>
-            <Row active={router.route === '/stake'}>
-              <div>Stake</div>
+          <Link href="/staking" passHref>
+            <Row active={router.route === '/staking'}>
+              <div>Staking</div>
               <IconWrapper>
-                <GiftIcon size={20} />
+                <StakingIcon />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/borrow" passHref>
+            <Row active={router.route === 'borrow'}>
+              <div>Borrow</div>
+              <IconWrapper>
+                <BorrowIcon />
               </IconWrapper>
             </Row>
           </Link>
@@ -187,15 +131,19 @@ export default function Menu() {
               <div>Terms</div>
             </Row>
           </ExternalLink>
+          <Separator />
 
-          {/* <ExternalLink href="https://github.com/deusfinance">
+          <ExternalLink href="https://github.com/deusfinance">
             <Row onClick={() => toggle()}>
-              <div>Github</div>
+              <div>
+                New App
+                <ArrowUpRight size={'15px'} style={{ marginLeft: '15px', marginTop: '5px' }} />
+              </div>
               <IconWrapper>
-                <GithubIcon size={15} />
+                <Image src={DeiLogo} alt="DEI Logo" height="16px" width="20px" />
               </IconWrapper>
             </Row>
-          </ExternalLink> */}
+          </ExternalLink>
         </InlineModal>
       </div>
     </Container>

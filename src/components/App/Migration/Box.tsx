@@ -33,16 +33,15 @@ const CurrencyWrapper = styled(RowStart)`
   margin-left: 20px;
 `
 
-const CurrencySymbol = styled.div`
+const CurrencySymbol = styled.div<{ isSmall?: boolean }>`
   font-weight: 600;
-  font-size: 16px;
   text-align: right;
   color: ${({ theme }) => theme.text1};
+  font-size: ${({ isSmall }) => (isSmall ? '15px' : '16px')};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 12px;
     margin-left: 6px;
-
   `}
 `
 
@@ -70,6 +69,8 @@ export default function Box({
   const logoFrom = useCurrencyLogo((currencyFrom as Token)?.address)
   const logoTo = useCurrencyLogo((currencyTo as Token)?.address)
 
+  // console.log(currencyFrom?.symbol === 'legacyDEI' || currencyTo?.symbol === 'legacyDEI')
+
   return (
     <Container active={active} onClick={() => onTokenSelect(index)}>
       <Wrapper active={active}>
@@ -82,17 +83,17 @@ export default function Box({
             round
           />
 
-          <CurrencySymbol>{currencyFrom?.symbol}</CurrencySymbol>
+          <CurrencySymbol isSmall={currencyFrom?.symbol === 'legacyDEI'}>{currencyFrom?.symbol}</CurrencySymbol>
         </CurrencyWrapper>
 
         {leverage === 1 ? (
-          <ArrowRight style={{ color: '#EBEBEC', minWidth: '52px' }} />
+          <ArrowRight style={{ color: '#EBEBEC', minWidth: '28px' }} />
         ) : (
           <LeverageArrow leverage={leverage} arrowDirection={'right'} />
         )}
 
         <CurrencyWrapper>
-          <CurrencySymbol>{currencyTo?.symbol}</CurrencySymbol>
+          <CurrencySymbol isSmall={currencyTo?.symbol === 'legacyDEI'}>{currencyTo?.symbol}</CurrencySymbol>
 
           <ImageWithFallback
             src={logoTo}

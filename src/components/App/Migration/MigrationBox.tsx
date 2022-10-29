@@ -249,7 +249,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
 
   const handleMaxValue = useCallback(async () => {
     if (expiredPrice) toast.error('Please update oracle')
-    else if (inputCurrency?.symbol === 'DEI') setAmountIn(availableClaimableBDEI)
+    else if (inputCurrency?.symbol === 'legacyDEI') setAmountIn(availableClaimableBDEI)
     else setAmountIn(toBN(availableClaimableBDEI).dividedBy(toBN(vDEUSPrice)).toString())
   }, [availableClaimableBDEI, expiredPrice, inputCurrency?.symbol, vDEUSPrice])
 

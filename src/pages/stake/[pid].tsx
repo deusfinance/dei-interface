@@ -50,6 +50,7 @@ export default function StakingPage() {
   function onSelect(pid: number) {
     router.push(`/stake/${pid}`)
   }
+
   return (
     <Container>
       <Hero>

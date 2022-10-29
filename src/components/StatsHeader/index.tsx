@@ -144,8 +144,10 @@ export default function StatsHeader({
 }) {
   const dropDownOptions = Stakings.map((staking) => {
     const { name, tokens, id } = staking
+    // console.log({ name, tokens, id })
     return { value: name, label: DropDownOption(tokens, name), index: id }
   })
+
   return (
     <Wrapper>
       <ItemBox>
@@ -154,7 +156,7 @@ export default function StatsHeader({
           defaultValue={pid}
           placeholder={''}
           onSelect={onSelectDropDown}
-          width={'197px'}
+          width={'250px'}
         />
       </ItemBox>
 

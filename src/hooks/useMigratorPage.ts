@@ -6,11 +6,12 @@ import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import useWeb3React from 'hooks/useWeb3'
 
 // import snapshot from 'constants/files/maxActiveLiquidity-snapshot.json'
-import { toBN } from 'utils/numbers'
+import { BN_TEN, toBN } from 'utils/numbers'
 import { useGetOracleAddress } from './useVDeusStats'
 import { formatUnits } from '@ethersproject/units'
 import { makeHttpRequest } from 'utils/http'
 import { INFO_URL } from 'constants/misc'
+import { Token } from '@sushiswap/core-sdk'
 
 export function useOracleAddress(): string {
   const contract = useCollateralPoolContract()
@@ -124,4 +125,35 @@ export function useMerkleClaimableBDEI(): string {
   }, [account])
 
   return totalClaimableBDEI
+}
+
+export function useScreamAmountOut(
+  amountIn: string,
+  tokenIn: Token
+): {
+  amountOut: string
+} {
+  const amountInBN = amountIn ? toBN(amountIn).times(BN_TEN.pow(tokenIn.decimals)).toFixed(0) : ''
+  const contract = useMigratorContract()
+
+  const amountOutCall = useMemo(
+    () =>
+      !amountInBN || amountInBN == '' || amountInBN == '0'
+        ? []
+        : [
+            {
+              methodName: 'getAmountOutWhiteListedToken',
+              callInputs: [tokenIn.address, amountInBN],
+            },
+          ],
+    [amountInBN, tokenIn.address]
+  )
+
+  const [result] = useSingleContractMultipleMethods(contract, amountOutCall)
+
+  const amountOut = !result || !result.result ? '' : toBN(formatUnits(result.result[0].toString(), 18)).toString()
+
+  return {
+    amountOut,
+  }
 }

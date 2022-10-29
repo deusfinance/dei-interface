@@ -1,5 +1,5 @@
 import { Token } from '@sushiswap/core-sdk'
-import { BDEI_TOKEN, DEI_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
+import { BDEI_TOKEN, DEI_TOKEN, scDAI_TOKEN, scUSDC_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 
 export type MigrationStateType = {
   inputToken: Token
@@ -12,24 +12,24 @@ export type MigrationStateType = {
 }
 
 export const MigrationStates: MigrationStateType[] = [
-  // {
-  //   inputToken: scUSDC_TOKEN,
-  //   outputToken: BDEI_TOKEN,
-  //   leverage: 1,
-  //   oracleUpdate: false,
-  //   snapshotConfirmation: false,
-  //   proof: false,
-  //   methodName: 'tokenToBDEI', // 13: tokenAddress, amount
-  // },
-  // {
-  //   inputToken: scDAI_TOKEN,
-  //   outputToken: BDEI_TOKEN,
-  //   leverage: 1,
-  //   oracleUpdate: false,
-  //   snapshotConfirmation: false,
-  //   proof: false,
-  //   methodName: 'tokenToBDEI', // 13: tokenAddress, amount
-  // },
+  {
+    inputToken: scUSDC_TOKEN,
+    outputToken: BDEI_TOKEN,
+    leverage: 1,
+    oracleUpdate: false,
+    snapshotConfirmation: false,
+    proof: false,
+    methodName: 'tokenToBDEI', // 13: tokenAddress, amount
+  },
+  {
+    inputToken: scDAI_TOKEN,
+    outputToken: BDEI_TOKEN,
+    leverage: 1,
+    oracleUpdate: false,
+    snapshotConfirmation: false,
+    proof: false,
+    methodName: 'tokenToBDEI', // 13: tokenAddress, amount
+  },
   {
     inputToken: DEI_TOKEN,
     outputToken: VDEUS_TOKEN,

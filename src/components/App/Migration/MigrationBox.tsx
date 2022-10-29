@@ -21,6 +21,7 @@ import { Row } from 'components/Row'
 import toast from 'react-hot-toast'
 import { toBN } from 'utils/numbers'
 import LeverageArrow from './LeverageArrow'
+import useDebounce from 'hooks/useDebounce'
 
 export const Wrapper = styled(Container)`
   background: ${({ theme }) => theme.bg1};
@@ -106,6 +107,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const theme = useTheme()
 
   const [amountIn, setAmountIn] = useState('')
+  const debouncedAmountIn = useDebounce(amountIn, 500)
   const [amountOut, setAmountOut] = useState('')
   const [exceedBalance, setExceedBalance] = useState(false)
 
@@ -134,6 +136,8 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const { vDEUSPrice } = useGetPrice()
   const expiredPrice = useExpiredPrice()
 
+  // const { amountOut: scAmountOut } = useScreamAmountOut(debouncedAmountIn, inputCurrency)
+
   useEffect(() => {
     const methodName = migrationState?.methodName
     if (methodName === 'legacyDEIToBDEI') setAmountOut((Number(amountIn) * leverage).toString())
@@ -144,7 +148,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
       const val = toBN(amountIn).dividedBy(toBN(vDEUSPrice))
       setAmountOut(amountIn ? (Number(val.toString()) * leverage).toString() : '')
     } else {
-      setAmountOut((Number(amountIn) * leverage).toString())
+      // setAmountOut(scAmountOut.toString())
     }
   }, [amountIn, inputCurrency.symbol, leverage, migrationState?.methodName, outputCurrency?.symbol, vDEUSPrice])
 
@@ -229,7 +233,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
       )
     }
     // @ts-ignore
-    if (isNaN(availableClaimableBDEI) && outputCurrency?.symbol === 'bDEI') {
+    if ((isNaN(availableClaimableBDEI) || availableClaimableBDEI <= 0) && outputCurrency?.symbol === 'bDEI') {
       return <MainButton disabled>You are not whitelisted</MainButton>
     }
     if (expiredPrice && migrationState.oracleUpdate) {
@@ -275,7 +279,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
         {account && migrationState.snapshotConfirmation && (
           <Row mt={'18px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
             {/* @ts-ignore */}
-            {!isNaN(availableClaimableBDEI) && availableClaimableBDEI >= 0 && (
+            {!isNaN(availableClaimableBDEI) && availableClaimableBDEI > 0 && (
               <>
                 <Info size={16} />
                 <Description style={{ color: 'white' }}>Your Claimable BDEI is: {availableClaimableBDEI}</Description>

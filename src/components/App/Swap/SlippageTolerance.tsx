@@ -72,14 +72,17 @@ const Wrapper = styled(FlexCenter)`
     left: 20px;
   }
 `
+
 export const Option = styled(Base)<{ theme?: any; active?: any; bgColor?: string }>`
   display: inline-flex;
-  height: 25px;
   color: ${({ theme, active }) => (active ? theme.text1 : theme.text2)};
-  border: ${({ theme, active }) => (active ? `2px solid ${theme.yellow2}` : `1px solid ${theme.text1}`)};
+  border: ${({ theme, active }) => (active ? `1px solid ${theme.yellow2}` : `1px solid ${theme.text1}`)};
   margin: 1px;
   margin-right: 5px;
+  height: 25px;
   width: 50px;
+  /* width: 100%; */
+  /* height: 100%; */
   font-size: 13px;
   transition: all 0s;
   cursor: ${({ active }) => (active ? 'default' : 'pointer')};

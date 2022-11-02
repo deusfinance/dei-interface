@@ -21,7 +21,7 @@ export const Wrapper = styled(Row)`
   height: 80px;
   border: 1px solid #444444;
   border-color: ${({ theme }) => theme.border1};
-  width: 400px;
+  width: 432px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 280px;

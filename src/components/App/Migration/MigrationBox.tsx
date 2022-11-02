@@ -15,7 +15,7 @@ import useUpdateCallback from 'hooks/useOracleCallback'
 import { useExpiredPrice } from 'state/dashboard/hooks'
 import InputBox from 'components/InputBox'
 import { MigrationStates } from 'constants/migration'
-import { useClaimableBDEI, useGetPrice } from 'hooks/useMigratorPage'
+import { useClaimableBDEI, useGetPrice, useScreamAmountOut } from 'hooks/useMigratorPage'
 import { Container } from './SelectBox'
 import { Row } from 'components/Row'
 import toast from 'react-hot-toast'
@@ -136,7 +136,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const { vDEUSPrice } = useGetPrice()
   const expiredPrice = useExpiredPrice()
 
-  // const { amountOut: scAmountOut } = useScreamAmountOut(debouncedAmountIn, inputCurrency)
+  const { amountOut: scAmountOut } = useScreamAmountOut(debouncedAmountIn, inputCurrency)
 
   useEffect(() => {
     const methodName = migrationState?.methodName
@@ -148,9 +148,17 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
       const val = toBN(amountIn).dividedBy(toBN(vDEUSPrice))
       setAmountOut(amountIn ? (Number(val.toString()) * leverage).toString() : '')
     } else {
-      // setAmountOut(scAmountOut.toString())
+      setAmountOut(scAmountOut.toString())
     }
-  }, [amountIn, inputCurrency.symbol, leverage, migrationState?.methodName, outputCurrency?.symbol, vDEUSPrice])
+  }, [
+    amountIn,
+    inputCurrency.symbol,
+    leverage,
+    migrationState?.methodName,
+    outputCurrency?.symbol,
+    scAmountOut,
+    vDEUSPrice,
+  ])
 
   useEffect(() => {
     setExceedBalance(!!(amountOut > availableClaimableBDEI))

@@ -47,10 +47,9 @@ export default function useMigrationCallback(
       }
 
       let args
-      if (methodName === 'TokenToBDEI') {
+      if (methodName === 'tokenToBDEI') {
         args = [inputToken.address, toHex(amount.quotient)]
-      }
-      if (proof) {
+      } else if (proof) {
         const merkleProofResponse = await merkleProofRequest()
         const merkleProof = merkleProofResponse['proof']
         const totalClaimableBDEIParsed = merkleProofResponse['value']

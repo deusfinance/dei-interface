@@ -17,7 +17,7 @@ const Wrapper = styled(Container)`
   border: 1px solid rgb(0, 0, 0);
   border-radius: 12px 0px 0px 12px;
   width: 344px;
-  height: 485px;
+  height: 460px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     border-radius: 12px;

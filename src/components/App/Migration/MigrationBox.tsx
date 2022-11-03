@@ -5,7 +5,7 @@ import { ArrowDown } from 'react-feather'
 import useWeb3React from 'hooks/useWeb3'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
-import { DotFlashing, Info } from 'components/Icons'
+import { DotFlashing } from 'components/Icons'
 import { PrimaryButton } from 'components/Button'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import { Migrator } from 'constants/addresses'
@@ -17,7 +17,7 @@ import InputBox from 'components/InputBox'
 import { MigrationStates } from 'constants/migration'
 import { useClaimableBDEI, useGetPrice } from 'hooks/useMigratorPage'
 import { Container } from './SelectBox'
-import { Row } from 'components/Row'
+import { Row, RowBetween, RowCenter } from 'components/Row'
 import toast from 'react-hot-toast'
 import { toBN } from 'utils/numbers'
 import LeverageArrow from './LeverageArrow'
@@ -26,13 +26,14 @@ export const Wrapper = styled(Container)`
   background: ${({ theme }) => theme.bg1};
   border: 1px solid rgb(0, 0, 0);
   border-radius: 0 12px 12px 0;
-  width: 470px;
-  height: 485px;
+  width: 440px;
+  height: 460px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 12px;
     margin-top: 20px;
     width: 340px;
-    border-radius: 12px;
+    height: 430px;
   `}
 `
 
@@ -76,23 +77,66 @@ const MainButton = styled(PrimaryButton)`
 `
 
 const Description = styled.div`
-  font-size: 13px;
+  font-size: 14px;
   margin-left: 8px;
   color: ${({ theme }) => theme.warning};
   max-width: 370px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    max-width: 250px;
+  `}
 `
 
-const MaxButtonWrap = styled.div`
-  background: ${({ theme }) => theme.bg2};
-  border-radius: 8px;
-  padding: 4px 6px 5px 6px;
-  font-size: 0.6rem;
-  color: ${({ theme }) => theme.text1};
-  margin-left: 6px;
+const TotalValueSpan = styled.span`
+  background: -webkit-linear-gradient(180deg, #e29c53 0%, #ce4c7a 60%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
+  line-height: 20px;
+`
 
-  &:hover {
-    background: ${({ theme }) => theme.primary1};
+const BottomWrap = styled(RowBetween)`
+  background: #121212;
+  padding-right: 8px;
+  padding-left: 8px;
+`
+
+export const TopBorderWrap = styled.div`
+  background: ${({ theme }) => theme.primary2};
+  padding: 1px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.bg0};
+`
+
+export const TopBorder = styled.div`
+  background: ${({ theme }) => theme.bg0};
+  border-radius: 6px;
+`
+
+const BatteryWrap = styled(RowCenter)`
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  color: ${({ theme }) => theme.white};
+  width: 60px;
+  height: 28px;
+  font-size: 12px;
+
+  & > * {
+    &:first-child {
+      z-index: 100;
+    }
   }
+`
+
+const BatteryPercentage = styled.div<{ width?: string }>`
+  background: ${({ theme }) => theme.primary1};
+  width: ${({ width }) => width ?? 'unset'};
+  height: 100%;
+  left: 0;
+  bottom: 0;
+  position: absolute;
+  z-index: 2;
 `
 
 export const getImageSize = () => {
@@ -130,9 +174,13 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const [awaitingMigrateConfirmation, setAwaitingMigrateConfirmation] = useState(false)
   const [awaitingUpdateConfirmation, setAwaitingUpdateConfirmation] = useState(false)
 
-  const { availableClaimableBDEI } = useClaimableBDEI()
+  const { availableClaimableBDEI, totalClaimableBDEI } = useClaimableBDEI()
   const { vDEUSPrice } = useGetPrice()
   const expiredPrice = useExpiredPrice()
+
+  const percentage = useMemo(() => {
+    return ((Number(availableClaimableBDEI) / Number(totalClaimableBDEI)) * 100).toFixed(0)
+  }, [availableClaimableBDEI, totalClaimableBDEI])
 
   useEffect(() => {
     const methodName = migrationState?.methodName
@@ -271,26 +319,40 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
 
         {getApproveButton()}
         {getActionButton()}
-
-        {account && migrationState.snapshotConfirmation && (
-          <Row mt={'18px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
-            {/* @ts-ignore */}
-            {!isNaN(availableClaimableBDEI) && availableClaimableBDEI >= 0 && (
-              <>
-                <Info size={16} />
-                <Description style={{ color: 'white' }}>Your Claimable BDEI is: {availableClaimableBDEI}</Description>
-                <MaxButtonWrap>Max</MaxButtonWrap>
-              </>
-            )}
-          </Row>
-        )}
-        {account && migrationState.snapshotConfirmation && exceedBalance && (
-          <Row mt={'15px'}>
-            <Info size={16} color={theme.warning} />
-            <Description>The entered amount exceed your claimable balance.</Description>
-          </Row>
-        )}
       </MainWrapper>
+
+      {account && migrationState.snapshotConfirmation && (
+        <BottomWrap>
+          {/* @ts-ignore */}
+          {!isNaN(availableClaimableBDEI) && availableClaimableBDEI > 0 && (
+            <>
+              <Row mt={'8px'} mb={'12px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
+                <Description style={{ color: theme.text2 }}>
+                  <span style={{ color: '#7CD985', fontWeight: 'bold' }}>{availableClaimableBDEI}</span> of{' '}
+                  <TotalValueSpan>{totalClaimableBDEI}</TotalValueSpan> bDEI
+                  <span style={{ display: 'block' }}>Available for Migration</span>
+                </Description>
+              </Row>
+
+              <TopBorderWrap>
+                <TopBorder>
+                  <BatteryWrap>
+                    <p>{percentage}%</p>
+                    <BatteryPercentage width={percentage + '%'}></BatteryPercentage>
+                  </BatteryWrap>
+                </TopBorder>
+              </TopBorderWrap>
+            </>
+          )}
+
+          {/* {exceedBalance && (
+              <Row mt={'15px'}>
+                <Info size={16} color={theme.warning} />
+                <Description>The entered amount exceed your claimable balance.</Description>
+              </Row>
+            )} */}
+        </BottomWrap>
+      )}
     </Wrapper>
   )
 }

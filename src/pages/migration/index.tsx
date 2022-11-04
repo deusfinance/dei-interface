@@ -12,6 +12,8 @@ import MIGRATION_ICON from '/public/static/images/pages/ic_migration.svg'
 import SelectBox from 'components/App/Migration/SelectBox'
 import MigrationBox from 'components/App/Migration/MigrationBox'
 import { RowCenter } from 'components/Row'
+import { ExternalLink } from 'components/Link'
+import { PrimaryButton } from 'components/Button'
 
 const Container = styled.div`
   display: flex;
@@ -57,6 +59,28 @@ const MigrationsSelectBox = styled.div`
   `}
 `
 
+const WarningWrapper = styled.div`
+  max-width: 815px;
+  background: ${({ theme }) => theme.primary1};
+  padding: 1px;
+  border-radius: 8px;
+  margin: 12px auto;
+  margin-top: 24px;
+`
+
+const WarningContainer = styled(PrimaryButton)`
+  border-radius: 8px;
+  background: ${({ theme }) => theme.bg0};
+  height: 100%;
+  &:hover {
+    cursor: default;
+    background: ${({ theme }) => theme.bg0};
+    color: ${({ theme }) => theme.text1};
+  }
+`
+
+export const DISPLAY_WARNING = true
+
 export default function Migration() {
   // const { chainId, account } = useWeb3React()
   // const toggleWalletModal = useWalletModalToggle()
@@ -69,6 +93,19 @@ export default function Migration() {
         <ImageWithFallback src={MIGRATION_ICON} width={224} height={133} alt={`Logo`} />
       </Hero>
 
+      {DISPLAY_WARNING && (
+        <WarningWrapper>
+          <WarningContainer>
+            <div>
+              {`"`}In order to migrate scUSDC {`&`} scDAI you need to repay your debt on{' '}
+              <ExternalLink style={{ textDecoration: 'underline' }} href="https://v1.scream.sh/lend">
+                scream
+              </ExternalLink>
+              , otherwise the transaction will fail{`"`}
+            </div>
+          </WarningContainer>
+        </WarningWrapper>
+      )}
       <TopWrapper>
         <MigrationsSelectBox>
           <SelectBox activeState={activeState} onTokenSelect={(value: number) => setActiveState(value)} />

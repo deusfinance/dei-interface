@@ -22,6 +22,7 @@ import toast from 'react-hot-toast'
 import { toBN } from 'utils/numbers'
 import LeverageArrow from './LeverageArrow'
 import useDebounce from 'hooks/useDebounce'
+import { useMigrateLimitData } from '../../../hooks/useMigratorPage'
 
 export const Wrapper = styled(Container)`
   background: ${({ theme }) => theme.bg1};
@@ -115,6 +116,8 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const inputCurrency = useMemo(() => migrationState.inputToken, [migrationState])
   const outputCurrency = useMemo(() => migrationState.outputToken, [migrationState])
   const leverage = useMemo(() => migrationState.leverage, [migrationState])
+  const ssss = useMigrateLimitData(migrationState)
+  console.log({ ssss })
 
   const spender = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency ?? undefined, spender)

@@ -12,6 +12,7 @@ import { formatUnits } from '@ethersproject/units'
 import { makeHttpRequest } from 'utils/http'
 import { INFO_URL } from 'constants/misc'
 import { Token } from '@sushiswap/core-sdk'
+import { MigrationStateType } from 'constants/migration'
 
 export function useOracleAddress(): string {
   const contract = useCollateralPoolContract()
@@ -156,4 +157,39 @@ export function useScreamAmountOut(
   return {
     amountOut,
   }
+}
+
+export function useMigrateLimitData(migrationState: MigrationStateType): {
+  limit: string
+  migrated: string
+} {
+  const contract = useMigratorContract()
+
+  const migrateLimitCall = useMemo(
+    () =>
+      !migrationState.limitMethodName
+        ? []
+        : [
+            {
+              methodName: `${migrationState.limitMethodName}Limit`,
+              callInputs: [],
+            },
+            {
+              methodName: `${migrationState.limitMethodName}Migrated`,
+              callInputs: [],
+            },
+          ],
+    [migrationState]
+  )
+
+  const [limitResult, migratedResult] = useSingleContractMultipleMethods(contract, migrateLimitCall)
+  console.log(limitResult)
+
+  return useMemo(() => {
+    return {
+      limit: !limitResult || !limitResult.result ? '' : toBN(limitResult.result[0].toString()).div(1e18).toFixed(0),
+      migrated:
+        !migratedResult || !migratedResult.result ? '' : toBN(migratedResult.result[0].toString()).div(1e18).toFixed(0),
+    }
+  }, [migratedResult, limitResult])
 }

@@ -9,6 +9,7 @@ export type MigrationStateType = {
   snapshotConfirmation: boolean
   proof: boolean
   methodName: string
+  limitMethodName?: string
 }
 
 export const MigrationStates: MigrationStateType[] = [
@@ -19,7 +20,8 @@ export const MigrationStates: MigrationStateType[] = [
     oracleUpdate: false,
     snapshotConfirmation: false,
     proof: false,
-    methodName: 'tokenToBDEI', // 13: tokenAddress, amount
+    methodName: 'tokenToBDEI', // 13: tokenAddress, amount,
+    limitMethodName: 'token_bDEI',
   },
   {
     inputToken: scDAI_TOKEN,
@@ -28,7 +30,8 @@ export const MigrationStates: MigrationStateType[] = [
     oracleUpdate: false,
     snapshotConfirmation: false,
     proof: false,
-    methodName: 'tokenToBDEI', // 13: tokenAddress, amount
+    methodName: 'tokenToBDEI', // 13: tokenAddress, amount,
+    limitMethodName: 'token_bDEI',
   },
   {
     inputToken: DEI_TOKEN,
@@ -38,6 +41,7 @@ export const MigrationStates: MigrationStateType[] = [
     snapshotConfirmation: false,
     proof: false,
     methodName: 'migrateLegacyDEIToVDEUS', // 5: amount
+    limitMethodName: 'legacyDEI_vDEUS',
   },
   {
     inputToken: BDEI_TOKEN,
@@ -47,6 +51,7 @@ export const MigrationStates: MigrationStateType[] = [
     snapshotConfirmation: false,
     proof: false,
     methodName: 'migrateBDEIToVDEUS', // 4: amount
+    limitMethodName: 'bDEI_vDEUS',
   },
   {
     inputToken: DEI_TOKEN,

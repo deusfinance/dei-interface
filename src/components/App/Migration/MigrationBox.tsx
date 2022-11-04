@@ -240,8 +240,13 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
         </MainButton>
       )
     }
-    // @ts-ignore
-    if ((isNaN(availableClaimableBDEI) || availableClaimableBDEI <= 0) && outputCurrency?.symbol === 'bDEI') {
+
+    if (
+      // @ts-ignore
+      (isNaN(availableClaimableBDEI) || availableClaimableBDEI <= 0) &&
+      outputCurrency?.symbol === 'bDEI' &&
+      migrationState.snapshotConfirmation
+    ) {
       return <MainButton disabled>You are not whitelisted</MainButton>
     }
     if (expiredPrice && migrationState.oracleUpdate) {

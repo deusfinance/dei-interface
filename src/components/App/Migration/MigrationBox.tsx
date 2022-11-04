@@ -2,25 +2,27 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
 import { isMobile } from 'react-device-detect'
 import { ArrowDown } from 'react-feather'
-import useWeb3React from 'hooks/useWeb3'
+import toast from 'react-hot-toast'
+
 import { useWalletModalToggle } from 'state/application/hooks'
+import { useExpiredPrice } from 'state/dashboard/hooks'
+import useWeb3React from 'hooks/useWeb3'
+import useUpdateCallback from 'hooks/useOracleCallback'
+import useMigrationCallback from 'hooks/useMigratorCallback'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
+import { useClaimableBDEI, useGetPrice } from 'hooks/useMigratorPage'
+import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
+
+import { toBN } from 'utils/numbers'
+import { tryParseAmount } from 'utils/parse'
+import InputBox from 'components/InputBox'
 import { DotFlashing } from 'components/Icons'
 import { PrimaryButton } from 'components/Button'
-import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-import { Migrator } from 'constants/addresses'
-import useMigrationCallback from 'hooks/useMigratorCallback'
-import { tryParseAmount } from 'utils/parse'
-import useUpdateCallback from 'hooks/useOracleCallback'
-import { useExpiredPrice } from 'state/dashboard/hooks'
-import InputBox from 'components/InputBox'
-import { MigrationStates } from 'constants/migration'
-import { useClaimableBDEI, useGetPrice } from 'hooks/useMigratorPage'
-import { Container } from './SelectBox'
 import { Row, RowBetween, RowCenter } from 'components/Row'
-import toast from 'react-hot-toast'
-import { toBN } from 'utils/numbers'
+import { Container } from './SelectBox'
 import LeverageArrow from './LeverageArrow'
+import { Migrator } from 'constants/addresses'
+import { MigrationStates } from 'constants/migration'
 
 export const Wrapper = styled(Container)`
   background: ${({ theme }) => theme.bg1};
@@ -93,6 +95,11 @@ const TotalValueSpan = styled.span`
   -webkit-text-fill-color: transparent;
   font-weight: bold;
   line-height: 20px;
+`
+
+const AvailableValueSpan = styled.span`
+  color: #7cd985;
+  font-weight: bold;
 `
 
 const BottomWrap = styled(RowBetween)`
@@ -280,6 +287,9 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
     if (isNaN(availableClaimableBDEI) && outputCurrency?.symbol === 'bDEI') {
       return <MainButton disabled>You are not whitelisted</MainButton>
     }
+    if (exceedBalance && outputCurrency?.symbol === 'bDEI') {
+      return <MainButton disabled>Exceed bDEI amount</MainButton>
+    }
     if (expiredPrice && migrationState.oracleUpdate) {
       return <MainButton onClick={handleUpdatePrice}>Update Oracle</MainButton>
     }
@@ -315,20 +325,22 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
 
         <InputBox currency={outputCurrency} value={amountOut} onChange={() => null} disabled />
 
-        <div style={{ marginTop: '40px' }}></div>
+        <div style={{ marginTop: '30px' }}></div>
 
         {getApproveButton()}
         {getActionButton()}
+
+        <div style={{ marginTop: '10px' }}></div>
       </MainWrapper>
 
       {account && migrationState.snapshotConfirmation && (
         <BottomWrap>
           {/* @ts-ignore */}
-          {!isNaN(availableClaimableBDEI) && availableClaimableBDEI > 0 && (
+          {!isNaN(availableClaimableBDEI) && availableClaimableBDEI >= 0 && (
             <>
               <Row mt={'8px'} mb={'12px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
                 <Description style={{ color: theme.text2 }}>
-                  <span style={{ color: '#7CD985', fontWeight: 'bold' }}>{availableClaimableBDEI}</span> of{' '}
+                  <AvailableValueSpan>{availableClaimableBDEI}</AvailableValueSpan> of{' '}
                   <TotalValueSpan>{totalClaimableBDEI}</TotalValueSpan> bDEI
                   <span style={{ display: 'block' }}>Available for Migration</span>
                 </Description>
@@ -344,13 +356,6 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
               </TopBorderWrap>
             </>
           )}
-
-          {/* {exceedBalance && (
-              <Row mt={'15px'}>
-                <Info size={16} color={theme.warning} />
-                <Description>The entered amount exceed your claimable balance.</Description>
-              </Row>
-            )} */}
         </BottomWrap>
       )}
     </Wrapper>

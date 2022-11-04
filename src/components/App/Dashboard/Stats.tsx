@@ -14,7 +14,7 @@ import { getMaximumDate } from 'utils/vest'
 // import { Modal, ModalHeader } from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import StatsItem from './StatsItem'
-import { AMO, CollateralPool, DEI_ADDRESS, USDCReserves1, USDCReserves2, veDEUS } from 'constants/addresses'
+import { DEI_ADDRESS } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
 import { ChainInfo } from 'constants/chainInfo'
 
@@ -173,17 +173,8 @@ const BackgroundImageWrapper = styled.div`
 
 export default function Stats() {
   const deusPrice = useDeusPrice()
-  const {
-    totalSupply,
-    collateralRatio,
-    circulatingSupply,
-    totalUSDCReserves,
-    totalProtocolHoldings,
-    AMOReserve,
-    usdcReserves1,
-    usdcReserves2,
-    usdcPoolReserves,
-  } = useDeiStats()
+  const { totalSupply, circulatingSupply, totalUSDCReserves, totalProtocolHoldings, usdcReserves1, usdcReserves2 } =
+    useDeiStats()
 
   const { lockedVeDEUS } = useVestedAPY(undefined, getMaximumDate())
   const deiPrice = useDeiPrice()
@@ -284,7 +275,7 @@ export default function Stats() {
               <StatsItem
                 darkBorder={true}
                 name="Protocol Holdings"
-                value={formatAmount(AMOReserve, 2)}
+                value={formatAmount(0, 2)}
                 noColor={true}
                 href={ChainInfo[SupportedChainId.FANTOM].blockExplorerUrl + '/address/'}
               />
@@ -302,7 +293,7 @@ export default function Stats() {
                 name="Redemption per DEI"
                 noColor={true}
                 darkBorder={true}
-                value={formatAmount(collateralRatio, 1).toString() + '%'}
+                value={formatAmount(0, 1).toString() + '%'}
               />
             </Info>
           </StatsWrapper>

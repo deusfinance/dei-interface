@@ -7,7 +7,7 @@ import styled from 'styled-components'
 const Item = styled.div<{ darkBorder?: boolean }>`
   display: inline-block;
   padding: 0 24px;
-  border-right: 1px solid ${({ theme, darkBorder }) => (darkBorder ? theme.bg4 : theme.warning1)};
+  border-right: 1px solid ${({ theme, darkBorder }) => (darkBorder ? theme.bg4 : theme.warning)};
   white-space: nowrap;
   /* width: 33%; */
   min-width: 130px;

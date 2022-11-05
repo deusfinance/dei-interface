@@ -1,27 +1,27 @@
 import React, { useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Z_INDEX } from 'theme'
 
 import useOnOutsideClick from 'hooks/useOnOutsideClick'
-import DeiLogo from '/public/static/images/tokens/newDei.svg'
 
 import {
   NavToggle,
   IconWrapper,
-  Swap as SwapIcon,
-  Borrow as BorrowIcon,
-  Staking as StakingIcon,
-  Dashboard as DashboardIcon,
-  Migration as MigrationIcon,
+  Telegram as TelegramIcon,
+  CreditCard as CreditCardIcon,
+  Twitter as TwitterIcon,
+  Github as GithubIcon,
+  Lock as LockIcon,
+  // Redeem as RedeemIcon,
+  Gift as GiftIcon,
+  Portfolio as PortfolioIcon,
+  Trade as TradeIcon,
 } from 'components/Icons'
-
 import { Card } from 'components/Card'
 import { NavButton } from 'components/Button'
 import { ExternalLink } from 'components/Link'
-import { ArrowUpRight } from 'react-feather'
 
 const Container = styled.div`
   overflow: hidden;
@@ -50,24 +50,17 @@ const Row = styled.div<{
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text2};
   &:hover {
     cursor: pointer;
-    color: ${({ theme }) => theme.text2};
+    color: ${({ theme }) => theme.text1};
   }
 
   ${({ active, theme }) =>
     active &&
-    ` color: ${theme.text2};
+    ` color: ${theme.text1};
       pointer-events: none;
   `};
-`
-
-const Separator = styled.div`
-  width: 225px;
-  margin-left: -13px;
-  height: 1px;
-  background: ${({ theme }) => theme.bg4};
 `
 
 // TODO ADD PROPER ICONS
@@ -90,15 +83,79 @@ export default function Menu() {
             <Row active={router.route === '/dashboard'}>
               <div>Dashboard</div>
               <IconWrapper>
-                <DashboardIcon size={20} />
+                <CreditCardIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/swap" passHref>
-            <Row active={router.route === '/swap'}>
-              <div>Swap</div>
+          {/* <Link href="/redemption" passHref>
+            <Row active={router.route === '/redemption'}>
+              <div>Redemption</div>
               <IconWrapper>
-                <SwapIcon size={20} />
+                <RedeemIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link> */}
+          <Link href="/deibonds" passHref>
+            <Row active={router.route === '/deibonds'}>
+              <div>DeiBonds</div>
+              <IconWrapper>
+                <TradeIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/deibonds/pools" passHref>
+            <Row active={router.route === '/deibonds/pools'}>
+              <div>Pools</div>
+              <IconWrapper>
+                <PortfolioIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/deibonds/liquidity" passHref>
+            <Row active={router.route === '/deibonds/liquidity'}>
+              <div>Liquidity</div>
+              <IconWrapper>
+                <PortfolioIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/borrow" passHref>
+            <Row active={router.route === '/borrow'}>
+              <div>Borrow</div>
+              <IconWrapper>
+                <CreditCardIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/vest" passHref>
+            <Row active={router.route === '/vest'}>
+              <div>Vest</div>
+              <IconWrapper>
+                <LockIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/rewards" passHref>
+            <Row active={router.route === '/rewards'}>
+              <div>Rewards</div>
+              <IconWrapper>
+                <GiftIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/vdeus/legacy" passHref>
+            <Row active={router.route === '/vdeus/legacy'}>
+              <div>Legacy vDEUS</div>
+              <IconWrapper>
+                <GiftIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
+          <Link href="/vdeus/new" passHref>
+            <Row active={router.route === '/vdeus/new'}>
+              <div>New vDEUS (ERC20)</div>
+              <IconWrapper>
+                <GiftIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
@@ -106,41 +163,44 @@ export default function Menu() {
             <Row active={router.route === '/migration'}>
               <div>Migration</div>
               <IconWrapper>
-                <MigrationIcon size={20} />
+                <GiftIcon size={20} />
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/staking" passHref>
-            <Row active={router.route === '/staking'}>
-              <div>Staking</div>
+          {/* <Link href="stake" passHref>
+            <Row active={router.route.includes('/stake')}>
+              <div>Stake</div>
               <IconWrapper>
-                <StakingIcon />
+                <GiftIcon size={20} />
               </IconWrapper>
             </Row>
-          </Link>
-          <Link href="/borrow" passHref>
-            <Row active={router.route === 'borrow'}>
-              <div>Borrow</div>
-              <IconWrapper>
-                <BorrowIcon />
-              </IconWrapper>
-            </Row>
-          </Link>
+          </Link> */}
           <ExternalLink href="https://docs.deus.finance/contracts/disclaimer">
             <Row onClick={() => toggle()}>
               <div>Terms</div>
             </Row>
           </ExternalLink>
-          <Separator />
-
+          <ExternalLink href="https://twitter.com/deusdao">
+            <Row onClick={() => toggle()}>
+              <div>Twitter</div>
+              <IconWrapper>
+                <TwitterIcon size={15} />
+              </IconWrapper>
+            </Row>
+          </ExternalLink>
+          <ExternalLink href="https://t.me/deusfinance">
+            <Row onClick={() => toggle()}>
+              <div>Community</div>
+              <IconWrapper>
+                <TelegramIcon size={15} />
+              </IconWrapper>
+            </Row>
+          </ExternalLink>
           <ExternalLink href="https://github.com/deusfinance">
             <Row onClick={() => toggle()}>
-              <div>
-                New App
-                <ArrowUpRight size={'15px'} style={{ marginLeft: '15px', marginTop: '5px' }} />
-              </div>
+              <div>Github</div>
               <IconWrapper>
-                <Image src={DeiLogo} alt="DEI Logo" height="16px" width="20px" />
+                <GithubIcon size={15} />
               </IconWrapper>
             </Row>
           </ExternalLink>

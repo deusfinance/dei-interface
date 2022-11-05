@@ -17,7 +17,7 @@ import InputBox from 'components/InputBox'
 import { MigrationStates } from 'constants/migration'
 import { useClaimableBDEI, useGetPrice, useScreamAmountOut } from 'hooks/useMigratorPage'
 import { Container } from './SelectBox'
-import { Row } from 'components/Row'
+import { Row, RowBetween, RowCenter } from 'components/Row'
 import toast from 'react-hot-toast'
 import { toBN } from 'utils/numbers'
 import LeverageArrow from './LeverageArrow'
@@ -28,13 +28,13 @@ export const Wrapper = styled(Container)`
   background: ${({ theme }) => theme.bg1};
   border: 1px solid rgb(0, 0, 0);
   border-radius: 0 12px 12px 0;
-  width: 470px;
-  height: 485px;
-
+  width: 440px;
+  height: 460px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 12px;
     margin-top: 20px;
     width: 340px;
-    border-radius: 12px;
+    height: 430px;
   `}
 `
 
@@ -78,10 +78,13 @@ const MainButton = styled(PrimaryButton)`
 `
 
 const Description = styled.div`
-  font-size: 13px;
+  font-size: 14px;
   margin-left: 8px;
   color: ${({ theme }) => theme.warning};
   max-width: 370px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    max-width: 250px;
+  `}
 `
 
 const MaxButtonWrap = styled.div`
@@ -95,6 +98,62 @@ const MaxButtonWrap = styled.div`
   &:hover {
     background: ${({ theme }) => theme.primary1};
   }
+`
+
+const TotalValueSpan = styled.span`
+  background: -webkit-linear-gradient(180deg, #e29c53 0%, #ce4c7a 60%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
+  line-height: 20px;
+`
+
+const AvailableValueSpan = styled.span`
+  color: #7cd985;
+  font-weight: bold;
+`
+
+const BottomWrap = styled(RowBetween)`
+  background: #121212;
+  padding-right: 8px;
+  padding-left: 8px;
+`
+
+export const TopBorderWrap = styled.div`
+  background: ${({ theme }) => theme.primary2};
+  padding: 1px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.bg0};
+`
+
+export const TopBorder = styled.div`
+  background: ${({ theme }) => theme.bg0};
+  border-radius: 6px;
+`
+
+const BatteryWrap = styled(RowCenter)`
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  color: ${({ theme }) => theme.white};
+  width: 60px;
+  height: 28px;
+  font-size: 12px;
+  & > * {
+    &:first-child {
+      z-index: 100;
+    }
+  }
+`
+
+const BatteryPercentage = styled.div<{ width?: string }>`
+  background: ${({ theme }) => theme.primary1};
+  width: ${({ width }) => width ?? 'unset'};
+  height: 100%;
+  left: 0;
+  bottom: 0;
+  position: absolute;
+  z-index: 2;
 `
 
 export const getImageSize = () => {
@@ -116,8 +175,12 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const inputCurrency = useMemo(() => migrationState.inputToken, [migrationState])
   const outputCurrency = useMemo(() => migrationState.outputToken, [migrationState])
   const leverage = useMemo(() => migrationState.leverage, [migrationState])
-  const ssss = useMigrateLimitData(migrationState)
-  console.log({ ssss })
+  const { limit, migrated } = useMigrateLimitData(migrationState)
+
+  const percentage = useMemo(() => {
+    if (!limit || !migrated) return '0'
+    return toBN(limit).minus(migrated).div(limit).times(100).toFixed(0)
+  }, [limit, migrated])
 
   const spender = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency ?? undefined, spender)
@@ -311,6 +374,30 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
           </Row>
         )}
       </MainWrapper>
+
+      {migrationState.limitMethodName && (
+        <BottomWrap>
+          {/* @ts-ignore */}
+          <>
+            <Row mt={'8px'} mb={'12px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
+              <Description style={{ color: theme.text2 }}>
+                <AvailableValueSpan>{toBN(limit).minus(migrated).toFormat(0)}</AvailableValueSpan> of{' '}
+                <TotalValueSpan>{toBN(limit).toFormat(0)}</TotalValueSpan> bDEI
+                <span style={{ display: 'block' }}>Available for Migration</span>
+              </Description>
+            </Row>
+
+            <TopBorderWrap>
+              <TopBorder>
+                <BatteryWrap>
+                  <p>{percentage}%</p>
+                  <BatteryPercentage width={percentage + '%'}></BatteryPercentage>
+                </BatteryWrap>
+              </TopBorder>
+            </TopBorderWrap>
+          </>
+        </BottomWrap>
+      )}
     </Wrapper>
   )
 }

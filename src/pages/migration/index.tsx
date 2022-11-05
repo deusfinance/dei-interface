@@ -34,6 +34,7 @@ export const Wrapper = styled(Container)`
 
 const TopWrapper = styled(RowCenter)`
   flex-wrap: wrap;
+  align-items: flex-start;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;

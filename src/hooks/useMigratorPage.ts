@@ -183,13 +183,14 @@ export function useMigrateLimitData(migrationState: MigrationStateType): {
   )
 
   const [limitResult, migratedResult] = useSingleContractMultipleMethods(contract, migrateLimitCall)
-  console.log(limitResult)
 
   return useMemo(() => {
     return {
-      limit: !limitResult || !limitResult.result ? '' : toBN(limitResult.result[0].toString()).div(1e18).toFixed(0),
+      limit: !limitResult || !limitResult.result ? '0' : toBN(limitResult.result[0].toString()).div(1e18).toFixed(0),
       migrated:
-        !migratedResult || !migratedResult.result ? '' : toBN(migratedResult.result[0].toString()).div(1e18).toFixed(0),
+        !migratedResult || !migratedResult.result
+          ? '0'
+          : toBN(migratedResult.result[0].toString()).div(1e18).toFixed(0),
     }
   }, [migratedResult, limitResult])
 }

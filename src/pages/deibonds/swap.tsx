@@ -54,27 +54,22 @@ export default function SwapPage() {
   const { chainId, account } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const isSupportedChainId = useSupportedChainId()
-  const [amountIn, setAmountIn] = useState('')
   const [slippage, setSlippage] = useState(0.5)
+  const [amountIn, setAmountIn] = useState('')
   const debouncedAmountIn = useDebounce(amountIn, 500)
-  // const deiCurrency = DEI_TOKEN
-  // const bdeiCurrency = BDEI_TOKEN
+
   const [currencyFrom, setCurrencyFrom] = useState<Token>(DEI_TOKEN)
   const [currencyTo, setCurrencyTo] = useState<Token>(BDEI_TOKEN)
 
-  // const bDeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
   const currencyFromBalance = useCurrencyBalance(account ?? undefined, currencyFrom)
 
   const pool = StablePools[0]
   const { amountOut } = useSwapAmountsOut(debouncedAmountIn, currencyFrom, currencyTo, pool)
 
-  // Amount typed in either fields
-  // const bdeiAmount = useMemo(() => {
   const currencyFromAmount = useMemo(() => {
     return tryParseAmount(amountIn, currencyFrom || undefined)
   }, [amountIn, currencyFrom])
 
-  // const deiAmount = useMemo(() => {
   const currencyToAmount = useMemo(() => {
     return tryParseAmount(amountOut, currencyTo || undefined)
   }, [amountOut, currencyTo])
@@ -90,16 +85,14 @@ export default function SwapPage() {
     error: swapCallbackError,
   } = useSwapCallback(currencyFrom, currencyTo, currencyFromAmount, currencyToAmount, pool, slippage, 20)
 
-  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
-  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
+  const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
+  const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState(false)
   const spender = useMemo(() => (chainId ? StablePool_DEI_bDEI[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(currencyFrom ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
     const show = currencyFrom && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [currencyFrom, approvalState, amountIn])
-
-  // const { diff } = getRemainingTime(swapTranche.endTime)
 
   const handleApprove = async () => {
     setAwaitingApproveConfirmation(true)
@@ -112,7 +105,6 @@ export default function SwapPage() {
     console.log(swapCallbackState, swapCallback, swapCallbackError)
     if (!swapCallback) return
 
-    // let error = ''
     try {
       setAwaitingRedeemConfirmation(true)
       const txHash = await swapCallback()
@@ -192,7 +184,7 @@ export default function SwapPage() {
           onChange={(value: string) => setAmountIn(value)}
           title={'From'}
         />
-        <Swap onClick={handleClick} />
+        <Swap onClick={handleClick} style={{ cursor: 'pointer' }} />
 
         <InputBox
           currency={currencyTo}

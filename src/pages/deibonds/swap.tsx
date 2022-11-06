@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
-import { ArrowDown } from 'react-feather'
 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -16,10 +15,11 @@ import Hero from 'components/Hero'
 import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import InputBox from 'components/App/Redemption/InputBox'
 import { PrimaryButton } from 'components/Button'
-import { DotFlashing } from 'components/Icons'
+import { DotFlashing, Swap } from 'components/Icons'
 import { StablePool_DEI_bDEI } from 'constants/addresses'
 import { BDEI_TOKEN, DEI_TOKEN } from 'constants/tokens'
 import { StablePools } from 'constants/sPools'
+import { Token } from '@sushiswap/core-sdk'
 
 const Container = styled.div`
   display: flex;
@@ -57,40 +57,47 @@ export default function SwapPage() {
   const [amountIn, setAmountIn] = useState('')
   const [slippage, setSlippage] = useState(0.5)
   const debouncedAmountIn = useDebounce(amountIn, 500)
-  const deiCurrency = DEI_TOKEN
-  const bdeiCurrency = BDEI_TOKEN
-  const bDeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
+  // const deiCurrency = DEI_TOKEN
+  // const bdeiCurrency = BDEI_TOKEN
+  const [currencyFrom, setCurrencyFrom] = useState<Token>(DEI_TOKEN)
+  const [currencyTo, setCurrencyTo] = useState<Token>(BDEI_TOKEN)
+
+  // const bDeiCurrencyBalance = useCurrencyBalance(account ?? undefined, bdeiCurrency)
+  const currencyFromBalance = useCurrencyBalance(account ?? undefined, currencyFrom)
+
   const pool = StablePools[0]
-  const { amountOut } = useSwapAmountsOut(debouncedAmountIn, bdeiCurrency, deiCurrency, pool)
+  const { amountOut } = useSwapAmountsOut(debouncedAmountIn, currencyFrom, currencyTo, pool)
 
   // Amount typed in either fields
-  const bdeiAmount = useMemo(() => {
-    return tryParseAmount(amountIn, bdeiCurrency || undefined)
-  }, [amountIn, bdeiCurrency])
+  // const bdeiAmount = useMemo(() => {
+  const currencyFromAmount = useMemo(() => {
+    return tryParseAmount(amountIn, currencyFrom || undefined)
+  }, [amountIn, currencyFrom])
 
-  const deiAmount = useMemo(() => {
-    return tryParseAmount(amountOut, deiCurrency || undefined)
-  }, [amountOut, deiCurrency])
+  // const deiAmount = useMemo(() => {
+  const currencyToAmount = useMemo(() => {
+    return tryParseAmount(amountOut, currencyTo || undefined)
+  }, [amountOut, currencyTo])
 
   const insufficientBalance = useMemo(() => {
-    if (!bdeiAmount) return false
-    return bDeiCurrencyBalance?.lessThan(bdeiAmount)
-  }, [bDeiCurrencyBalance, bdeiAmount])
+    if (!currencyFromAmount) return false
+    return currencyFromBalance?.lessThan(currencyFromAmount)
+  }, [currencyFromBalance, currencyFromAmount])
 
   const {
     state: swapCallbackState,
     callback: swapCallback,
     error: swapCallbackError,
-  } = useSwapCallback(bdeiCurrency, deiCurrency, bdeiAmount, deiAmount, pool, slippage, 20)
+  } = useSwapCallback(currencyFrom, currencyTo, currencyFromAmount, currencyToAmount, pool, slippage, 20)
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState<boolean>(false)
   const [awaitingRedeemConfirmation, setAwaitingRedeemConfirmation] = useState<boolean>(false)
   const spender = useMemo(() => (chainId ? StablePool_DEI_bDEI[chainId] : undefined), [chainId])
-  const [approvalState, approveCallback] = useApproveCallback(bdeiCurrency ?? undefined, spender)
+  const [approvalState, approveCallback] = useApproveCallback(currencyFrom ?? undefined, spender)
   const [showApprove, showApproveLoader] = useMemo(() => {
-    const show = bdeiCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
+    const show = currencyFrom && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
-  }, [bdeiCurrency, approvalState, amountIn])
+  }, [currencyFrom, approvalState, amountIn])
 
   // const { diff } = getRemainingTime(swapTranche.endTime)
 
@@ -141,7 +148,7 @@ export default function SwapPage() {
       )
     }
     if (showApprove) {
-      return <RedeemButton onClick={handleApprove}>Allow us to spend {deiCurrency?.symbol}</RedeemButton>
+      return <RedeemButton onClick={handleApprove}>Allow us to spend {currencyFrom?.symbol}</RedeemButton>
     }
     return null
   }
@@ -154,7 +161,7 @@ export default function SwapPage() {
       return null
     }
     if (insufficientBalance) {
-      return <RedeemButton disabled>Insufficient {bdeiCurrency?.symbol} Balance</RedeemButton>
+      return <RedeemButton disabled>Insufficient {currencyFrom?.symbol} Balance</RedeemButton>
     }
     if (awaitingRedeemConfirmation) {
       return (
@@ -167,6 +174,12 @@ export default function SwapPage() {
     return <RedeemButton onClick={() => handleSwap()}>Swap</RedeemButton>
   }
 
+  function handleClick() {
+    const currency = currencyFrom
+    setCurrencyFrom(currencyTo)
+    setCurrencyTo(currency)
+  }
+
   return (
     <Container>
       <Hero>
@@ -174,15 +187,15 @@ export default function SwapPage() {
       </Hero>
       <Wrapper>
         <InputBox
-          currency={bdeiCurrency}
+          currency={currencyFrom}
           value={amountIn}
           onChange={(value: string) => setAmountIn(value)}
           title={'From'}
         />
-        <ArrowDown />
+        <Swap onClick={handleClick} />
 
         <InputBox
-          currency={deiCurrency}
+          currency={currencyTo}
           value={amountOut}
           onChange={(value: string) => console.log(value)}
           title={'To'}

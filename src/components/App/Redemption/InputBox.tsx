@@ -82,6 +82,16 @@ const Balance = styled(Row)`
   }
 `
 
+const Name = styled.p`
+  margin-left: 1px;
+  font-size: 1.5rem;
+  color: #ccc;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size:16px;
+  `}
+`
+
 export default function InputBox({
   currency,
   value,
@@ -148,10 +158,10 @@ export default function InputBox({
             alt={`${currency?.symbol} Logo`}
             round
           />
-          <p style={{ marginLeft: '1px', fontSize: '1.5rem', color: '#ccc' }}>
+          <Name>
             {!disable_vdeus && currency?.symbol == 'DEUS' && 'v'}
             {currency?.symbol}
-          </p>
+          </Name>
           {onTokenSelect && <ChevronDown />}
         </Row>
       </RowBetween>

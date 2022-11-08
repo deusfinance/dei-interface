@@ -32,13 +32,12 @@ const Wrapper = styled(Container)`
   margin: 0 auto;
   margin-top: 50px;
   width: clamp(250px, 90%, 500px);
+
   background-color: rgb(13 13 13);
   padding: 20px 15px;
   border: 1px solid rgb(0, 0, 0);
   border-radius: 15px;
   justify-content: center;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
   & > * {
     &:nth-child(2) {
       margin: 15px auto;
@@ -48,6 +47,13 @@ const Wrapper = styled(Container)`
 
 const RedeemButton = styled(PrimaryButton)`
   border-radius: 15px;
+`
+
+const AdvancedOptionsWrap = styled.div`
+  & > * {
+    margin-top: 20px !important;
+    padding: 0;
+  }
 `
 
 export default function SwapPage() {
@@ -196,8 +202,10 @@ export default function SwapPage() {
         <div style={{ marginTop: '20px' }}></div>
         {getApproveButton()}
         {getActionButton()}
+        <AdvancedOptionsWrap>
+          <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
+        </AdvancedOptionsWrap>
       </Wrapper>
-      <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
     </Container>
   )
 }

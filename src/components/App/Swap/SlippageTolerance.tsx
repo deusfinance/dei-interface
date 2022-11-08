@@ -91,6 +91,10 @@ export const Option = styled(Base)<{ theme?: any; active?: any; bgColor?: string
   &:hover {
     border: ${({ theme, active }) => (active ? `2px solid ${theme.yellow2}` : `1px solid ${theme.text1}`)};
   }
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width: 40px;
+  `}
 `
 
 export const CustomOption = styled.div<{ active?: any }>`
@@ -103,6 +107,9 @@ export const CustomOption = styled.div<{ active?: any }>`
   justify-content: flex-end;
   align-items: center;
   border-radius: 8px;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width: 45px;
+  `}
 `
 
 const InputSlippage = styled.input.attrs({ type: 'number', min: 0.1 })`

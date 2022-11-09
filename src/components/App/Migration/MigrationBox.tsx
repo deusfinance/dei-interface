@@ -175,7 +175,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const inputCurrency = useMemo(() => migrationState.inputToken, [migrationState])
   const outputCurrency = useMemo(() => migrationState.outputToken, [migrationState])
   const leverage = useMemo(() => migrationState.leverage, [migrationState])
-  const { limit, migrated } = useMigrateLimitData(migrationState)
+  const { limit, migrated, available } = useMigrateLimitData(migrationState)
 
   const percentage = useMemo(() => {
     if (!limit || !migrated) return '0'
@@ -185,7 +185,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   const spender = useMemo(() => (chainId ? Migrator[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(inputCurrency ?? undefined, spender)
 
-  const [showApprove, showApproveLoader] = useMemo(() => {
+  const [showApprove] = useMemo(() => {
     const show = inputCurrency && approvalState !== ApprovalState.APPROVED && !!amountIn
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [inputCurrency, approvalState, amountIn])
@@ -296,6 +296,9 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
     if (!chainId || !account) {
       return <MainButton onClick={toggleWalletModal}>Connect Wallet</MainButton>
     }
+    if (migrationState.limitToken && available === '0') {
+      return <MainButton disabled>Nothing Left</MainButton>
+    }
     if (showApprove) {
       return null
     }
@@ -381,9 +384,11 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
           <>
             <Row mt={'8px'} mb={'12px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
               <Description style={{ color: theme.text2 }}>
-                <AvailableValueSpan>{toBN(limit).minus(migrated).toFormat(0)}</AvailableValueSpan> of{' '}
-                <TotalValueSpan>{toBN(limit).toFormat(0)}</TotalValueSpan> bDEI
-                <span style={{ display: 'block' }}>Available for Migration</span>
+                <AvailableValueSpan>{available === '' ? '0' : toBN(available).toFormat(0)}</AvailableValueSpan> of{' '}
+                <TotalValueSpan>{toBN(limit).toFormat(0)}</TotalValueSpan> {migrationState?.limitToken}
+                <span style={{ display: 'block' }}>
+                  {available === '0' ? 'nothing left' : 'still available'} for Migration
+                </span>
               </Description>
             </Row>
 

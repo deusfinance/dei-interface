@@ -162,6 +162,7 @@ export function useScreamAmountOut(
 export function useMigrateLimitData(migrationState: MigrationStateType): {
   limit: string
   migrated: string
+  available: string
 } {
   const contract = useMigratorContract()
 
@@ -191,6 +192,10 @@ export function useMigrateLimitData(migrationState: MigrationStateType): {
         !migratedResult || !migratedResult.result
           ? '0'
           : toBN(migratedResult.result[0].toString()).div(1e18).toFixed(0),
+      available:
+        !limitResult || !limitResult.result || !migratedResult || !migratedResult.result
+          ? ''
+          : toBN(limitResult.result[0].toString()).minus(migratedResult.result[0].toString()).div(1e18).toFixed(0),
     }
   }, [migratedResult, limitResult])
 }

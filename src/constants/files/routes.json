@@ -11,7 +11,8 @@
     "children": [
       { "id": "31", "text": "Bonds", "path": "/deibonds" },
       { "id": "32", "text": "Pools", "path": "/deibonds/pools" },
-      { "id": "33", "text": "Liquidity", "path": "/deibonds/liquidity" }
+      { "id": "33", "text": "Liquidity", "path": "/deibonds/liquidity" },
+      { "id": "34", "text": "Swap", "path": "/deibonds/swap" }
     ]
   },
   {

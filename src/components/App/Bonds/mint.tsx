@@ -123,6 +123,7 @@ export default function Mint() {
   }, [redeemCallbackState, redeemCallback, redeemCallbackError])
 
   function getApproveButton(): JSX.Element | null {
+    return null
     if (!isSupportedChainId || !account) {
       return null
     }

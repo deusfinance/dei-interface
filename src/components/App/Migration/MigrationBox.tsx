@@ -296,7 +296,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
     if (!chainId || !account) {
       return <MainButton onClick={toggleWalletModal}>Connect Wallet</MainButton>
     }
-    if (migrationState.limitToken && available === '0') {
+    if (migrationState.limitToken && available !== '' && toBN(available).lt(10)) {
       return <MainButton disabled>Nothing Left</MainButton>
     }
     if (showApprove) {
@@ -318,6 +318,10 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
     ) {
       return <MainButton disabled>You are not whitelisted</MainButton>
     }
+    if (migrationState.limitToken && toBN(amountIn).gt(available)) {
+      return <MainButton onClick={handleUpdatePrice}>Exceeded Available Amount</MainButton>
+    }
+
     if (expiredPrice && migrationState.oracleUpdate) {
       return <MainButton onClick={handleUpdatePrice}>Update Oracle</MainButton>
     }
@@ -384,10 +388,12 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
           <>
             <Row mt={'8px'} mb={'12px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
               <Description style={{ color: theme.text2 }}>
-                <AvailableValueSpan>{available === '' ? '0' : toBN(available).toFormat(0)}</AvailableValueSpan> of{' '}
-                <TotalValueSpan>{toBN(limit).toFormat(0)}</TotalValueSpan> {migrationState?.limitToken}
+                <AvailableValueSpan>
+                  {available === '' || toBN(available).lt(10) ? '0' : toBN(available).toFormat(0)}
+                </AvailableValueSpan>{' '}
+                of <TotalValueSpan>{toBN(limit).toFormat(0)}</TotalValueSpan> {migrationState?.limitToken}
                 <span style={{ display: 'block' }}>
-                  {available === '0' ? 'nothing left' : 'still available'} for Migration
+                  {available !== '' && toBN(available).lt(10) ? 'nothing left' : 'still available'} for Migration
                 </span>
               </Description>
             </Row>

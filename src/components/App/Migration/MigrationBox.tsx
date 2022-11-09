@@ -297,7 +297,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
       return <MainButton onClick={toggleWalletModal}>Connect Wallet</MainButton>
     }
     if (migrationState.limitToken && available !== '' && toBN(available).lt(10)) {
-      return <MainButton disabled>Nothing Left</MainButton>
+      return <MainButton disabled>Cap is reached</MainButton>
     }
     if (showApprove) {
       return null
@@ -319,7 +319,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
       return <MainButton disabled>You are not whitelisted</MainButton>
     }
     if (migrationState.limitToken && toBN(amountIn).gt(available)) {
-      return <MainButton onClick={handleUpdatePrice}>Exceeded Available Amount</MainButton>
+      return <MainButton disabled>Exceeds available amount</MainButton>
     }
 
     if (expiredPrice && migrationState.oracleUpdate) {
@@ -382,18 +382,20 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
         )}
       </MainWrapper>
 
-      {migrationState.limitMethodName && (
+      {migrationState.limitMethodName && available !== '' && (
         <BottomWrap>
           {/* @ts-ignore */}
           <>
             <Row mt={'8px'} mb={'12px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
               <Description style={{ color: theme.text2 }}>
-                <AvailableValueSpan>
-                  {available === '' || toBN(available).lt(10) ? '0' : toBN(available).toFormat(0)}
-                </AvailableValueSpan>{' '}
-                of <TotalValueSpan>{toBN(limit).toFormat(0)}</TotalValueSpan> {migrationState?.limitToken}
+                {!toBN(available).lt(10) && (
+                  <>
+                    <AvailableValueSpan>{toBN(available).toFormat(0)}</AvailableValueSpan> of{' '}
+                    <TotalValueSpan>{toBN(limit).toFormat(0)}</TotalValueSpan> {migrationState?.limitToken}
+                  </>
+                )}
                 <span style={{ display: 'block' }}>
-                  {available !== '' && toBN(available).lt(10) ? 'nothing left' : 'still available'} for Migration
+                  {toBN(available).lt(10) ? 'nothing left' : 'still available'} for migration
                 </span>
               </Description>
             </Row>

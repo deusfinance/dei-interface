@@ -29,7 +29,8 @@ export const Wrapper = styled(Container)`
   border: 1px solid rgb(0, 0, 0);
   border-radius: 0 12px 12px 0;
   width: 440px;
-  height: 460px;
+  height: 485px;
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
     border-radius: 12px;
     margin-top: 20px;
@@ -124,6 +125,17 @@ export const TopBorderWrap = styled.div`
   padding: 1px;
   border-radius: 8px;
   border: 1px solid ${({ theme }) => theme.bg0};
+`
+
+export const RightBorderWrap = styled.div`
+  margin-left: -1px;
+  border: 2px solid ${({ theme }) => theme.primary2};
+  padding: 2px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border-bottom-right-radius: 3px;
+  border-top-right-radius: 3px;
+  background: #de4a7b;
 `
 
 export const TopBorder = styled.div`
@@ -362,6 +374,8 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
         {getApproveButton()}
         {getActionButton()}
 
+        {!isMobile && <div style={{ marginTop: '25px' }}></div>}
+
         {account && migrationState.snapshotConfirmation && (
           <Row mt={'18px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
             {/* @ts-ignore */}
@@ -384,31 +398,28 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
 
       {migrationState.limitMethodName && available !== '' && (
         <BottomWrap>
-          {/* @ts-ignore */}
-          <>
-            <Row mt={'8px'} mb={'12px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
-              <Description style={{ color: theme.text2 }}>
-                {!toBN(available).lt(10) && (
-                  <>
-                    <AvailableValueSpan>{toBN(available).toFormat(0)}</AvailableValueSpan> of{' '}
-                    <TotalValueSpan>{toBN(limit).toFormat(0)}</TotalValueSpan> {migrationState?.limitToken}
-                  </>
-                )}
-                <span style={{ display: 'block' }}>
-                  {toBN(available).lt(10) ? 'nothing left' : 'still available'} for migration
-                </span>
-              </Description>
-            </Row>
-
-            <TopBorderWrap>
-              <TopBorder>
-                <BatteryWrap>
-                  <p>{percentage}%</p>
-                  <BatteryPercentage width={percentage + '%'}></BatteryPercentage>
-                </BatteryWrap>
-              </TopBorder>
-            </TopBorderWrap>
-          </>
+          <Row mt={'8px'} mb={'12px'} style={{ cursor: 'pointer' }} onClick={handleMaxValue}>
+            <Description style={{ color: theme.text2 }}>
+              {!toBN(available).lt(10) && (
+                <>
+                  <AvailableValueSpan>{toBN(available).toFormat(0)}</AvailableValueSpan> of{' '}
+                  <TotalValueSpan>{toBN(limit).toFormat(0)}</TotalValueSpan> {migrationState?.limitToken}
+                </>
+              )}
+              <span style={{ display: 'block' }}>
+                {toBN(available).lt(10) ? 'nothing left' : 'still available'} for migration
+              </span>
+            </Description>
+          </Row>
+          <TopBorderWrap>
+            <TopBorder>
+              <BatteryWrap>
+                <p>{percentage}%</p>
+                <BatteryPercentage width={percentage + '%'}></BatteryPercentage>
+              </BatteryWrap>
+            </TopBorder>
+          </TopBorderWrap>
+          <RightBorderWrap />
         </BottomWrap>
       )}
     </Wrapper>

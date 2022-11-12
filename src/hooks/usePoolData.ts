@@ -218,7 +218,6 @@ export function useGlobalDEIBorrowed(pools: BorrowPool[]): {
   )
 }
 
-//TODO: needs to get data from api(al least muon oracle api)
 export function useCollateralPrice(pool: BorrowPool): string {
   const oracleContract = useOracleContract(pool)
   const methodName = pool.version == LenderVersion.V1 ? 'getPrice' : 'getOnChainPrice'

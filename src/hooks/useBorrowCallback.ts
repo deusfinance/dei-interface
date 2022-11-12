@@ -7,7 +7,6 @@ import toast from 'react-hot-toast'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { BorrowAction, BorrowPool, LenderVersion, TypedField } from 'state/borrow/reducer'
 import { useUserPoolData } from 'hooks/usePoolData'
-// import { BorrowClient } from 'lib/muon'
 
 import useWeb3React from './useWeb3'
 import { useGeneralLenderContract } from './useContract'
@@ -38,14 +37,6 @@ export default function useBorrowCallback(
   const addTransaction = useTransactionAdder()
   const GeneralLender = useGeneralLenderContract(pool)
   const { userBorrow } = useUserPoolData(pool)
-
-  // const getOracleData = useCallback(async () => {
-  //   const result = await BorrowClient.getCollateralPrice(pool)
-  //   if (result.success === false) {
-  //     throw new Error(`Unable to fetch Muon collateral price: ${result.error}`)
-  //   }
-  //   return result.data.calldata
-  // }, [pool])
 
   const constructCall = useCallback(async () => {
     try {
@@ -79,7 +70,6 @@ export default function useBorrowCallback(
               nonce,
             },
           ]
-          if (!price || !reqId || !sigs || !timestamp) throw new Error('Missing dependencies from muon oracles.')
           args = [...args, price, timestamp, reqId, sigs]
         }
         methodName = 'removeCollateral'
@@ -102,7 +92,6 @@ export default function useBorrowCallback(
               nonce,
             },
           ]
-          if (!price || !reqId || !sigs || !timestamp) throw new Error('Missing dependencies from muon oracles.')
           args = [...args, price, timestamp, reqId, sigs]
         }
         methodName = 'borrow'

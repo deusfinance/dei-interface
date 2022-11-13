@@ -11,6 +11,7 @@ import { useVDeusMultiRewarderERC20Contract } from './useContract'
 import { StablePoolType } from 'constants/sPools'
 import { usePoolBalances } from './useStablePoolInfo'
 import { StakingType } from 'constants/stakings'
+import { useAverageBlockTime } from 'state/application/hooks'
 
 //TODO: should remove all and put it in /constants
 const pids = [0, 1]
@@ -67,6 +68,16 @@ export function useUserInfo(stakingPool: StakingType): {
   const contract = useMasterChefContract(stakingPool)
   const { account } = useWeb3React()
   const pid = stakingPool.pid
+  const additionalCall =
+    stakingPool.version === 'v2'
+      ? [
+          {
+            methodName: 'totalDepositedAmount',
+            callInputs: [pid.toString()],
+          },
+        ]
+      : []
+
   const calls = !account
     ? []
     : [
@@ -78,10 +89,7 @@ export function useUserInfo(stakingPool: StakingType): {
           methodName: 'pendingTokens',
           callInputs: [pid.toString(), account],
         },
-        {
-          methodName: 'totalDepositedAmount',
-          callInputs: [pid.toString()],
-        },
+        ...additionalCall,
       ]
 
   const [userInfo, pendingTokens, totalDepositedAmount] = useSingleContractMultipleMethods(contract, calls)
@@ -114,6 +122,8 @@ export function useGetDeusApy(pool: StablePoolType, stakingPool: StakingType): n
       callInputs: [stakingPool.pid, 0],
     },
   ]
+  const avgBlockTime = useAverageBlockTime()
+
   const [retrieveTokenPerBlock] = useSingleContractMultipleMethods(contract, calls)
   const balances = usePoolBalances(pool)
   const vdeusBalance = balances[0]
@@ -122,8 +132,10 @@ export function useGetDeusApy(pool: StablePoolType, stakingPool: StakingType): n
   const { depositAmount, totalDepositedAmount } = useUserInfo(stakingPool)
 
   const retrieveTokenPerBlockValue = useMemo(() => {
-    return retrieveTokenPerBlock?.result ? toBN(formatUnits(retrieveTokenPerBlock.result[0], 18)).toNumber() : 0
-  }, [retrieveTokenPerBlock])
+    return retrieveTokenPerBlock?.result && avgBlockTime
+      ? toBN(formatUnits(retrieveTokenPerBlock.result[0], 18)).div(avgBlockTime).toNumber()
+      : 0
+  }, [retrieveTokenPerBlock, avgBlockTime])
 
   // const totalDeposited = toBN(deusBalance).times(2).times(deusPrice).toNumber()
 
@@ -212,12 +224,14 @@ export function usePoolInfo(stakingPool: StakingType): {
 export function useGetApy(stakingPool: StakingType): number {
   const { tokenPerBlock, totalAllocPoint } = useGlobalMasterChefData(stakingPool)
   const { totalDeposited, allocPoint } = usePoolInfo(stakingPool)
+  const avgBlockTime = useAverageBlockTime()
   // console.log(tokenPerBlock, totalDeposited)
   // const deiPrice = useDeiPrice()
   const deusPrice = useDeusPrice()
   // console.log({ allocPoint, totalAllocPoint, pid })
-  if (totalDeposited === 0) return 0
+  if (totalDeposited === 0 || !avgBlockTime) return 0
   return (
-    (tokenPerBlock * (allocPoint / totalAllocPoint) * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) / totalDeposited
+    (tokenPerBlock * (allocPoint / totalAllocPoint) * parseFloat(deusPrice) * 365 * 24 * 60 * 60 * 100) /
+    (totalDeposited * avgBlockTime)
   )
 }

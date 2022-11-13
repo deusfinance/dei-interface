@@ -72,3 +72,8 @@ export function useBlockTimestamp(): number | undefined {
   const { chainId } = useWeb3React()
   return useAppSelector((state: AppState) => state.application.blockTimestamp[chainId ?? -1])
 }
+
+export function useAverageBlockTime(): number | undefined {
+  const { chainId } = useWeb3React()
+  return useAppSelector((state: AppState) => state.application.averageBlockTime[chainId ?? -1])
+}

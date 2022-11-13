@@ -3,6 +3,11 @@ import { createAction } from '@reduxjs/toolkit'
 import { ApplicationModal, PopupContent } from './reducer'
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')
+
+export const updateAverageBlockTime = createAction<{ chainId: number; averageBlockTime: number }>(
+  'application/updateAverageBlockTime'
+) //PerSeconds
+
 export const updateBlockTimestamp = createAction<{
   chainId: number
   blockTimestamp: number

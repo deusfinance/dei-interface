@@ -9,6 +9,7 @@ export type StakingType = {
   token: Token
   provideLink?: string
   masterChef: string
+  version: string
 }
 
 export type vDeusStakingType = {
@@ -28,6 +29,7 @@ export const StakingPools: StakingType[] = [
     token: BDEI_TOKEN,
     provideLink: '/deibonds',
     masterChef: MasterChefV2[SupportedChainId.FANTOM],
+    version: 'v1',
   },
   {
     name: 'DEI-bDEI',
@@ -35,6 +37,7 @@ export const StakingPools: StakingType[] = [
     token: DEI_BDEI_LP_TOKEN,
     provideLink: '/deibonds',
     masterChef: MasterChefV2[SupportedChainId.FANTOM],
+    version: 'v1',
   },
 ]
 
@@ -45,6 +48,7 @@ export const StakingPools2: StakingType[] = [
     token: VDEUS_TOKEN,
     provideLink: '/vdeus/new',
     masterChef: MasterChefV3[SupportedChainId.FANTOM],
+    version: 'v2',
   },
   {
     name: 'DEUS-vDEUS',
@@ -52,6 +56,7 @@ export const StakingPools2: StakingType[] = [
     token: DEUS_VDEUS_LP_TOKEN,
     provideLink: '/vdeus/new',
     masterChef: MasterChefV3[SupportedChainId.FANTOM],
+    version: 'v2',
   },
 ]
 

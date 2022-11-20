@@ -10,7 +10,7 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import useDebounce from 'hooks/useDebounce'
 import { useAddLiquidity, useRemoveLiquidity } from 'hooks/useStablePoolInfo'
 import useManageLiquidity from 'hooks/useLiquidityCallback'
-import { toBN, BN_ZERO } from 'utils/numbers'
+import { toBN, BN_ZERO, formatBalance } from 'utils/numbers'
 
 import { tryParseAmount } from 'utils/parse'
 import { StablePools } from 'constants/sPools'
@@ -310,7 +310,7 @@ export default function LiquidityPool() {
           <Description>
             You will get{' '}
             <DescriptionMainText>
-              {parseFloat(amountOut2).toFixed(6).toString()} {lpCurrency.symbol}{' '}
+              {formatBalance(amountOut2)} {lpCurrency.symbol}{' '}
             </DescriptionMainText>
             approximately.
           </Description>

@@ -7,6 +7,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import useCurrencyLogo from 'hooks/useCurrencyLogo'
 import useWeb3React from 'hooks/useWeb3'
 import { maxAmountSpend } from 'utils/currency'
+import { formatBalance } from 'utils/numbers'
 
 import ImageWithFallback from 'components/ImageWithFallback'
 import { NumericalInput } from 'components/Input'
@@ -142,7 +143,7 @@ export default function InputBox({
   value: string
   onChange(values: string): void
   onTokenSelect?: () => void
-  maxValue?: number
+  maxValue?: number | string
   disabled?: boolean
 }) {
   const { account } = useWeb3React()
@@ -150,8 +151,12 @@ export default function InputBox({
   const currencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
 
   const [balanceExact, balanceDisplay] = useMemo(() => {
-    if (!maxValue) return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
-    return [maxValue.toString(), maxValue?.toFixed(6)]
+    if (!maxValue)
+      return [
+        maxAmountSpend(currencyBalance)?.toExact(),
+        formatBalance(maxAmountSpend(currencyBalance)?.toExact() ?? '0'),
+      ]
+    return [maxValue.toString(), formatBalance(maxValue)]
   }, [currencyBalance, maxValue])
 
   const handleClick = useCallback(() => {

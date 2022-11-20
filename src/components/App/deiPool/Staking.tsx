@@ -15,7 +15,7 @@ import toast from 'react-hot-toast'
 import { DefaultHandlerError } from 'utils/parseError'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { RowCenter, RowEnd, RowStart } from 'components/Row'
-import { toBN } from 'utils/numbers'
+import { formatBalance, toBN } from 'utils/numbers'
 import { Loader } from 'components/Icons'
 import { StakingType } from 'constants/stakings'
 import { useUserInfo, useGetApy } from 'hooks/useStakingInfo'
@@ -76,20 +76,9 @@ export default function Staking({ stakingPool }: { stakingPool: StakingType }) {
   const masterChefContract = useMasterChefContract(stakingPool)
 
   const addTransaction = useTransactionAdder()
-  // const [pendingTxHash, setPendingTxHash] = useState('')
-  //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
   const { rewardsAmount, depositAmount } = useUserInfo(stakingPool)
   const apr = useGetApy(stakingPool)
-  //   console.log(name, apr)
-  // const currencyAmount = useMemo(() => {
-  //   return tryParseAmount(amountIn, currency || undefined)
-  // }, [amountIn, currency])
-
-  // const insufficientBalance = useMemo(() => {
-  //   if (!currencyAmount) return false
-  //   return currencyBalance?.lessThan(currencyAmount)
-  // }, [currencyBalance, currencyAmount])
 
   const [awaitingApproveConfirmation, setAwaitingApproveConfirmation] = useState(false)
   const [awaitingDepositConfirmation, setAwaitingDepositConfirmation] = useState(false)
@@ -101,7 +90,7 @@ export default function Staking({ stakingPool }: { stakingPool: StakingType }) {
   const spender = useMemo(() => (chainId ? MasterChefV2[chainId] : undefined), [chainId])
   const [approvalState, approveCallback] = useApproveCallback(currency ?? undefined, spender)
 
-  const [showApprove, showApproveLoader] = useMemo(() => {
+  const [showApprove] = useMemo(() => {
     const show = currency && approvalState !== ApprovalState.APPROVED
     return [show, show && approvalState === ApprovalState.PENDING]
   }, [currency, approvalState])
@@ -208,7 +197,7 @@ export default function Staking({ stakingPool }: { stakingPool: StakingType }) {
         onClick={onClaimReward}
         onChange={(value: string) => console.log(value)}
         type={awaitingClaimConfirmation ? 'claiming' : 'claim'}
-        value={`${rewardsAmount.toFixed(3)} DEUS`}
+        value={`${formatBalance(rewardsAmount)} DEUS`}
         title={'Rewards'}
       />
     </Wrapper>

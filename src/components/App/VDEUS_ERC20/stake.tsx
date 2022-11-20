@@ -8,11 +8,10 @@ import useWeb3React from 'hooks/useWeb3'
 import { useSupportedChainId } from 'hooks/useSupportedChainId'
 import { useMasterChefContract } from 'hooks/useContract'
 import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
-// import { useGetApr } from 'hooks/useVDeusStaking'
 import { useUserInfo } from 'hooks/useStakingInfo'
 
 import { DefaultHandlerError } from 'utils/parseError'
-import { formatAmount, toBN } from 'utils/numbers'
+import { formatBalance, toBN } from 'utils/numbers'
 import { StakingPools2 } from 'constants/stakings'
 import { MasterChefV3 } from 'constants/addresses'
 
@@ -152,7 +151,8 @@ export default function Stake() {
   // const [pendingTxHash, setPendingTxHash] = useState('')
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const { rewardsAmount, depositAmount } = useUserInfo(stakingPool)
+  const { rewardsAmount, depositAmount, totalDepositedAmount } = useUserInfo(stakingPool)
+
   const apr = 25 // useGetApr(pid)
 
   const currencyAmount = useMemo(() => {
@@ -336,11 +336,21 @@ export default function Stake() {
       {getActionButton()}
 
       <Line />
-      {depositAmount > 0 && (
+      {Number(depositAmount) > 0 && (
         <BoxWrapper>
           <span>vDEUS Staked:</span>
           <AmountSpan>
-            {formatAmount(depositAmount)} {currency?.symbol}
+            {formatBalance(depositAmount)} {currency?.symbol}
+          </AmountSpan>
+        </BoxWrapper>
+      )}
+
+      <Line />
+      {Number(depositAmount) > 0 && (
+        <BoxWrapper>
+          <span>Total vDEUS Staked:</span>
+          <AmountSpan>
+            {formatBalance(totalDepositedAmount)} {currency?.symbol}
           </AmountSpan>
         </BoxWrapper>
       )}
@@ -350,7 +360,7 @@ export default function Stake() {
         <div>
           <span style={{ fontSize: '12px' }}>Reward:</span>
           <RewardData>
-            <span>{rewardsAmount && rewardsAmount?.toFixed(3)}</span>
+            <span>{rewardsAmount && formatBalance(rewardsAmount)}</span>
             <Row style={{ marginLeft: '10px' }}>
               <span>{VDEUS_TOKEN.symbol}</span>
             </Row>

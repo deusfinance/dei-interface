@@ -12,11 +12,11 @@ import useApproveCallback, { ApprovalState } from 'hooks/useApproveCallback'
 import { useGetDeusApy, useUserInfo, useGetDeusReward } from 'hooks/useStakingInfo'
 
 import { DefaultHandlerError } from 'utils/parseError'
-import { formatAmount, formatBalance, toBN } from 'utils/numbers'
+import { formatBalance, toBN } from 'utils/numbers'
 import { StakingPools2 } from 'constants/stakings'
 import { MasterChefV3 } from 'constants/addresses'
 
-import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
+import { DEUS_TOKEN, VDEUS_TOKEN, DEUS_VDEUS_LP_TOKEN } from 'constants/tokens'
 import { Row, RowEnd } from 'components/Row'
 import { PrimaryButton } from 'components/Button'
 import { DotFlashing, Info, Loader } from 'components/Icons'
@@ -172,7 +172,7 @@ export default function StakingPool() {
   // const [pendingTxHash, setPendingTxHash] = useState('')
   //   const showTransactionPending = useIsTransactionPending(pendingTxHash)
 
-  const { rewardsAmount, depositAmount } = useUserInfo(stakingPool)
+  const { rewardsAmount, depositAmount, totalDepositedAmount } = useUserInfo(stakingPool)
   const duesApr = useGetDeusApy(pool, stakingPool)
   const deusReward = useGetDeusReward()
   // console.log({ duesApr, deusReward })
@@ -362,7 +362,7 @@ export default function StakingPool() {
         currency={currency}
         value={amountIn}
         onChange={(value: string) => setAmountIn(value)}
-        title={selected === NavigationTypes.STAKE ? 'vDEUS' : 'vDEUS staked'}
+        title={selected === NavigationTypes.STAKE ? 'DV-LP' : 'DV-LP staked'}
         maxValue={selected === NavigationTypes.STAKE ? null : depositAmount.toString()}
       />
 
@@ -370,11 +370,21 @@ export default function StakingPool() {
       {getActionButton()}
 
       <Line />
-      {depositAmount > 0 && (
+      {Number(depositAmount) > 0 && (
         <BoxWrapper>
-          <span>vDEUS Staked:</span>
+          <span>{DEUS_VDEUS_LP_TOKEN.symbol} Staked:</span>
           <AmountSpan>
-            {formatAmount(depositAmount)} {currency?.symbol}
+            {formatBalance(depositAmount)} {currency?.symbol}
+          </AmountSpan>
+        </BoxWrapper>
+      )}
+
+      <Line />
+      {totalDepositedAmount > 0 && (
+        <BoxWrapper>
+          <span> Total {DEUS_VDEUS_LP_TOKEN.symbol} Staked:</span>
+          <AmountSpan>
+            {formatBalance(totalDepositedAmount)} {DEUS_VDEUS_LP_TOKEN?.symbol}
           </AmountSpan>
         </BoxWrapper>
       )}
@@ -384,13 +394,13 @@ export default function StakingPool() {
         <div>
           <span style={{ fontSize: '12px' }}>Reward:</span>
           <RewardData>
-            <span>{rewardsAmount && rewardsAmount?.toFixed(3)}</span>
+            <span>{rewardsAmount && formatBalance(rewardsAmount)}</span>
             <Row style={{ marginLeft: '10px' }}>
               <span>{VDEUS_TOKEN.symbol}</span>
             </Row>
           </RewardData>
           <RewardData>
-            <span>{deusReward && deusReward?.toFixed(3)}</span>
+            <span>{deusReward && formatBalance(deusReward)}</span>
             <Row style={{ marginLeft: '10px' }}>
               <span>{DEUS_TOKEN.symbol}</span>
             </Row>

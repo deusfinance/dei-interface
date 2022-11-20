@@ -47,7 +47,6 @@ export function useGlobalMasterChefData(flag = false): {
   }
 }
 
-//TODO: totalDeposited should consider decimals of token
 export function usePoolInfo(
   pid: number,
   flag = false
@@ -95,7 +94,6 @@ export function usePoolInfo(
   }
 }
 
-//TODO: depositAmount should consider decimals of token
 export function useUserInfo(
   pid: number,
   flag = false

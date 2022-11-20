@@ -9,6 +9,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { PrimaryButton } from 'components/Button'
 import { NumericalInput } from 'components/Input'
 import { RowBetween } from 'components/Row'
+import { formatBalance, removeTrailingZeros } from 'utils/numbers'
 
 const Wrapper = styled.div`
   color: ${({ theme }) => theme.text2};
@@ -123,7 +124,7 @@ export default function StakeBox({
 
   const [balanceExact, balanceDisplay] = useMemo(() => {
     if (!maxValue) return [maxAmountSpend(currencyBalance)?.toExact(), currencyBalance?.toSignificant(6)]
-    return [maxValue, maxValue]
+    return [removeTrailingZeros(maxValue), formatBalance(maxValue)]
   }, [currencyBalance, maxValue])
 
   const handleClick = useCallback(() => {

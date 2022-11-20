@@ -12,6 +12,7 @@ import { StablePoolType } from 'constants/sPools'
 import { usePoolBalances } from './useStablePoolInfo'
 import { StakingType } from 'constants/stakings'
 import { useAverageBlockTime } from 'state/application/hooks'
+import { BigNumber } from 'bignumber.js'
 
 //TODO: should remove all and put it in /constants
 const pids = [0, 1]
@@ -59,14 +60,14 @@ export function useGlobalMasterChefData(stakingPool: StakingType): {
   }
 }
 
-//TODO: depositAmount should consider decimals of token
 export function useUserInfo(stakingPool: StakingType): {
-  depositAmount: number
+  depositAmount: string
   rewardsAmount: number
   totalDepositedAmount: number
 } {
   const contract = useMasterChefContract(stakingPool)
   const { account } = useWeb3React()
+  const { token } = stakingPool
   const pid = stakingPool.pid
   const additionalCall =
     stakingPool.version === 'v2'
@@ -96,13 +97,15 @@ export function useUserInfo(stakingPool: StakingType): {
 
   const { depositedValue, reward, totalDepositedAmountValue } = useMemo(() => {
     return {
-      depositedValue: userInfo?.result ? toBN(formatUnits(userInfo.result[0].toString(), 18)).toNumber() : 0,
-      reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0,
+      depositedValue: userInfo?.result
+        ? toBN(formatUnits(userInfo.result[0].toString(), token.decimals)).toFixed(token.decimals, BigNumber.ROUND_DOWN)
+        : '0',
+      reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0, //vDEUS reward
       totalDepositedAmountValue: totalDepositedAmount?.result
-        ? toBN(formatUnits(totalDepositedAmount.result[0], 18)).toNumber()
+        ? toBN(formatUnits(totalDepositedAmount.result[0], token.decimals)).toNumber()
         : 0,
     }
-  }, [userInfo, pendingTokens, totalDepositedAmount])
+  }, [token, userInfo, pendingTokens, totalDepositedAmount])
 
   return {
     depositAmount: depositedValue,
@@ -139,7 +142,7 @@ export function useGetDeusApy(pool: StablePoolType, stakingPool: StakingType): n
 
   // const totalDeposited = toBN(deusBalance).times(2).times(deusPrice).toNumber()
 
-  const ratio = depositAmount / totalDepositedAmount
+  const ratio = Number(depositAmount) / totalDepositedAmount
   const totalBalance = vdeusBalance + deusBalance
   const myShare = ratio * totalBalance
   const retrieveTokenPerYearValue = retrieveTokenPerBlockValue * 365 * 24 * 60 * 60
@@ -178,7 +181,6 @@ export function useGetDeusReward(): number {
   }, [pendingTokens])
 }
 
-//TODO: totalDeposited should consider decimals of token
 export function usePoolInfo(stakingPool: StakingType): {
   accTokensPerShare: number
   lastRewardBlock: number
@@ -187,6 +189,7 @@ export function usePoolInfo(stakingPool: StakingType): {
 } {
   const contract = useMasterChefContract(stakingPool)
   const tokenAddress = stakingTokens[stakingPool.pid]
+  const { token } = stakingPool
   const ERC20Contract = useERC20Contract(tokenAddress)
   const calls = [
     {
@@ -209,9 +212,9 @@ export function usePoolInfo(stakingPool: StakingType): {
       accTokensPerShare: poolInfo?.result ? toBN(poolInfo.result[0].toString()).toNumber() : 0,
       lastRewardBlock: poolInfo?.result ? toBN(poolInfo.result[1].toString()).toNumber() : 0,
       allocPoint: poolInfo?.result ? toBN(poolInfo.result[2].toString()).toNumber() : 0,
-      totalDeposited: tokenBalance?.result ? toBN(formatUnits(tokenBalance.result[0], 18)).toNumber() : 0,
+      totalDeposited: tokenBalance?.result ? toBN(formatUnits(tokenBalance.result[0], token.decimals)).toNumber() : 0,
     }
-  }, [poolInfo, tokenBalance])
+  }, [token, poolInfo, tokenBalance])
 
   return {
     accTokensPerShare,

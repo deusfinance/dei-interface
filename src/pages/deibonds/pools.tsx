@@ -3,10 +3,9 @@ import styled from 'styled-components'
 
 import Hero from 'components/Hero'
 import Disclaimer from 'components/Disclaimer'
-// import { BDEI_TOKEN } from 'constants/tokens'
-// import { StablePools } from 'constants/sPools'
 import { StakingPools } from 'constants/stakings'
-import Staking from 'components/App/deiPool/Staking'
+import GeneralStaking from 'components/App/VDEUS_ERC20/GeneralStaking'
+// import Staking from 'components/App/deiPool/Staking'
 
 const Container = styled.div`
   display: flex;
@@ -16,19 +15,13 @@ const Container = styled.div`
 `
 
 export default function Pools() {
-  // const pool = StablePools[0]
-  // const bdeiCurrency = BDEI_TOKEN
-  // const lpCurrency = pool.lpToken
-
   return (
     <Container>
       <Hero>
         <div>Pools</div>
       </Hero>
-      <Staking stakingPool={StakingPools[0]} />
-      {/* {StakingPools.map((pool) => {
-        return <Staking key={pool.pid} pool={pool} />
-      })} */}
+      <GeneralStaking stakingPool={StakingPools[0]} />
+      {/* <Staking stakingPool={StakingPools[0]} /> */}
       <Disclaimer />
     </Container>
   )

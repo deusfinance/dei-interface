@@ -13,6 +13,8 @@ import { usePoolBalances } from './useStablePoolInfo'
 import { StakingType } from 'constants/stakings'
 import { useAverageBlockTime } from 'state/application/hooks'
 import { BigNumber } from 'bignumber.js'
+import { Token } from '@sushiswap/core-sdk'
+import { DEUS_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 
 //TODO: should remove all and put it in /constants
 const pids = [0, 1]
@@ -64,13 +66,14 @@ export function useUserInfo(stakingPool: StakingType): {
   depositAmount: string
   rewardsAmount: number
   totalDepositedAmount: number
+  rewardToken: Token
 } {
   const contract = useMasterChefContract(stakingPool)
   const { account } = useWeb3React()
-  const { token } = stakingPool
-  const pid = stakingPool.pid
+  const { pid, version, token } = stakingPool
+
   const additionalCall =
-    stakingPool.version === 'v2'
+    version === 'v2'
       ? [
           {
             methodName: 'totalDepositedAmount',
@@ -95,22 +98,39 @@ export function useUserInfo(stakingPool: StakingType): {
 
   const [userInfo, pendingTokens, totalDepositedAmount] = useSingleContractMultipleMethods(contract, calls)
 
-  const { depositedValue, reward, totalDepositedAmountValue } = useMemo(() => {
+  const balanceCall = [
+    {
+      methodName: 'balanceOf',
+      callInputs: [contract?.address],
+    },
+  ]
+
+  const ERC20Contract = useERC20Contract(token.address)
+  const [tokenBalance] = useSingleContractMultipleMethods(ERC20Contract, balanceCall)
+
+  const { depositedValue, reward, totalDepositedAmountValue, rewardToken } = useMemo(() => {
     return {
       depositedValue: userInfo?.result
         ? toBN(formatUnits(userInfo.result[0].toString(), token.decimals)).toFixed(token.decimals, BigNumber.ROUND_DOWN)
         : '0',
       reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0, //vDEUS reward
-      totalDepositedAmountValue: totalDepositedAmount?.result
-        ? toBN(formatUnits(totalDepositedAmount.result[0], token.decimals)).toNumber()
-        : 0,
+      totalDepositedAmountValue:
+        version === 'v1'
+          ? tokenBalance?.result
+            ? toBN(formatUnits(tokenBalance.result[0], 18)).toNumber()
+            : 0
+          : totalDepositedAmount?.result
+          ? toBN(formatUnits(totalDepositedAmount.result[0], token.decimals)).toNumber()
+          : 0,
+      rewardToken: version === 'v1' ? DEUS_TOKEN : VDEUS_TOKEN,
     }
-  }, [token, userInfo, pendingTokens, totalDepositedAmount])
+  }, [token, userInfo, pendingTokens, totalDepositedAmount, version, tokenBalance.result])
 
   return {
     depositAmount: depositedValue,
     rewardsAmount: reward,
     totalDepositedAmount: totalDepositedAmountValue,
+    rewardToken,
   }
 }
 
@@ -222,6 +242,10 @@ export function usePoolInfo(stakingPool: StakingType): {
     allocPoint,
     totalDeposited,
   }
+}
+
+export function useV2GetApy(stakingPool: StakingType): number {
+  return stakingPool.pid === 0 ? 25 : 33
 }
 
 export function useGetApy(stakingPool: StakingType): number {

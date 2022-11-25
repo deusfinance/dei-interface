@@ -2,6 +2,14 @@ import { Token } from '@sushiswap/core-sdk'
 import { BDEI_TOKEN, DEI_BDEI_LP_TOKEN, DEUS_VDEUS_LP_TOKEN, VDEUS_TOKEN } from 'constants/tokens'
 import { MasterChefV2, MasterChefV3 } from './addresses'
 import { SupportedChainId } from './chains'
+import { useV2GetApy, useGetApy } from 'hooks/useStakingInfo'
+
+//TODO
+export enum StakingVersion {
+  V1 = 'v1',
+  V2 = 'v2',
+  NFT = 'vdeus-nft',
+}
 
 export type StakingType = {
   name: string
@@ -9,17 +17,8 @@ export type StakingType = {
   token: Token
   provideLink?: string
   masterChef: string
-  version: string
-}
-
-export type vDeusStakingType = {
-  id: number
-  name: string
-  pid: number
-  apr: number
-  lockDuration: number
-  lpToken: string
-  provideLink?: string
+  aprHook: (h: StakingType) => number
+  version: string //todo: should replace with StakingVersion
 }
 
 export const StakingPools: StakingType[] = [
@@ -28,6 +27,7 @@ export const StakingPools: StakingType[] = [
     pid: 0,
     token: BDEI_TOKEN,
     provideLink: '/deibonds',
+    aprHook: useGetApy,
     masterChef: MasterChefV2[SupportedChainId.FANTOM],
     version: 'v1',
   },
@@ -36,17 +36,19 @@ export const StakingPools: StakingType[] = [
     pid: 1,
     token: DEI_BDEI_LP_TOKEN,
     provideLink: '/deibonds',
+    aprHook: useGetApy,
     masterChef: MasterChefV2[SupportedChainId.FANTOM],
     version: 'v1',
   },
 ]
-
+//todo: merge with StakingPools
 export const StakingPools2: StakingType[] = [
   {
     name: 'vDEUS(ERC20)',
     pid: 0,
     token: VDEUS_TOKEN,
     provideLink: '/vdeus/new',
+    aprHook: useV2GetApy,
     masterChef: MasterChefV3[SupportedChainId.FANTOM],
     version: 'v2',
   },
@@ -55,6 +57,7 @@ export const StakingPools2: StakingType[] = [
     pid: 2,
     token: DEUS_VDEUS_LP_TOKEN,
     provideLink: '/vdeus/new',
+    aprHook: useV2GetApy,
     masterChef: MasterChefV3[SupportedChainId.FANTOM],
     version: 'v2',
   },
@@ -67,6 +70,16 @@ export type UserDeposit = {
   depositTimestamp: number
   isWithdrawn: boolean
   isExited: boolean
+}
+
+export type vDeusStakingType = {
+  id: number
+  name: string
+  pid: number
+  apr: number
+  lockDuration: number
+  lpToken: string
+  provideLink?: string
 }
 
 export const vDeusStakingPools: vDeusStakingType[] = [

@@ -23,7 +23,8 @@ import AdvancedOptions from 'components/App/Swap/AdvancedOptions'
 import useDebounce from 'hooks/useDebounce'
 import { ArrowDown } from 'react-feather'
 import { StakingPools } from 'constants/stakings'
-import Staking from 'components/App/deiPool/Staking'
+import GeneralStaking from 'components/App/VDEUS_ERC20/GeneralStaking'
+// import Staking from 'components/App/deiPool/Staking' //todo: remove component. its deprecated now.
 
 const Container = styled.div`
   display: flex;
@@ -57,17 +58,17 @@ const TopWrapper = styled.div`
   margin: 0 auto;
 `
 
-const FarmWrapper = styled(Wrapper)`
-  border-radius: 15px;
-  padding: 0;
-  & > * {
-    &:nth-child(1) {
-      padding: 0;
-      border: 0;
-      padding-bottom: 20px;
-    }
-  }
-`
+// const FarmWrapper = styled(Wrapper)`
+//   border-radius: 15px;
+//   padding: 0;
+//   & > * {
+//     &:nth-child(1) {
+//       padding: 0;
+//       border: 0;
+//       padding-bottom: 20px;
+//     }
+//   }
+// `
 
 const LiquidityWrapper = styled.div`
   display: flex;
@@ -363,9 +364,10 @@ export default function Liquidity() {
           <AdvancedOptions slippage={slippage} setSlippage={setSlippage} />
         </LiquidityWrapper>
 
-        <FarmWrapper>
-          <Staking stakingPool={StakingPools[1]} />
-        </FarmWrapper>
+        <GeneralStaking stakingPool={StakingPools[1]} />
+        {/* <FarmWrapper> */}
+        {/*<Staking stakingPool={StakingPools[1]} /> */}
+        {/* </FarmWrapper> */}
       </TopWrapper>
       <Disclaimer />
     </Container>

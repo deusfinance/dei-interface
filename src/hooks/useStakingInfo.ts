@@ -10,7 +10,7 @@ import { SupportedChainId } from 'constants/chains'
 import { useVDeusMultiRewarderERC20Contract } from './useContract'
 import { StablePoolType } from 'constants/sPools'
 import { usePoolBalances } from './useStablePoolInfo'
-import { StakingType } from 'constants/stakings'
+import { StakingType, StakingVersion } from 'constants/stakings'
 import { useAverageBlockTime } from 'state/application/hooks'
 import { BigNumber } from 'bignumber.js'
 import { Token } from '@sushiswap/core-sdk'
@@ -73,7 +73,7 @@ export function useUserInfo(stakingPool: StakingType): {
   const { pid, version, token } = stakingPool
 
   const additionalCall =
-    version === 'v2'
+    version === StakingVersion.V1
       ? [
           {
             methodName: 'totalDepositedAmount',
@@ -115,14 +115,14 @@ export function useUserInfo(stakingPool: StakingType): {
         : '0',
       reward: pendingTokens?.result ? toBN(formatUnits(pendingTokens.result[0], 18)).toNumber() : 0, //vDEUS reward
       totalDepositedAmountValue:
-        version === 'v1'
+        version === StakingVersion.V1
           ? tokenBalance?.result
             ? toBN(formatUnits(tokenBalance.result[0], 18)).toNumber()
             : 0
           : totalDepositedAmount?.result
           ? toBN(formatUnits(totalDepositedAmount.result[0], token.decimals)).toNumber()
           : 0,
-      rewardToken: version === 'v1' ? DEUS_TOKEN : VDEUS_TOKEN,
+      rewardToken: version === StakingVersion.V1 ? DEUS_TOKEN : VDEUS_TOKEN,
     }
   }, [token, userInfo, pendingTokens, totalDepositedAmount, version, tokenBalance.result])
 

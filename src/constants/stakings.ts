@@ -4,11 +4,10 @@ import { MasterChefV2, MasterChefV3 } from './addresses'
 import { SupportedChainId } from './chains'
 import { useV2GetApy, useGetApy } from 'hooks/useStakingInfo'
 
-//TODO
 export enum StakingVersion {
-  V1 = 'v1',
-  V2 = 'v2',
-  NFT = 'vdeus-nft',
+  V1,
+  V2,
+  NFT,
 }
 
 export type StakingType = {
@@ -18,7 +17,7 @@ export type StakingType = {
   provideLink?: string
   masterChef: string
   aprHook: (h: StakingType) => number
-  version: string //todo: should replace with StakingVersion
+  version: StakingVersion
 }
 
 export const StakingPools: StakingType[] = [
@@ -29,7 +28,7 @@ export const StakingPools: StakingType[] = [
     provideLink: '/deibonds',
     aprHook: useGetApy,
     masterChef: MasterChefV2[SupportedChainId.FANTOM],
-    version: 'v1',
+    version: StakingVersion.V1,
   },
   {
     name: 'DEI-bDEI',
@@ -38,7 +37,7 @@ export const StakingPools: StakingType[] = [
     provideLink: '/deibonds',
     aprHook: useGetApy,
     masterChef: MasterChefV2[SupportedChainId.FANTOM],
-    version: 'v1',
+    version: StakingVersion.V1,
   },
 ]
 //todo: merge with StakingPools
@@ -50,7 +49,7 @@ export const StakingPools2: StakingType[] = [
     provideLink: '/vdeus/new',
     aprHook: useV2GetApy,
     masterChef: MasterChefV3[SupportedChainId.FANTOM],
-    version: 'v2',
+    version: StakingVersion.V2,
   },
   {
     name: 'DEUS-vDEUS',
@@ -59,7 +58,7 @@ export const StakingPools2: StakingType[] = [
     provideLink: '/vdeus/new',
     aprHook: useV2GetApy,
     masterChef: MasterChefV3[SupportedChainId.FANTOM],
-    version: 'v2',
+    version: StakingVersion.V2,
   },
 ]
 

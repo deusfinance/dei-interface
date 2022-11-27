@@ -73,7 +73,7 @@ export function useUserInfo(stakingPool: StakingType): {
   const { pid, version, token } = stakingPool
 
   const additionalCall =
-    version === StakingVersion.V1
+    version === StakingVersion.V2
       ? [
           {
             methodName: 'totalDepositedAmount',
@@ -124,7 +124,7 @@ export function useUserInfo(stakingPool: StakingType): {
           : 0,
       rewardToken: version === StakingVersion.V1 ? DEUS_TOKEN : VDEUS_TOKEN,
     }
-  }, [token, userInfo, pendingTokens, totalDepositedAmount, version, tokenBalance.result])
+  }, [token, userInfo, pendingTokens, totalDepositedAmount, version, tokenBalance])
 
   return {
     depositAmount: depositedValue,

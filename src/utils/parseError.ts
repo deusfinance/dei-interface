@@ -14,6 +14,11 @@ function getErrorState(error: any): string | undefined {
 
 export function DefaultHandlerError(error: any): string | null {
   const reason = getErrorState(error)
+  switch (reason) {
+    case 'MetaMask Tx Signature: User denied transaction signature.':
+      return `"Transaction rejected."`
+  }
+
   return `${reason ? `"${reason}"` : ''}.`
 }
 

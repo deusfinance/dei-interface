@@ -13,7 +13,6 @@ import {
   CreditCard as CreditCardIcon,
   Twitter as TwitterIcon,
   Github as GithubIcon,
-  Lock as LockIcon,
   // Redeem as RedeemIcon,
   Gift as GiftIcon,
   Portfolio as PortfolioIcon,
@@ -87,14 +86,6 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          {/* <Link href="/redemption" passHref>
-            <Row active={router.route === '/redemption'}>
-              <div>Redemption</div>
-              <IconWrapper>
-                <RedeemIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link> */}
           <Link href="/deibonds" passHref>
             <Row active={router.route === '/deibonds'}>
               <div>DeiBonds</div>
@@ -111,6 +102,14 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
+          <Link href="/deibonds/swap" passHref>
+            <Row active={router.route === '/deibonds/swap'}>
+              <div>bDEI Swap</div>
+              <IconWrapper>
+                <TradeIcon size={20} />
+              </IconWrapper>
+            </Row>
+          </Link>
           <Link href="/deibonds/liquidity" passHref>
             <Row active={router.route === '/deibonds/liquidity'}>
               <div>Liquidity</div>
@@ -119,30 +118,7 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          <Link href="/borrow" passHref>
-            <Row active={router.route === '/borrow'}>
-              <div>Borrow</div>
-              <IconWrapper>
-                <CreditCardIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
-          <Link href="/vest" passHref>
-            <Row active={router.route === '/vest'}>
-              <div>Vest</div>
-              <IconWrapper>
-                <LockIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
-          <Link href="/rewards" passHref>
-            <Row active={router.route === '/rewards'}>
-              <div>Rewards</div>
-              <IconWrapper>
-                <GiftIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
+
           <Link href="/vdeus/legacy" passHref>
             <Row active={router.route === '/vdeus/legacy'}>
               <div>Legacy vDEUS</div>
@@ -167,14 +143,6 @@ export default function Menu() {
               </IconWrapper>
             </Row>
           </Link>
-          {/* <Link href="stake" passHref>
-            <Row active={router.route.includes('/stake')}>
-              <div>Stake</div>
-              <IconWrapper>
-                <GiftIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link> */}
           <ExternalLink href="https://docs.deus.finance/contracts/disclaimer">
             <Row onClick={() => toggle()}>
               <div>Terms</div>

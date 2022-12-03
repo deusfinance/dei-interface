@@ -19,6 +19,21 @@ module.exports = {
         destination: '/vdeus/new',
         permanent: true,
       },
+      {
+        source: '/vest',
+        destination: 'http://app.deus.finance/vest',
+        permanent: false,
+      },
+      {
+        source: '/vest/create',
+        destination: 'http://app.deus.finance/vest/create',
+        permanent: false,
+      },
+      {
+        source: '/rewards',
+        destination: 'http://app.deus.finance/vest',
+        permanent: false,
+      },
     ]
   },
 }

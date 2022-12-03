@@ -12,30 +12,16 @@
       { "id": "31", "text": "Bonds", "path": "/deibonds" },
       { "id": "32", "text": "Pools", "path": "/deibonds/pools" },
       { "id": "33", "text": "Liquidity", "path": "/deibonds/liquidity" },
-      { "id": "34", "text": "Swap", "path": "/deibonds/swap" }
-    ]
-  },
-  {
-    "id": "5",
-    "text": "veDEUS",
-    "children": [
-      { "id": "51", "text": "Lock", "path": "/vest" },
-      { "id": "52", "text": "Rewards", "path": "/rewards" }
+      { "id": "34", "text": "bDEI Swap", "path": "/deibonds/swap" }
     ]
   },
   {
     "id": "6",
     "text": "vDEUS",
     "children": [
-      { "id": "61", "text": "LEGACY (NFT)", "path": "/vdeus/legacy" },
-      { "id": "62", "text": "NEW (ERC20)", "path": "/vdeus/new" }
+      { "id": "62", "text": "NEW (ERC20)", "path": "/vdeus/new" },
+      { "id": "61", "text": "LEGACY (NFT)", "path": "/vdeus/legacy" }
     ]
-  },
-  {
-    "id": "4",
-    "text": "Borrow",
-    "path": "/borrow",
-    "exact": true
   },
   {
     "id": "8",

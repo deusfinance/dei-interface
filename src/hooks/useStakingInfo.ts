@@ -29,21 +29,25 @@ export function useGlobalMasterChefData(stakingPool: StakingType): {
   poolLength: number
 } {
   const contract = useMasterChefContract(stakingPool)
+  const { version } = stakingPool
 
-  const calls = [
-    {
-      methodName: 'tokenPerBlock',
-      callInputs: [],
-    },
-    {
-      methodName: 'totalAllocPoint',
-      callInputs: [],
-    },
-    {
-      methodName: 'poolLength',
-      callInputs: [],
-    },
-  ]
+  const calls = useMemo(
+    () => [
+      {
+        methodName: version === StakingVersion.V2 ? 'tokenPerSecond' : 'tokenPerBlock',
+        callInputs: [],
+      },
+      {
+        methodName: 'totalAllocPoint',
+        callInputs: [],
+      },
+      {
+        methodName: 'poolLength',
+        callInputs: [],
+      },
+    ],
+    [version]
+  )
 
   const [tokenPerBlock, totalAllocPoint, poolLength] = useSingleContractMultipleMethods(contract, calls)
 
@@ -209,13 +213,23 @@ export function usePoolInfo(stakingPool: StakingType): {
 } {
   const contract = useMasterChefContract(stakingPool)
   const tokenAddress = stakingTokens[stakingPool.pid]
-  const { token } = stakingPool
+  const { token, version, pid } = stakingPool
   const ERC20Contract = useERC20Contract(tokenAddress)
+  const additionalCall =
+    version === StakingVersion.V2
+      ? [
+          {
+            methodName: 'totalDepositedAmount',
+            callInputs: [pid.toString()],
+          },
+        ]
+      : []
   const calls = [
     {
       methodName: 'poolInfo',
       callInputs: [stakingPool.pid.toString()],
     },
+    ...additionalCall,
   ]
 
   const balanceCall = [
@@ -225,16 +239,24 @@ export function usePoolInfo(stakingPool: StakingType): {
     },
   ]
 
-  const [poolInfo] = useSingleContractMultipleMethods(contract, calls)
+  const [poolInfo, totalDepositedAmount] = useSingleContractMultipleMethods(contract, calls)
   const [tokenBalance] = useSingleContractMultipleMethods(ERC20Contract, balanceCall)
+
   const { accTokensPerShare, lastRewardBlock, allocPoint, totalDeposited } = useMemo(() => {
     return {
       accTokensPerShare: poolInfo?.result ? toBN(poolInfo.result[0].toString()).toNumber() : 0,
       lastRewardBlock: poolInfo?.result ? toBN(poolInfo.result[1].toString()).toNumber() : 0,
       allocPoint: poolInfo?.result ? toBN(poolInfo.result[2].toString()).toNumber() : 0,
-      totalDeposited: tokenBalance?.result ? toBN(formatUnits(tokenBalance.result[0], token.decimals)).toNumber() : 0,
+      totalDeposited:
+        version === StakingVersion.V1
+          ? tokenBalance?.result
+            ? toBN(formatUnits(tokenBalance.result[0], 18)).toNumber()
+            : 0
+          : totalDepositedAmount?.result
+          ? toBN(formatUnits(totalDepositedAmount.result[0], token.decimals)).toNumber()
+          : 0,
     }
-  }, [token, poolInfo, tokenBalance])
+  }, [token, poolInfo, version, tokenBalance, totalDepositedAmount])
 
   return {
     accTokensPerShare,
@@ -244,8 +266,13 @@ export function usePoolInfo(stakingPool: StakingType): {
   }
 }
 
+//get vdeus staking rewards
 export function useV2GetApy(stakingPool: StakingType): number {
-  return stakingPool.pid === 0 ? 25 : 33
+  const { tokenPerBlock: tokenPerSecond, totalAllocPoint } = useGlobalMasterChefData(stakingPool)
+  const { totalDeposited, allocPoint } = usePoolInfo(stakingPool)
+  if (totalDeposited === 0) return 0
+
+  return (tokenPerSecond * (allocPoint / totalAllocPoint) * 365 * 24 * 60 * 60 * 100) / totalDeposited
 }
 
 export function useGetApy(stakingPool: StakingType): number {

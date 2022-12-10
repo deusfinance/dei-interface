@@ -175,9 +175,8 @@ export default function StakingPool() {
   const { rewardsAmount, depositAmount, totalDepositedAmount } = useUserInfo(stakingPool)
   const duesApr = useGetDeusApy(pool, stakingPool)
   const deusReward = useGetDeusReward()
-  // console.log({ duesApr, deusReward })
-  const vdeusApr = 25
-  const apr = 25 + duesApr
+  const vdeusApr = stakingPool.aprHook(stakingPool)
+  const apr = vdeusApr + duesApr
 
   const currencyAmount = useMemo(() => {
     return tryParseAmount(amountIn, currency || undefined)
@@ -346,7 +345,7 @@ export default function StakingPool() {
           <Navigation fontSize={'18px'} selected={selected} setSelected={setSelected} />
         </SelectorContainer>
         <ToolTip id="id" />
-        <RowEnd data-for="id" data-tip={`${formatBalance(duesApr, 3)}% DEUS + ${vdeusApr}% vDEUS`}>
+        <RowEnd data-for="id" data-tip={`${formatBalance(duesApr, 3)}% DEUS + ${vdeusApr.toFixed(0)}% vDEUS`}>
           {apr ? (
             <>
               <YieldTitle>APR: {apr.toFixed(0)}%</YieldTitle>

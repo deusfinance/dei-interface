@@ -153,7 +153,7 @@ export default function Stake() {
 
   const { rewardsAmount, depositAmount, totalDepositedAmount } = useUserInfo(stakingPool)
 
-  const apr = 25 // useGetApr(pid)
+  const apr = stakingPool.aprHook(stakingPool)
 
   const currencyAmount = useMemo(() => {
     return tryParseAmount(amountIn, currency || undefined)

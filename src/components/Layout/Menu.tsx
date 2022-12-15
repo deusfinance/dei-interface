@@ -10,7 +10,6 @@ import {
   NavToggle,
   IconWrapper,
   Telegram as TelegramIcon,
-  CreditCard as CreditCardIcon,
   Twitter as TwitterIcon,
   Github as GithubIcon,
   // Redeem as RedeemIcon,
@@ -78,14 +77,6 @@ export default function Menu() {
       </NavButton>
       <div>
         <InlineModal isOpen={isOpen}>
-          <Link href="/dashboard" passHref>
-            <Row active={router.route === '/dashboard'}>
-              <div>Dashboard</div>
-              <IconWrapper>
-                <CreditCardIcon size={20} />
-              </IconWrapper>
-            </Row>
-          </Link>
           <Link href="/deibonds" passHref>
             <Row active={router.route === '/deibonds'}>
               <div>DeiBonds</div>

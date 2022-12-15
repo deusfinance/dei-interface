@@ -1,11 +1,5 @@
 [
   {
-    "id": "1",
-    "text": "Dashboard",
-    "path": "/dashboard",
-    "exact": true
-  },
-  {
     "id": "3",
     "text": "Bonds",
     "children": [

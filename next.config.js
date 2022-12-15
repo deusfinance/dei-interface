@@ -6,18 +6,23 @@ module.exports = {
     return [
       {
         source: '/',
-        destination: '/dashboard',
-        permanent: true,
+        destination: '/vdeus',
+        permanent: false,
+      },
+      {
+        source: '/dashboard',
+        destination: '/vdeus',
+        permanent: false,
       },
       {
         source: '/redemption',
-        destination: '/dashboard',
-        permanent: true,
+        destination: '/vdeus',
+        permanent: false,
       },
       {
         source: '/vdeus',
         destination: '/vdeus/new',
-        permanent: true,
+        permanent: false,
       },
       {
         source: '/vest',
@@ -26,7 +31,7 @@ module.exports = {
       },
       {
         source: '/vest/create',
-        destination: 'http://app.deus.finance/vest/create',
+        destination: 'http://app.deus.finance/vest',
         permanent: false,
       },
       {

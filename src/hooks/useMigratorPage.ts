@@ -116,7 +116,7 @@ export function useMerkleClaimableBDEI(): string {
   useEffect(() => {
     try {
       if (!account) return
-      const { href: url } = new URL(`/bond-merkle/liquidity/proof/${account.toLowerCase()}/`, INFO_URL)
+      const { href: url } = new URL(`/bond-merkle/liquidity/proof/${account}/`, INFO_URL)
       makeHttpRequest(url).then((data) => {
         data ? setTotalClaimableBDEI(data['value']) : setTotalClaimableBDEI('0')
       })

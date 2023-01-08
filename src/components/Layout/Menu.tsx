@@ -110,7 +110,7 @@ export default function Menu() {
             </Row>
           </Link>
 
-          <Link href="/vdeus/legacy" passHref>
+          {/* <Link href="/vdeus/legacy" passHref>
             <Row active={router.route === '/vdeus/legacy'}>
               <div>Legacy vDEUS</div>
               <IconWrapper>
@@ -125,7 +125,7 @@ export default function Menu() {
                 <GiftIcon size={20} />
               </IconWrapper>
             </Row>
-          </Link>
+          </Link> */}
           <Link href="/migration" passHref>
             <Row active={router.route === '/migration'}>
               <div>Migration</div>

@@ -10,14 +10,6 @@
     ]
   },
   {
-    "id": "6",
-    "text": "vDEUS",
-    "children": [
-      { "id": "62", "text": "NEW (ERC20)", "path": "/vdeus/new" },
-      { "id": "61", "text": "LEGACY (NFT)", "path": "/vdeus/legacy" }
-    ]
-  },
-  {
     "id": "8",
     "text": "Migration",
     "path": "/migration",

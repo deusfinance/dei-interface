@@ -6,7 +6,7 @@ module.exports = {
     return [
       {
         source: '/',
-        destination: '/vdeus',
+        destination: '/migration',
         permanent: false,
       },
       {
@@ -21,7 +21,17 @@ module.exports = {
       },
       {
         source: '/vdeus',
-        destination: '/vdeus/new',
+        destination: 'https://app.deus.finance/xdeus/swap',
+        permanent: false,
+      },
+      {
+        source: '/vdeus/new',
+        destination: 'https://app.deus.finance/xdeus/swap',
+        permanent: false,
+      },
+      {
+        source: '/vdeus/legacy',
+        destination: 'https://app.deus.finance/xdeus/swap',
         permanent: false,
       },
       {

@@ -24,16 +24,16 @@ module.exports = {
         destination: 'https://app.deus.finance/xdeus/swap',
         permanent: false,
       },
-      {
-        source: '/vdeus/new',
-        destination: 'https://app.deus.finance/xdeus/swap',
-        permanent: false,
-      },
-      {
-        source: '/vdeus/legacy',
-        destination: 'https://app.deus.finance/xdeus/swap',
-        permanent: false,
-      },
+      // {
+      //   source: '/vdeus/new',
+      //   destination: 'https://app.deus.finance/xdeus/swap',
+      //   permanent: false,
+      // },
+      // {
+      //   source: '/vdeus/legacy',
+      //   destination: 'https://app.deus.finance/xdeus/swap',
+      //   permanent: false,
+      // },
       {
         source: '/vest',
         destination: 'http://app.deus.finance/vest',

@@ -239,7 +239,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
   ])
 
   useEffect(() => {
-    setExceedBalance(!!(amountOut > availableClaimableBDEI))
+    setExceedBalance(!!(Number(amountOut) > Number(availableClaimableBDEI)))
   }, [amountOut, availableClaimableBDEI])
 
   const { callback: migrationCallback } = useMigrationCallback(migrationState, currencyAmount)

@@ -33,7 +33,7 @@ export default function useMigrationCallback(
   const merkleProofRequest = useCallback(async () => {
     try {
       if (!account) throw new Error(`account didn't provided`)
-      const { href: url } = new URL(`/bond-merkle/liquidity/proof/${account.toLowerCase()}/`, INFO_URL)
+      const { href: url } = new URL(`/bond-merkle/liquidity/proof/${account}/`, INFO_URL)
       return makeHttpRequest(url)
     } catch (err) {
       throw err

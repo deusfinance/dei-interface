@@ -36,28 +36,28 @@ export const MigrationStates: MigrationStateType[] = [
     limitToken: 'bDEI',
     limitMethodName: 'token_bDEI',
   },
-  {
-    inputToken: DEI_TOKEN,
-    outputToken: VDEUS_TOKEN,
-    leverage: 1,
-    oracleUpdate: true,
-    snapshotConfirmation: false,
-    proof: false,
-    methodName: 'migrateLegacyDEIToVDEUS', // 5: amount
-    limitToken: 'legacyDEI',
-    limitMethodName: 'legacyDEI_vDEUS',
-  },
-  {
-    inputToken: BDEI_TOKEN,
-    outputToken: VDEUS_TOKEN,
-    leverage: 2,
-    oracleUpdate: true,
-    snapshotConfirmation: false,
-    proof: false,
-    limitToken: 'bDEI',
-    methodName: 'migrateBDEIToVDEUS', // 4: amount
-    limitMethodName: 'bDEI_vDEUS',
-  },
+  // {
+  //   inputToken: DEI_TOKEN,
+  //   outputToken: VDEUS_TOKEN,
+  //   leverage: 1,
+  //   oracleUpdate: true,
+  //   snapshotConfirmation: false,
+  //   proof: false,
+  //   methodName: 'migrateLegacyDEIToVDEUS', // 5: amount
+  //   limitToken: 'legacyDEI',
+  //   limitMethodName: 'legacyDEI_vDEUS',
+  // },
+  // {
+  //   inputToken: BDEI_TOKEN,
+  //   outputToken: VDEUS_TOKEN,
+  //   leverage: 2,
+  //   oracleUpdate: true,
+  //   snapshotConfirmation: false,
+  //   proof: false,
+  //   limitToken: 'bDEI',
+  //   methodName: 'migrateBDEIToVDEUS', // 4: amount
+  //   limitMethodName: 'bDEI_vDEUS',
+  // },
   {
     inputToken: DEI_TOKEN,
     outputToken: BDEI_TOKEN,

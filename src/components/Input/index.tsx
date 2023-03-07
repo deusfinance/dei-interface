@@ -52,7 +52,7 @@ export const NumericalInput = ({
       value={value}
       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
         // replace commas with periods
-        enforcer(event.target.value.replace(/,/g, '.'))
+        enforcer(event.target.value.replace(/,/g, '.').replace(/^\./g, '0.'))
       }}
       // universal input options
       inputMode="decimal"

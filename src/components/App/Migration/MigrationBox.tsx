@@ -330,7 +330,7 @@ export default function MigrationBox({ activeState }: { activeState: number }) {
     ) {
       return <MainButton disabled>You are not whitelisted</MainButton>
     }
-    if (migrationState.limitToken && toBN(amountIn).gt(available)) {
+    if (migrationState.limitToken && toBN(amountOut ?? 0).gt(available)) {
       return <MainButton disabled>Exceeds available amount</MainButton>
     }
 
